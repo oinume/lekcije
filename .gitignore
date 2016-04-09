@@ -45,6 +45,7 @@ coverage.xml
 /node_modules
 .DS_Store
 /fft/static
+/static
 
 # IntelliJ
 .idea
