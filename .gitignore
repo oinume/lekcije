@@ -60,3 +60,9 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+/venv
+
+# JavaScript
+/node_modules
+.DS_Store

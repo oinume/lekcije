@@ -1,0 +1,12 @@
+machine:
+  python:
+      version: 3.5.0
+dependencies:
+  pre:
+    - echo "" > ~/.gitconfig
+    - git config --global url."https://github.com".insteadOf git://github.com
+    - pip install -r requirements/base.txt
+    - pip install -r requirements/development.txt
+test:
+  override:
+    - py.test -v tests
