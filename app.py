@@ -35,7 +35,7 @@ hello
     return template(html)
 
 
-@app.route('/static/<file_name:re:.+>', name='static')
+@get('/static/<file_name:re:.+>', name='static')
 def serve_static(file_name):
     return static_file(file_name, root=os.path.join(app.config['app_root'], 'static'))
 
