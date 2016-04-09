@@ -1,0 +1,16 @@
+requests==2.8.1
+futures==3.0.5
+requests-futures==0.9.7
+lxml==3.6.0
+cssselect==0.9.1
+gunicorn==19.4.5
+bottle==0.12.9
+PyMySQL==0.7.2
+python-editor==0.5
+Mako==1.0.4
+MarkupSafe==0.23
+SQLAlchemy==1.0.12
+alembic==0.8.5
+smtpapi==0.3.1
+sendgrid==2.2.1
+PyGithub==1.26.0
