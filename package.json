@@ -7,11 +7,12 @@
       "npm": "3.8.2"
   },
   "scripts": {
-    "build": "rm -rf dist && webpack --bail --progress --profile",
-    "server": "webpack-dev-server --history-api-fallback --inline --progress",
+    "build": "webpack --config webpack-production.config.js --progress --colors",
+    "lint": "eslint src && echo \"eslint: no lint errors\"",
+    "server": "webpack-dev-server --config webpack-dev-server.config.js --progress --inline --colors",
+    "start": "npm run server",
     "test": "karma start",
-    "test-watch": "karma start --auto-watch --no-single-run",
-    "start": "npm run server"
+    "test-watch": "karma start --auto-watch --no-single-run"
   },
   "dependencies": {
       "bootstrap": "^3.3.6",
