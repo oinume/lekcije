@@ -12,11 +12,11 @@ import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/lib/MuiThemeProvider';
 import FollowingTeacherForm from './FollowingTeacherForm';
 import FollowingTeacherList from './FollowingTeacherList';
+import FftAppBar from './header';
 
 const styles = {
   container: {
     textAlign: 'center',
-    paddingTop: 200,
   },
 };
 
@@ -65,6 +65,7 @@ class Main extends React.Component {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div style={styles.container}>
+          <FftAppBar />
           <h1>material-ui</h1>
           <h2>example project</h2>
           <div><FollowingTeacherForm /></div>
