@@ -10,11 +10,13 @@ import {deepOrange500} from 'material-ui/lib/styles/colors';
 import FlatButton from 'material-ui/lib/flat-button';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/lib/MuiThemeProvider';
+import FollowingTeacherForm from './FollowingTeacherForm';
+import FollowingTeacherList from './FollowingTeacherList';
+import FftAppBar from './header';
 
 const styles = {
   container: {
     textAlign: 'center',
-    paddingTop: 200,
   },
 };
 
@@ -47,6 +49,10 @@ class Main extends React.Component {
     });
   }
 
+  onKeyboardFocus() {
+    console.log("hoge");
+  }
+
   render() {
     const standardActions = (
       <FlatButton
@@ -59,21 +65,11 @@ class Main extends React.Component {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div style={styles.container}>
-          <Dialog
-            open={this.state.open}
-            title="Super Secret Password"
-            actions={standardActions}
-            onRequestClose={this.handleRequestClose}
-          >
-            1-2-3-4-5
-          </Dialog>
+          <FftAppBar />
           <h1>material-ui</h1>
           <h2>example project</h2>
-          <RaisedButton
-            label="Super Secret Password"
-            primary={true}
-            onTouchTap={this.handleTouchTap}
-          />
+          <div><FollowingTeacherForm /></div>
+          <div><FollowingTeacherList /></div>
         </div>
       </MuiThemeProvider>
     );
