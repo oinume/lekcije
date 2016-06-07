@@ -1,6 +1,6 @@
 import os
 import sys
-import tsc
+import fft
 
 
 def read_file(name):
@@ -31,7 +31,7 @@ setup(
     author_email="oinume@gmail.com",
     description="Follow your favorite teachers of DMMEikaiwa",
     long_description=read_file("README.md"),
-    packages=["tsc"],
+    packages=["fft"],
 #    scripts=[os.path.join("bin", p) for p in ["tomahawk", "tomahawk-rsync"]],
     zip_safe=False,
     platforms="unix",
