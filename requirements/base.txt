@@ -14,3 +14,4 @@ SQLAlchemy==1.0.12
 alembic==0.8.5
 smtpapi==0.3.1
 sendgrid==2.2.1
+jinja2==2.8
