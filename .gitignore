@@ -51,4 +51,4 @@ coverage.xml
 .idea
 *.iml
 
-
+/npm-debug.log
