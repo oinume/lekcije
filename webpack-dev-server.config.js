@@ -9,7 +9,7 @@ const config = {
   entry: [
     'webpack/hot/dev-server',
     'webpack/hot/only-dev-server',
-    path.join(__dirname, '/src/app/app.js'),
+    path.join(__dirname, '/src/app/main.js'),
   ],
   //Config options on how to interpret requires imports
   resolve: {
@@ -28,7 +28,7 @@ const config = {
   devtool: 'eval',
   output: {
     path: buildPath,    //Path of output file
-    filename: 'app.js',
+    filename: 'main.js',
   },
   plugins: [
     //Enables Hot Modules Replacement
@@ -44,10 +44,41 @@ const config = {
     loaders: [
       {
         //React-hot loader and
-        test: /\.js$/,  //All .js files
+        test: /\.jsx?$/,  //All .js files
         loaders: ['react-hot', 'babel-loader'], //react-hot is like browser sync and babel loads jsx and es6-7
-        exclude: [nodeModulesPath],
+        // query: {
+        //   presets: ['react', 'es2015']
+        // },
+        exclude: [nodeModulesPath]
       },
+      {
+        test: /\.css$/,
+        loader: "style-loader!css-loader"
+      },
+      {
+        test: /\.png$/,
+        loader: "url-loader?limit=100000"
+      },
+      {
+        test: /\.jpg$/,
+        loader: "file-loader"
+      },
+      {
+        test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url?limit=10000&mimetype=application/font-woff'
+      },
+      {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url?limit=10000&mimetype=application/octet-stream'
+      },
+      {
+        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'file'
+      },
+      {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url?limit=10000&mimetype=image/svg+xml'
+      }
     ],
   },
   //eslint config options. Part of the eslint-loader package
@@ -57,3 +88,4 @@ const config = {
 };
 
 module.exports = config;
+
