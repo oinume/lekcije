@@ -1,0 +1,6 @@
+package: github.com/oinume/lekcije
+import:
+  - package: golang.org/x/net
+    subpackages:
+      - context
+  - package: launchpad.net/xmlpath
