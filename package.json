@@ -1,5 +1,5 @@
 {
-  "name": "dmm-eikaiwa-fft",
+  "name": "lekcije",
   "version": "1.0.0",
   "description": "",
   "engines": {
@@ -14,6 +14,9 @@
     "start": "npm run server",
     "test": "karma start",
     "test-watch": "karma start --auto-watch --no-single-run"
+  },
+  "devDependencies": {
+    "webpack": "^1.13.1"
   },
   "dependencies": {
     "autoprefixer": "^6.3.6",
@@ -33,7 +36,8 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
     "html-webpack-plugin": "^2.19.0",
-    "isparta-instrumenter-loader": "^1.0.0",
+    "isparta-loader": "^2.0.0",
+      "minimatch": "^3.0.2",
     "node-libs-browser": "^1.0.0",
     "node-sass": "^3.7.0",
     "null-loader": "^0.1.1",
@@ -49,7 +53,6 @@
     "style-loader": "^0.13.1",
     "transfer-webpack-plugin": "^0.1.4",
     "url-loader": "^0.5.7",
-    "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   },
   "author": "Kazuhiro Oinuma",

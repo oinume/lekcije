@@ -5,7 +5,7 @@ const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 const TransferWebpackPlugin = require('transfer-webpack-plugin');
 
 const config = {
-  entry: [path.join(__dirname, '/src/app/app.js')],
+  entry: [path.join(__dirname, '/src/app/main.js')],
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ["", ".js"],
@@ -16,7 +16,7 @@ const config = {
   //output config
   output: {
     path: buildPath,    //Path of output file
-    filename: 'app.js',  //Name of output file
+    filename: 'main.js',  //Name of output file
   },
   plugins: [
     //Minify the bundle
