@@ -3,12 +3,14 @@ package main
 import (
     "net/http"
     "fmt"
+	"log"
 )
 
 func main() {
     mux := http.NewServeMux()
     mux.HandleFunc("/", root)
-    http.ListenAndServe(":5000", mux)
+	println("Listening on :5000")
+	log.Fatal(http.ListenAndServe(":5000", mux))
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
