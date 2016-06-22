@@ -1,10 +1,10 @@
-hash: 4d92467f0c6a836731c428ce0a7a6d2c0631439603817b82d5359b146adb3b3b
-updated: 2016-06-22T01:33:31.191355848+09:00
+hash: 8ce482b2ca792c0c7635b56e3a219a74be6a515401c949b3d9f63ad1a6f91025
+updated: 2016-06-22T10:23:11.173150851+09:00
 imports:
 - name: golang.org/x/net
-  version: 7c71ca708c71bcbd0e6c856b01468ee07fe24557
+  version: bc3663df0ac92f928d419e31e0d2af22e683a5a2
   subpackages:
   - context
-- name: launchpad.net/xmlpath
-  version: "4"
-devImports: []
+- name: gopkg.in/xmlpath.v2
+  version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
+testImports: []
