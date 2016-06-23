@@ -1,8 +1,8 @@
-all: dep
+all: setup
 
-.PHONY: dep
+.PHONY: setup
 
-dep:
+setup:
 	go get -u github.com/Masterminds/glide
 	go get -u golang.org/x/tools/cmd/goimports
 	go get -u github.com/cespare/reflex

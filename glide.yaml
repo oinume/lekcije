@@ -3,4 +3,4 @@ import:
   - package: golang.org/x/net
     subpackages:
       - context
-  - package: launchpad.net/xmlpath
+  - package: gopkg.in/xmlpath.v2
