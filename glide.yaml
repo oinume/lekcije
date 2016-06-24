@@ -4,3 +4,7 @@ import:
     subpackages:
       - context
   - package: gopkg.in/xmlpath.v2
+  - package: goji.io
+    subpackages:
+      - pat
+  - package: golang.org/x/net/context

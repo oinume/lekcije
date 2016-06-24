@@ -1,10 +1,16 @@
-hash: 8ce482b2ca792c0c7635b56e3a219a74be6a515401c949b3d9f63ad1a6f91025
-updated: 2016-06-22T10:23:11.173150851+09:00
+hash: 9cd58ea4b4f2c988bb71cb478cb43e9d3700c9909b5e5ab949e8303d9f94d63d
+updated: 2016-06-25T01:57:11.696753999+09:00
 imports:
+- name: goji.io
+  version: e355964ac565b94cf0fc7f218346626529125086
+  subpackages:
+  - pat
+  - internal
+  - pattern
 - name: golang.org/x/net
   version: bc3663df0ac92f928d419e31e0d2af22e683a5a2
   subpackages:
   - context
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
-testImports: []
+devImports: []
