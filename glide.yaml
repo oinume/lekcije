@@ -7,4 +7,6 @@ import:
   - package: goji.io
     subpackages:
       - pat
+      - internal
+      - pattern
   - package: golang.org/x/net/context
