@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "engines": {
-    "node": "6.2.1",
+    "node": "4.4.5",
     "npm": "3.9.3"
   },
   "scripts": {
@@ -27,6 +27,7 @@
     "babel-preset-es2015-webpack": "^6.4.1",
     "babel-preset-react": "^6.5.0",
     "bootstrap": "^3.3.6",
+      "bootswatch": "^3.3.6",
     "bootstrap-loader": "^1.0.10",
     "bootstrap-sass": "^3.3.6",
     "copy-webpack-plugin": "^3.0.1",
@@ -44,7 +45,6 @@
     "postcss-loader": "^0.9.1",
     "raw-loader": "^0.5.1",
     "react": "^15.1.0",
-    "react-bootstrap": "0.29.4",
     "react-dom": "^15.1.0",
     "react-hot-loader": "^1.3.0",
     "react-tap-event-plugin": "^1.0.0",
@@ -58,5 +58,5 @@
   },
   "author": "Kazuhiro Oinuma",
   "license": "MIT",
-  "repository": "oinume/dmm-eikaiwa-fft"
+  "repository": "oinume/lekcije"
 }
