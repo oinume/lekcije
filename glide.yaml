@@ -1,8 +1,7 @@
 package: github.com/oinume/lekcije
 import:
-  - package: golang.org/x/net
-    subpackages:
-      - context
+  - package: bitbucket.org/liamstask/goose/cmd/goose
+  - package: github.com/cespare/reflex
   - package: gopkg.in/xmlpath.v2
   - package: goji.io
     subpackages:
@@ -17,3 +16,6 @@ import:
     subpackages:
       - compute/metadata
       - internal
+  - package: github.com/jinzhu/gorm
+  - package: github.com/jinzhu/inflection
+  - package: github.com/go-sql-driver/mysql
