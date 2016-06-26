@@ -52,3 +52,5 @@ coverage.xml
 *.iml
 
 /npm-debug.log
+/vendor
+.envrc

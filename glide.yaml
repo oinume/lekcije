@@ -1,0 +1,19 @@
+package: github.com/oinume/lekcije
+import:
+  - package: golang.org/x/net
+    subpackages:
+      - context
+  - package: gopkg.in/xmlpath.v2
+  - package: goji.io
+    subpackages:
+      - pat
+      - internal
+      - pattern
+  - package: golang.org/x/net/context
+  - package: golang.org/x/oauth2
+    subpackages:
+      - google
+  - package: google.golang.org/cloud
+    subpackages:
+      - compute/metadata
+      - internal
