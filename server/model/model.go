@@ -34,6 +34,17 @@ func (_ *AuthGoogle) TableName() string {
 	return "auth_google"
 }
 
+type Teacher struct {
+	Id uint32
+	Name string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (_ *Teacher) TableName() string {
+	return "teacher"
+}
+
 func Open() (*gorm.DB, error) {
 	dbDsn := os.Getenv("DB_DSN")
 	db, err := gorm.Open(
