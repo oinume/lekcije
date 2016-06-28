@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"html/template"
+	"log"
+	"net/http"
 	"os"
 	"path"
-	"log"
 
 	"goji.io"
 	"goji.io/pat"
@@ -32,7 +32,7 @@ func templatePath() string {
 
 // TODO: move somewhere proper
 var definedEnvs = map[string]string{
-	"GOOGLE_CLIENT_ID": "",
+	"GOOGLE_CLIENT_ID":     "",
 	"GOOGLE_CLIENT_SECRET": "",
 }
 
@@ -47,7 +47,7 @@ func init() {
 		if value := os.Getenv(key); value != "" {
 			definedEnvs[key] = value
 		} else {
-			log.Fatalf("Env %v is not defined.", key);
+			log.Fatalf("Env %v is not defined.", key)
 		}
 	}
 }
