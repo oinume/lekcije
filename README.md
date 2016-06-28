@@ -5,7 +5,7 @@ Follow your favorite teachers of DMM Eikaiwa
 
 ```bash
 brew cask install dockertoolbox
-make dep
+make setup
 npm install
 ```
 
