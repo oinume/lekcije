@@ -19,3 +19,7 @@ import:
   - package: github.com/jinzhu/gorm
   - package: github.com/jinzhu/inflection
   - package: github.com/go-sql-driver/mysql
+  - package: github.com/stretchr/testify
+    subpackages:
+      - assert
+      - mock

@@ -1,18 +1,69 @@
 package fetcher
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/oinume/lekcije/server/model"
+	"gopkg.in/xmlpath.v2"
+)
+
+const (
+	urlBase = "http://eikaiwa.dmm.com/teacher/index/%v/"
+	userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.2.7 (KHTML, like Gecko) Version/9.0.1 Safari/601.2.7"
 )
 
 type TeacherLessonFetcher struct {
-
+	httpClient *http.Client
 }
 
-func FetchTeacherAndLessons(httpClient *http.Client) (*model.Teacher, error) {
+func NewTeacherLessonFetcher(httpClient *http.Client) *TeacherLessonFetcher {
+	client := httpClient
+	if client == nil {
+		client = http.DefaultClient
+		client.Timeout = 5 * time.Second
+		// TODO: retry
+	}
+	return &TeacherLessonFetcher{
+		httpClient: client,
+	}
+}
+
+func (fetcher *TeacherLessonFetcher) Fetch(teacherId uint32) (*model.Teacher, error) {
+	targetUrl := fmt.Sprintf(urlBase, teacherId)
+	req, err := http.NewRequest("GET", targetUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", userAgent)
+	resp, err := fetcher.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("fetch error: url=%v, status=%v", targetUrl, resp.StatusCode)
+	}
+
+	root, err := xmlpath.ParseHTML(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	titleXPath := xmlpath.MustCompile(`//title`)
+	teacher := &model.Teacher{
+		Id: teacherId,
+	}
+	if title, ok := titleXPath.String(root); ok {
+		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
+	} else {
+		return nil, fmt.Errorf("failed to fetch teacher's name: url=%v", targetUrl)
+	}
+
 	// TODO: implement
-	return nil, nil
+	return teacher, nil
 }
 
 /*
