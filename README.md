@@ -1,5 +1,5 @@
 # lekcije
-Follow your favorite teachers of DMM Eikaiwa
+Follow your favorite teachers in DMM Eikaiwa and receive notification when favorite teachers open lessons.
 
 # Install dependencies
 
