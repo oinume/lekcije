@@ -35,14 +35,20 @@ func (_ *AuthGoogle) TableName() string {
 }
 
 type Teacher struct {
-	Id uint32
-	Name string
+	Id        uint32
+	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 func (_ *Teacher) TableName() string {
 	return "teacher"
+}
+
+type Lesson struct {
+	TeacherId uint32
+	Datetime  time.Time
+	Status    string // TODO: enum
 }
 
 func Open() (*gorm.DB, error) {
