@@ -107,14 +107,14 @@ func (fetcher *TeacherLessonFetcher) parseHtml(teacherId uint32, html io.Reader)
 			if hour >= 24 {
 				// Convert 24:30 -> 00:30
 				hour -= 24
-				if date.Day() == originalDate.Day() {
+				if date.Unix() == originalDate.Unix() {
 					// Set date to next day for 24:30
 					date = date.Add(24 * time.Hour)
 				}
 			}
 			dt := time.Date(date.Year(), date.Month(), date.Day(), hour, minute, 0, 0, jst)
 			status := ""
-			switch text {
+			switch text { // TODO: enum
 			case "終了":
 				status = "finished"
 			case "予約済", "休講":
@@ -124,7 +124,7 @@ func (fetcher *TeacherLessonFetcher) parseHtml(teacherId uint32, html io.Reader)
 			default:
 				// TODO: error
 			}
-			fmt.Printf("dt = %v, status=%v\n", dt, status)
+			fmt.Printf("dt = %v, status=%v\n", dt, status) // TODO: logging
 
 			lessons = append(lessons, &model.Lesson{
 				TeacherId: teacher.Id,
