@@ -51,6 +51,17 @@ type Lesson struct {
 	Status    string // TODO: enum
 }
 
+func (_ *Lesson) TableName() string {
+	return "lesson"
+}
+
+func (l *Lesson) String() string {
+	return fmt.Sprintf(
+		"TeacherId: %v, Datetime: %v, Status: %v",
+		l.TeacherId, l.Datetime, l.Status,
+	)
+}
+
 func Open() (*gorm.DB, error) {
 	dbDsn := os.Getenv("DB_DSN")
 	db, err := gorm.Open(

@@ -1,5 +1,5 @@
-hash: d777b2228124992ca1efd5cdeff654dd9d5e092ca5e3bb29984dd0229175c449
-updated: 2016-06-29T00:42:05.772001387+09:00
+hash: b17e33fd2e1af9b1451d7f36b6693b512bf435f0af9716468618ebf5759d0f8b
+updated: 2016-07-01T16:16:26.590862866+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -7,14 +7,18 @@ imports:
   - cmd/goose
 - name: github.com/cespare/reflex
   version: d99c749bd424bf5fb5f63229f0cb4baffdc81f9d
+- name: github.com/davecgh/go-spew
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  subpackages:
+  - spew
 - name: github.com/go-sql-driver/mysql
   version: 3654d25ec346ee8ce71a68431025458d52a38ac0
 - name: github.com/golang/protobuf
-  version: 0c1f6d65b5a189c2250d10e71a5506f06f9fa0a0
+  version: 3852dcfda249c2097355a6aabb199a28d97b30df
   subpackages:
   - proto
 - name: github.com/jinzhu/gorm
-  version: 321d10b67b7218c5cf3bebc0c01fc8c4536c2bc7
+  version: c1c4f9f86e732a042aac9f37e025893d6d6cabec
   subpackages:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
@@ -31,7 +35,7 @@ imports:
   - internal
   - pattern
 - name: golang.org/x/net
-  version: bc3663df0ac92f928d419e31e0d2af22e683a5a2
+  version: b400c2eff1badec7022a8c8f5bea058b6315eed7
   subpackages:
   - context
   - html
@@ -57,10 +61,14 @@ imports:
   - internal/log
   - internal/remote_api
 - name: google.golang.org/cloud
-  version: a4c7c3139dc2772ad6c3bb73d0a9236a79063f8c
+  version: f1ae21c8f86d456623bddb78ff91d38a3010b35f
   subpackages:
   - compute/metadata
   - internal
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
-devImports: []
+testImports:
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib
