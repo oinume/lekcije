@@ -1,6 +1,6 @@
-all: setup
+all: install
 
-.PHONY: setup
+.PHONY: install
 
 setup:
 	go get github.com/Masterminds/glide
@@ -10,4 +10,7 @@ setup:
 	go install ./vendor/github.com/cespare/reflex
 
 serve:
-	go run server/cmd/main.go
+	go run server/cmd/lekcije/main.go
+
+install:
+	go install github.com/oinume/lekcije/server/cmd/lekcije
