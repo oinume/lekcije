@@ -1,5 +1,5 @@
-hash: b17e33fd2e1af9b1451d7f36b6693b512bf435f0af9716468618ebf5759d0f8b
-updated: 2016-07-01T16:16:26.590862866+09:00
+hash: 4e0d872853b32c6db8482812b27fcda824ac494f7b1d5611701e4401af0ebe70
+updated: 2016-07-02T14:43:29.070076574+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -23,11 +23,17 @@ imports:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
   version: 8f4d3a0d04ce0b7c0cf3126fb98524246d00d102
+- name: github.com/oinume/goenum
+  version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
   subpackages:
   - assert
   - mock
+- name: github.com/uber-go/atomic
+  version: e682c1008ac17bf26d2e4b5ad6cdd08520ed0b22
+- name: github.com/uber-go/zap
+  version: 469a1280b2b59c39f5aed25f9b823f00c6fd3e16
 - name: goji.io
   version: e355964ac565b94cf0fc7f218346626529125086
   subpackages:
@@ -42,7 +48,7 @@ imports:
   - html/atom
   - context/ctxhttp
 - name: golang.org/x/oauth2
-  version: 65a8d08c6292395d47053be10b3c5e91960def76
+  version: df5b72659a3b1789a345ea643bb7c28442681652
   subpackages:
   - google
   - internal
@@ -61,14 +67,10 @@ imports:
   - internal/log
   - internal/remote_api
 - name: google.golang.org/cloud
-  version: f1ae21c8f86d456623bddb78ff91d38a3010b35f
+  version: ebfe3819c9ab4acaf086ae57e4cbd7dee683baf0
   subpackages:
   - compute/metadata
   - internal
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
-testImports:
-- name: github.com/pmezard/go-difflib
-  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
-  subpackages:
-  - difflib
+devImports: []

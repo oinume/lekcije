@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/model"
+	"github.com/uber-go/zap"
 	"gopkg.in/xmlpath.v2"
 )
 
 const (
-	urlBase   = "http://eikaiwa.dmm.com/teacher/index/%v/"
 	userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17"
 )
 
@@ -27,23 +27,28 @@ var (
 
 type TeacherLessonFetcher struct {
 	httpClient *http.Client
+	log        zap.Logger
 }
 
-func NewTeacherLessonFetcher(httpClient *http.Client) *TeacherLessonFetcher {
+func NewTeacherLessonFetcher(httpClient *http.Client, log zap.Logger) *TeacherLessonFetcher {
 	client := httpClient
 	if client == nil {
 		client = http.DefaultClient
 		client.Timeout = 5 * time.Second
 		// TODO: retry
 	}
+	if log == nil {
+		log = zap.NewJSON()
+	}
 	return &TeacherLessonFetcher{
 		httpClient: client,
+		log:        log,
 	}
 }
 
 func (fetcher *TeacherLessonFetcher) Fetch(teacherId uint32) (*model.Teacher, []*model.Lesson, error) {
-	targetUrl := fmt.Sprintf(urlBase, teacherId)
-	req, err := http.NewRequest("GET", targetUrl, nil)
+	teacher := model.NewTeacher(teacherId)
+	req, err := http.NewRequest("GET", teacher.Url(), nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,25 +62,25 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherId uint32) (*model.Teacher, []
 
 	if resp.StatusCode != 200 {
 		// TODO: pkg/errors
-		return nil, nil, fmt.Errorf("fetch error: url=%v, status=%v", targetUrl, resp.StatusCode)
+		return nil, nil, fmt.Errorf("fetch error: url=%v, status=%v", teacher.Url(), resp.StatusCode)
 	}
-	return fetcher.parseHtml(teacherId, resp.Body)
+	return fetcher.parseHtml(teacher, resp.Body)
 }
 
-func (fetcher *TeacherLessonFetcher) parseHtml(teacherId uint32, html io.Reader) (*model.Teacher, []*model.Lesson, error) {
+func (fetcher *TeacherLessonFetcher) parseHtml(
+	teacher *model.Teacher,
+	html io.Reader,
+) (*model.Teacher, []*model.Lesson, error) {
 	root, err := xmlpath.ParseHTML(html)
 	if err != nil {
 		return nil, nil, err
-	}
-	teacher := &model.Teacher{
-		Id: teacherId,
 	}
 
 	// teacher name
 	if title, ok := titleXPath.String(root); ok {
 		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
 	} else {
-		return nil, nil, fmt.Errorf("failed to fetch teacher's name: url=%v", fmt.Sprintf(urlBase, teacherId))
+		return nil, nil, fmt.Errorf("failed to fetch teacher's name: url=%v", teacher.Url)
 	}
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
@@ -91,7 +96,9 @@ func (fetcher *TeacherLessonFetcher) parseHtml(teacherId uint32, html io.Reader)
 		}
 
 		text := strings.Trim(node.String(), " ")
-		fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
+
+		//fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
+		fetcher.log.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
 
 		// blank, reservable, reserved
 		if timeClass == "date" {
@@ -113,23 +120,16 @@ func (fetcher *TeacherLessonFetcher) parseHtml(teacherId uint32, html io.Reader)
 				}
 			}
 			dt := time.Date(date.Year(), date.Month(), date.Day(), hour, minute, 0, 0, jst)
-			status := ""
-			switch text { // TODO: enum
-			case "終了":
-				status = "finished"
-			case "予約済", "休講":
-				status = "reserved"
-			case "予約可":
-				status = "reservable"
-			default:
-				// TODO: error
-			}
-			fmt.Printf("dt = %v, status=%v\n", dt, status) // TODO: logging
-
+			status := model.LessonStatuses.MustValueForAlias(text)
+			fetcher.log.Info(
+				"lesson",
+				zap.String("dt", dt.Format("2006-01-02 15:04")),
+				zap.String("status", model.LessonStatuses.MustName(status)),
+			)
 			lessons = append(lessons, &model.Lesson{
 				TeacherId: teacher.Id,
 				Datetime:  dt,
-				Status:    status,
+				Status:    model.LessonStatuses.MustName(status),
 			})
 		} else {
 			// nop

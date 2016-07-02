@@ -12,10 +12,6 @@ import:
   - package: golang.org/x/oauth2
     subpackages:
       - google
-  - package: google.golang.org/cloud
-    subpackages:
-      - compute/metadata
-      - internal
   - package: github.com/jinzhu/gorm
   - package: github.com/jinzhu/inflection
   - package: github.com/go-sql-driver/mysql
@@ -24,3 +20,6 @@ import:
       - assert
       - mock
   - package: github.com/davecgh/go-spew/spew
+  - package: github.com/uber-go/zap
+  - package: github.com/uber-go/atomic
+  - package: github.com/oinume/goenum
