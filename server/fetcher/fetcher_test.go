@@ -30,8 +30,14 @@ func TestParseHtml(t *testing.T) {
 	assert.Equal("Xai", teacher.Name)
 	assert.True(len(lessons) > 0)
 	for _, lesson := range lessons {
-		if lesson.Status == "reservable" {
-
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 11:00" {
+			assert.Equal("Finished", lesson.Status)
+		}
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 16:30" {
+			assert.Equal("Reservable", lesson.Status)
+		}
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 18:00" {
+			assert.Equal("Reserved", lesson.Status)
 		}
 	}
 	//fmt.Printf("%v\n", spew.Sdump(lessons))
