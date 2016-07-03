@@ -56,9 +56,13 @@ func init() {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+	}
 	mux := mux()
-	fmt.Println("Listening on :5000")
-	http.ListenAndServe(":5000", mux)
+	fmt.Printf("Listening on :%v\n", port)
+	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
 }
 
 func mux() *goji.Mux {
