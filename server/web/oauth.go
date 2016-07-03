@@ -116,7 +116,6 @@ func getNameAndEmail(token *oauth2.Token, idToken string) (string, string, error
 	userinfo, err := service.Userinfo.V2.Me.Get().Do()
 	if err != nil {
 		return "", "", err
-		//internalServerError(w, fmt.Sprintf("Failed to get userinfo: %v", err))
 	}
 
 	tokeninfo, err := service.Tokeninfo().IdToken(idToken).Do()
