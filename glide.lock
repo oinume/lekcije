@@ -1,5 +1,5 @@
-hash: 4e0d872853b32c6db8482812b27fcda824ac494f7b1d5611701e4401af0ebe70
-updated: 2016-07-02T14:43:29.070076574+09:00
+hash: 375632c946d55de8f61fd4afa4ce300b9273df7a19876985f8e93669deb45f93
+updated: 2016-07-03T22:32:03.475566866+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -54,6 +54,10 @@ imports:
   - internal
   - jws
   - jwt
+- name: google.golang.org/api
+  version: 57212573ccf9e4f69f4caa0336831697e29adcd6
+  subpackages:
+  - oauth2/v2
 - name: google.golang.org/appengine
   version: 267c27e7492265b84fc6719503b14a1e17975d79
   subpackages:

@@ -12,6 +12,10 @@ import:
   - package: golang.org/x/oauth2
     subpackages:
       - google
+  - package: google.golang.org/api
+    subpackages:
+      #- googleapi
+      - oauth2/v2
   - package: github.com/jinzhu/gorm
   - package: github.com/jinzhu/inflection
   - package: github.com/go-sql-driver/mysql
