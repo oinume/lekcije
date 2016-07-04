@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/model"
+	"github.com/pkg/errors"
 	"github.com/uber-go/zap"
 	"gopkg.in/xmlpath.v2"
 )
@@ -19,6 +20,7 @@ const (
 )
 
 var (
+	_              = fmt.Print
 	jst            = time.FixedZone("Asia/Tokyo", 9*60*60)
 	titleXPath     = xmlpath.MustCompile(`//title`)
 	lessonXPath    = xmlpath.MustCompile("//ul[@class='oneday']//li")
@@ -50,19 +52,21 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherId uint32) (*model.Teacher, []
 	teacher := model.NewTeacher(teacherId)
 	req, err := http.NewRequest("GET", teacher.Url(), nil)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.Wrap(err, "Failed to create HTTP request")
 	}
 
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.Wrap(err, "Failed httpClient.Do()")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		// TODO: pkg/errors
-		return nil, nil, fmt.Errorf("fetch error: url=%v, status=%v", teacher.Url(), resp.StatusCode)
+		return nil, nil, errors.Errorf(
+			"fetch error: url=%v, status=%v",
+			teacher.Url(), resp.StatusCode,
+		)
 	}
 	return fetcher.parseHtml(teacher, resp.Body)
 }
@@ -80,7 +84,7 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 	if title, ok := titleXPath.String(root); ok {
 		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
 	} else {
-		return nil, nil, fmt.Errorf("failed to fetch teacher's name: url=%v", teacher.Url)
+		return nil, nil, errors.Errorf("failed to fetch teacher's name: url=%v", teacher.Url)
 	}
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)

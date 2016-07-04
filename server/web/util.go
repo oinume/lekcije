@@ -1,9 +1,25 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
-func internalServerError(w http.ResponseWriter, error string) {
-	http.Error(w, error, http.StatusInternalServerError)
+type stackTracer interface {
+	StackTrace() errors.StackTrace
+}
+
+func internalServerError(w http.ResponseWriter, err error) {
+	//switch _ := errors.Cause(err).(type) { // TODO:
+	//default:
+	// unknown error
+	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
+	if e, ok := err.(stackTracer); ok {
+		for _, f := range e.StackTrace() {
+			fmt.Fprintf(w, "%+v\n", f)
+		}
+	}
+	//}
 }

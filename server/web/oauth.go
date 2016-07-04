@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -43,28 +44,28 @@ func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 
 func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	if err := checkState(r); err != nil {
-		internalServerError(w, err.Error())
+		internalServerError(w, err)
 		return
 	}
 	token, idToken, err := exchange(r)
 	if err != nil {
-		internalServerError(w, err.Error())
+		internalServerError(w, err)
 		return
 	}
 	name, email, err := getNameAndEmail(token, idToken)
 	if err != nil {
-		internalServerError(w, err.Error())
+		internalServerError(w, err)
 		return
 	}
 	db, err := model.Open()
 	if err != nil {
-		internalServerError(w, fmt.Sprintf("Failed to connect db: %v", err))
+		internalServerError(w, errors.Wrap(err, "Failed to connect db: %v"))
 		return
 	}
 
 	user := model.User{Name: name, Email: email}
 	if err := db.FirstOrCreate(&user, model.User{Email: email}).Error; err != nil {
-		internalServerError(w, fmt.Sprintf("Failed to access user: %v", err))
+		internalServerError(w, errors.Wrap(err, "Failed to access user"))
 		return
 	}
 
@@ -76,7 +77,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		"idToken":     idToken,
 	}
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		internalServerError(w, fmt.Sprintf("Failed to encode JSON"))
+		internalServerError(w, errors.Errorf("Failed to encode JSON"))
 		return
 	}
 }
@@ -89,12 +90,12 @@ func randomString(length int) string {
 
 func checkState(r *http.Request) error {
 	state := r.FormValue("state")
-	oauthState, err := r.Cookie("oauthState")
+	oauthState, err := r.Cookie("oauthStates")
 	if err != nil {
-		return fmt.Errorf("Failed to get cookie oauthState: %s", err)
+		return errors.Wrap(err, "Failed to get cookie oauthState")
 	}
 	if state != oauthState.Value {
-		return fmt.Errorf("state mismatch", err)
+		return errors.Wrap(err, "state mismatch")
 	}
 	return nil
 }
@@ -103,11 +104,11 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	code := r.FormValue("code")
 	token, err := googleOAuthConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
-		return nil, "", err
+		return nil, "", errors.Wrap(err, "Failed to exchange")
 	}
 	idToken, ok := token.Extra("id_token").(string)
 	if !ok {
-		return nil, "", fmt.Errorf("Failed to get id_token")
+		return nil, "", errors.Errorf("Failed to get id_token")
 	}
 	return token, idToken, nil
 }
@@ -116,17 +117,17 @@ func getNameAndEmail(token *oauth2.Token, idToken string) (string, string, error
 	oauth2Client := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(token))
 	service, err := google_auth2.New(oauth2Client)
 	if err != nil {
-		return "", "", fmt.Errorf("Failed to create oauth2.Client: %v", err)
+		return "", "", errors.Wrap(err, "Failed to create oauth2.Client")
 	}
 
 	userinfo, err := service.Userinfo.V2.Me.Get().Do()
 	if err != nil {
-		return "", "", err
+		return "", "", errors.Wrap(err, "Failed to get userinfo")
 	}
 
 	tokeninfo, err := service.Tokeninfo().IdToken(idToken).Do()
 	if err != nil {
-		return "", "", err
+		return "", "", errors.Wrap(err, "Failed to get tokeninfo")
 	}
 
 	return userinfo.Name, tokeninfo.Email, nil

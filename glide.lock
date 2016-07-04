@@ -1,5 +1,5 @@
-hash: 375632c946d55de8f61fd4afa4ce300b9273df7a19876985f8e93669deb45f93
-updated: 2016-07-03T22:32:03.475566866+09:00
+hash: c579869b3aa4eda4164821e7046e6551d48f29f61dad2ed09506e72f2f7df0a7
+updated: 2016-07-04T22:51:28.931602899+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -25,6 +25,8 @@ imports:
   version: 8f4d3a0d04ce0b7c0cf3126fb98524246d00d102
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
+- name: github.com/pkg/errors
+  version: a2d6902c6d2a2f194eb3fb474981ab7867c81505
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
   subpackages:
@@ -45,8 +47,8 @@ imports:
   subpackages:
   - context
   - html
-  - html/atom
   - context/ctxhttp
+  - html/atom
 - name: golang.org/x/oauth2
   version: df5b72659a3b1789a345ea643bb7c28442681652
   subpackages:
@@ -58,6 +60,9 @@ imports:
   version: 57212573ccf9e4f69f4caa0336831697e29adcd6
   subpackages:
   - oauth2/v2
+  - gensupport
+  - googleapi
+  - googleapi/internal/uritemplates
 - name: google.golang.org/appengine
   version: 267c27e7492265b84fc6719503b14a1e17975d79
   subpackages:
