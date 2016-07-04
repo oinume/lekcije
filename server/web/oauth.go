@@ -90,7 +90,7 @@ func randomString(length int) string {
 
 func checkState(r *http.Request) error {
 	state := r.FormValue("state")
-	oauthState, err := r.Cookie("oauthStates")
+	oauthState, err := r.Cookie("oauthState")
 	if err != nil {
 		return errors.Wrap(err, "Failed to get cookie oauthState")
 	}
