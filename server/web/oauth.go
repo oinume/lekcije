@@ -42,23 +42,30 @@ func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	checkState(w, r)
+	if err := checkState(r); err != nil {
+		internalServerError(w, err.Error())
+		return
+	}
 	token, idToken, err := exchange(r)
 	if err != nil {
 		internalServerError(w, err.Error())
+		return
 	}
 	name, email, err := getNameAndEmail(token, idToken)
 	if err != nil {
 		internalServerError(w, err.Error())
+		return
 	}
 	db, err := model.Open()
 	if err != nil {
 		internalServerError(w, fmt.Sprintf("Failed to connect db: %v", err))
+		return
 	}
 
 	user := model.User{Name: name, Email: email}
 	if err := db.FirstOrCreate(&user, model.User{Email: email}).Error; err != nil {
 		internalServerError(w, fmt.Sprintf("Failed to access user: %v", err))
+		return
 	}
 
 	data := map[string]interface{}{
@@ -69,7 +76,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		"idToken":     idToken,
 	}
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, fmt.Sprintf("Failed to encode JSON"), http.StatusInternalServerError)
+		internalServerError(w, fmt.Sprintf("Failed to encode JSON"))
 		return
 	}
 }
@@ -80,17 +87,16 @@ func randomString(length int) string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-func checkState(w http.ResponseWriter, r *http.Request) {
+func checkState(r *http.Request) error {
 	state := r.FormValue("state")
 	oauthState, err := r.Cookie("oauthState")
 	if err != nil {
-		internalServerError(w, fmt.Sprintf("Failed to get cookie oauthState: %s", err))
-		return
+		return fmt.Errorf("Failed to get cookie oauthState: %s", err)
 	}
 	if state != oauthState.Value {
-		internalServerError(w, "state mismatch")
-		return
+		return fmt.Errorf("state mismatch", err)
 	}
+	return nil
 }
 
 func exchange(r *http.Request) (*oauth2.Token, string, error) {
