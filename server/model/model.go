@@ -12,15 +12,26 @@ import (
 )
 
 type User struct {
-	Id        uint32    `db:"id",gorm:"primary_key"`
-	Name      string    `db:"name",gorm:"column:name"`
-	Email     string    `db:"email",gorm:"column:email"`
-	CreatedAt time.Time `db:"created_at",gorm:"column:created_at"`
-	UpdatedAt time.Time `db:"updated_at",gorm:"column:updated_at"`
+	Id        uint32 `gorm:"primary_key;AUTO_INCREMENT"`
+	Name      string
+	Email     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (_ *User) TableName() string {
 	return "user"
+}
+
+func (_ *UserApiToken) TableName() string {
+	return "user_api_token"
+}
+
+type UserApiToken struct {
+	Token     string `gorm:"primary_key;AUTO_INCREMENT"`
+	UserId    uint32
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type AuthGoogle struct {

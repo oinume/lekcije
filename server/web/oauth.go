@@ -65,9 +65,27 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 
 	user := model.User{Name: name, Email: email}
 	if err := db.FirstOrCreate(&user, model.User{Email: email}).Error; err != nil {
-		internalServerError(w, errors.Wrap(err, "Failed to access user"))
+		internalServerError(w, errors.Wrap(err, "Failed to access User"))
 		return
 	}
+
+	// Create and save API Token
+	apiToken := randomString(64)
+	userApiToken := model.UserApiToken{
+		UserId: user.Id,
+		Token:  apiToken,
+	}
+	if err := db.Create(&userApiToken).Error; err != nil {
+		internalServerError(w, errors.Wrap(err, "Failed to create UserApiToken"))
+	}
+	cookie := &http.Cookie{
+		Name:     "apiToken",
+		Value:    apiToken,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Hour * 24 * 30),
+		HttpOnly: false,
+	}
+	http.SetCookie(w, cookie)
 
 	data := map[string]interface{}{
 		"id":          user.Id,
