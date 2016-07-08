@@ -1,10 +1,8 @@
 package web
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -16,6 +14,7 @@ import (
 	google_auth2 "google.golang.org/api/oauth2/v2"
 
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
 )
 
 var googleOAuthConfig = &oauth2.Config{
@@ -30,7 +29,7 @@ var googleOAuthConfig = &oauth2.Config{
 }
 
 func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	state := randomString(32)
+	state := util.RandomString(32)
 	cookie := &http.Cookie{
 		Name:     "oauthState",
 		Value:    state,
@@ -44,39 +43,35 @@ func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 
 func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	if err := checkState(r); err != nil {
-		internalServerError(w, err)
+		InternalServerError(w, err)
 		return
 	}
 	token, idToken, err := exchange(r)
 	if err != nil {
-		internalServerError(w, err)
+		InternalServerError(w, err)
 		return
 	}
 	name, email, err := getNameAndEmail(token, idToken)
 	if err != nil {
-		internalServerError(w, err)
-		return
-	}
-	db, err := model.Open()
-	if err != nil {
-		internalServerError(w, errors.Wrap(err, "Failed to connect db: %v"))
+		InternalServerError(w, err)
 		return
 	}
 
+	db := model.MustFromContext(ctx)
 	user := model.User{Name: name, Email: email}
 	if err := db.FirstOrCreate(&user, model.User{Email: email}).Error; err != nil {
-		internalServerError(w, errors.Wrap(err, "Failed to access User"))
+		InternalServerError(w, errors.Wrap(err, "Failed to get or create User"))
 		return
 	}
 
 	// Create and save API Token
-	apiToken := randomString(64)
+	apiToken := util.RandomString(64)
 	userApiToken := model.UserApiToken{
 		UserId: user.Id,
 		Token:  apiToken,
 	}
 	if err := db.Create(&userApiToken).Error; err != nil {
-		internalServerError(w, errors.Wrap(err, "Failed to create UserApiToken"))
+		InternalServerError(w, errors.Wrap(err, "Failed to create UserApiToken"))
 	}
 	cookie := &http.Cookie{
 		Name:     "apiToken",
@@ -95,15 +90,9 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		"idToken":     idToken,
 	}
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		internalServerError(w, errors.Errorf("Failed to encode JSON"))
+		InternalServerError(w, errors.Errorf("Failed to encode JSON"))
 		return
 	}
-}
-
-func randomString(length int) string {
-	b := make([]byte, length)
-	rand.Read(b)
-	return base64.StdEncoding.EncodeToString(b)
 }
 
 func checkState(r *http.Request) error {

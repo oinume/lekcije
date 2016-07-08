@@ -9,6 +9,12 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/oinume/goenum"
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
+)
+
+const (
+	ContextKey = "db"
 )
 
 type User struct {
@@ -104,5 +110,17 @@ func Open() (*gorm.DB, error) {
 		"mysql",
 		fmt.Sprintf("%v?charset=utf8mb4&parseTime=true&loc=UTC", dbDsn),
 	)
+	if err != nil {
+		err = errors.Wrap(err, "Failed to gorm.Open()")
+	}
 	return db, err
+}
+
+func MustFromContext(ctx context.Context) *gorm.DB {
+	value := ctx.Value(ContextKey)
+	if db, ok := value.(*gorm.DB); ok {
+		return db
+	} else {
+		panic("Failed to get *gorm.DB from context")
+	}
 }
