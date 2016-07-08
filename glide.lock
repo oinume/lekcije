@@ -1,5 +1,5 @@
 hash: c579869b3aa4eda4164821e7046e6551d48f29f61dad2ed09506e72f2f7df0a7
-updated: 2016-07-04T22:51:28.931602899+09:00
+updated: 2016-07-08T14:14:23.047525029+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -57,7 +57,7 @@ imports:
   - jws
   - jwt
 - name: google.golang.org/api
-  version: 57212573ccf9e4f69f4caa0336831697e29adcd6
+  version: c13a21ee847eca050f08db8373d8737494a1170e
   subpackages:
   - oauth2/v2
   - gensupport
@@ -82,4 +82,8 @@ imports:
   - internal
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
-devImports: []
+testImports:
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib
