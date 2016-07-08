@@ -15,6 +15,7 @@ import (
 
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/web"
+	"github.com/oinume/lekcije/server/web/middleware"
 )
 
 var lekcijeEnv = os.Getenv("LEKCIJE_ENV")
@@ -60,7 +61,9 @@ func main() {
 	if port == "" {
 		port = "5000"
 	}
+
 	mux := mux()
+	mux.UseC(middleware.SetDbToContext)
 	fmt.Printf("Listening on :%v\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
 }

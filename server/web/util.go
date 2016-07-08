@@ -11,7 +11,7 @@ type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
-func internalServerError(w http.ResponseWriter, err error) {
+func InternalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
