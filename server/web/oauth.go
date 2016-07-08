@@ -57,7 +57,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	db := model.MustFromContext(ctx)
+	db := model.MustDbFromContext(ctx)
 	user := model.User{Name: name, Email: email}
 	if err := db.FirstOrCreate(&user, model.User{Email: email}).Error; err != nil {
 		InternalServerError(w, errors.Wrap(err, "Failed to get or create User"))

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	ContextKey = "db"
+	contextKeyDb = "db"
 )
 
 type User struct {
@@ -116,8 +116,17 @@ func Open() (*gorm.DB, error) {
 	return db, err
 }
 
-func MustFromContext(ctx context.Context) *gorm.DB {
-	value := ctx.Value(ContextKey)
+func OpenAndSetTo(ctx context.Context) (*gorm.DB, context.Context, error) {
+	db, err := Open()
+	if err != nil {
+		return nil, nil, err
+	}
+	c := context.WithValue(ctx, contextKeyDb, db)
+	return db, c, nil
+}
+
+func MustDbFromContext(ctx context.Context) *gorm.DB {
+	value := ctx.Value(contextKeyDb)
 	if db, ok := value.(*gorm.DB); ok {
 		return db
 	} else {
