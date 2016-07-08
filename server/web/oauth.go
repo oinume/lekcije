@@ -72,6 +72,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 	}
 	if err := db.Create(&userApiToken).Error; err != nil {
 		InternalServerError(w, errors.Wrap(err, "Failed to create UserApiToken"))
+		return
 	}
 	cookie := &http.Cookie{
 		Name:     "apiToken",
