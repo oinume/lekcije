@@ -63,7 +63,7 @@ func main() {
 	}
 
 	mux := mux()
-	mux.UseC(middleware.SetGormDbToContext)
+	mux.UseC(middleware.SetDbToContext)
 	fmt.Printf("Listening on :%v\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
 }

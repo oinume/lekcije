@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func SetGormDbToContext(h goji.Handler) goji.Handler {
+func SetDbToContext(h goji.Handler) goji.Handler {
 	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		db, c, err := model.OpenAndSetTo(ctx)
 		if err != nil {
@@ -18,7 +18,6 @@ func SetGormDbToContext(h goji.Handler) goji.Handler {
 		}
 		defer db.Close()
 		h.ServeHTTPC(c, w, r)
-		//db2 := model.MustFromContext(c)
 	}
 	return goji.HandlerFunc(fn)
 }
