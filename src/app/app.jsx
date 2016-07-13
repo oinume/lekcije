@@ -2,18 +2,16 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Header from './components/header.jsx'
+import Header from './components/header.jsx';
+import LoginForm from './components/login.jsx'
 
-let html = (
-  <a href="/oauth/google" className="btn btn-primary">Google Sign in</a>
-);
+let html = '';
 const apiToken = getCookie('apiToken');
 
 if (apiToken !== '') {
   html = (
-    <div className="container">
+    <div>
       <Header />
-      <hr />
       <div className="container">
         <div className="starter-template">
         <h1>Bootstrap starter template</h1>
@@ -23,6 +21,12 @@ if (apiToken !== '') {
     </div>
   );
 } else {
+  html = (
+    <div>
+      <Header />
+      <LoginForm />
+    </div>
+  )
 }
 
 ReactDOM.render(html, document.getElementById('app'));
