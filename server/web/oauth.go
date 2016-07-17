@@ -1,5 +1,7 @@
 package web
 
+// TODO: Create package 'oauth'
+
 import (
 	"encoding/json"
 	"fmt"

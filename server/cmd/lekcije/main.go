@@ -63,17 +63,18 @@ func main() {
 	}
 
 	mux := mux()
-	mux.UseC(middleware.SetDbToContext)
 	fmt.Printf("Listening on :%v\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
 }
 
 func mux() *goji.Mux {
 	mux := goji.NewMux()
+	mux.UseC(middleware.SetDbToContext)
 	mux.HandleFuncC(pat.Get("/"), index)
 	mux.HandleFuncC(pat.Get("/status"), status)
 	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
 	mux.HandleFuncC(pat.Get("/oauth/google/callback"), web.OAuthGoogleCallback)
+	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), web.ApiGetMeFollowingTeachers)
 	return mux
 }
 
