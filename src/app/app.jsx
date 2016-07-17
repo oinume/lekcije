@@ -3,8 +3,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Header from './components/header.jsx';
-import LoginForm from './components/login.jsx'
-import FollowTeacherForm from './components/teacher.jsx'
+import LoginForm from './components/login.jsx';
+import TeacherMain from './components/teacher.jsx';
 
 let html = '';
 const apiToken = getCookie('apiToken');
@@ -13,9 +13,7 @@ if (apiToken !== '') {
   html = (
     <div>
       <Header />
-      <div className="container">
-        <FollowTeacherForm />
-      </div>
+      <TeacherMain />
     </div>
   );
 } else {
@@ -24,7 +22,7 @@ if (apiToken !== '') {
       <Header />
       <LoginForm />
     </div>
-  )
+  );
 }
 
 ReactDOM.render(html, document.getElementById('app'));
