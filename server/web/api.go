@@ -4,13 +4,35 @@ package web
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/oinume/lekcije/server/model"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
 
-// /api/me/followingTeachers
+// GET /api/status
+func ApiGetStatus(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	db, err := model.Open()
+	if err != nil {
+		InternalServerError(w, fmt.Errorf("Failed to model.Open(): err=%v", err))
+		return
+	}
+	if err := db.DB().Ping(); err != nil {
+		InternalServerError(w, fmt.Errorf("Failed to DB.Ping(): err=%v", err))
+		return
+	}
+	data := map[string]bool{
+		"db": true,
+	}
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		InternalServerError(w, fmt.Errorf("Failed to encode JSON: err=%v", err))
+		return
+	}
+}
+
+// GET /api/me/followingTeachers
 func ApiGetMeFollowingTeachers(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	// SELECT t.id, t.name FROM following_teachers AS ft
 	// INNER JOIN teachers AS t ON ft.teacher_id = t.id

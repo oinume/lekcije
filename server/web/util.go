@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var TemplateDir = "static"
+
 type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
