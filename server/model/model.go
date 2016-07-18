@@ -25,11 +25,11 @@ type User struct {
 	UpdatedAt time.Time
 }
 
-func (_ *User) TableName() string {
+func (*User) TableName() string {
 	return "user"
 }
 
-func (_ *UserApiToken) TableName() string {
+func (*UserApiToken) TableName() string {
 	return "user_api_token"
 }
 
@@ -48,7 +48,7 @@ type AuthGoogle struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-func (_ *AuthGoogle) TableName() string {
+func (*AuthGoogle) TableName() string {
 	return "auth_google"
 }
 
@@ -59,7 +59,7 @@ type Teacher struct {
 	UpdatedAt time.Time
 }
 
-func (_ *Teacher) TableName() string {
+func (*Teacher) TableName() string {
 	return "teacher"
 }
 
@@ -79,7 +79,7 @@ type Lesson struct {
 	Status    string // TODO: enum
 }
 
-func (_ *Lesson) TableName() string {
+func (*Lesson) TableName() string {
 	return "lesson"
 }
 
@@ -103,6 +103,17 @@ var LessonStatuses = goenum.EnumerateStruct(&LessonStatus{
 	Reservable: 3,
 	Cancelled:  4,
 })
+
+type FollowingTeacher struct {
+	UserId    uint32
+	TeacherId uint32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (*FollowingTeacher) TableName() string {
+	return "following_teacher"
+}
 
 func Open() (*gorm.DB, error) {
 	dbDsn := os.Getenv("DB_DSN")
