@@ -4,13 +4,20 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/errors"
 )
 
-var TemplateDir = "static"
-
 type stackTracer interface {
 	StackTrace() errors.StackTrace
+}
+
+func TemplateDir() string {
+	if util.IsProductionEnv() {
+		return "static"
+	} else {
+		return "src/www"
+	}
 }
 
 func InternalServerError(w http.ResponseWriter, err error) {

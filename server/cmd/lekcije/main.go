@@ -12,20 +12,6 @@ import (
 	"goji.io/pat"
 )
 
-var lekcijeEnv = os.Getenv("LEKCIJE_ENV")
-
-func isProduction() bool {
-	return lekcijeEnv == "production"
-}
-
-func templatePath() string {
-	if isProduction() {
-		return "static"
-	} else {
-		return "src/www"
-	}
-}
-
 // TODO: move somewhere proper
 var definedEnvs = map[string]string{
 	"GOOGLE_CLIENT_ID":     "",
@@ -34,12 +20,6 @@ var definedEnvs = map[string]string{
 }
 
 func init() {
-	// TODO: to function
-	if isProduction() {
-		web.TemplateDir = "static"
-	} else {
-		web.TemplateDir = "src/www"
-	}
 	// Check env
 	for key, _ := range definedEnvs {
 		if value := os.Getenv(key); value != "" {
