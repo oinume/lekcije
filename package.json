@@ -7,11 +7,11 @@
     "npm": "3.10.5"
   },
   "scripts": {
-    "build": "webpack --config webpack-production.config.js --progress --colors",
+    "build": "webpack --config webpack.config.js --progress --colors",
     "lint": "eslint src && echo \"eslint: no lint errors\"",
     "postinstall": "npm run build",
-    "server": "webpack-dev-server --config webpack-dev-server.config.js --progress --inline --colors",
-    "start": "npm run server",
+    "serve": "webpack-dev-server --config webpack.config.js --progress --inline --colors",
+    "start": "npm run serve",
     "test": "karma start",
     "test-watch": "karma start --auto-watch --no-single-run"
   },
