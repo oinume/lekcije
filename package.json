@@ -52,6 +52,7 @@
     "resolve-url-loader": "^1.5.0",
     "sass-loader": "^4.0.0",
     "style-loader": "^0.13.1",
+    "transfer-webpack-plugin": "^0.1.4",
     "url-loader": "^0.5.7",
     "webpack-dev-server": "^1.14.1"
   },

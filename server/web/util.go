@@ -16,7 +16,7 @@ func TemplateDir() string {
 	if util.IsProductionEnv() {
 		return "static"
 	} else {
-		return "src/www"
+		return "src/html"
 	}
 }
 

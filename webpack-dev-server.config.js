@@ -3,6 +3,7 @@ const path = require('path');
 const buildPath = path.resolve(__dirname, 'static');
 const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const TransferWebpackPlugin = require('transfer-webpack-plugin');
 
 const config = {
   //Entry points to the project
@@ -60,6 +61,10 @@ const config = {
         from: '**/*.css',
       }
     ]),
+    new TransferWebpackPlugin([
+      {from: 'html'},
+      {from: 'css'},
+    ], path.resolve(__dirname, "src")),
   ],
   module: {
     loaders: [
