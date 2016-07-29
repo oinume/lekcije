@@ -20,6 +20,10 @@ var plugins = [
     {
       context: 'src',
       from: '**/*.css',
+    },
+    {
+      context: 'src/lib',
+      from: '**/*',
     }
   ])
 ];
@@ -48,6 +52,7 @@ if (process.env.NODE_ENV === 'production') {
     new TransferWebpackPlugin([
       {from: 'html'},
       {from: 'css'},
+      {from: 'lib'},
     ], path.resolve(__dirname, "src"))
   );
 }
