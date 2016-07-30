@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const ApiTokenCookieName = "apiToken"
+
 type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
@@ -16,7 +18,7 @@ func TemplateDir() string {
 	if util.IsProductionEnv() {
 		return "static"
 	} else {
-		return "src/www"
+		return "src/html"
 	}
 }
 

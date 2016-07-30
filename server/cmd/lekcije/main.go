@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/oinume/lekcije/server/web"
+	"github.com/oinume/lekcije/server/web/api"
 	"github.com/oinume/lekcije/server/web/middleware"
 	"goji.io"
 	"goji.io/pat"
@@ -44,11 +45,14 @@ func main() {
 func mux() *goji.Mux {
 	mux := goji.NewMux()
 	mux.UseC(middleware.SetDbToContext)
-	mux.HandleFuncC(pat.Get("/"), web.Root)
+	mux.UseC(middleware.SetLoggedInUserToContext)
+
+	mux.HandleFuncC(pat.Get("/"), web.Index)
 	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
 	mux.HandleFuncC(pat.Get("/oauth/google/callback"), web.OAuthGoogleCallback)
+	mux.HandleFuncC(pat.Post("/me/followingTeachers/create"), web.PostMeFollowingTeachersCreate)
 
-	mux.HandleFuncC(pat.Get("/api/status"), web.ApiGetStatus)
-	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), web.ApiGetMeFollowingTeachers)
+	mux.HandleFuncC(pat.Get("/api/status"), api.GetStatus)
+	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
 	return mux
 }
