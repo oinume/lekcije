@@ -1,10 +1,10 @@
 package web
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"path"
+	"time"
 
 	"github.com/oinume/lekcije/server/model"
 	"golang.org/x/net/context"
@@ -17,23 +17,27 @@ func Index(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PostFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	user := model.MustLoggedInUser(ctx)
 	teacherIdOrUrl := r.FormValue("teacherIdOrUrl")
-	fmt.Printf("teacherIdOrUrl = %s\n", teacherIdOrUrl)
-	fmt.Fprintf(w, teacherIdOrUrl)
 	teacher, err := model.NewTeacherFromIdOrUrl(teacherIdOrUrl)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
 
-	db := model.MustDbFromContext(ctx)
+	db := model.MustDb(ctx)
+	now := time.Now()
 	ft := model.FollowingTeacher{
-		UserId:    1,
+		UserId:    user.Id,
 		TeacherId: teacher.Id,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	if err := db.Save(ft).Error; err != nil {
 		InternalServerError(w, err)
 		return
 	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }

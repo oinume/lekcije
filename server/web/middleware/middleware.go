@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"net/http"
-
 	"fmt"
+	"net/http"
+	"strings"
 
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/web"
@@ -21,7 +21,7 @@ func SetDbToContext(h goji.Handler) goji.Handler {
 		}
 		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 
-		db, c, err := model.OpenAndSetTo(ctx)
+		db, c, err := model.OpenAndSetToContext(ctx)
 		if err != nil {
 			web.InternalServerError(w, err)
 			return
@@ -44,7 +44,30 @@ func SetLoggedInUserToContext(h goji.Handler) goji.Handler {
 			return
 		}
 
-		user, c, err := model.FindLoggedInUserAndSetTo(cookie.Value, ctx)
+		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
+		if err != nil {
+			fmt.Printf("loggedInUser = %+v\n", user)
+			h.ServeHTTPC(ctx, w, r)
+			return
+		}
+		h.ServeHTTPC(c, w, r)
+	}
+	return goji.HandlerFunc(fn)
+}
+
+func LoginRequiredFilter(h goji.Handler) goji.Handler {
+	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+		if !strings.HasPrefix(r.RequestURI, "/me") {
+			h.ServeHTTPC(ctx, w, r)
+			return
+		}
+		cookie, err := r.Cookie(web.ApiTokenCookieName)
+		if err != nil {
+			h.ServeHTTPC(ctx, w, r)
+			return
+		}
+
+		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
 		if err != nil {
 			fmt.Printf("loggedInUser = %+v\n", user)
 			h.ServeHTTPC(ctx, w, r)

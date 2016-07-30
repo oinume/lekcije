@@ -50,7 +50,7 @@ func mux() *goji.Mux {
 	mux.HandleFuncC(pat.Get("/"), web.Index)
 	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
 	mux.HandleFuncC(pat.Get("/oauth/google/callback"), web.OAuthGoogleCallback)
-	mux.HandleFuncC(pat.Post("/followingTeachers/create"), web.PostFollowingTeachersCreate)
+	mux.HandleFuncC(pat.Post("/me/followingTeachers/create"), web.PostMeFollowingTeachersCreate)
 
 	mux.HandleFuncC(pat.Get("/api/status"), api.GetStatus)
 	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)

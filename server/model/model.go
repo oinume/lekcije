@@ -12,7 +12,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/oinume/goenum"
-	"github.com/pkg/errors"
+	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
 )
 
@@ -125,8 +125,8 @@ var LessonStatuses = goenum.EnumerateStruct(&LessonStatus{
 })
 
 type FollowingTeacher struct {
-	UserId    uint32
-	TeacherId uint32
+	UserId    uint32 `gorm:"primary_key"`
+	TeacherId uint32 `gorm:"primary_key"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -142,12 +142,12 @@ func Open() (*gorm.DB, error) {
 		fmt.Sprintf("%v?charset=utf8mb4&parseTime=true&loc=UTC", dbDsn),
 	)
 	if err != nil {
-		err = errors.Wrap(err, "Failed to gorm.Open()")
+		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
 	}
-	return db, err
+	return db, nil
 }
 
-func OpenAndSetTo(ctx context.Context) (*gorm.DB, context.Context, error) {
+func OpenAndSetToContext(ctx context.Context) (*gorm.DB, context.Context, error) {
 	db, err := Open()
 	db.LogMode(true)
 	if err != nil {
@@ -157,7 +157,7 @@ func OpenAndSetTo(ctx context.Context) (*gorm.DB, context.Context, error) {
 	return db, c, nil
 }
 
-func MustDbFromContext(ctx context.Context) *gorm.DB {
+func MustDb(ctx context.Context) *gorm.DB {
 	value := ctx.Value(contextKeyDb)
 	if db, ok := value.(*gorm.DB); ok {
 		return db
@@ -166,18 +166,37 @@ func MustDbFromContext(ctx context.Context) *gorm.DB {
 	}
 }
 
-func FindLoggedInUserAndSetTo(token string, ctx context.Context) (*User, context.Context, error) {
-	db := MustDbFromContext(ctx)
-	var user User
+func FindLoggedInUserAndSetToContext(token string, ctx context.Context) (*User, context.Context, error) {
+	db := MustDb(ctx)
+	user := &User{}
 	sql := `
 		SELECT * FROM user AS u
 		INNER JOIN user_api_token AS uat ON u.id = uat.user_id
 		WHERE uat.token = ?
 		`
-	result := db.Model(&User{}).Raw(strings.TrimSpace(sql), token).Scan(&user)
+	result := db.Model(&User{}).Raw(strings.TrimSpace(sql), token).Scan(user)
 	if result.Error != nil {
-		return nil, nil, result.Error
+		if result.RecordNotFound() {
+			return nil, nil, errors.NotFoundWrapf(result.Error, "Failed to find user: token=%s", token)
+		}
+		return nil, nil, errors.InternalWrapf(result.Error, "find user: token=%s", token)
 	}
 	c := context.WithValue(ctx, contextKeyLoggedInUser, user)
-	return &user, c, nil
+	return user, c, nil
+}
+
+func GetLoggedInUser(ctx context.Context) (*User, error) {
+	value := ctx.Value(contextKeyLoggedInUser)
+	if user, ok := value.(*User); ok {
+		return user, nil
+	}
+	return nil, errors.NotFoundf("Logged in user not found in context")
+}
+
+func MustLoggedInUser(ctx context.Context) *User {
+	user, err := GetLoggedInUser(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return user
 }

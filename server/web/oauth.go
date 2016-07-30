@@ -9,14 +9,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
-
-	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
 )
 
 var googleOAuthConfig = &oauth2.Config{
@@ -59,7 +58,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	db := model.MustDbFromContext(ctx)
+	db := model.MustDb(ctx)
 	user := model.User{Name: name, Email: email}
 	if err := db.FirstOrCreate(&user, model.User{Email: email}).Error; err != nil {
 		InternalServerError(w, errors.Wrap(err, "Failed to get or create User"))
