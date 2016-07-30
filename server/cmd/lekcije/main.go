@@ -45,9 +45,12 @@ func main() {
 func mux() *goji.Mux {
 	mux := goji.NewMux()
 	mux.UseC(middleware.SetDbToContext)
+	mux.UseC(middleware.SetLoggedInUserToContext)
+
 	mux.HandleFuncC(pat.Get("/"), web.Index)
 	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
 	mux.HandleFuncC(pat.Get("/oauth/google/callback"), web.OAuthGoogleCallback)
+	mux.HandleFuncC(pat.Post("/followingTeachers/create"), web.PostFollowingTeachersCreate)
 
 	mux.HandleFuncC(pat.Get("/api/status"), api.GetStatus)
 	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)

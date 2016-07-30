@@ -3,6 +3,9 @@ package model
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -14,7 +17,8 @@ import (
 )
 
 const (
-	contextKeyDb = "db"
+	contextKeyDb           = "db"
+	contextKeyLoggedInUser = "loggedInUser"
 )
 
 type User struct {
@@ -65,8 +69,24 @@ func (*Teacher) TableName() string {
 
 const teacherUrlBase = "http://eikaiwa.dmm.com/teacher/index/%v/"
 
+var (
+	idRegexp         = regexp.MustCompile(`^[\d]+$`)
+	teacherUrlRegexp = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
+)
+
 func NewTeacher(id uint32) *Teacher {
 	return &Teacher{Id: id}
+}
+
+func NewTeacherFromIdOrUrl(idOrUrl string) (*Teacher, error) {
+	if idRegexp.MatchString(idOrUrl) {
+		id, _ := strconv.ParseUint(idOrUrl, 10, 32)
+		return NewTeacher(uint32(id)), nil
+	} else if group := teacherUrlRegexp.FindStringSubmatch(idOrUrl); len(group) > 0 {
+		id, _ := strconv.ParseUint(group[1], 10, 32)
+		return NewTeacher(uint32(id)), nil
+	}
+	return nil, fmt.Errorf("Failed to parse idOrUrl: %s", idOrUrl)
 }
 
 func (t *Teacher) Url() string {
@@ -129,6 +149,7 @@ func Open() (*gorm.DB, error) {
 
 func OpenAndSetTo(ctx context.Context) (*gorm.DB, context.Context, error) {
 	db, err := Open()
+	db.LogMode(true)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,4 +164,20 @@ func MustDbFromContext(ctx context.Context) *gorm.DB {
 	} else {
 		panic("Failed to get *gorm.DB from context")
 	}
+}
+
+func FindLoggedInUserAndSetTo(token string, ctx context.Context) (*User, context.Context, error) {
+	db := MustDbFromContext(ctx)
+	var user User
+	sql := `
+		SELECT * FROM user AS u
+		INNER JOIN user_api_token AS uat ON u.id = uat.user_id
+		WHERE uat.token = ?
+		`
+	result := db.Model(&User{}).Raw(strings.TrimSpace(sql), token).Scan(&user)
+	if result.Error != nil {
+		return nil, nil, result.Error
+	}
+	c := context.WithValue(ctx, contextKeyLoggedInUser, user)
+	return &user, c, nil
 }

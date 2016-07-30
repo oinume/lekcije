@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const ApiTokenCookieName = "apiToken"
+
 type stackTracer interface {
 	StackTrace() errors.StackTrace
 }

@@ -77,7 +77,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 	cookie := &http.Cookie{
-		Name:     "apiToken",
+		Name:     ApiTokenCookieName,
 		Value:    apiToken,
 		Path:     "/",
 		Expires:  time.Now().Add(time.Hour * 24 * 30),

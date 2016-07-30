@@ -45,13 +45,13 @@
 -->
   <div class="container">
     <h2>Follow a teacher!</h2>
-    <form action="/teacher/follow">
+    <form method="POST" action="/followingTeachers/create">
       <div class="form-group">
         <label for="teacherIdOrUrl">Teacher's URL or ID</label>
         <input id="teacherIdOrUrl"
                type="text"
                class="form-control"
-               name="teacherUrlOrId"
+               name="teacherIdOrUrl"
                placeholder="URL or ID" />
       </div>
       <div class="form-group">
