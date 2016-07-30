@@ -46,6 +46,7 @@ func mux() *goji.Mux {
 	mux := goji.NewMux()
 	mux.UseC(middleware.SetDbToContext)
 	mux.UseC(middleware.SetLoggedInUserToContext)
+	mux.UseC(middleware.LoginRequiredFilter)
 
 	mux.HandleFuncC(pat.Get("/"), web.Index)
 	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
