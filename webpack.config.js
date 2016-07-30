@@ -13,20 +13,13 @@ var entry = [];
 var plugins = [
   new webpack.NoErrorsPlugin(),
   new CopyWebpackPlugin([
-    {
-      context: 'src',
-      from: '**/*.html',
-    },
-    {
-      context: 'src',
-      from: '**/*.css',
-    },
-    {
-      context: 'src/lib',
-      from: '**/*',
-    }
+    { context: 'src', from: '**/*.html' },
+    { context: 'src', from: '**/*.css' },
+    { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
   ])
-];
+]
 if (process.env.NODE_ENV === 'production') {
   console.log('NODE_ENV is production');
   plugins.push(
@@ -52,7 +45,9 @@ if (process.env.NODE_ENV === 'production') {
     new TransferWebpackPlugin([
       {from: 'html'},
       {from: 'css'},
-      {from: 'lib'},
+      {from: nodeModulesPath + "/bootstrap", to: 'lib'},
+      {from: nodeModulesPath + "/bootswatch", to: 'lib'},
+      {from: nodeModulesPath + "/jquery", to: 'lib'},
     ], path.resolve(__dirname, "src"))
   );
 }
