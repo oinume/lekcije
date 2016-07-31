@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/fetcher"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"golang.org/x/net/context"
 )
@@ -45,23 +47,36 @@ func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	teacher, err := model.NewTeacherFromIdOrUrl(teacherIdOrUrl)
+	t, err := model.NewTeacherFromIdOrUrl(teacherIdOrUrl)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
-	// TODO: scraping teacher's lessons and insert teacher
+	fetcher := fetcher.NewTeacherLessonFetcher(http.DefaultClient, logger.AppLogger)
+	teacher, _, err := fetcher.Fetch(t.Id)
 
-	db := model.MustDb(ctx)
 	now := time.Now()
+	teacher.CreatedAt = now
+	teacher.UpdatedAt = now
+	db := model.MustDb(ctx)
+	if err := db.FirstOrCreate(teacher).Error; err != nil {
+		e := errors.InternalWrapf(err, "Failed to create Teacher: teacherId=%d", teacher.Id)
+		InternalServerError(w, e)
+	}
+
 	ft := model.FollowingTeacher{
 		UserId:    user.Id,
 		TeacherId: teacher.Id,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
-	if err := db.Save(ft).Error; err != nil {
-		InternalServerError(w, err)
+	if err := db.FirstOrCreate(ft).Error; err != nil {
+		e := errors.InternalWrapf(
+			err,
+			"Failed to create FollowingTeacher: userId=%d, teacherId=%d",
+			user.Id, teacher.Id,
+		)
+		InternalServerError(w, e)
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/web"
@@ -34,6 +35,7 @@ func init() {
 
 	logger.AccessLogger = zap.NewJSON(zap.Output(os.Stdout))
 	logger.AppLogger = zap.NewJSON(zap.Output(os.Stderr))
+	http.DefaultClient.Timeout = 5 * time.Second
 }
 
 func main() {
