@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/web"
 	"github.com/oinume/lekcije/server/web/api"
 	"github.com/oinume/lekcije/server/web/middleware"
+	"github.com/uber-go/zap"
 	"goji.io"
 	"goji.io/pat"
 )
@@ -29,6 +31,9 @@ func init() {
 			log.Fatalf("Env '%v' must be defined.", key)
 		}
 	}
+
+	logger.AccessLogger = zap.NewJSON(zap.Output(os.Stdout))
+	logger.AppLogger = zap.NewJSON(zap.Output(os.Stderr))
 }
 
 func main() {
@@ -44,6 +49,7 @@ func main() {
 
 func mux() *goji.Mux {
 	mux := goji.NewMux()
+	mux.UseC(middleware.AccessLogger)
 	mux.UseC(middleware.SetDbToContext)
 	mux.UseC(middleware.SetLoggedInUserToContext)
 	mux.UseC(middleware.LoginRequiredFilter)
