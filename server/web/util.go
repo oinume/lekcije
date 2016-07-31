@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"path"
 
 	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/errors"
@@ -20,6 +21,10 @@ func TemplateDir() string {
 	} else {
 		return "src/html"
 	}
+}
+
+func TemplatePath(file string) string {
+	return path.Join(TemplateDir(), file)
 }
 
 func InternalServerError(w http.ResponseWriter, err error) {

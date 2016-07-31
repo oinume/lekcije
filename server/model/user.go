@@ -24,17 +24,6 @@ func (*User) TableName() string {
 	return "user"
 }
 
-func (*UserApiToken) TableName() string {
-	return "user_api_token"
-}
-
-type UserApiToken struct {
-	Token     string `gorm:"primary_key;AUTO_INCREMENT"`
-	UserId    uint32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
 func FindLoggedInUserAndSetToContext(token string, ctx context.Context) (*User, context.Context, error) {
 	db := MustDb(ctx)
 	user := &User{}
