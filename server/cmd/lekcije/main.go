@@ -57,6 +57,7 @@ func mux() *goji.Mux {
 	mux.UseC(middleware.LoginRequiredFilter)
 
 	mux.HandleFuncC(pat.Get("/"), web.Index)
+	mux.HandleFuncC(pat.Get("/logout"), web.Logout)
 	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
 	mux.HandleFuncC(pat.Get("/oauth/google/callback"), web.OAuthGoogleCallback)
 	mux.HandleFuncC(pat.Post("/me/followingTeachers/create"), web.PostMeFollowingTeachersCreate)

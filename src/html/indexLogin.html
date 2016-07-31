@@ -1,0 +1,33 @@
+{{ define "content" }}
+<div class="container">
+  <div>
+    <h2>Follow a teacher!</h2>
+    <form method="POST" action="/me/followingTeachers/create">
+      <div class="form-group">
+        <label for="teacherIdOrUrl">Teacher's URL or ID</label>
+        <input id="teacherIdOrUrl"
+               type="text"
+               class="form-control"
+               name="teacherIdOrUrl"
+               placeholder="URL or ID" />
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-default">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <div>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr><th>ID</th><th>Name</th></tr>
+      </thead>
+      <tbody>
+      {{range $teacher := .Teachers}}
+        <tr><td>{{ $teacher.Id }}</td><td>{{ $teacher.Name }}</td></tr>
+      {{ end }}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{ end }}

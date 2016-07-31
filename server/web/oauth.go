@@ -3,7 +3,6 @@ package web
 // TODO: Create package 'oauth'
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -84,17 +83,19 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 	}
 	http.SetCookie(w, cookie)
 
-	data := map[string]interface{}{
-		"id":          user.Id,
-		"name":        user.Name,
-		"email":       user.Email,
-		"accessToken": token.AccessToken,
-		"idToken":     idToken,
-	}
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		InternalServerError(w, errors.Errorf("Failed to encode JSON"))
-		return
-	}
+	//data := map[string]interface{}{
+	//	"id":          user.Id,
+	//	"name":        user.Name,
+	//	"email":       user.Email,
+	//	"accessToken": token.AccessToken,
+	//	"idToken":     idToken,
+	//}
+	//if err := json.NewEncoder(w).Encode(data); err != nil {
+	//	InternalServerError(w, errors.Errorf("Failed to encode JSON"))
+	//	return
+	//}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func checkState(r *http.Request) error {

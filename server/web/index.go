@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"path"
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
@@ -17,27 +16,79 @@ import (
 var _ = fmt.Print
 
 func Index(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles(path.Join(TemplateDir(), "index.html")))
+	user, err := model.GetLoggedInUser(ctx)
+	if err == nil {
+		indexLogin(ctx, w, r, user)
+	} else {
+		indexLogout(ctx, w, r)
+	}
+}
+
+func indexLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, user *model.User) {
+	t := template.Must(template.ParseFiles(
+		TemplatePath("_base.html"),
+		TemplatePath("indexLogin.html")),
+	)
 	type Data struct {
 		Teachers []*model.Teacher
 	}
 	data := &Data{}
 
-	user, err := model.GetLoggedInUser(ctx)
-	fmt.Printf("user = %+v\n", user)
-	if err == nil {
-		teachers, err := model.FollowingTeacherRepo.FindTeachersByUserId(user.Id)
-		if err != nil {
-			InternalServerError(w, err)
-			return
-		}
-		data.Teachers = teachers
+	teachers, err := model.FollowingTeacherRepo.FindTeachersByUserId(user.Id)
+	if err != nil {
+		InternalServerError(w, err)
+		return
 	}
+	data.Teachers = teachers
 
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
 		return
 	}
+}
+
+func indexLogout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles(
+		TemplatePath("_base.html"),
+		TemplatePath("indexLogout.html")),
+	)
+	type Data struct {
+	}
+	data := &Data{}
+
+	if err := t.Execute(w, data); err != nil {
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		return
+	}
+}
+
+func Logout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	user, err := model.GetLoggedInUser(ctx)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	cookie, err := r.Cookie(ApiTokenCookieName)
+	if err != nil {
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to get token cookie"))
+		return
+	}
+	token := cookie.Value
+	cookieToDelete := &http.Cookie{
+		Name:     ApiTokenCookieName,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: false,
+	}
+	http.SetCookie(w, cookieToDelete)
+	if err := model.UserApiTokenRepo.DeleteByUserIdAndToken(user.Id, token); err != nil {
+		InternalServerError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {

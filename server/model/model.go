@@ -62,4 +62,5 @@ func MustDb(ctx context.Context) *gorm.DB {
 
 func attachDbToRepo(db *gorm.DB) {
 	FollowingTeacherRepo.db = db
+	UserApiTokenRepo.db = db
 }
