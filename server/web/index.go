@@ -10,6 +10,7 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
 	"golang.org/x/net/context"
 )
 
@@ -113,9 +114,10 @@ func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r
 	if err := db.FirstOrCreate(teacher).Error; err != nil {
 		e := errors.InternalWrapf(err, "Failed to create Teacher: teacherId=%d", teacher.Id)
 		InternalServerError(w, e)
+		return
 	}
 
-	ft := model.FollowingTeacher{
+	ft := &model.FollowingTeacher{
 		UserId:    user.Id,
 		TeacherId: teacher.Id,
 		CreatedAt: now,
@@ -131,5 +133,32 @@ func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r
 		return
 	}
 
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	user := model.MustLoggedInUser(ctx)
+	if err := r.ParseForm(); err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+	teacherIds := r.Form["teacherIds"]
+	fmt.Printf("!!! teacherIds = %v\n", teacherIds)
+	if len(teacherIds) == 0 {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	_, err := model.FollowingTeacherRepo.DeleteTeachersByUserIdAndTeacherIds(
+		user.Id,
+		util.StringToUint32Slice(teacherIds...),
+	)
+	if err != nil {
+		e := errors.InternalWrapf(err, "Failed to delete Teachers: teacherIds=%v", teacherIds)
+		InternalServerError(w, e)
+		return
+	}
+
+	// TODO: stash
 	http.Redirect(w, r, "/", http.StatusFound)
 }

@@ -9,7 +9,7 @@
                type="text"
                class="form-control"
                name="teacherIdOrUrl"
-               placeholder="URL or ID" />
+               placeholder="http://eikaiwa.dmm.com/teacher/index/3845/" />
       </div>
       <div class="form-group">
         <button type="submit" class="btn btn-default">Submit</button>
@@ -18,16 +18,22 @@
   </div>
 
   <div>
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr><th>ID</th><th>Name</th></tr>
-      </thead>
-      <tbody>
-      {{range $teacher := .Teachers}}
-        <tr><td>{{ $teacher.Id }}</td><td>{{ $teacher.Name }}</td></tr>
-      {{ end }}
-      </tbody>
-    </table>
+    <form method="POST" action="/me/followingTeachers/delete">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr><th><button type="submit" class="btn btn-default btn-xs">Unfollow</button></th><th>ID</th><th>Name</th></tr>
+        </thead>
+        <tbody>
+        {{range $teacher := .Teachers}}
+          <tr>
+            <td class="col-md-1"><input type="checkbox" name="teacherIds" value="{{ $teacher.Id }}"></td>
+            <td class="col-md-1">{{ $teacher.Id }}</td>
+            <td class="col-md-2">{{ $teacher.Name }}</td>
+          </tr>
+        {{ end }}
+        </tbody>
+      </table>
+    </form>
   </div>
 </div>
 {{ end }}

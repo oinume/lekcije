@@ -3,6 +3,7 @@ package util
 import (
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -26,4 +27,32 @@ func RandomString(length int) string {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
+}
+
+func StringToInterfaceSlice(from ...string) []interface{} {
+	to := make([]interface{}, len(from))
+	for i := range from {
+		to[i] = from[i]
+	}
+	return to
+}
+
+func StringToUint32Slice(from ...string) []uint32 {
+	to := make([]uint32, len(from))
+	for i := range from {
+		tmp, err := strconv.ParseUint(from[i], 10, 32)
+		if err != nil {
+			to[i] = 0
+		}
+		to[i] = uint32(tmp)
+	}
+	return to
+}
+
+func Uint32ToInterfaceSlice(from ...uint32) []interface{} {
+	to := make([]interface{}, len(from))
+	for i := range from {
+		to[i] = from[i]
+	}
+	return to
 }
