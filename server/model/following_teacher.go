@@ -27,6 +27,10 @@ type FollowingTeacherRepository struct {
 
 var FollowingTeacherRepo FollowingTeacherRepository
 
+func (r *FollowingTeacherRepository) TableName() string {
+	return (&FollowingTeacher{}).TableName()
+}
+
 func (r *FollowingTeacherRepository) FindTeachersByUserId(userId uint32) ([]*Teacher, error) {
 	limit := 10
 	values := make([]*Teacher, 0, limit)
@@ -45,4 +49,25 @@ func (r *FollowingTeacherRepository) FindTeachersByUserId(userId uint32) ([]*Tea
 		return values, errors.InternalWrapf(result.Error, "")
 	}
 	return values, nil
+}
+
+func (r *FollowingTeacherRepository) DeleteTeachersByUserIdAndTeacherIds(
+	userId uint32,
+	teacherIds []uint32,
+) (int, error) {
+	if len(teacherIds) == 0 {
+		return 0, nil
+	}
+
+	placeholder := strings.TrimRight(strings.Repeat("?,", len(teacherIds)), ",")
+	sql := fmt.Sprintf("DELETE FROM %s WHERE user_id = ? AND teacher_id IN (%s)", r.TableName(), placeholder)
+	args := []interface{}{userId}
+	for _, teacherId := range teacherIds {
+		args = append(args, teacherId)
+	}
+	if result := r.db.Exec(sql, args...); result.Error != nil {
+		return 0, result.Error
+	} else {
+		return int(result.RowsAffected), nil
+	}
 }
