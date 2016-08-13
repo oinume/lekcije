@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -15,6 +16,16 @@ import (
 )
 
 var _ = fmt.Print
+
+type commonTemplateData struct {
+	StaticUrl string
+}
+
+func getCommonTemplateData() commonTemplateData {
+	return commonTemplateData{
+		StaticUrl: config.StaticUrl(),
+	}
+}
 
 func Index(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	user, err := model.GetLoggedInUser(ctx)
@@ -31,9 +42,10 @@ func indexLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, use
 		TemplatePath("indexLogin.html")),
 	)
 	type Data struct {
+		commonTemplateData
 		Teachers []*model.Teacher
 	}
-	data := &Data{}
+	data := &Data{commonTemplateData: getCommonTemplateData()}
 
 	teachers, err := model.FollowingTeacherRepo.FindTeachersByUserId(user.Id)
 	if err != nil {
@@ -54,8 +66,9 @@ func indexLogout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		TemplatePath("indexLogout.html")),
 	)
 	type Data struct {
+		commonTemplateData
 	}
-	data := &Data{}
+	data := &Data{commonTemplateData: getCommonTemplateData()}
 
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))

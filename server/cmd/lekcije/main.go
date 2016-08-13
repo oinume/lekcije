@@ -21,6 +21,7 @@ var definedEnvs = map[string]string{
 	"GOOGLE_CLIENT_ID":     "",
 	"GOOGLE_CLIENT_SECRET": "",
 	"DB_DSN":               "",
+	"NODE_ENV":             "",
 }
 
 func init() {
