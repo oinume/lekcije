@@ -5,6 +5,18 @@ database:
     - "13306:3306"
   volumes:
     - "./db:/tmp/db"
-    - "./db/conf.d:/etc/mysql/conf.d"
+    - "./volume/mysql/etc/mysql:/etc/mysql"
   environment:
     MYSQL_ROOT_PASSWORD: "root"
+nginx:
+  image: "nginx:latest"
+  command: "bash -c \"mkdir -p /var/log/nginx/{local.lekcije.com,static.local.lekcije.com}/ && chown nginx:nginx /var/log/nginx/{local.lekcije.com,static.local.lekcije.com}/ && nginx -g 'daemon off;' -c /etc/nginx/nginx.conf\""
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - "./static:/var/www/static"
+    - "./volume/nginx/etc/nginx:/etc/nginx"
+    - "./volume/nginx/var/log/nginx:/var/log/nginx"
+  extra_hosts:
+    - "docker-host:10.0.2.2"

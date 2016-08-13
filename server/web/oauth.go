@@ -3,6 +3,7 @@ package web
 // TODO: Create package 'oauth'
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -16,11 +17,12 @@ import (
 	google_auth2 "google.golang.org/api/oauth2/v2"
 )
 
-var googleOAuthConfig = &oauth2.Config{
+var _ = fmt.Print
+var googleOAuthConfig = oauth2.Config{
 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 	Endpoint:     google.Endpoint,
-	RedirectURL:  "http://localhost:4000/oauth/google/callback",
+	RedirectURL:  "",
 	Scopes: []string{
 		"openid email",
 		"openid profile",
@@ -37,7 +39,8 @@ func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
-	http.Redirect(w, r, googleOAuthConfig.AuthCodeURL(state), http.StatusFound)
+	c := getGoogleOAuthConfig(fmt.Sprintf("http://%s/oauth/google/callback", r.Host)) // TODO: scheme
+	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
 }
 
 func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Request) {
@@ -111,7 +114,8 @@ func checkState(r *http.Request) error {
 
 func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	code := r.FormValue("code")
-	token, err := googleOAuthConfig.Exchange(oauth2.NoContext, code)
+	c := getGoogleOAuthConfig(fmt.Sprintf("http://%s/oauth/google/callback", r.Host)) // TODO: scheme
+	token, err := c.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Failed to exchange")
 	}
@@ -140,4 +144,10 @@ func getNameAndEmail(token *oauth2.Token, idToken string) (string, string, error
 	}
 
 	return userinfo.Name, tokeninfo.Email, nil
+}
+
+func getGoogleOAuthConfig(redirectUrl string) oauth2.Config {
+	c := googleOAuthConfig
+	c.RedirectURL = redirectUrl
+	return c
 }
