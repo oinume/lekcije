@@ -3,7 +3,6 @@ package web
 // TODO: Create package 'oauth'
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -21,7 +20,7 @@ var googleOAuthConfig = &oauth2.Config{
 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 	Endpoint:     google.Endpoint,
-	RedirectURL:  fmt.Sprintf("http://localhost:%d/oauth/google/callback", 4000),
+	RedirectURL:  "http://localhost:4000/oauth/google/callback",
 	Scopes: []string{
 		"openid email",
 		"openid profile",
