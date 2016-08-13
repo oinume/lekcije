@@ -124,7 +124,7 @@ const config = {
     host: '0.0.0.0',  // Change to '0.0.0.0' for external facing server
     proxy: {
       '*': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:4001',
         secure: false,
         // bypass: function (req, res, proxyOptions) {
         //     const accept = req.headers.accept

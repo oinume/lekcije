@@ -39,11 +39,7 @@ func init() {
 }
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "5000"
-	}
-
+	port := web.ListenPort()
 	mux := mux()
 	fmt.Printf("Listening on :%v\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
