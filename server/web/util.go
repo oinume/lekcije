@@ -3,7 +3,9 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path"
+	"strconv"
 
 	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/errors"
@@ -13,6 +15,18 @@ const ApiTokenCookieName = "apiToken"
 
 type stackTracer interface {
 	StackTrace() errors.StackTrace
+}
+
+func ListenPort() int {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4001"
+	}
+	p, err := strconv.ParseInt(port, 10, 32)
+	if err != nil {
+		return -1
+	}
+	return int(p)
 }
 
 func TemplateDir() string {
