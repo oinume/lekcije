@@ -28,3 +28,4 @@ import:
   - package: github.com/uber-go/atomic
   - package: github.com/oinume/goenum
   - package: github.com/pkg/errors
+  - package: github.com/sclevine/agouti

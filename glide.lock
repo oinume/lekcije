@@ -1,10 +1,15 @@
-hash: c579869b3aa4eda4164821e7046e6551d48f29f61dad2ed09506e72f2f7df0a7
-updated: 2016-07-08T14:14:23.047525029+09:00
+hash: 7cefb346e11853153c9d3073430f49d75ce6a3ddde1e6a46c3ffb414799aa2f1
+updated: 2016-08-14T20:41:34.648273337+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
   subpackages:
   - cmd/goose
+- name: cloud.google.com/go
+  version: 9696460acdaa8a7b2505fa6230ac54b4e97a9961
+  subpackages:
+  - compute/metadata
+  - internal
 - name: github.com/cespare/reflex
   version: d99c749bd424bf5fb5f63229f0cb4baffdc81f9d
 - name: github.com/davecgh/go-spew
@@ -12,13 +17,13 @@ imports:
   subpackages:
   - spew
 - name: github.com/go-sql-driver/mysql
-  version: 3654d25ec346ee8ce71a68431025458d52a38ac0
+  version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
 - name: github.com/golang/protobuf
-  version: 3852dcfda249c2097355a6aabb199a28d97b30df
+  version: 2c1988e8c18d14b142c0b472624f71647cf39adb
   subpackages:
   - proto
 - name: github.com/jinzhu/gorm
-  version: c1c4f9f86e732a042aac9f37e025893d6d6cabec
+  version: 2f27f0f27f12f5c68ae4b12213b34fdff312dcf3
   subpackages:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
@@ -26,16 +31,18 @@ imports:
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
-  version: a2d6902c6d2a2f194eb3fb474981ab7867c81505
+  version: a22138067af1c4942683050411a841ade67fe1eb
+- name: github.com/sclevine/agouti
+  version: e5378e70dca437a9e16cc6d71a85aa0045dd94c7
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
   subpackages:
   - assert
   - mock
 - name: github.com/uber-go/atomic
-  version: e682c1008ac17bf26d2e4b5ad6cdd08520ed0b22
+  version: 0c9e689d64f004564b79d9a663634756df322902
 - name: github.com/uber-go/zap
-  version: 469a1280b2b59c39f5aed25f9b823f00c6fd3e16
+  version: d11d2851fcabcf03421c4dbdbc3146fc74eb1035
 - name: goji.io
   version: e355964ac565b94cf0fc7f218346626529125086
   subpackages:
@@ -43,28 +50,28 @@ imports:
   - internal
   - pattern
 - name: golang.org/x/net
-  version: b400c2eff1badec7022a8c8f5bea058b6315eed7
+  version: 07b51741c1d6423d4a6abab1c49940ec09cb1aaf
   subpackages:
   - context
   - html
   - context/ctxhttp
   - html/atom
 - name: golang.org/x/oauth2
-  version: df5b72659a3b1789a345ea643bb7c28442681652
+  version: 4784bb855e56a530f1ce5d788959359ed6cb4a16
   subpackages:
   - google
   - internal
   - jws
   - jwt
 - name: google.golang.org/api
-  version: c13a21ee847eca050f08db8373d8737494a1170e
+  version: 8ae9b02432fd8417fb9359af58f473036b094d20
   subpackages:
   - oauth2/v2
   - gensupport
   - googleapi
   - googleapi/internal/uritemplates
 - name: google.golang.org/appengine
-  version: 267c27e7492265b84fc6719503b14a1e17975d79
+  version: e951d3868b377b14f4e60efa3a301532ee3c1ebf
   subpackages:
   - urlfetch
   - internal
@@ -75,11 +82,6 @@ imports:
   - internal/datastore
   - internal/log
   - internal/remote_api
-- name: google.golang.org/cloud
-  version: ebfe3819c9ab4acaf086ae57e4cbd7dee683baf0
-  subpackages:
-  - compute/metadata
-  - internal
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 testImports:
