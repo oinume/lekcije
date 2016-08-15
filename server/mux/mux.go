@@ -15,6 +15,7 @@ func Create() *goji.Mux {
 	mux.UseC(middleware.SetLoggedInUserToContext)
 	mux.UseC(middleware.LoginRequiredFilter)
 
+	mux.HandleFunc(pat.Get("/static/*"), web.Static)
 	mux.HandleFuncC(pat.Get("/"), web.Index)
 	mux.HandleFuncC(pat.Get("/logout"), web.Logout)
 	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
