@@ -9,6 +9,11 @@ make setup
 npm install
 ```
 
+## For developers
+```bash
+brew install chromedriver
+```
+
 # Develop on your local machine
 
 ### Run MySQL server

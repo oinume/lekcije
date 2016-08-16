@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"bytes"
 	"testing"
 	"fmt"
 	"os"
@@ -11,12 +12,18 @@ import (
 
 	"github.com/oinume/lekcije/server/web"
 	"github.com/oinume/lekcije/server/mux"
+	"github.com/oinume/lekcije/server/logger"
+	"github.com/uber-go/zap"
 )
 
 var server *httptest.Server
 var client = http.DefaultClient
 
 func TestMain(m *testing.M) {
+	var accessLogBuffer bytes.Buffer
+	var appLogBuffer bytes.Buffer
+	logger.AccessLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&accessLogBuffer)))
+	logger.AppLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&appLogBuffer)))
 	port := web.ListenPort()
 	mux := mux.Create()
 	port += 1
@@ -28,14 +35,6 @@ func TestMain(m *testing.M) {
 	os.Chdir("../")
 	status := m.Run()
 	defer os.Exit(status)
-}
-
-func TestLogin(t *testing.T) {
-	resp, err := client.Get(server.URL)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("status=%d\n", resp.StatusCode)
 }
 
 // newTestServer returns a new test Server with fixed port number.

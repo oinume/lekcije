@@ -5,24 +5,23 @@ import (
 
 	"github.com/sclevine/agouti"
 	"github.com/stretchr/testify/assert"
-	"time"
 )
 
 func TestIndex(t *testing.T) {
 	a := assert.New(t)
 	driver := agouti.ChromeDriver()
 	//driver := agouti.PhantomJS()
-	//driver.HTTPClient = client
+	driver.HTTPClient = client
 	err := driver.Start()
 	a.NoError(err)
 	defer driver.Stop()
 
 	page, err := driver.NewPage()
 	a.NoError(err)
-	err = page.Navigate(server.URL)
-	a.NoError(err)
-	time.Sleep(10 * time.Second)
-
+	a.NoError(page.Navigate(server.URL))
+	//time.Sleep(10 * time.Second)
+	button := page.Find("#btn-primary")
+	a.NotEmpty(button.String())
 	//if err := page.Navigate(oauthURL); err != nil {
 	//	return "", err
 	//}
