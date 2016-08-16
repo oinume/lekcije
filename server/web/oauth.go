@@ -39,12 +39,7 @@ func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
-
-	scheme := "http"
-	if r.Header.Get("X-Forwarded-Proto") == "https" {
-		scheme = "https"
-	}
-	c := getGoogleOAuthConfig(fmt.Sprintf("%s://%s/oauth/google/callback", scheme, r.Host))
+	c := getGoogleOAuthConfig(r)
 	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
 }
 
@@ -119,7 +114,7 @@ func checkState(r *http.Request) error {
 
 func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	code := r.FormValue("code")
-	c := getGoogleOAuthConfig(fmt.Sprintf("http://%s/oauth/google/callback", r.Host)) // TODO: scheme
+	c := getGoogleOAuthConfig(r)
 	token, err := c.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Failed to exchange")
@@ -151,8 +146,12 @@ func getNameAndEmail(token *oauth2.Token, idToken string) (string, string, error
 	return userinfo.Name, tokeninfo.Email, nil
 }
 
-func getGoogleOAuthConfig(redirectUrl string) oauth2.Config {
+func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	c := googleOAuthConfig
-	c.RedirectURL = redirectUrl
+	scheme := "http"
+	if r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", scheme, r.Host)
 	return c
 }
