@@ -39,7 +39,12 @@ func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
-	c := getGoogleOAuthConfig(fmt.Sprintf("http://%s/oauth/google/callback", r.Host)) // TODO: scheme
+
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	c := getGoogleOAuthConfig(fmt.Sprintf("%s://%s/oauth/google/callback", scheme, r.Host))
 	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
 }
 
