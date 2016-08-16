@@ -1,6 +1,12 @@
 package logger
 
-import "github.com/uber-go/zap"
+import (
+	"os"
 
-var AccessLogger zap.Logger
-var AppLogger zap.Logger
+	"github.com/uber-go/zap"
+)
+
+var (
+	AccessLogger = zap.New(zap.NewJSONEncoder(), zap.Output(os.Stdout))
+	AppLogger    = zap.New(zap.NewJSONEncoder(), zap.Output(os.Stderr))
+)

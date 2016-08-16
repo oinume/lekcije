@@ -7,13 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/mux"
 	"github.com/oinume/lekcije/server/web"
-	"github.com/oinume/lekcije/server/web/api"
-	"github.com/oinume/lekcije/server/web/middleware"
-	"github.com/uber-go/zap"
-	"goji.io"
-	"goji.io/pat"
 )
 
 // TODO: move somewhere proper
@@ -21,6 +16,7 @@ var definedEnvs = map[string]string{
 	"GOOGLE_CLIENT_ID":     "",
 	"GOOGLE_CLIENT_SECRET": "",
 	"DB_DSN":               "",
+	"NODE_ENV":             "",
 }
 
 func init() {
@@ -33,33 +29,12 @@ func init() {
 		}
 	}
 
-	logger.AccessLogger = zap.NewJSON(zap.Output(os.Stdout))
-	logger.AppLogger = zap.NewJSON(zap.Output(os.Stderr))
 	http.DefaultClient.Timeout = 5 * time.Second
 }
 
 func main() {
 	port := web.ListenPort()
-	mux := mux()
+	mux := mux.Create()
 	fmt.Printf("Listening on :%v\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
-}
-
-func mux() *goji.Mux {
-	mux := goji.NewMux()
-	mux.UseC(middleware.AccessLogger)
-	mux.UseC(middleware.SetDbToContext)
-	mux.UseC(middleware.SetLoggedInUserToContext)
-	mux.UseC(middleware.LoginRequiredFilter)
-
-	mux.HandleFuncC(pat.Get("/"), web.Index)
-	mux.HandleFuncC(pat.Get("/logout"), web.Logout)
-	mux.HandleFuncC(pat.Get("/oauth/google"), web.OAuthGoogle)
-	mux.HandleFuncC(pat.Get("/oauth/google/callback"), web.OAuthGoogleCallback)
-	mux.HandleFuncC(pat.Post("/me/followingTeachers/create"), web.PostMeFollowingTeachersCreate)
-	mux.HandleFuncC(pat.Post("/me/followingTeachers/delete"), web.PostMeFollowingTeachersDelete)
-
-	mux.HandleFuncC(pat.Get("/api/status"), api.GetStatus)
-	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
-	return mux
 }

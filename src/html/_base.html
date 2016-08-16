@@ -1,19 +1,17 @@
 <!doctype html>
 <html class="no-js" lang="">
-
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{{block "title" .}}lekcije - Follow your favorite teacher in DMM Eikaiwa{{end}}</title>
+  <title>{{ block "title" . }}lekcije - Follow your favorite teacher in DMM Eikaiwa{{ end }}</title>
   <meta name="description" content="Google's material design UI components built with React.">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1">
-  {{ block "headCss" . }}
-  <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="/static/lib/bootswatch/yeti/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="/static/main.css">
-  {{ end }}
+  {{- block "headCss" . }}
+  <link rel="stylesheet" type="text/css" href="{{ .StaticUrl }}/lib/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ .StaticUrl }}/lib/bootswatch/yeti/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ .StaticUrl }}/main.css">
+  {{- end }}
 </head>
-
 <body>
 <div>
   <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -36,21 +34,12 @@
       </div>
     </div>
   </nav>
-
-  <!--
-  <div class="container">
-    <div class="starter-template">
-      <a href="/oauth/google" class="btn btn-primary">Google Sign in</a>
-    </div>
-  </div>
--->
-  {{ block "content" . }}
+  {{- block "content" . }}
   <div>
     default block
   </div>
-  {{ end }}
+  {{- end }}
 </div>
-
 <!-- This script adds the Roboto font to our project. For more detail go to this site:  http://www.google.com/fonts#UsePlace:use/Collection:Roboto:400,300,500 -->
 <script>
 var WebFontConfig = {
@@ -66,9 +55,9 @@ var WebFontConfig = {
   s.parentNode.insertBefore(wf, s);
 })();
 </script>
-<script src="/static/lib/jquery/dist/jquery.min.js"></script>
-<script src="/static/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/static/main.js"></script>
+<script src="{{ .StaticUrl }}/lib/jquery/dist/jquery.min.js"></script>
+<script src="{{ .StaticUrl }}/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="{{ .StaticUrl }}/main.js"></script>
 </body>
 
 </html>

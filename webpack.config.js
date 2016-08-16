@@ -80,6 +80,14 @@ const config = {
         // },
         exclude: [nodeModulesPath]
       },
+      // {
+      //   test: /\//,
+      //   loader: 'string-replace',
+      //   query: {
+      //     search: '$staticUrl$',
+      //     replace: 'http://static.local.lekcije.com/static'
+      //   }
+      // },
       {
         test: /\.css$/,
         loader: "style-loader!css-loader"

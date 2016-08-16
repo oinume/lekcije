@@ -35,7 +35,7 @@ type TeacherLessonFetcher struct {
 func NewTeacherLessonFetcher(httpClient *http.Client, log zap.Logger) *TeacherLessonFetcher {
 	// TODO: retry
 	if log == nil {
-		log = zap.NewJSON()
+		log = zap.New(zap.NewJSONEncoder())
 	}
 	return &TeacherLessonFetcher{
 		httpClient: httpClient,
