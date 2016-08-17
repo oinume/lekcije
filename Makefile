@@ -14,3 +14,6 @@ serve:
 
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
+
+e2e_test:
+	go test -v github.com/oinume/lekcije/e2e
