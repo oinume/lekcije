@@ -10,7 +10,7 @@
     "build": "webpack --config webpack.config.js --progress --colors",
     "lint": "eslint src && echo \"eslint: no lint errors\"",
     "postinstall": "npm run build",
-    "serve": "webpack-dev-server --config webpack.config.js --progress --inline --colors",
+    "serve": "WEBPACK_DEV_SERVER=true webpack-dev-server --hot --config webpack.config.js --progress --inline --colors",
     "start": "npm run serve",
     "test": "karma start",
     "test-watch": "karma start --auto-watch --no-single-run"

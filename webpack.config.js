@@ -9,7 +9,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server only
 
 var devtool = 'source-map'; // Render source-map file for final build
-var entry = [];
 var plugins = [
   new webpack.NoErrorsPlugin(),
   new CopyWebpackPlugin([
@@ -19,29 +18,25 @@ var plugins = [
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
   ])
-]
-if (process.env.NODE_ENV === 'production') {
-  console.log('NODE_ENV is production');
+];
+
+if (process.env.MINIFY === 'true') {
+  console.log('MINIFY = true');
   plugins.push(
     // Minify the bundle
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         //supresses warnings, usually from module minification
         warnings: false,
-      },
+      }
     })
   );
-} else {
-  console.log('NODE_ENV is ' + process.env.NODE_ENV);
-  devtool = 'eval';
-  entry.push(
-    'webpack/hot/dev-server',
-    'webpack/hot/only-dev-server'
-  );
+}
 
+if (process.env.WEBPACK_DEV_SERVER === 'true') {
+  console.log('WEBPACK_DEV_SERVER is true');
+  devtool = 'eval';
   plugins.push(
-    // Enables Hot Modules Replacement
-    new webpack.HotModuleReplacementPlugin(),
     new TransferWebpackPlugin([
       {from: 'html'},
       {from: 'css'},
@@ -52,10 +47,8 @@ if (process.env.NODE_ENV === 'production') {
   );
 }
 
-entry.push(path.join(__dirname, '/src/app/main.js'));
-
 const config = {
-  entry: entry,
+  entry: path.join(__dirname, '/src/app/main.js'),
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ["", ".js"],
