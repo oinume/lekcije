@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"testing"
 
@@ -11,33 +12,73 @@ import (
 
 var _ = fmt.Print
 
+type errorTransport struct {
+	errorThreshold int
+	callCount      int
+}
+
+func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	t.callCount++
+	if t.callCount < t.errorThreshold {
+		return nil, fmt.Errorf("Please retry.")
+	}
+
+	resp := &http.Response{
+		Header:     make(http.Header),
+		Request:    req,
+		StatusCode: http.StatusOK,
+	}
+	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+
+	file, err := os.Open("testdata/5982.html")
+	if err != nil {
+		return nil, err
+	}
+	resp.Body = file // Close() will be called by client
+	return resp, nil
+}
+
 func TestFetch(t *testing.T) {
-	assert := assert.New(t)
-	fetcher := NewTeacherLessonFetcher(nil, nil)
-	teacher, _, err := fetcher.Fetch(1523)
-	assert.NoError(err)
-	assert.Equal("Crizelle", teacher.Name)
+	a := assert.New(t)
+	transport := &errorTransport{errorThreshold: 0}
+	client := &http.Client{Transport: transport}
+	fetcher := NewTeacherLessonFetcher(client, nil)
+	teacher, _, err := fetcher.Fetch(5982)
+	a.NoError(err)
+	a.Equal("Xai", teacher.Name)
+	a.Equal(1, transport.callCount)
+}
+
+func TestFetchRetry(t *testing.T) {
+	a := assert.New(t)
+	transport := &errorTransport{errorThreshold: 2}
+	client := &http.Client{Transport: transport}
+	fetcher := NewTeacherLessonFetcher(client, nil)
+	teacher, _, err := fetcher.Fetch(5982)
+	a.NoError(err)
+	a.Equal("Xai", teacher.Name)
+	a.Equal(2, transport.callCount)
 }
 
 func TestParseHtml(t *testing.T) {
-	assert := assert.New(t)
+	a := assert.New(t)
 	fetcher := NewTeacherLessonFetcher(nil, nil)
 	file, err := os.Open("testdata/5982.html")
-	assert.NoError(err)
+	a.NoError(err)
 	defer file.Close()
 
 	teacher, lessons, err := fetcher.parseHtml(model.NewTeacher(uint32(5982)), file)
-	assert.Equal("Xai", teacher.Name)
-	assert.True(len(lessons) > 0)
+	a.Equal("Xai", teacher.Name)
+	a.True(len(lessons) > 0)
 	for _, lesson := range lessons {
 		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 11:00" {
-			assert.Equal("Finished", lesson.Status)
+			a.Equal("Finished", lesson.Status)
 		}
 		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 16:30" {
-			assert.Equal("Reservable", lesson.Status)
+			a.Equal("Reservable", lesson.Status)
 		}
 		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 18:00" {
-			assert.Equal("Reserved", lesson.Status)
+			a.Equal("Reserved", lesson.Status)
 		}
 	}
 	//fmt.Printf("%v\n", spew.Sdump(lessons))
