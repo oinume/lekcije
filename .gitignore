@@ -18,3 +18,6 @@ __pycache__/
 
 # DB
 db/dbconf-production.yml
+
+# Docker
+volume/nginx/var/log

@@ -1,12 +1,12 @@
-hash: 56f93bc020f8e81d73507c81d3bbdb2c23a8715ea4ecf5b16b473f23e3cf1c17
-updated: 2016-08-18T15:59:53.938552136+09:00
+hash: dea3e5aeb44220efb2e1057ac4680702605330fa38bdf5ec5d373e371a0ea827
+updated: 2016-08-19T10:48:26.467803717+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
   subpackages:
   - cmd/goose
 - name: cloud.google.com/go
-  version: 9696460acdaa8a7b2505fa6230ac54b4e97a9961
+  version: 05253f6a829103296c351b643f6815aedd81a3fb
   subpackages:
   - compute/metadata
   - internal
@@ -19,19 +19,23 @@ imports:
 - name: github.com/go-sql-driver/mysql
   version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
 - name: github.com/golang/protobuf
-  version: 2c1988e8c18d14b142c0b472624f71647cf39adb
+  version: f592bd283e9ef86337a432eb50e592278c3d534d
   subpackages:
   - proto
 - name: github.com/jinzhu/gorm
-  version: 2f27f0f27f12f5c68ae4b12213b34fdff312dcf3
+  version: 35a2a004d880453f0bbd3716bcc63da1cb15b77b
   subpackages:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
-  version: 8f4d3a0d04ce0b7c0cf3126fb98524246d00d102
+  version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
   version: a22138067af1c4942683050411a841ade67fe1eb
+- name: github.com/rs/cors
+  version: a62a804a8a009876ca59105f7899938a1349f4b3
+- name: github.com/rs/xhandler
+  version: ed27b6fd65218132ee50cd95f38474a3d8a2cd12
 - name: github.com/sclevine/agouti
   version: e5378e70dca437a9e16cc6d71a85aa0045dd94c7
   subpackages:
@@ -65,14 +69,14 @@ imports:
   - context/ctxhttp
   - html/atom
 - name: golang.org/x/oauth2
-  version: 4784bb855e56a530f1ce5d788959359ed6cb4a16
+  version: 3b966c7f301c0c71c53d94dc632a62df0a682cd7
   subpackages:
   - google
   - internal
   - jws
   - jwt
 - name: google.golang.org/api
-  version: 8ae9b02432fd8417fb9359af58f473036b094d20
+  version: 71d10c782fc13eb9f2e2c9af553da218c941851f
   subpackages:
   - oauth2/v2
   - gensupport

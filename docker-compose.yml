@@ -15,7 +15,7 @@ nginx:
     - "80:80"
     - "443:443"
   volumes:
-    - "./static:/var/www/static"
+    - "./static:/var/www/lekcije/static"
     - "./volume/nginx/etc/nginx:/etc/nginx"
     - "./volume/nginx/var/log/nginx:/var/log/nginx"
   extra_hosts:
