@@ -4,9 +4,9 @@ import "os"
 
 func StaticUrl() string {
 	if IsProductionEnv() {
-		return "http://static.lekcije.com/static"
+		return "https://asset.lekcije.com/static"
 	} else if IsDevelopmentEnv() {
-		return "http://static.local.lekcije.com/static"
+		return "http://asset.local.lekcije.com/static"
 	} else {
 		return "/static"
 	}
