@@ -1,5 +1,5 @@
-hash: 7cefb346e11853153c9d3073430f49d75ce6a3ddde1e6a46c3ffb414799aa2f1
-updated: 2016-08-14T20:41:34.648273337+09:00
+hash: 56f93bc020f8e81d73507c81d3bbdb2c23a8715ea4ecf5b16b473f23e3cf1c17
+updated: 2016-08-18T15:59:53.938552136+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -34,6 +34,14 @@ imports:
   version: a22138067af1c4942683050411a841ade67fe1eb
 - name: github.com/sclevine/agouti
   version: e5378e70dca437a9e16cc6d71a85aa0045dd94c7
+  subpackages:
+  - api
+  - internal/element
+  - internal/target
+  - api/internal/bus
+  - api/internal/service
+- name: github.com/Songmu/retry
+  version: 8a08e074f774598e288a170169bb5a0aa46870e8
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
   subpackages:
