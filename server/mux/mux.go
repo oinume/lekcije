@@ -14,6 +14,7 @@ func Create() *goji.Mux {
 	mux.UseC(middleware.SetDbToContext)
 	mux.UseC(middleware.SetLoggedInUserToContext)
 	mux.UseC(middleware.LoginRequiredFilter)
+	mux.UseC(middleware.CORS)
 
 	mux.HandleFunc(pat.Get("/static/*"), web.Static)
 	mux.HandleFuncC(pat.Get("/"), web.Index)
@@ -27,3 +28,4 @@ func Create() *goji.Mux {
 	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
 	return mux
 }
+

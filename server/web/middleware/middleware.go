@@ -6,9 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/web"
+	"github.com/rs/cors"
 	"github.com/uber-go/zap"
 	"goji.io"
 	"golang.org/x/net/context"
@@ -110,6 +112,22 @@ func LoginRequiredFilter(h goji.Handler) goji.Handler {
 			return
 		}
 		h.ServeHTTPC(c, w, r)
+	}
+	return goji.HandlerFunc(fn)
+}
+
+func CORS(h goji.Handler) goji.Handler {
+	origins := []string{}
+	if strings.HasPrefix(config.StaticUrl(), "http") {
+		origins = append(origins, strings.TrimRight(config.StaticUrl(), "/static"))
+	}
+	c := cors.New(cors.Options{
+		AllowedOrigins: origins,
+		//Debug:          true,
+	})
+	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+		c.HandlerFunc(w, r)
+		h.ServeHTTPC(ctx, w, r)
 	}
 	return goji.HandlerFunc(fn)
 }
