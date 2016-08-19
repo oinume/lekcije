@@ -3,14 +3,16 @@ package fetcher
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Songmu/retry"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/pkg/errors"
 	"github.com/uber-go/zap"
 	"gopkg.in/xmlpath.v2"
 )
@@ -33,7 +35,6 @@ type TeacherLessonFetcher struct {
 }
 
 func NewTeacherLessonFetcher(httpClient *http.Client, log zap.Logger) *TeacherLessonFetcher {
-	// TODO: retry
 	if log == nil {
 		log = zap.New(zap.NewJSONEncoder())
 	}
@@ -45,25 +46,41 @@ func NewTeacherLessonFetcher(httpClient *http.Client, log zap.Logger) *TeacherLe
 
 func (fetcher *TeacherLessonFetcher) Fetch(teacherId uint32) (*model.Teacher, []*model.Lesson, error) {
 	teacher := model.NewTeacher(teacherId)
-	req, err := http.NewRequest("GET", teacher.Url(), nil)
+	var content string
+	err := retry.Retry(2, 300*time.Millisecond, func() error {
+		var err error
+		content, err = fetcher.fetchContent(teacher.Url())
+		return err
+	})
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "Failed to create HTTP request")
+		return nil, nil, err
+	}
+	return fetcher.parseHtml(teacher, strings.NewReader(content))
+}
+
+func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
 	}
 
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "Failed httpClient.Do()")
+		return "", errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, nil, errors.Errorf(
-			"fetch error: url=%v, status=%v",
-			teacher.Url(), resp.StatusCode,
+		return "", errors.Internalf(
+			"fetch schedule error: url=%v, status =%v",
+			url, resp.StatusCode,
 		)
 	}
-	return fetcher.parseHtml(teacher, resp.Body)
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", errors.InternalWrapf(err, "Failed ioutil.ReadAll(): url=%v", url)
+	}
+	return string(b), nil
 }
 
 func (fetcher *TeacherLessonFetcher) parseHtml(
@@ -79,7 +96,7 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 	if title, ok := titleXPath.String(root); ok {
 		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
 	} else {
-		return nil, nil, errors.Errorf("failed to fetch teacher's name: url=%v", teacher.Url)
+		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.Url)
 	}
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)

@@ -1,12 +1,12 @@
-hash: 1fb62fa19c0e85cd030ff2fe9deb8d18b4532b4bf903aff63ac05249f6d46a85
-updated: 2016-08-18T02:08:24.950771779+09:00
+hash: dea3e5aeb44220efb2e1057ac4680702605330fa38bdf5ec5d373e371a0ea827
+updated: 2016-08-19T10:48:26.467803717+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
   subpackages:
   - cmd/goose
 - name: cloud.google.com/go
-  version: beb4744babd859cb2db202c7e3896ae259cca31a
+  version: 05253f6a829103296c351b643f6815aedd81a3fb
   subpackages:
   - compute/metadata
   - internal
@@ -19,7 +19,7 @@ imports:
 - name: github.com/go-sql-driver/mysql
   version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
 - name: github.com/golang/protobuf
-  version: 7390af9dcd3c33042ebaf2474a1724a83cf1a7e6
+  version: f592bd283e9ef86337a432eb50e592278c3d534d
   subpackages:
   - proto
 - name: github.com/jinzhu/gorm
@@ -44,6 +44,8 @@ imports:
   - internal/target
   - api/internal/bus
   - api/internal/service
+- name: github.com/Songmu/retry
+  version: 8a08e074f774598e288a170169bb5a0aa46870e8
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
   subpackages:
@@ -74,7 +76,7 @@ imports:
   - jws
   - jwt
 - name: google.golang.org/api
-  version: 8ae9b02432fd8417fb9359af58f473036b094d20
+  version: 71d10c782fc13eb9f2e2c9af553da218c941851f
   subpackages:
   - oauth2/v2
   - gensupport

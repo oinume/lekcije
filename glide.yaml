@@ -31,3 +31,4 @@ import:
   - package: github.com/sclevine/agouti
   - package: github.com/rs/cors
   - package: github.com/rs/xhandler
+  - package: github.com/Songmu/retry
