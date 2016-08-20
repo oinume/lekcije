@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -32,7 +31,7 @@ func Open() (*gorm.DB, error) {
 	dbDsn := os.Getenv("DB_DSN")
 	db, err := gorm.Open(
 		"mysql",
-		fmt.Sprintf("%v?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo&time_zone=JST", dbDsn),
+		dbDsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
 	)
 	if err != nil {
 		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
