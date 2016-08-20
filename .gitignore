@@ -21,3 +21,7 @@ db/dbconf-production.yml
 
 # Docker
 volume/nginx/var/log
+
+# Other
+deploy_static.sh
+
