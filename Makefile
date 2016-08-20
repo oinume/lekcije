@@ -1,3 +1,7 @@
+E2E_TEST_ARGS="-v"
+GO_TEST_ARGS="-v"
+GO_TEST_PACKAGES=$(shell go list ./... | grep -v cmd | grep -v e2e | grep -v vendor)
+
 all: install
 
 .PHONY: install
@@ -16,4 +20,7 @@ install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
 e2e_test:
-	go test -v github.com/oinume/lekcije/e2e
+	go test $(E2E_TEST_ARGS) github.com/oinume/lekcije/e2e
+
+go_test:
+	go test $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
