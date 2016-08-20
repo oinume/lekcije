@@ -12,13 +12,14 @@ dependencies:
     - git config --global url."https://github.com".insteadOf git://github.com
     - mysql -uroot -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci;"
     - mysql -uroot -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
-    - mkdir -p ${GOPATH_PROJECT}
-    - rsync -a ~/lekcije/ ${GOPATH_PROJECT}/
-    - cd ${GOPATH_PROJECT}
+    - mkdir -p $(dirname ${GOPATH_PROJECT})
+    #- rsync -a ~/lekcije/ ${GOPATH_PROJECT}/
+    - rm -rf ${GOPATH_PROJECT}
+    - ln -s ~/lekcije ${GOPATH_PROJECT}
     - go get github.com/Masterminds/glide
     - go get golang.org/x/tools/cmd/goimports
     - go get bitbucket.org/liamstask/goose/cmd/goose
-    - glide install
+    - cd ${GOPATH_PROJECT} && glide install
 test:
   override:
     - cd ${GOPATH_PROJECT} && make go_test
