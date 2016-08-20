@@ -1,0 +1,17 @@
+machine:
+  environment:
+    DB_DSN: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
+#    GOPATH: "${HOME}/go"
+#    PATH: "${PATH}:${HOME}/go/bin"
+  services:
+    - mysql
+dependencies:
+  pre:
+    - echo "" > ~/.gitconfig
+    - git config --global url."https://github.com".insteadOf git://github.com
+    - make setup
+    - mysql -uroot -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci;"
+    - mysql -uroot -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
+test:
+  override:
+    - make go_test
