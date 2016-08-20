@@ -2,6 +2,8 @@ E2E_TEST_ARGS="-v"
 GO_TEST_ARGS="-v"
 GO_TEST_PACKAGES=$(shell go list ./... | grep -v cmd | grep -v e2e | grep -v vendor)
 
+export DB_DSN="lekcije:lekcije@tcp(192.168.99.100:13306)/lekcije"
+
 all: install
 
 .PHONY: install
