@@ -32,12 +32,12 @@ func Open() (*gorm.DB, error) {
 	dbDsn := os.Getenv("DB_DSN")
 	db, err := gorm.Open(
 		"mysql",
-		fmt.Sprintf("%v?charset=utf8mb4&parseTime=true&loc=UTC", dbDsn),
+		fmt.Sprintf("%v?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo&time_zone=JST", dbDsn),
 	)
 	if err != nil {
 		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
 	}
-	db.LogMode(true)
+	db.LogMode(true) // TODO: off in production
 	return db, nil
 }
 
