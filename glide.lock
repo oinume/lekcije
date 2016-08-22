@@ -1,12 +1,12 @@
 hash: dea3e5aeb44220efb2e1057ac4680702605330fa38bdf5ec5d373e371a0ea827
-updated: 2016-08-19T10:48:26.467803717+09:00
+updated: 2016-08-23T01:00:30.578377493+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
   subpackages:
   - cmd/goose
 - name: cloud.google.com/go
-  version: 05253f6a829103296c351b643f6815aedd81a3fb
+  version: e977e3911f5ba211c715d40c30fc81abfa9400ae
   subpackages:
   - compute/metadata
   - internal
@@ -31,7 +31,7 @@ imports:
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
-  version: a22138067af1c4942683050411a841ade67fe1eb
+  version: 17b591df37844cde689f4d5813e5cea0927d8dd2
 - name: github.com/rs/cors
   version: a62a804a8a009876ca59105f7899938a1349f4b3
 - name: github.com/rs/xhandler
@@ -62,11 +62,11 @@ imports:
   - internal
   - pattern
 - name: golang.org/x/net
-  version: 07b51741c1d6423d4a6abab1c49940ec09cb1aaf
+  version: 7394c112eae4dba7e96bfcfe738e6373d61772b4
   subpackages:
   - context
-  - html
   - context/ctxhttp
+  - html
   - html/atom
 - name: golang.org/x/oauth2
   version: 3b966c7f301c0c71c53d94dc632a62df0a682cd7
