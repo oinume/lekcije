@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/oinume/lekcije/tree/master.svg?style=svg)](https://circleci.com/gh/oinume/lekcije/tree/master)
+
 # lekcije
 Follow your favorite teachers in DMM Eikaiwa and receive notification when favorite teachers open lessons.
 
