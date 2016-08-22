@@ -1,15 +1,16 @@
 package controller
 
 import (
+	"html/template"
 	"net/http"
 	"time"
 
-	"golang.org/x/net/context"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
+	"golang.org/x/net/context"
 )
 
 func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
@@ -84,6 +85,19 @@ func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r
 
 func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	//user := model.MustLoggedInUser(ctx)
+	t := template.Must(template.ParseFiles(
+		TemplatePath("_base.html"),
+		TemplatePath("me/setting.html")),
+	)
+	type Data struct {
+		commonTemplateData
+	}
+	data := &Data{commonTemplateData: getCommonTemplateData()}
+
+	if err := t.Execute(w, data); err != nil {
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		return
+	}
 }
 
 func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
