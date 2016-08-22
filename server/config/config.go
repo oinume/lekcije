@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 func StaticUrl() string {
 	if IsProductionEnv() {
@@ -26,4 +29,16 @@ func IsDevelopmentEnv() bool {
 
 func IsLocalEnv() bool {
 	return EnvString() == "local"
+}
+
+func ListenPort() int {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4001"
+	}
+	p, err := strconv.ParseInt(port, 10, 32)
+	if err != nil {
+		return -1
+	}
+	return int(p)
 }
