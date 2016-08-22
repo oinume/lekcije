@@ -13,13 +13,13 @@ import (
 var _ = fmt.Print
 
 type errorTransport struct {
-	errorThreshold int
-	callCount      int
+	okThreshold int
+	callCount   int
 }
 
 func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	t.callCount++
-	if t.callCount < t.errorThreshold {
+	if t.callCount < t.okThreshold {
 		return nil, fmt.Errorf("Please retry.")
 	}
 
@@ -40,7 +40,7 @@ func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 func TestFetch(t *testing.T) {
 	a := assert.New(t)
-	transport := &errorTransport{errorThreshold: 0}
+	transport := &errorTransport{okThreshold: 0}
 	client := &http.Client{Transport: transport}
 	fetcher := NewTeacherLessonFetcher(client, nil)
 	teacher, _, err := fetcher.Fetch(5982)
@@ -51,7 +51,7 @@ func TestFetch(t *testing.T) {
 
 func TestFetchRetry(t *testing.T) {
 	a := assert.New(t)
-	transport := &errorTransport{errorThreshold: 2}
+	transport := &errorTransport{okThreshold: 2}
 	client := &http.Client{Transport: transport}
 	fetcher := NewTeacherLessonFetcher(client, nil)
 	teacher, _, err := fetcher.Fetch(5982)
@@ -62,7 +62,7 @@ func TestFetchRetry(t *testing.T) {
 
 func TestParseHtml(t *testing.T) {
 	a := assert.New(t)
-	fetcher := NewTeacherLessonFetcher(nil, nil)
+	fetcher := NewTeacherLessonFetcher(http.DefaultClient, nil)
 	file, err := os.Open("testdata/5982.html")
 	a.NoError(err)
 	defer file.Close()
