@@ -9,7 +9,7 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/web"
+	"github.com/oinume/lekcije/server/controller"
 	"github.com/rs/cors"
 	"github.com/uber-go/zap"
 	"goji.io"
@@ -21,7 +21,7 @@ var _ = fmt.Print
 func AccessLogger(h goji.Handler) goji.Handler {
 	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		writerProxy := web.WrapWriter(w)
+		writerProxy := controller.WrapWriter(w)
 		h.ServeHTTPC(ctx, writerProxy, r)
 
 		end := time.Now()
@@ -61,7 +61,7 @@ func SetDbToContext(h goji.Handler) goji.Handler {
 
 		db, c, err := model.OpenAndSetToContext(ctx)
 		if err != nil {
-			web.InternalServerError(w, err)
+			controller.InternalServerError(w, err)
 			return
 		}
 		defer db.Close()
@@ -76,7 +76,7 @@ func SetLoggedInUserToContext(h goji.Handler) goji.Handler {
 			h.ServeHTTPC(ctx, w, r)
 			return
 		}
-		cookie, err := r.Cookie(web.ApiTokenCookieName)
+		cookie, err := r.Cookie(controller.ApiTokenCookieName)
 		if err != nil {
 			h.ServeHTTPC(ctx, w, r)
 			return
@@ -99,7 +99,7 @@ func LoginRequiredFilter(h goji.Handler) goji.Handler {
 			h.ServeHTTPC(ctx, w, r)
 			return
 		}
-		cookie, err := r.Cookie(web.ApiTokenCookieName)
+		cookie, err := r.Cookie(controller.ApiTokenCookieName)
 		if err != nil {
 			h.ServeHTTPC(ctx, w, r)
 			return

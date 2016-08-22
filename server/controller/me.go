@@ -1,10 +1,10 @@
-package web
+package controller
 
 import (
-	"context"
 	"net/http"
 	"time"
 
+	"golang.org/x/net/context"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -83,9 +83,9 @@ func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r
 }
 
 func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	user := model.MustLoggedInUser(ctx)
+	//user := model.MustLoggedInUser(ctx)
 }
 
 func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	user := model.MustLoggedInUser(ctx)
+	//user := model.MustLoggedInUser(ctx)
 }

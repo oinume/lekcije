@@ -1,4 +1,4 @@
-package web
+package controller
 
 // TODO: Create package 'oauth'
 

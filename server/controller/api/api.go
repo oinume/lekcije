@@ -9,25 +9,25 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/web"
+	"github.com/oinume/lekcije/server/controller"
 )
 
 // GET /api/status
 func GetStatus(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	db, err := model.Open()
 	if err != nil {
-		web.InternalServerError(w, fmt.Errorf("Failed to model.Open(): err=%v", err))
+		controller.InternalServerError(w, fmt.Errorf("Failed to model.Open(): err=%v", err))
 		return
 	}
 	if err := db.DB().Ping(); err != nil {
-		web.InternalServerError(w, fmt.Errorf("Failed to DB.Ping(): err=%v", err))
+		controller.InternalServerError(w, fmt.Errorf("Failed to DB.Ping(): err=%v", err))
 		return
 	}
 	data := map[string]bool{
 		"db": true,
 	}
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		web.InternalServerError(w, fmt.Errorf("Failed to encode JSON: err=%v", err))
+		controller.InternalServerError(w, fmt.Errorf("Failed to encode JSON: err=%v", err))
 		return
 	}
 }
@@ -44,7 +44,7 @@ func GetMeFollowingTeachers(ctx context.Context, w http.ResponseWriter, r *http.
 		{"id": "3", "name": "Tasha"},
 	}
 	if err := json.NewEncoder(w).Encode(teachers); err != nil {
-		web.InternalServerError(w, errors.Wrapf(err, "Failed to encode JSON"))
+		controller.InternalServerError(w, errors.Wrapf(err, "Failed to encode JSON"))
 		return
 	}
 }

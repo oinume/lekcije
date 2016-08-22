@@ -2,17 +2,17 @@ package e2e
 
 import (
 	"bytes"
-	"testing"
 	"fmt"
-	"os"
-	"net/http/httptest"
-	"net/http"
 	"net"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
 	"time"
 
-	"github.com/oinume/lekcije/server/web"
-	"github.com/oinume/lekcije/server/mux"
+	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/mux"
 	"github.com/uber-go/zap"
 )
 
@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	var appLogBuffer bytes.Buffer
 	logger.AccessLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&accessLogBuffer)))
 	logger.AppLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&appLogBuffer)))
-	port := web.ListenPort()
+	port := controller.ListenPort()
 	mux := mux.Create()
 	port += 1
 	server = newTestServer(mux, port)
