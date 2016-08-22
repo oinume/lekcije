@@ -1,11 +1,11 @@
 package mux
 
 import (
+	"github.com/oinume/lekcije/server/web"
 	"github.com/oinume/lekcije/server/web/api"
 	"github.com/oinume/lekcije/server/web/middleware"
 	"goji.io"
 	"goji.io/pat"
-	"github.com/oinume/lekcije/server/web"
 )
 
 func Create() *goji.Mux {
@@ -23,9 +23,10 @@ func Create() *goji.Mux {
 	mux.HandleFuncC(pat.Get("/oauth/google/callback"), web.OAuthGoogleCallback)
 	mux.HandleFuncC(pat.Post("/me/followingTeachers/create"), web.PostMeFollowingTeachersCreate)
 	mux.HandleFuncC(pat.Post("/me/followingTeachers/delete"), web.PostMeFollowingTeachersDelete)
-
+	mux.HandleFuncC(pat.Get("/me/setting"), web.GetMeSetting)
+	mux.HandleFuncC(pat.Get("/me/setting/update"), web.PostMeSettingUpdate)
 	mux.HandleFuncC(pat.Get("/api/status"), api.GetStatus)
 	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
+
 	return mux
 }
-
