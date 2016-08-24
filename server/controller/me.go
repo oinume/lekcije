@@ -84,15 +84,19 @@ func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r
 }
 
 func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	//user := model.MustLoggedInUser(ctx)
+	user := model.MustLoggedInUser(ctx)
 	t := template.Must(template.ParseFiles(
 		TemplatePath("_base.html"),
 		TemplatePath("me/setting.html")),
 	)
 	type Data struct {
 		commonTemplateData
+		Email string
 	}
-	data := &Data{commonTemplateData: getCommonTemplateData()}
+	data := &Data{
+		commonTemplateData: getCommonTemplateData(),
+		Email:              user.Email,
+	}
 
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
@@ -102,4 +106,5 @@ func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 
 func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	//user := model.MustLoggedInUser(ctx)
+	http.Redirect(w, r, "/me/setting", http.StatusFound)
 }

@@ -1,0 +1,11 @@
+{{ define "content" }}
+<div class="container">
+  <form method="POST" action="/me/setting/update">
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input type="email" class="form-control" id="email" placeholder="Email" value="{{ .Email }}">
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+  </form>
+</div>
+{{ end }}
