@@ -24,7 +24,7 @@ func Create() *goji.Mux {
 	mux.HandleFuncC(pat.Post("/me/followingTeachers/create"), controller.PostMeFollowingTeachersCreate)
 	mux.HandleFuncC(pat.Post("/me/followingTeachers/delete"), controller.PostMeFollowingTeachersDelete)
 	mux.HandleFuncC(pat.Get("/me/setting"), controller.GetMeSetting)
-	mux.HandleFuncC(pat.Get("/me/setting/update"), controller.PostMeSettingUpdate)
+	mux.HandleFuncC(pat.Post("/me/setting/update"), controller.PostMeSettingUpdate)
 	mux.HandleFuncC(pat.Get("/api/status"), api.GetStatus)
 	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
 
