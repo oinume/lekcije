@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
 )
@@ -22,6 +23,28 @@ type User struct {
 
 func (*User) TableName() string {
 	return "user"
+}
+
+type UserServiceType struct {
+	db *gorm.DB
+}
+
+var UserService UserServiceType
+
+func (s *UserServiceType) TableName() string {
+	return (&User{}).TableName()
+}
+
+func (s *UserServiceType) UpdateEmail(user *User, newEmail string) error {
+	email := NewEmailFromRaw(newEmail)
+	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email.Raw(), user.Id)
+	if result.Error != nil {
+		return errors.InternalWrapf(
+			result.Error,
+			"Failed to update email: id=%v, email=%v", user.Id, email,
+		)
+	}
+	return nil
 }
 
 func FindLoggedInUserAndSetToContext(token string, ctx context.Context) (*User, context.Context, error) {

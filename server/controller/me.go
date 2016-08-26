@@ -118,14 +118,10 @@ func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	db := model.MustDb(ctx)
-	result := db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.Id)
-	if result.Error != nil {
-		e := errors.InternalWrapf(result.Error, "Failed to update email: id=%v, email=%v", user.Id, email)
-		InternalServerError(w, e)
+	if err := model.UserService.UpdateEmail(user, email); err != nil {
+		InternalServerError(w, err)
 		return
 	}
-
 	http.Redirect(w, r, "/me/setting", http.StatusFound)
 }
 
