@@ -12,8 +12,9 @@ var devtool = 'source-map'; // Render source-map file for final build
 var plugins = [
   new webpack.NoErrorsPlugin(),
   new CopyWebpackPlugin([
-    { context: 'src', from: '**/*.html' },
     { context: 'src', from: '**/*.css' },
+    { context: 'src', from: '**/*.html' },
+    { context: 'src', from: '**/*.png' },
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
@@ -38,8 +39,9 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
   devtool = 'eval';
   plugins.push(
     new TransferWebpackPlugin([
-      {from: 'html'},
       {from: 'css'},
+      {from: 'html'},
+      {from: 'image'},
       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
       {from: nodeModulesPath + "/jquery", to: 'lib'},
@@ -48,7 +50,7 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
 }
 
 const config = {
-  entry: path.join(__dirname, '/src/app/main.js'),
+  entry: path.join(__dirname, '/src/js/main.js'),
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ["", ".js"],
@@ -59,7 +61,7 @@ const config = {
   output: {
     path: buildPath,
     publicPath: "/static/",
-    filename: 'main.js',  // Name of output file
+    filename: 'js/main.js',  // Name of output file
   },
   plugins: plugins,
   module: {
