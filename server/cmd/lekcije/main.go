@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/mux"
-	"github.com/oinume/lekcije/server/web"
 )
 
 // TODO: move somewhere proper
@@ -33,7 +33,7 @@ func init() {
 }
 
 func main() {
-	port := web.ListenPort()
+	port := config.ListenPort()
 	mux := mux.Create()
 	fmt.Printf("Listening on :%v\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
