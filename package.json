@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "webpack --config webpack.config.js --progress --colors",
+    "clean": "rm -rf static",
     "lint": "eslint src && echo \"eslint: no lint errors\"",
     "postinstall": "npm run build",
     "serve": "WEBPACK_DEV_SERVER=true webpack-dev-server --hot --config webpack.config.js --progress --inline --colors",
