@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
@@ -12,6 +14,8 @@ import (
 	"github.com/oinume/lekcije/server/util"
 	"golang.org/x/net/context"
 )
+
+var _ = fmt.Printf
 
 func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	user := model.MustLoggedInUser(ctx)
@@ -105,6 +109,29 @@ func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	//user := model.MustLoggedInUser(ctx)
+	user := model.MustLoggedInUser(ctx)
+	email := r.FormValue("email")
+	fmt.Printf("email = %v\n", email)
+	// TODO: better validation
+	if email == "" || !validateEmail(email) {
+		http.Redirect(w, r, "/me/setting", http.StatusFound)
+		return
+	}
+
+	db := model.MustDb(ctx)
+	result := db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.Id)
+	if result.Error != nil {
+		e := errors.InternalWrapf(result.Error, "Failed to update email: id=%v, email=%v", user.Id, email)
+		InternalServerError(w, e)
+		return
+	}
+
 	http.Redirect(w, r, "/me/setting", http.StatusFound)
+}
+
+func validateEmail(email string) bool {
+	if !strings.Contains(email, "@") {
+		return false
+	}
+	return true
 }
