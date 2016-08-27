@@ -1,10 +1,17 @@
 package util
 
 import (
-	"math/rand"
+	"crypto/aes"
+	"crypto/cipher"
+	crand "crypto/rand"
+	"encoding/hex"
+	"io"
+	mrand "math/rand"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 var (
@@ -14,7 +21,7 @@ var (
 
 func init() {
 	// TODO: should use rand.New?
-	rand.Seed(time.Now().UnixNano())
+	mrand.Seed(time.Now().UnixNano())
 }
 
 func IsProductionEnv() bool {
@@ -24,7 +31,7 @@ func IsProductionEnv() bool {
 func RandomString(length int) string {
 	b := make([]rune, length)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = letters[mrand.Intn(len(letters))]
 	}
 	return string(b)
 }
@@ -55,4 +62,44 @@ func Uint32ToInterfaceSlice(from ...uint32) []interface{} {
 		to[i] = from[i]
 	}
 	return to
+}
+
+func EncryptString(plainText string, encryptionKey string) (string, error) {
+	block, err := aes.NewCipher([]byte(encryptionKey))
+	if err != nil {
+		return "", errors.InternalWrapf(err, "")
+	}
+	plainBytes := []byte(plainText)
+	cipherBytes := make([]byte, aes.BlockSize+len(plainText))
+	// iv = initialization vector
+	iv := cipherBytes[:aes.BlockSize]
+	if _, err = io.ReadFull(crand.Reader, iv); err != nil {
+		return "", errors.InternalWrapf(err, "")
+	}
+
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(cipherBytes[aes.BlockSize:], plainBytes)
+	return hex.EncodeToString(cipherBytes), nil
+}
+
+func DecryptString(cipherText string, encryptionKey string) (string, error) {
+	cipherBytes, err := hex.DecodeString(cipherText)
+	if err != nil {
+		return "", errors.InternalWrapf(err, "")
+	}
+	block, err := aes.NewCipher([]byte(encryptionKey))
+	if err != nil {
+		return "", errors.InternalWrapf(err, "")
+	}
+	if len(cipherBytes) < aes.BlockSize {
+		return "", errors.Internalf("cipherText is too short.")
+	}
+
+	iv := cipherBytes[:aes.BlockSize]
+	cipherBytes = cipherBytes[aes.BlockSize:]
+	cfb := cipher.NewCFBDecrypter(block, iv)
+	cfb.XORKeyStream(cipherBytes, cipherBytes)
+
+	plainBytes := cipherBytes
+	return string(plainBytes), nil
 }
