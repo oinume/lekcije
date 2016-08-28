@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"os"
 
 	"github.com/oinume/lekcije/server/errors"
@@ -15,63 +16,65 @@ type Email struct {
 	encrypted string
 }
 
-func NewEmailFromRaw(raw string) (*Email, error) {
-	e := &Email{
+func NewEmailFromRaw(raw string) (Email, error) {
+	e := Email{
 		raw: raw,
 	}
 	if encrypted, err := util.EncryptString(raw, encryptionKey); err == nil {
 		e.encrypted = encrypted
 	} else {
-		return nil, err
+		return Email{}, err
 	}
 	return e, nil
 }
 
-func NewEmailFromEncrypted(encrypted string) (*Email, error) {
-	e := &Email{
+func NewEmailFromEncrypted(encrypted string) (Email, error) {
+	e := Email{
 		encrypted: encrypted,
 	}
 	if decrypted, err := util.DecryptString(encrypted, encryptionKey); err == nil {
 		e.raw = decrypted
 	} else {
-		return nil, err
+		return Email{}, err
 	}
 	return e, nil
 }
 
-func (e *Email) String() string {
+func (e Email) String() string {
 	return e.Raw()
 }
 
-func (e *Email) Raw() string {
+func (e Email) Raw() string {
 	return e.raw
 }
 
-func (e *Email) Encrypted() string {
+func (e Email) Encrypted() string {
 	return e.encrypted
 }
 
 // Scan implements the Scanner interface.
 // The value type must be time.Time or string / []byte (formatted time-string),
 // otherwise Scan fails.
-func (e *Email) Scan(value interface{}) error {
+func (e Email) Scan(value interface{}) error {
 	if value == nil {
 		e.raw = ""
 		e.encrypted = ""
 		return nil
 	}
 
-	switch v := value.(type) {
+	switch value.(type) {
 	case []byte:
-		encrypted := string(v)
+		encrypted := fmt.Sprintf("%s", value)
 		if decrypted, err := util.DecryptString(encrypted, encryptionKey); err == nil {
 			e.raw = decrypted
+			return nil
 		} else {
 			return err
 		}
 	case string:
 		if decrypted, err := util.DecryptString(value.(string), encryptionKey); err == nil {
 			e.raw = decrypted
+			return nil
 		} else {
 			return err
 		}
@@ -80,7 +83,7 @@ func (e *Email) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (e *Email) Value() (driver.Value, error) {
+func (e Email) Value() (driver.Value, error) {
 	if e.encrypted != "" {
 		return e.encrypted, nil
 	}

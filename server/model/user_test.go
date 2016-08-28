@@ -15,9 +15,12 @@ func TestCreateUser(t *testing.T) {
 	a := assert.New(t)
 	email := randomEmail()
 	user, err := UserService.Create("test", email)
+	if e, ok := err.(*errors.Internal); ok {
+		fmt.Printf("%+v\n", e.StackTrace())
+	}
 	a.NoError(err)
 	a.True(user.Id > 0)
-	a.Equal(email, user.Email)
+	a.Equal(email, user.Email.Raw())
 }
 
 func TestUpdateEmail(t *testing.T) {
@@ -32,7 +35,7 @@ func TestUpdateEmail(t *testing.T) {
 
 	actual, err := UserService.FindByPk(user.Id)
 	a.NoError(err)
-	a.NotEqual(user.Email, actual.Email)
+	a.NotEqual(user.Email.Raw(), actual.Email.Raw())
 }
 
 func randomEmail() string {

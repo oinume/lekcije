@@ -16,7 +16,7 @@ const (
 type User struct {
 	Id        uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name      string
-	Email     string
+	Email     Email
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -44,9 +44,13 @@ func (s *UserServiceType) FindByPk(id uint32) (*User, error) {
 }
 
 func (s *UserServiceType) Create(name, email string) (*User, error) {
+	e, err := NewEmailFromRaw(email)
+	if err != nil {
+		return nil, err
+	}
 	user := &User{
 		Name:  name,
-		Email: email,
+		Email: e,
 	}
 	if result := s.db.Create(user); result.Error != nil {
 		return nil, errors.InternalWrapf(result.Error, "")
