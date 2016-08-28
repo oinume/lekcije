@@ -73,7 +73,7 @@ func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r
 		return
 	}
 
-	_, err := model.FollowingTeacherRepo.DeleteTeachersByUserIdAndTeacherIds(
+	_, err := model.FollowingTeacherService.DeleteTeachersByUserIdAndTeacherIds(
 		user.Id,
 		util.StringToUint32Slice(teacherIds...),
 	)

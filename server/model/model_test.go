@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	attachDbToRepo(db)
+	attachDbToService(db)
 
 	for _, t := range []string{"user"} {
 		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {

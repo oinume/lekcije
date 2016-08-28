@@ -18,14 +18,14 @@ func (*UserApiToken) TableName() string {
 	return "user_api_token"
 }
 
-type UserApiTokenRepository struct {
+type UserApiTokenServiceType struct {
 	db *gorm.DB
 }
 
-var UserApiTokenRepo UserApiTokenRepository
+var UserApiTokenService UserApiTokenServiceType
 
-func (r *UserApiTokenRepository) DeleteByUserIdAndToken(userId uint32, token string) error {
-	result := r.db.Where("user_id = ? AND token = ?", userId, token).Delete(&UserApiToken{})
+func (s *UserApiTokenServiceType) DeleteByUserIdAndToken(userId uint32, token string) error {
+	result := s.db.Where("user_id = ? AND token = ?", userId, token).Delete(&UserApiToken{})
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,
