@@ -27,11 +27,10 @@ func (*AuthGoogle) TableName() string {
 	return "auth_google"
 }
 
-func Open() (*gorm.DB, error) {
-	dbDsn := os.Getenv("DB_DSN")
+func Open(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(
 		"mysql",
-		dbDsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
+		dsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
 	)
 	if err != nil {
 		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
@@ -41,7 +40,7 @@ func Open() (*gorm.DB, error) {
 }
 
 func OpenAndSetToContext(ctx context.Context) (*gorm.DB, context.Context, error) {
-	db, err := Open()
+	db, err := Open(os.Getenv("DB_DSN")) // TODO: pass by argument
 	if err != nil {
 		return nil, nil, err
 	}
@@ -62,4 +61,5 @@ func MustDb(ctx context.Context) *gorm.DB {
 func attachDbToRepo(db *gorm.DB) {
 	FollowingTeacherRepo.db = db
 	UserApiTokenRepo.db = db
+	UserService.db = db
 }

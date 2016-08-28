@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
 )
@@ -15,13 +16,61 @@ const (
 type User struct {
 	Id        uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name      string
-	Email     string
+	Email     Email
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 func (*User) TableName() string {
 	return "user"
+}
+
+type UserServiceType struct {
+	db *gorm.DB
+}
+
+var UserService UserServiceType
+
+func (s *UserServiceType) TableName() string {
+	return (&User{}).TableName()
+}
+
+func (s *UserServiceType) FindByPk(id uint32) (*User, error) {
+	user := &User{}
+	if err := s.db.First(user, &User{Id: id}).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (s *UserServiceType) Create(name, email string) (*User, error) {
+	e, err := NewEmailFromRaw(email)
+	if err != nil {
+		return nil, err
+	}
+	user := &User{
+		Name:  name,
+		Email: e,
+	}
+	if result := s.db.Create(user); result.Error != nil {
+		return nil, errors.InternalWrapf(result.Error, "")
+	}
+	return user, nil
+}
+
+func (s *UserServiceType) UpdateEmail(user *User, newEmail string) error {
+	email, err := NewEmailFromRaw(newEmail)
+	if err != nil {
+		return err
+	}
+	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.Id)
+	if result.Error != nil {
+		return errors.InternalWrapf(
+			result.Error,
+			"Failed to update email: id=%v, email=%v", user.Id, email,
+		)
+	}
+	return nil
 }
 
 func FindLoggedInUserAndSetToContext(token string, ctx context.Context) (*User, context.Context, error) {

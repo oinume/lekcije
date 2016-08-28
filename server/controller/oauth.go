@@ -60,8 +60,14 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 	}
 
 	db := model.MustDb(ctx)
-	user := model.User{Name: name, Email: email}
-	if err := db.FirstOrCreate(&user, model.User{Email: email}).Error; err != nil {
+	dbEmail, err := model.NewEmailFromRaw(email)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+	// TODO: Create wrapper in UserService
+	user := model.User{Name: name, Email: dbEmail}
+	if err := db.FirstOrCreate(&user, model.User{Email: dbEmail}).Error; err != nil {
 		InternalServerError(w, errors.Wrap(err, "Failed to get or create User"))
 		return
 	}
