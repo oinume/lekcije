@@ -45,7 +45,7 @@ func OpenAndSetToContext(ctx context.Context) (*gorm.DB, context.Context, error)
 		return nil, nil, err
 	}
 	c := context.WithValue(ctx, contextKeyDb, db)
-	attachDbToRepo(db)
+	attachDbToService(db)
 	return db, c, nil
 }
 
@@ -58,8 +58,8 @@ func MustDb(ctx context.Context) *gorm.DB {
 	}
 }
 
-func attachDbToRepo(db *gorm.DB) {
-	FollowingTeacherRepo.db = db
-	UserApiTokenRepo.db = db
+func attachDbToService(db *gorm.DB) {
+	FollowingTeacherService.db = db
+	UserApiTokenService.db = db
 	UserService.db = db
 }

@@ -21,17 +21,17 @@ func (*FollowingTeacher) TableName() string {
 	return "following_teacher"
 }
 
-type FollowingTeacherRepository struct {
+type FollowingTeacherServiceType struct {
 	db *gorm.DB
 }
 
-var FollowingTeacherRepo FollowingTeacherRepository
+var FollowingTeacherService FollowingTeacherServiceType
 
-func (r *FollowingTeacherRepository) TableName() string {
+func (s *FollowingTeacherServiceType) TableName() string {
 	return (&FollowingTeacher{}).TableName()
 }
 
-func (r *FollowingTeacherRepository) FindTeachersByUserId(userId uint32) ([]*Teacher, error) {
+func (s *FollowingTeacherServiceType) FindTeachersByUserId(userId uint32) ([]*Teacher, error) {
 	limit := 10
 	values := make([]*Teacher, 0, limit)
 	sql := fmt.Sprintf(`
@@ -42,7 +42,7 @@ func (r *FollowingTeacherRepository) FindTeachersByUserId(userId uint32) ([]*Tea
 	LIMIT %d
 	`, limit)
 
-	if result := r.db.Raw(strings.TrimSpace(sql), userId).Scan(&values); result.Error != nil {
+	if result := s.db.Raw(strings.TrimSpace(sql), userId).Scan(&values); result.Error != nil {
 		if result.RecordNotFound() {
 			return values, nil
 		}
@@ -51,7 +51,7 @@ func (r *FollowingTeacherRepository) FindTeachersByUserId(userId uint32) ([]*Tea
 	return values, nil
 }
 
-func (r *FollowingTeacherRepository) DeleteTeachersByUserIdAndTeacherIds(
+func (s *FollowingTeacherServiceType) DeleteTeachersByUserIdAndTeacherIds(
 	userId uint32,
 	teacherIds []uint32,
 ) (int, error) {
@@ -60,12 +60,12 @@ func (r *FollowingTeacherRepository) DeleteTeachersByUserIdAndTeacherIds(
 	}
 
 	placeholder := strings.TrimRight(strings.Repeat("?,", len(teacherIds)), ",")
-	sql := fmt.Sprintf("DELETE FROM %s WHERE user_id = ? AND teacher_id IN (%s)", r.TableName(), placeholder)
+	sql := fmt.Sprintf("DELETE FROM %s WHERE user_id = ? AND teacher_id IN (%s)", s.TableName(), placeholder)
 	args := []interface{}{userId}
 	for _, teacherId := range teacherIds {
 		args = append(args, teacherId)
 	}
-	if result := r.db.Exec(sql, args...); result.Error != nil {
+	if result := s.db.Exec(sql, args...); result.Error != nil {
 		return 0, result.Error
 	} else {
 		return int(result.RowsAffected), nil
