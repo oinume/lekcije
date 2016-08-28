@@ -36,6 +36,7 @@ func TestUpdateEmail(t *testing.T) {
 	actual, err := UserService.FindByPk(user.Id)
 	a.NoError(err)
 	a.NotEqual(user.Email.Raw(), actual.Email.Raw())
+	a.Equal(email, actual.Email.Raw())
 }
 
 func randomEmail() string {

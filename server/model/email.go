@@ -55,7 +55,7 @@ func (e Email) Encrypted() string {
 // Scan implements the Scanner interface.
 // The value type must be time.Time or string / []byte (formatted time-string),
 // otherwise Scan fails.
-func (e Email) Scan(value interface{}) error {
+func (e *Email) Scan(value interface{}) error {
 	if value == nil {
 		e.raw = ""
 		e.encrypted = ""
