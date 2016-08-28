@@ -35,9 +35,23 @@ func (s *UserServiceType) TableName() string {
 	return (&User{}).TableName()
 }
 
+func (s *UserServiceType) CreateUser(name, email string) (*User, error) {
+	user := &User{
+		Name:  name,
+		Email: email,
+	}
+	if result := s.db.Create(user); result.Error != nil {
+		return nil, errors.InternalWrapf(result.Error, "")
+	}
+	return user, nil
+}
+
 func (s *UserServiceType) UpdateEmail(user *User, newEmail string) error {
-	email := NewEmailFromRaw(newEmail)
-	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email.Raw(), user.Id)
+	email, err := NewEmailFromRaw(newEmail)
+	if err != nil {
+		return err
+	}
+	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.Id)
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,

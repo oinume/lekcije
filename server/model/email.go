@@ -1,22 +1,42 @@
 package model
 
+import (
+	"database/sql/driver"
+	"os"
+
+	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/util"
+)
+
+var encryptionKey = os.Getenv("ENCRYPTION_KEY")
+
 type Email struct {
 	raw       string
 	encrypted string
 }
 
-func NewEmailFromRaw(raw string) *Email {
-	return &Email{
-		raw:       raw,
-		encrypted: "",
+func NewEmailFromRaw(raw string) (*Email, error) {
+	e := &Email{
+		raw: raw,
 	}
+	if encrypted, err := util.EncryptString(raw, encryptionKey); err == nil {
+		e.encrypted = encrypted
+	} else {
+		return nil, err
+	}
+	return e, nil
 }
 
-func NewEmailFromEncrypted(encrypted string) *Email {
-	return &Email{
-		raw:       "",
+func NewEmailFromEncrypted(encrypted string) (*Email, error) {
+	e := &Email{
 		encrypted: encrypted,
 	}
+	if decrypted, err := util.DecryptString(encrypted, encryptionKey); err == nil {
+		e.raw = decrypted
+	} else {
+		return nil, err
+	}
+	return e, nil
 }
 
 func (e *Email) String() string {
@@ -34,41 +54,38 @@ func (e *Email) Encrypted() string {
 // Scan implements the Scanner interface.
 // The value type must be time.Time or string / []byte (formatted time-string),
 // otherwise Scan fails.
-//func (e *Email) Scan(value interface{}) error {
-//	if value == nil {
-//		e.raw = ""
-//		e.encrypted = ""
-//		return nil
-//	}
-//
-//	switch v := value.(type) {
-//	case []byte:
-//		encrypted := string(v)
-//		nt.Time, err = parseDateTime(string(v), time.UTC)
-//		nt.Valid = (err == nil)
-//		return
-//	case string:
-//		nt.Time, err = parseDateTime(v, time.UTC)
-//		nt.Valid = (err == nil)
-//		return
-//	}
-//
-//	nt.Valid = false
-//	return fmt.Errorf("Can't convert %T to time.Time", value)
-//}
+func (e *Email) Scan(value interface{}) error {
+	if value == nil {
+		e.raw = ""
+		e.encrypted = ""
+		return nil
+	}
 
-// Value implements the driver Valuer interface.
-//func (e *Email) Value() (driver.Value, error) {
-//	if e.encrypted == "" {
-//		return nil, nil
-//	}
-//	return e.encrypted, nil
-//}
-
-func (e *Email) encrypt() {
-	//e.encrypted = ""
+	switch v := value.(type) {
+	case []byte:
+		encrypted := string(v)
+		if decrypted, err := util.DecryptString(encrypted, encryptionKey); err == nil {
+			e.raw = decrypted
+		} else {
+			return err
+		}
+	case string:
+		if decrypted, err := util.DecryptString(value.(string), encryptionKey); err == nil {
+			e.raw = decrypted
+		} else {
+			return err
+		}
+	}
+	return errors.Internalf("Cannot convert %T to model.Email", value)
 }
 
-func (e *Email) decrypt() {
-	//e.raw = ""
+// Value implements the driver Valuer interface.
+func (e *Email) Value() (driver.Value, error) {
+	if e.encrypted != "" {
+		return e.encrypted, nil
+	}
+	if e.raw != "" {
+		return util.EncryptString(e.raw, encryptionKey)
+	}
+	return nil, nil
 }
