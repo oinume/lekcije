@@ -11,11 +11,13 @@ import (
 	"strconv"
 	"time"
 
+	"fmt"
+
 	"github.com/oinume/lekcije/server/errors"
 )
 
 var (
-	letters    = []rune(`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()~|@+*[]<>/_-=^`)
+	letters    = []rune(`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`)
 	lekcijeEnv = os.Getenv("LEKCIJE_ENV")
 )
 
@@ -65,6 +67,9 @@ func Uint32ToInterfaceSlice(from ...uint32) []interface{} {
 }
 
 func EncryptString(plainText string, encryptionKey string) (string, error) {
+	if encryptionKey == "" {
+		return "", fmt.Errorf("encryptionKey is empty.")
+	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
 		return "", errors.InternalWrapf(err, "")

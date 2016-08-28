@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/model"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
-
-	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/controller"
 )
 
 // GET /api/status
 func GetStatus(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	db, err := model.Open()
+	db, err := model.Open(os.Getenv("DB_DSN"))
 	if err != nil {
 		controller.InternalServerError(w, fmt.Errorf("Failed to model.Open(): err=%v", err))
 		return

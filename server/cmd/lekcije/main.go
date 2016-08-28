@@ -11,12 +11,13 @@ import (
 	"github.com/oinume/lekcije/server/mux"
 )
 
-// TODO: move somewhere proper
+// TODO: move somewhere proper and make it be struct
 var definedEnvs = map[string]string{
 	"GOOGLE_CLIENT_ID":     "",
 	"GOOGLE_CLIENT_SECRET": "",
 	"DB_DSN":               "",
 	"NODE_ENV":             "",
+	"ENCRYPTION_KEY":       "",
 }
 
 func init() {

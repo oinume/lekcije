@@ -35,7 +35,15 @@ func (s *UserServiceType) TableName() string {
 	return (&User{}).TableName()
 }
 
-func (s *UserServiceType) CreateUser(name, email string) (*User, error) {
+func (s *UserServiceType) FindByPk(id uint32) (*User, error) {
+	user := &User{}
+	if err := s.db.First(user, &User{Id: id}).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (s *UserServiceType) Create(name, email string) (*User, error) {
 	user := &User{
 		Name:  name,
 		Email: email,

@@ -4,3 +4,6 @@ local:
 test:
     driver: mysql
     open: lekcije:lekcije@tcp(192.168.99.100:13306)/lekcije_test?charset=utf8mb4&parseTime=true&loc=UTC
+circle_ci:
+    driver: mysql
+    open: lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test?charset=utf8mb4&parseTime=true&loc=UTC
