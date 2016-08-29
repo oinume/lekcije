@@ -69,6 +69,7 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
 	if err != nil {
 		return "", errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return "", errors.Internalf(
