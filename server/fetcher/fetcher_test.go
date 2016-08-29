@@ -49,6 +49,15 @@ func TestFetch(t *testing.T) {
 	a.Equal(1, transport.callCount)
 }
 
+//func TestFetchReal(t *testing.T) {
+//	a := assert.New(t)
+//	http.DefaultClient.Timeout = 10 * time.Second
+//	fetcher := NewTeacherLessonFetcher(http.DefaultClient, nil)
+//	teacher, _, err := fetcher.Fetch(5982)
+//	a.NoError(err)
+//	a.Equal("Xai", teacher.Name)
+//}
+
 func TestFetchRetry(t *testing.T) {
 	a := assert.New(t)
 	transport := &errorTransport{okThreshold: 2}
