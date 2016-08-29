@@ -1,7 +1,6 @@
 package model
 
 import (
-	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -39,8 +38,8 @@ func Open(dsn string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func OpenAndSetToContext(ctx context.Context) (*gorm.DB, context.Context, error) {
-	db, err := Open(os.Getenv("DB_DSN")) // TODO: pass by argument
+func OpenAndSetToContext(ctx context.Context, dsn string) (*gorm.DB, context.Context, error) {
+	db, err := Open(dsn)
 	if err != nil {
 		return nil, nil, err
 	}
