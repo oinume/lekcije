@@ -63,12 +63,16 @@ func (s *LessonServiceType) UpdateLessons(lessons []*Lesson) (int64, error) {
 	values := []interface{}{}
 	for _, l := range lessons {
 		sql += " (?, ?, ?, ?, ?),"
-		values = append(values, l.TeacherId, l.Datetime, l.Status, now.Format(dbDatetimeFormat)) // TODO: enum?
+		values = append(
+			values,
+			l.TeacherId, l.Datetime, strings.ToLower(l.Status), // TODO: enum?
+			now.Format(dbDatetimeFormat), now.Format(dbDatetimeFormat),
+		)
 	}
 	sql = strings.TrimSuffix(sql, ",")
 	sql += " ON DUPLICATE KEY UPDATE status=VALUES(status), updated_at=VALUES(updated_at)"
 
-	result := s.db.Exec(sql, values)
+	result := s.db.Exec(sql, values...)
 	if err := result.Error; err != nil {
 		return 0, errors.InternalWrapf(err, "")
 	}

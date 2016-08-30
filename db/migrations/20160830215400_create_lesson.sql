@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS lesson (
   `teacher_id` int unsigned NOT NULL,
   `datetime` datetime NOT NULL,
   `status` enum('finished', 'reserved', 'available', 'cancelled') NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`teacher_id`,`datetime`)
 ) ROW_FORMAT=DYNAMIC;
 
