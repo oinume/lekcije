@@ -117,7 +117,7 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 		//fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
 		fetcher.log.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
 
-		// blank, reservable, reserved
+		// blank, available, reserved
 		if timeClass == "date" {
 			group := dateRegexp.FindStringSubmatch(text)
 			if len(group) > 0 {

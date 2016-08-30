@@ -90,5 +90,11 @@ func fetchTeacherLessons(teacherId uint32) error {
 	for _, lesson := range lessons {
 		fmt.Printf("datetime = %v, status = %v\n", lesson.Datetime, lesson.Status)
 	}
+
+	// TODO: test
+	_, err = model.LessonService.UpdateLessons(lessons)
+	if err != nil {
+		return err
+	}
 	return nil
 }
