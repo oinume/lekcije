@@ -79,3 +79,26 @@ func (s *LessonServiceType) UpdateLessons(lessons []*Lesson) (int64, error) {
 
 	return result.RowsAffected, nil
 }
+
+func (s *LessonServiceType) FindLessons(teacherId uint32, fromDate, toDate time.Time) ([]*Lesson, error) {
+	lessons := make([]*Lesson, 0, 1000)
+	sql := strings.TrimSpace(fmt.Sprintf(`
+SELECT * FROM %s
+WHERE
+  teacher_id = ?
+  AND DATE(datetime) BETWEEN ? AND ?
+ORDER BY datetime ASC
+LIMIT 1000
+	`, s.TableName()))
+
+	toDateAdded := toDate.Add(24 * 2 * time.Hour)
+	result := s.db.Raw(sql, teacherId, fromDate.Format("2006-01-02"), toDateAdded.Format("2006-01-02")).Scan(&lessons)
+	if result.Error != nil {
+		if result.RecordNotFound() {
+			return lessons, nil
+		}
+		return nil, errors.InternalWrapf(result.Error, "Failed to find lessons: teacherId=%v", teacherId)
+	}
+
+	return lessons, nil
+}

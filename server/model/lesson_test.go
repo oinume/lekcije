@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -18,7 +19,7 @@ func TestUpdateLessons(t *testing.T) {
 		lessons[i] = &Lesson{
 			TeacherId: 1,
 			Datetime:  datetime.Add(time.Duration(i) * time.Hour),
-			Status:    "Available",
+			Status:    "Reserved",
 			CreatedAt: now,
 			UpdatedAt: now,
 		}
@@ -27,4 +28,12 @@ func TestUpdateLessons(t *testing.T) {
 	affected, err := LessonService.UpdateLessons(lessons)
 	a.NoError(err)
 	a.Equal(int64(5), affected)
+
+	foundLessons, err := LessonService.FindLessons(1, datetime, datetime)
+	a.NoError(err)
+	a.Equal(len(lessons), len(foundLessons))
+	for i := range lessons {
+		// TODO: custom enum type
+		a.Equal(strings.ToLower(lessons[i].Status), strings.ToLower(foundLessons[i].Status))
+	}
 }
