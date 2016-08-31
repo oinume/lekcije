@@ -36,4 +36,12 @@ func TestUpdateLessons(t *testing.T) {
 		// TODO: custom enum type
 		a.Equal(strings.ToLower(lessons[i].Status), strings.ToLower(foundLessons[i].Status))
 	}
+
+	// overwrite (TODO: split test)
+	lessons[0].Status = "Available"
+	affected, err = LessonService.UpdateLessons(lessons)
+	a.NoError(err)
+	//a.Equal(int64(1), affected)
+	foundLessons, err = LessonService.FindLessons(1, datetime, datetime)
+	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
 }
