@@ -91,7 +91,6 @@ func fetchTeacherLessons(teacherId uint32) error {
 		fmt.Printf("datetime = %v, status = %v\n", lesson.Datetime, lesson.Status)
 	}
 
-	// TODO: test
 	_, err = model.LessonService.UpdateLessons(lessons)
 	if err != nil {
 		return err
