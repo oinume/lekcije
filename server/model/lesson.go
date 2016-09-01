@@ -106,38 +106,34 @@ LIMIT 1000
 func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Lesson) []*Lesson {
 	// Pattern
 	// 2016-01-01 00:00@Any -> Available
-	oldLessonsMap := make(map[time.Time]string, len(oldLessons))
-	newLessonsMap := make(map[time.Time]string, len(newLessons))
+	oldLessonsMap := make(map[time.Time]*Lesson, len(oldLessons))
+	newLessonsMap := make(map[time.Time]*Lesson, len(newLessons))
+	availableLessons := make([]*Lesson, 0, len(oldLessons) + len(newLessons))
+	availableLessonsMap := make(map[time.Time]*Lesson, len(oldLessons) + len(newLessons))
 	for _, l := range oldLessons {
-		oldLessonsMap[l.Datetime] = strings.ToLower(l.Status)
+		oldLessonsMap[l.Datetime] = l
 	}
 	for _, l := range newLessons {
-		newLessonsMap[l.Datetime] = strings.ToLower(l.Status)
+		newLessonsMap[l.Datetime] = l
 	}
-	for datetime, status := range oldLessonsMap {
-		if newStatus, ok := newLessonsMap[datetime]; ok {
-			fmt.Printf("oldStatus = %v, newStatus = %v\n", status, newStatus)
+	for datetime, _ := range oldLessonsMap {
+		if newLesson, ok := newLessonsMap[datetime];
+			ok && strings.ToLower(newLesson.Status) == "available" {
+			// exists in oldLessons and newLessons
+			availableLessons = append(availableLessons, newLesson)
+			availableLessonsMap[datetime] = newLesson
 		}
 	}
-	return nil
-	/*
-	   @classmethod
-	   def get_new_reservable_schedules(
-	       cls, old_schedules: List["Schedule"], new_schedules: List["Schedule"]
-	   ) -> List["Schedule"]:
-	       old = [o.to_json() for o in old_schedules]
-	       new = [o.to_json() for o in new_schedules]
 
-	       differ = difflib.Differ()
-	       ret = []
-	       diffs = list(differ.compare(old, new))
-	       for i, d in enumerate(diffs):
-	           if d.startswith("+ "):
-	               if (i == len(diffs) - 1) or (i < len(diffs) - 1 and not diffs[i+1].startswith("? ")):
-	                   schedule = cls.from_json(d[1:])
-	                   if schedule.status == ScheduleStatus.reservable:
-	                       ret.append(schedule)
-	           #print("line{}:{}".format(i, d))
-	       return ret
-	*/
+	for _, l := range newLessons {
+		if _, ok := oldLessonsMap[l.Datetime];
+			!ok && strings.ToLower(l.Status) == "available" {
+			// not exists in oldLessons
+			availableLessons = append(availableLessons, l)
+			availableLessonsMap[l.Datetime] = l
+		}
+	}
+
+	// TODO: sort availableLessonsMap by datetime
+	return availableLessons
 }
