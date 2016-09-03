@@ -17,9 +17,9 @@ type StackTracer interface {
 }
 
 type BaseError struct {
-	wrapped    error
-	cause      error
-	stackTrace errors.StackTrace
+	wrapped         error
+	cause           error
+	stackTrace      errors.StackTrace
 	outpuStackTrace bool
 }
 
@@ -48,6 +48,22 @@ func NewBaseError(wrapped error) *BaseError {
 		be.stackTrace = st.StackTrace()
 	}
 	return be
+}
+
+type Wrapper struct {
+	*BaseError
+}
+
+func (e *Wrapper) GetOutputStackTrace() bool {
+	return false
+}
+
+func (e *Wrapper) Error() string {
+	return fmt.Sprintf("errors.Wrapper: %s", e.wrapped.Error())
+}
+
+func Wrapperf(err error, format string, args ...interface{}) *Wrapper {
+	return &Wrapper{NewBaseError(errors.Wrapf(err, format, args...))}
 }
 
 type Internal struct {

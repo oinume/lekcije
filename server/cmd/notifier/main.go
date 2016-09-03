@@ -1,38 +1,26 @@
 package main
 
 import (
-	"flag"
-	"os"
-	"log"
 	"context"
-	"net/http"
-	"fmt"
+	"flag"
+	"log"
+	"os"
 
-	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/fetcher"
-	"time"
+	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/notifier"
 )
 
 var (
-	dryRun = flag.Bool("dry-run", false, "Dry run")
+	dryRun   = flag.Bool("dry-run", false, "Dry run")
 	logLevel = flag.String("log-level", "info", "Log level")
 )
 
 // TODO: move somewhere proper and make it be struct
 var definedEnvs = map[string]string{
-	"GOOGLE_CLIENT_ID":     "",
-	"GOOGLE_CLIENT_SECRET": "",
-	"DB_DSN":               "",
-	"NODE_ENV":             "",
-	"ENCRYPTION_KEY":       "",
-}
-
-var lessonFetcher *fetcher.TeacherLessonFetcher
-
-func init() {
-	http.DefaultClient.Timeout = 5 * time.Second
-	lessonFetcher = fetcher.NewTeacherLessonFetcher(http.DefaultClient, nil)
+	"DB_DSN":         "",
+	"NODE_ENV":       "",
+	"ENCRYPTION_KEY": "",
 }
 
 func main() {
@@ -45,7 +33,7 @@ func main() {
 
 func run() error {
 	// Check env
-	for key, _ := range definedEnvs {
+	for key := range definedEnvs {
 		if value := os.Getenv(key); value != "" {
 			definedEnvs[key] = value
 		} else {
@@ -66,34 +54,13 @@ func run() error {
 		return errors.InternalWrapf(result.Error, "")
 	}
 
+	notifier := notifier.NewNotifier()
 	for _, user := range users {
-		teacherIds, err := model.FollowingTeacherService.FindTeacherIdsByUserId(user.Id)
-		if err != nil {
+		if err := notifier.SendNotification(user); err != nil {
+			panic(err)
 			return err
 		}
-		for _, teacherId := range teacherIds {
-			if err := fetchTeacherLessons(teacherId); err != nil {
-				return err
-			}
-		}
 	}
 
-	return nil
-}
-
-func fetchTeacherLessons(teacherId uint32) error {
-	teacher, lessons, err := lessonFetcher.Fetch(teacherId)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("--- %s ---\n", teacher.Name)
-	for _, lesson := range lessons {
-		fmt.Printf("datetime = %v, status = %v\n", lesson.Datetime, lesson.Status)
-	}
-
-	_, err = model.LessonService.UpdateLessons(lessons)
-	if err != nil {
-		return err
-	}
 	return nil
 }
