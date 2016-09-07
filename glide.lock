@@ -1,5 +1,5 @@
-hash: 9858a25cc8b374d9127aa525aa373b0ce5d65b1240da576cea4d3f335fb95c7a
-updated: 2016-09-07T22:18:08.07158618+09:00
+hash: 2797d2ad36f71905845e712f258e6e1b09dcee77b9681dc9905d4cc60945a5a1
+updated: 2016-09-07T22:35:01.336265409+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -44,6 +44,8 @@ imports:
   - api/internal/service
   - internal/element
   - internal/target
+- name: github.com/sendgrid/rest
+  version: d37acbf70185e33da36a233f4df95848b052427c
 - name: github.com/sendgrid/sendgrid-go
   version: e59d0c5754ee5f91ed5dabe77f97df58f85f7b05
   subpackages:

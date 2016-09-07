@@ -35,3 +35,4 @@ import:
   - package: github.com/sendgrid/sendgrid-go
     subpackages:
       - helpers/mail
+  - package: github.com/sendgrid/rest
