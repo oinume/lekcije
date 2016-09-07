@@ -32,3 +32,6 @@ import:
   - package: github.com/rs/cors
   - package: github.com/rs/xhandler
   - package: github.com/Songmu/retry
+  - package: github.com/sendgrid/sendgrid-go
+    subpackages:
+      - helpers/mail
