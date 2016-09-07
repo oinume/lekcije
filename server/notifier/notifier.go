@@ -1,19 +1,22 @@
 package notifier
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"os"
 	"sort"
+	"strings"
 	"text/template"
 	"time"
-
-	"bytes"
-	"strings"
 
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 var lessonFetcher *fetcher.TeacherLessonFetcher
@@ -52,6 +55,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		availableLessonsPerTeacher[teacherId] = availableLessons
 	}
 
+	// TODO: dry-run
 	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
 		return err
 	}
@@ -94,14 +98,13 @@ func (n *Notifier) sendNotificationToUser(
 	for teacherId := range lessonsPerTeacher {
 		teacherIds = append(teacherIds, int(teacherId))
 	}
-	fmt.Printf("teacherIds = %+v\n", teacherIds)
 	sort.Ints(teacherIds)
 	var teacherIds2 []uint32
+	var teacherNames []string
 	for _, id := range teacherIds {
-		println("id = ", id)
 		teacherIds2 = append(teacherIds2, uint32(id))
+		teacherNames = append(teacherNames, n.teachers[uint32(id)].Name)
 	}
-	fmt.Printf("teacherIds2 = %+v\n", teacherIds2)
 
 	t := template.New("email")
 	t = template.Must(t.Parse(getEmailTemplate()))
@@ -116,12 +119,15 @@ func (n *Notifier) sendNotificationToUser(
 		LessonsPerTeacher: lessonsPerTeacher,
 	}
 
-	var b bytes.Buffer
-	if err := t.Execute(&b, data); err != nil {
+	var body bytes.Buffer
+	if err := t.Execute(&body, data); err != nil {
 		return errors.InternalWrapf(err, "Failed to execute template.")
 	}
-	fmt.Printf("--- mail ---\n%s", b.String())
-	return nil
+	//fmt.Printf("--- mail ---\n%s", body.String())
+
+	subject := "[lekcije] Schedules of teacher " + strings.Join(teacherNames, ", ")
+	sender := &EmailNotificationSender{}
+	return sender.Send(user, subject, body.String())
 }
 
 func getEmailTemplate() string {
@@ -136,4 +142,43 @@ func getEmailTemplate() string {
 
 {{ end }}
 	`)
+}
+
+type NotificationSender interface {
+	Send(user *model.User, subject, body string) error
+}
+
+type EmailNotificationSender struct{}
+
+func (s *EmailNotificationSender) Send(user *model.User, subject, body string) error {
+	from := mail.NewEmail("noreply", "noreply@lampetty.net") // TODO: noreply@lekcije.com
+	to := mail.NewEmail(user.Name, user.Email.Raw())
+	content := mail.NewContent("text/html", strings.Replace(body, "\n", "<br>", -1))
+	m := mail.NewV3MailInit(from, subject, to, content)
+
+	req := sendgrid.GetRequest(
+		os.Getenv("SENDGRID_API_KEY"),
+		"/v3/mail/send",
+		"https://api.sendgrid.com",
+	)
+	req.Method = "POST"
+	req.Body = mail.GetRequestBody(m)
+	resp, err := sendgrid.API(req)
+	if err != nil {
+		return errors.InternalWrapf(err, "Failed to send email by sendgrid")
+	}
+	if resp.StatusCode >= 300 {
+		message := fmt.Sprintf(
+			"Failed to send email by sendgrid: statusCode=%v, body=%v",
+			resp.StatusCode, strings.Replace(resp.Body, "\n", "\\n", -1),
+		)
+		logger.AppLogger.Error(message)
+		return errors.InternalWrapf(
+			err,
+			"Failed to send email by sendgrid: statusCode=%v",
+			resp.StatusCode,
+		)
+	}
+
+	return nil
 }

@@ -29,6 +29,7 @@ func main() {
 		log.Fatalf("err = %v", err) // TODO: Error handling
 		os.Exit(1)
 	}
+	os.Exit(0)
 }
 
 func run() error {
@@ -57,7 +58,6 @@ func run() error {
 	notifier := notifier.NewNotifier()
 	for _, user := range users {
 		if err := notifier.SendNotification(user); err != nil {
-			panic(err)
 			return err
 		}
 	}
