@@ -94,10 +94,17 @@ func (n *Notifier) sendNotificationToUser(
 	user *model.User,
 	lessonsPerTeacher map[uint32][]*model.Lesson,
 ) error {
+	lessonsCount := 0
 	var teacherIds []int
-	for teacherId := range lessonsPerTeacher {
+	for teacherId, lessons := range lessonsPerTeacher {
 		teacherIds = append(teacherIds, int(teacherId))
+		lessonsCount += len(lessons)
 	}
+	if lessonsCount == 0 {
+		// Don't send notification
+		return nil
+	}
+
 	sort.Ints(teacherIds)
 	var teacherIds2 []uint32
 	var teacherNames []string

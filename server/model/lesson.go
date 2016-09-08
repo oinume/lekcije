@@ -108,8 +108,8 @@ func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Les
 	// 2016-01-01 00:00@Any -> Available
 	oldLessonsMap := make(map[time.Time]*Lesson, len(oldLessons))
 	newLessonsMap := make(map[time.Time]*Lesson, len(newLessons))
-	availableLessons := make([]*Lesson, 0, len(oldLessons) + len(newLessons))
-	availableLessonsMap := make(map[time.Time]*Lesson, len(oldLessons) + len(newLessons))
+	availableLessons := make([]*Lesson, 0, len(oldLessons)+len(newLessons))
+	availableLessonsMap := make(map[time.Time]*Lesson, len(oldLessons)+len(newLessons))
 	for _, l := range oldLessons {
 		oldLessonsMap[l.Datetime] = l
 	}
@@ -117,8 +117,7 @@ func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Les
 		newLessonsMap[l.Datetime] = l
 	}
 	for datetime, _ := range oldLessonsMap {
-		if newLesson, ok := newLessonsMap[datetime];
-			ok && strings.ToLower(newLesson.Status) == "available" {
+		if newLesson, ok := newLessonsMap[datetime]; ok && strings.ToLower(newLesson.Status) == "available" {
 			// exists in oldLessons and newLessons
 			availableLessons = append(availableLessons, newLesson)
 			availableLessonsMap[datetime] = newLesson
@@ -126,8 +125,7 @@ func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Les
 	}
 
 	for _, l := range newLessons {
-		if _, ok := oldLessonsMap[l.Datetime];
-			!ok && strings.ToLower(l.Status) == "available" {
+		if _, ok := oldLessonsMap[l.Datetime]; !ok && strings.ToLower(l.Status) == "available" {
 			// not exists in oldLessons
 			availableLessons = append(availableLessons, l)
 			availableLessonsMap[l.Datetime] = l
