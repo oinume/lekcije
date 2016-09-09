@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -14,18 +12,6 @@ const (
 	contextKeyDb     = "db"
 	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
-
-type AuthGoogle struct {
-	UserId      uint32 `gorm:"primary_key"`
-	AccessToken string
-	IdToken     string // TODO: GoogleID？
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-}
-
-func (*AuthGoogle) TableName() string {
-	return "auth_google"
-}
 
 func Open(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(
