@@ -38,7 +38,7 @@ func (s *FollowingTeacherServiceType) FindTeachersByUserId(userId uint32) ([]*Te
 	SELECT t.* FROM teacher AS t
 	INNER JOIN following_teacher AS ft ON t.id = ft.teacher_id
 	WHERE ft.user_id = ?
-	ORDER BY ft.updated_at DESC
+	ORDER BY ft.updated_at DESC, t.id ASC
 	LIMIT %d
 	`, limit) // TODO: OFFSET
 
