@@ -54,9 +54,6 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 		allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
 		n.teachers[teacherId] = teacher
-		for _, l := range availableLessons {
-			fmt.Printf("available -> teacherId:%v, datetime:%v, status:%v \n", l.TeacherId, l.Datetime.Format("2006-01-02 15:04"), l.Status)
-		}
 		if len(availableLessons) > 0 {
 			availableLessonsPerTeacher[teacherId] = availableLessons
 		}
@@ -139,7 +136,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	//fmt.Printf("--- mail ---\n%s", body.String())
 
-	subject := "[lekcije] Schedules of teacher " + strings.Join(teacherNames, ", ")
+	subject := "[lekcije] Schedule of teacher " + strings.Join(teacherNames, ", ")
 	sender := &EmailNotificationSender{}
 	return sender.Send(user, subject, body.String())
 }
@@ -147,11 +144,14 @@ func (n *Notifier) sendNotificationToUser(
 func getEmailTemplate() string {
 	return strings.TrimSpace(`
 {{- range $teacherId := .TeacherIds }}
-{{- $teacher := index $.Teachers $teacherId -}}
---- Teacher '{{ $teacher.Name }}' available lessons ---
+{{- $teacher := index $.Teachers "$teacherId" -}}
+--- Available lessons of Teacher {{ $teacher.Name }} ---
+PC: http://eikaiwa.dmm.com/teacher/index/{{ $teacherId }}/
+Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherId }}/
+
   {{- $lessons := index $.LessonsPerTeacher $teacherId -}}
   {{- range $lesson := $lessons }}
-{{ $lesson.Datetime }}
+{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
 
 {{ end }}
