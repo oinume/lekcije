@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	dryRun   = flag.Bool("dry-run", false, "Dry run")
+	dryRun   = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
 	logLevel = flag.String("log-level", "info", "Log level")
 )
 
@@ -24,6 +24,7 @@ var definedEnvs = map[string]string{
 }
 
 func main() {
+	flag.Parse()
 	err := run()
 	if err != nil {
 		log.Fatalf("err = %v", err) // TODO: Error handling
@@ -55,7 +56,7 @@ func run() error {
 		return errors.InternalWrapf(result.Error, "")
 	}
 
-	notifier := notifier.NewNotifier()
+	notifier := notifier.NewNotifier(*dryRun)
 	for _, user := range users {
 		if err := notifier.SendNotification(user); err != nil {
 			return err

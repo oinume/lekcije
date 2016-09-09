@@ -27,11 +27,13 @@ func init() {
 }
 
 type Notifier struct {
+	dryRun   bool
 	teachers map[uint32]*model.Teacher
 }
 
-func NewNotifier() *Notifier {
+func NewNotifier(dryRun bool) *Notifier {
 	return &Notifier{
+		dryRun:   dryRun,
 		teachers: make(map[uint32]*model.Teacher, 1000),
 	}
 }
@@ -43,31 +45,39 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
+	allFetchedLessons := make([]*model.Lesson, 0, 5000)
 	for _, teacherId := range teacherIds {
-		teacher, availableLessons, err := n.fetchAndExtractAvailableLessons(teacherId)
+		teacher, fetchedLessons, availableLessons, err := n.fetchAndExtractAvailableLessons(teacherId)
 		if err != nil {
 			return err
 		}
+
+		allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
 		n.teachers[teacherId] = teacher
 		for _, l := range availableLessons {
-			fmt.Printf("available -> teacherId: %v, datetime:%v, status:%v \n", l.TeacherId, l.Datetime.Format("2006-01-02 15:04"), l.Status)
+			fmt.Printf("available -> teacherId:%v, datetime:%v, status:%v \n", l.TeacherId, l.Datetime.Format("2006-01-02 15:04"), l.Status)
 		}
 		availableLessonsPerTeacher[teacherId] = availableLessons
 	}
 
-	// TODO: dry-run
 	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
 		return err
 	}
+
+	if !n.dryRun {
+		model.LessonService.UpdateLessons(allFetchedLessons)
+	}
+
 	return nil
 }
 
+// Returns teacher, fetchedLessons, availableLessons, error
 func (n *Notifier) fetchAndExtractAvailableLessons(teacherId uint32) (
-	*model.Teacher, []*model.Lesson, error,
+	*model.Teacher, []*model.Lesson, []*model.Lesson, error,
 ) {
 	teacher, fetchedLessons, err := lessonFetcher.Fetch(teacherId)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	//fmt.Printf("--- %s ---\n", teacher.Name)
 	//for _, lesson := range fetchedLessons {
@@ -79,15 +89,10 @@ func (n *Notifier) fetchAndExtractAvailableLessons(teacherId uint32) (
 	toDate := fromDate.Add(24 * 6 * time.Hour)
 	lastFetchedLessons, err := model.LessonService.FindLessons(teacher.Id, fromDate, toDate)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	availableLessons := model.LessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
-	return teacher, availableLessons, nil
-
-	//_, err = model.LessonService.UpdateLessons(fetchedLessons)
-	//if err != nil {
-	//	return err
-	//}
+	return teacher, fetchedLessons, availableLessons, nil
 }
 
 func (n *Notifier) sendNotificationToUser(
