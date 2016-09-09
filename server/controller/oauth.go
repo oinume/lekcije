@@ -53,12 +53,13 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		InternalServerError(w, err)
 		return
 	}
-	name, email, err := getNameAndEmail(token, idToken)
+	googleId, name, email, err := getGoogleUserInfo(token, idToken)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
 
+	// TODO: transaction
 	dbEmail, err := model.NewEmailFromRaw(email)
 	if err != nil {
 		InternalServerError(w, err)
@@ -66,6 +67,11 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 	}
 	user, err := model.UserService.FindOrCreate(name, dbEmail)
 	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+
+	if _, err := model.UserGoogleService.FindOrCreate(googleId, user.Id); err != nil {
 		InternalServerError(w, err)
 		return
 	}
@@ -126,24 +132,26 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	return token, idToken, nil
 }
 
-func getNameAndEmail(token *oauth2.Token, idToken string) (string, string, error) {
+// Returns userId, name, email, error
+func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, string, error) {
 	oauth2Client := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(token))
 	service, err := google_auth2.New(oauth2Client)
 	if err != nil {
-		return "", "", errors.Wrap(err, "Failed to create oauth2.Client")
+		// TODO: quit using errors.Wrap
+		return "", "", "", errors.Wrap(err, "Failed to create oauth2.Client")
 	}
 
 	userinfo, err := service.Userinfo.V2.Me.Get().Do()
 	if err != nil {
-		return "", "", errors.Wrap(err, "Failed to get userinfo")
+		return "", "", "", errors.Wrap(err, "Failed to get userinfo")
 	}
 
 	tokeninfo, err := service.Tokeninfo().IdToken(idToken).Do()
 	if err != nil {
-		return "", "", errors.Wrap(err, "Failed to get tokeninfo")
+		return "", "", "", errors.Wrap(err, "Failed to get tokeninfo")
 	}
 
-	return userinfo.Name, tokeninfo.Email, nil
+	return tokeninfo.UserId, userinfo.Name, tokeninfo.Email, nil
 }
 
 func getGoogleOAuthConfig(r *http.Request) oauth2.Config {

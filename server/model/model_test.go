@@ -25,8 +25,8 @@ func TestMain(m *testing.M) {
 	attachDbToService(db)
 
 	tables := []string{
-		"auth_google", "following_teacher", "lesson",
-		"user", "user_api_token", "teacher",
+		"following_teacher", "lesson",
+		"user", "user_api_token", "user_google", "teacher",
 	}
 	for _, t := range tables {
 		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
