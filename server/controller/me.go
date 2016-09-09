@@ -120,7 +120,6 @@ func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	user := model.MustLoggedInUser(ctx)
 	email := r.FormValue("email")
-	fmt.Printf("email = %v\n", email)
 	// TODO: better validation
 	if email == "" || !validateEmail(email) {
 		http.Redirect(w, r, "/me/setting", http.StatusFound)
