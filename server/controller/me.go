@@ -19,43 +19,52 @@ var _ = fmt.Printf
 
 func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	user := model.MustLoggedInUser(ctx)
-	teacherIdOrUrl := r.FormValue("teacherIdOrUrl")
-	if teacherIdOrUrl == "" {
+	teacherIdsOrUrl := r.FormValue("teacherIdsOrUrl")
+	if teacherIdsOrUrl == "" {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	t, err := model.NewTeacherFromIdOrUrl(teacherIdOrUrl)
+	teachers, err := model.NewTeachersFromIdsOrUrl(teacherIdsOrUrl)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
 	fetcher := fetcher.NewTeacherLessonFetcher(http.DefaultClient, logger.AppLogger)
-	teacher, _, err := fetcher.Fetch(t.Id)
 
-	now := time.Now()
-	teacher.CreatedAt = now
-	teacher.UpdatedAt = now
-	db := model.MustDb(ctx)
-	if err := db.FirstOrCreate(teacher).Error; err != nil {
-		e := errors.InternalWrapf(err, "Failed to create Teacher: teacherId=%d", teacher.Id)
-		InternalServerError(w, e)
-		return
-	}
+	for _, t := range teachers {
+		teacher, _, err := fetcher.Fetch(t.Id)
+		if err != nil {
+			// TODO: continue the loop
+			InternalServerError(w, err)
+			return
+		}
 
-	ft := &model.FollowingTeacher{
-		UserId:    user.Id,
-		TeacherId: teacher.Id,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-	if err := db.FirstOrCreate(ft).Error; err != nil {
-		e := errors.InternalWrapf(
-			err,
-			"Failed to create FollowingTeacher: userId=%d, teacherId=%d",
-			user.Id, teacher.Id,
-		)
-		InternalServerError(w, e)
-		return
+		now := time.Now()
+		teacher.CreatedAt = now
+		teacher.UpdatedAt = now
+		// TODO: Create method on service (FollowTeacher)
+		db := model.MustDb(ctx)
+		if err := db.FirstOrCreate(teacher).Error; err != nil {
+			e := errors.InternalWrapf(err, "Failed to create Teacher: teacherId=%d", teacher.Id)
+			InternalServerError(w, e)
+			return
+		}
+
+		ft := &model.FollowingTeacher{
+			UserId:    user.Id,
+			TeacherId: teacher.Id,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}
+		if err := db.FirstOrCreate(ft).Error; err != nil {
+			e := errors.InternalWrapf(
+				err,
+				"Failed to create FollowingTeacher: userId=%d, teacherId=%d",
+				user.Id, teacher.Id,
+			)
+			InternalServerError(w, e)
+			return
+		}
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)

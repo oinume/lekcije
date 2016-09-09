@@ -144,8 +144,8 @@ func (n *Notifier) sendNotificationToUser(
 func getEmailTemplate() string {
 	return strings.TrimSpace(`
 {{- range $teacherId := .TeacherIds }}
-{{- $teacher := index $.Teachers "$teacherId" -}}
---- Available lessons of Teacher {{ $teacher.Name }} ---
+{{- $teacher := index $.Teachers $teacherId -}}
+--- Available lessons of Teacher "{{ $teacher.Name }}" ---
 PC: http://eikaiwa.dmm.com/teacher/index/{{ $teacherId }}/
 Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherId }}/
 
