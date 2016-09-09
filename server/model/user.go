@@ -17,6 +17,7 @@ type User struct {
 	Id        uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name      string
 	Email     Email
+	EmailVerified bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -41,6 +42,18 @@ func (s *UserServiceType) FindByPk(id uint32) (*User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (s *UserServiceType) FindOrCreate(name string, email Email) (*User, error) {
+	user := User{
+		Name: name,
+		Email: email,
+		EmailVerified: true, // TODO: set false after implement email verification
+	}
+	if err := s.db.FirstOrCreate(&user, User{Email: email}).Error; err != nil {
+		return nil, errors.InternalWrapf(err, "Failed to get or create User: email=%v", email)
+	}
+	return &user, nil
 }
 
 func (s *UserServiceType) Create(name, email string) (*User, error) {
