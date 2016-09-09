@@ -59,34 +59,28 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	db := model.MustDb(ctx)
 	dbEmail, err := model.NewEmailFromRaw(email)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
-	// TODO: Create wrapper in UserService
-	user := model.User{Name: name, Email: dbEmail}
-	if err := db.FirstOrCreate(&user, model.User{Email: dbEmail}).Error; err != nil {
-		InternalServerError(w, errors.Wrap(err, "Failed to get or create User"))
+	user, err := model.UserService.FindOrCreate(name, dbEmail)
+	if err != nil {
+		InternalServerError(w, err)
 		return
 	}
 
-	// Create and save API Token
-	apiToken := util.RandomString(64)
-	userApiToken := model.UserApiToken{
-		UserId: user.Id,
-		Token:  apiToken,
-	}
-	if err := db.Create(&userApiToken).Error; err != nil {
-		InternalServerError(w, errors.Wrap(err, "Failed to create UserApiToken"))
+	userApiToken, err := model.UserApiTokenService.Create(user.Id)
+	if err != nil {
+		InternalServerError(w, err)
 		return
 	}
+
 	cookie := &http.Cookie{
 		Name:     ApiTokenCookieName,
-		Value:    apiToken,
+		Value:    userApiToken.Token,
 		Path:     "/",
-		Expires:  time.Now().Add(time.Hour * 24 * 30),
+		Expires:  time.Now().Add(model.UserApiTokenExpiration),
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookie)
