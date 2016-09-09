@@ -3,15 +3,12 @@ package util
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	crand "crypto/rand"
 	"encoding/hex"
-	"io"
+	"fmt"
 	mrand "math/rand"
 	"os"
 	"strconv"
 	"time"
-
-	"fmt"
 
 	"github.com/oinume/lekcije/server/errors"
 )
@@ -19,6 +16,7 @@ import (
 var (
 	letters    = []rune(`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`)
 	lekcijeEnv = os.Getenv("LEKCIJE_ENV")
+	commonIV   = []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
 )
 
 func init() {
@@ -75,15 +73,14 @@ func EncryptString(plainText string, encryptionKey string) (string, error) {
 		return "", errors.InternalWrapf(err, "")
 	}
 	plainBytes := []byte(plainText)
-	cipherBytes := make([]byte, aes.BlockSize+len(plainText))
-	// iv = initialization vector
-	iv := cipherBytes[:aes.BlockSize]
-	if _, err = io.ReadFull(crand.Reader, iv); err != nil {
-		return "", errors.InternalWrapf(err, "")
-	}
+	//cipherBytes := make([]byte, aes.BlockSize+len(plainBytes))
+	cipherBytes := make([]byte, len(plainBytes))
 
+	// iv = initialization vector
+	iv := commonIV
 	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(cipherBytes[aes.BlockSize:], plainBytes)
+	//stream.XORKeyStream(cipherBytes[aes.BlockSize:], plainBytes)
+	stream.XORKeyStream(cipherBytes, plainBytes)
 	return hex.EncodeToString(cipherBytes), nil
 }
 
@@ -96,15 +93,16 @@ func DecryptString(cipherText string, encryptionKey string) (string, error) {
 	if err != nil {
 		return "", errors.InternalWrapf(err, "")
 	}
-	if len(cipherBytes) < aes.BlockSize {
-		return "", errors.Internalf("cipherText is too short.")
-	}
+	//if len(cipherBytes) < aes.BlockSize {
+	//	return "", errors.Internalf("cipherText is too short.")
+	//}
 
-	iv := cipherBytes[:aes.BlockSize]
-	cipherBytes = cipherBytes[aes.BlockSize:]
+	iv := commonIV
+	//cipherBytes = cipherBytes[aes.BlockSize:]
+	plainBytes := make([]byte, len(cipherBytes))
 	cfb := cipher.NewCFBDecrypter(block, iv)
-	cfb.XORKeyStream(cipherBytes, cipherBytes)
+	cfb.XORKeyStream(plainBytes, cipherBytes)
 
-	plainBytes := cipherBytes
+	//plainBytes := cipherBytes
 	return string(plainBytes), nil
 }

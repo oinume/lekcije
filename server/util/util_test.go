@@ -1,7 +1,6 @@
 package util
 
 import (
-	"crypto/aes"
 	"fmt"
 	"strings"
 	"testing"
@@ -27,10 +26,15 @@ func TestEncryptString(t *testing.T) {
 		encrypted, err := EncryptString(v.email, key)
 		a.NoError(err)
 		a.NotEmpty(encrypted)
-		a.True(len(encrypted) > aes.BlockSize)
+		fmt.Printf("%s -> %s\n", v.email, encrypted)
+		//a.True(len(encrypted) > aes.BlockSize)
 
 		decrypted, err := DecryptString(encrypted, key)
 		a.NoError(err)
 		a.Equal(v.email, decrypted)
+
+		encrypted2, err := EncryptString(v.email, key)
+		a.NoError(err)
+		a.Equal(encrypted, encrypted2)
 	}
 }
