@@ -32,11 +32,11 @@ export class FollowTeacherForm extends React.Component {
         <h2>Follow a teacher!</h2>
         <form>
           <div className="form-group">
-            <label htmlFor="teacherUrlOrId">Teacher's URL or ID</label>
+            <label htmlFor="teacherIdsOrUrl">Teacher's URL or ID</label>
             <input type="text"
                    className="form-control"
-                   id="teacherIdOrUrl"
-                   name="teacherUrlOrId"
+                   id="teacherIdsOrUrl"
+                   name="teacherIdsOrUrl"
                    placeholder="URL or ID" />
           </div>
           <div className="form-group">

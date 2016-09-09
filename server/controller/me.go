@@ -19,12 +19,12 @@ var _ = fmt.Printf
 
 func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	user := model.MustLoggedInUser(ctx)
-	teacherIdOrUrl := r.FormValue("teacherIdOrUrl")
-	if teacherIdOrUrl == "" {
+	teacherIdsOrUrl := r.FormValue("teacherIdsOrUrl")
+	if teacherIdsOrUrl == "" {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	teachers, err := model.NewTeachersFromIdsOrUrl(teacherIdOrUrl)
+	teachers, err := model.NewTeachersFromIdsOrUrl(teacherIdsOrUrl)
 	if err != nil {
 		InternalServerError(w, err)
 		return
