@@ -57,7 +57,9 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		for _, l := range availableLessons {
 			fmt.Printf("available -> teacherId:%v, datetime:%v, status:%v \n", l.TeacherId, l.Datetime.Format("2006-01-02 15:04"), l.Status)
 		}
-		availableLessonsPerTeacher[teacherId] = availableLessons
+		if len(availableLessons) > 0 {
+			availableLessonsPerTeacher[teacherId] = availableLessons
+		}
 	}
 
 	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
