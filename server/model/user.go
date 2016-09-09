@@ -14,12 +14,12 @@ const (
 )
 
 type User struct {
-	Id        uint32 `gorm:"primary_key;AUTO_INCREMENT"`
-	Name      string
-	Email     Email
+	Id            uint32 `gorm:"primary_key;AUTO_INCREMENT"`
+	Name          string
+	Email         Email
 	EmailVerified bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 func (*User) TableName() string {
@@ -46,8 +46,8 @@ func (s *UserServiceType) FindByPk(id uint32) (*User, error) {
 
 func (s *UserServiceType) FindOrCreate(name string, email Email) (*User, error) {
 	user := User{
-		Name: name,
-		Email: email,
+		Name:          name,
+		Email:         email,
 		EmailVerified: true, // TODO: set false after implement email verification
 	}
 	if err := s.db.FirstOrCreate(&user, User{Email: email}).Error; err != nil {
