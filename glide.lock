@@ -1,29 +1,29 @@
-hash: dea3e5aeb44220efb2e1057ac4680702605330fa38bdf5ec5d373e371a0ea827
-updated: 2016-08-23T01:00:30.578377493+09:00
+hash: 2797d2ad36f71905845e712f258e6e1b09dcee77b9681dc9905d4cc60945a5a1
+updated: 2016-09-07T22:35:01.336265409+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
   subpackages:
   - cmd/goose
 - name: cloud.google.com/go
-  version: e977e3911f5ba211c715d40c30fc81abfa9400ae
+  version: 8f813b332c515bb3de30ac88d3582c3c3a8f6ac5
   subpackages:
   - compute/metadata
   - internal
 - name: github.com/cespare/reflex
   version: d99c749bd424bf5fb5f63229f0cb4baffdc81f9d
 - name: github.com/davecgh/go-spew
-  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  version: 6cf5744a041a0022271cefed95ba843f6d87fd51
   subpackages:
   - spew
 - name: github.com/go-sql-driver/mysql
   version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
 - name: github.com/golang/protobuf
-  version: f592bd283e9ef86337a432eb50e592278c3d534d
+  version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
   subpackages:
   - proto
 - name: github.com/jinzhu/gorm
-  version: 35a2a004d880453f0bbd3716bcc63da1cb15b77b
+  version: 446ce99a42ffe050b77bdd761271f97dd1e2b554
   subpackages:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
@@ -37,13 +37,19 @@ imports:
 - name: github.com/rs/xhandler
   version: ed27b6fd65218132ee50cd95f38474a3d8a2cd12
 - name: github.com/sclevine/agouti
-  version: e5378e70dca437a9e16cc6d71a85aa0045dd94c7
+  version: dab7b01f206e43278618a7e0f5bc3ea39e48445a
   subpackages:
   - api
-  - internal/element
-  - internal/target
   - api/internal/bus
   - api/internal/service
+  - internal/element
+  - internal/target
+- name: github.com/sendgrid/rest
+  version: d37acbf70185e33da36a233f4df95848b052427c
+- name: github.com/sendgrid/sendgrid-go
+  version: e59d0c5754ee5f91ed5dabe77f97df58f85f7b05
+  subpackages:
+  - helpers/mail
 - name: github.com/Songmu/retry
   version: 8a08e074f774598e288a170169bb5a0aa46870e8
 - name: github.com/stretchr/testify
@@ -54,50 +60,50 @@ imports:
 - name: github.com/uber-go/atomic
   version: 0c9e689d64f004564b79d9a663634756df322902
 - name: github.com/uber-go/zap
-  version: d11d2851fcabcf03421c4dbdbc3146fc74eb1035
+  version: fc9fbdfe46f6dc6a78028f22a2fb086dd13182fd
 - name: goji.io
-  version: e355964ac565b94cf0fc7f218346626529125086
+  version: bc2e9e7dc2769805d1b6ce4dc48ec23a03ae82ec
   subpackages:
-  - pat
   - internal
+  - pat
   - pattern
 - name: golang.org/x/net
-  version: 7394c112eae4dba7e96bfcfe738e6373d61772b4
+  version: 1358eff22f0dd0c54fc521042cc607f6ff4b531a
   subpackages:
   - context
   - context/ctxhttp
   - html
   - html/atom
 - name: golang.org/x/oauth2
-  version: 3b966c7f301c0c71c53d94dc632a62df0a682cd7
+  version: 3c3a985cb79f52a3190fbc056984415ca6763d01
   subpackages:
   - google
   - internal
   - jws
   - jwt
 - name: google.golang.org/api
-  version: 71d10c782fc13eb9f2e2c9af553da218c941851f
+  version: 5d9c84e3b78a84b6ddc17f88164527f935501e94
   subpackages:
-  - oauth2/v2
   - gensupport
   - googleapi
   - googleapi/internal/uritemplates
+  - oauth2/v2
 - name: google.golang.org/appengine
-  version: e951d3868b377b14f4e60efa3a301532ee3c1ebf
+  version: 4f7eeb5305a4ba1966344836ba4af9996b7b4e05
   subpackages:
-  - urlfetch
   - internal
-  - internal/urlfetch
   - internal/app_identity
-  - internal/modules
   - internal/base
   - internal/datastore
   - internal/log
+  - internal/modules
   - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 testImports:
 - name: github.com/pmezard/go-difflib
-  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
   - difflib

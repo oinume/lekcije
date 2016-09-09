@@ -3,13 +3,14 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/controller"
 	"github.com/rs/cors"
 	"github.com/uber-go/zap"
 	"goji.io"
@@ -59,7 +60,7 @@ func SetDbToContext(h goji.Handler) goji.Handler {
 		}
 		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 
-		db, c, err := model.OpenAndSetToContext(ctx)
+		db, c, err := model.OpenAndSetToContext(ctx, os.Getenv("DB_DSN"))
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return

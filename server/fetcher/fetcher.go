@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Songmu/retry"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/uber-go/zap"
@@ -23,7 +24,6 @@ const (
 
 var (
 	_              = fmt.Print
-	jst            = time.FixedZone("Asia/Tokyo", 9*60*60)
 	titleXPath     = xmlpath.MustCompile(`//title`)
 	lessonXPath    = xmlpath.MustCompile("//ul[@class='oneday']//li")
 	classAttrXPath = xmlpath.MustCompile("@class")
@@ -69,6 +69,7 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
 	if err != nil {
 		return "", errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return "", errors.Internalf(
@@ -116,12 +117,16 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 		//fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
 		fetcher.log.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
 
-		// blank, reservable, reserved
+		// blank, available, reserved
 		if timeClass == "date" {
 			group := dateRegexp.FindStringSubmatch(text)
 			if len(group) > 0 {
 				month, day := MustInt(group[1]), MustInt(group[2])
-				originalDate = time.Date(date.Year(), time.Month(month), int(day), 0, 0, 0, 0, jst)
+				originalDate = time.Date(
+					date.Year(), time.Month(month), int(day),
+					0, 0, 0, 0,
+					config.LocalTimezone(),
+				)
 				date = originalDate
 			}
 		} else if strings.HasPrefix(timeClass, "t-") && text != "" {
@@ -135,7 +140,11 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 					date = date.Add(24 * time.Hour)
 				}
 			}
-			dt := time.Date(date.Year(), date.Month(), date.Day(), hour, minute, 0, 0, jst)
+			dt := time.Date(
+				date.Year(), date.Month(), date.Day(),
+				hour, minute, 0, 0,
+				config.LocalTimezone(),
+			)
 			status := model.LessonStatuses.MustValueForAlias(text)
 			fetcher.log.Info(
 				"lesson",

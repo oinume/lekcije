@@ -3,6 +3,11 @@ package config
 import (
 	"os"
 	"strconv"
+	"time"
+)
+
+var (
+	jst = time.FixedZone("Asia/Tokyo", 9*60*60)
 )
 
 func StaticUrl() string {
@@ -41,4 +46,8 @@ func ListenPort() int {
 		return -1
 	}
 	return int(p)
+}
+
+func LocalTimezone() *time.Location {
+	return jst
 }

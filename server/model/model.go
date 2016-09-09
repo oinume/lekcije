@@ -1,7 +1,6 @@
 package model
 
 import (
-	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -12,7 +11,8 @@ import (
 )
 
 const (
-	contextKeyDb = "db"
+	contextKeyDb     = "db"
+	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
 
 type AuthGoogle struct {
@@ -39,8 +39,8 @@ func Open(dsn string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func OpenAndSetToContext(ctx context.Context) (*gorm.DB, context.Context, error) {
-	db, err := Open(os.Getenv("DB_DSN")) // TODO: pass by argument
+func OpenAndSetToContext(ctx context.Context, dsn string) (*gorm.DB, context.Context, error) {
+	db, err := Open(dsn)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -60,6 +60,7 @@ func MustDb(ctx context.Context) *gorm.DB {
 
 func attachDbToService(db *gorm.DB) {
 	FollowingTeacherService.db = db
+	LessonService.db = db
 	UserApiTokenService.db = db
 	UserService.db = db
 }
