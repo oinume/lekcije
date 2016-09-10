@@ -41,15 +41,30 @@ func TestUpdateLessonsOverwrite(t *testing.T) {
 	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
 }
 
-func TestGetNewAvailableLessons(t *testing.T) {
-	//a := assert.New(t)
+func TestGetNewAvailableLessons1(t *testing.T) {
+	a := assert.New(t)
 
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
 	lessons1 := createLessons(1, datetime, "Reserved", 3)
 	lessons2 := createLessons(1, datetime, "Reserved", 3)
-	lessons2[0].Status = "Available"
+	lessons2[1].Status = "Available"
+	// Test GetNewAvailableLessons returns a lesson when new lesson is "Available"
+	availableLessons := LessonService.GetNewAvailableLessons(lessons1, lessons2)
+	a.Equal(1, len(availableLessons))
+	a.Equal(datetime.Add(1*time.Hour), availableLessons[0].Datetime)
+}
 
-	LessonService.GetNewAvailableLessons(lessons1, lessons2)
+func TestGetNewAvailableLessons2(t *testing.T) {
+	a := assert.New(t)
+
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
+	lessons1 := createLessons(1, datetime, "Reserved", 3)
+	lessons2 := createLessons(1, datetime, "Reserved", 3)
+	lessons1[0].Status = "Available"
+	lessons2[0].Status = "Available"
+	// Test GetNewAvailableLessons returns nothing when both lessons are "Available"
+	availableLessons := LessonService.GetNewAvailableLessons(lessons1, lessons2)
+	a.Equal(0, len(availableLessons))
 }
 
 func createLessons(teacherId uint32, baseDatetime time.Time, status string, length int) []*Lesson {

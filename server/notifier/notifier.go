@@ -47,7 +47,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	allFetchedLessons := make([]*model.Lesson, 0, 5000)
 	for _, teacherId := range teacherIds {
-		teacher, fetchedLessons, availableLessons, err := n.fetchAndExtractAvailableLessons(teacherId)
+		teacher, fetchedLessons, availableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherId)
 		if err != nil {
 			return err
 		}
@@ -70,8 +70,8 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	return nil
 }
 
-// Returns teacher, fetchedLessons, availableLessons, error
-func (n *Notifier) fetchAndExtractAvailableLessons(teacherId uint32) (
+// Returns teacher, fetchedLessons, newAvailableLessons, error
+func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	*model.Teacher, []*model.Lesson, []*model.Lesson, error,
 ) {
 	teacher, fetchedLessons, err := lessonFetcher.Fetch(teacherId)
