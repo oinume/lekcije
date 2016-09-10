@@ -116,8 +116,8 @@ func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Les
 	for _, l := range newLessons {
 		newLessonsMap[l.Datetime] = l
 	}
-	for datetime, _ := range oldLessonsMap {
-		if newLesson, ok := newLessonsMap[datetime]; ok && strings.ToLower(newLesson.Status) == "available" {
+	for datetime, oldLesson := range oldLessonsMap {
+		if newLesson, ok := newLessonsMap[datetime]; ok && strings.ToLower(oldLesson.Status) != "available" && strings.ToLower(newLesson.Status) == "available" {
 			// exists in oldLessons and newLessons
 			availableLessons = append(availableLessons, newLesson)
 			availableLessonsMap[datetime] = newLesson

@@ -49,8 +49,7 @@ func run() error {
 	}
 
 	var users []*model.User
-	// TODO: email_verified
-	userSql := `SELECT * FROM user /* WHERE email_verified = 1 */`
+	userSql := `SELECT * FROM user WHERE email_verified = 1`
 	result := db.Raw(userSql).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
 		return errors.InternalWrapf(result.Error, "")
