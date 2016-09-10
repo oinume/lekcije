@@ -47,15 +47,15 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	allFetchedLessons := make([]*model.Lesson, 0, 5000)
 	for _, teacherId := range teacherIds {
-		teacher, fetchedLessons, availableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherId)
+		teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherId)
 		if err != nil {
 			return err
 		}
 
 		allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
 		n.teachers[teacherId] = teacher
-		if len(availableLessons) > 0 {
-			availableLessonsPerTeacher[teacherId] = availableLessons
+		if len(newAvailableLessons) > 0 {
+			availableLessonsPerTeacher[teacherId] = newAvailableLessons
 		}
 	}
 
@@ -78,9 +78,9 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	//fmt.Printf("--- %s ---\n", teacher.Name)
-	//for _, lesson := range fetchedLessons {
-	//	fmt.Printf("datetime = %v, status = %v\n", lesson.Datetime, lesson.Status)
+	//fmt.Printf("fetchedLessons ---\n")
+	//for _, l := range fetchedLessons {
+	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
 	now := time.Now()
@@ -90,8 +90,17 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	availableLessons := model.LessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
-	return teacher, fetchedLessons, availableLessons, nil
+	//fmt.Printf("lastFetchedLessons ---\n")
+	//for _, l := range lastFetchedLessons {
+	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
+	//}
+
+	newAvailableLessons := model.LessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
+	//fmt.Printf("newAvailableLessons ---\n")
+	//for _, l := range newAvailableLessons {
+	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
+	//}
+	return teacher, fetchedLessons, newAvailableLessons, nil
 }
 
 func (n *Notifier) sendNotificationToUser(

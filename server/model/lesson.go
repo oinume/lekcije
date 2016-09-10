@@ -10,6 +10,10 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
+const (
+	lessonTimeFormat = "2006-01-02 15:04"
+)
+
 type Lesson struct {
 	TeacherId uint32    `gorm:"primary_key"`
 	Datetime  time.Time `gorm:"primary_key"`
@@ -24,8 +28,8 @@ func (*Lesson) TableName() string {
 
 func (l *Lesson) String() string {
 	return fmt.Sprintf(
-		"TeacherId: %v, Datetime: %v, Status: %v",
-		l.TeacherId, l.Datetime, l.Status,
+		"TeacherId=%v, Datetime=%v, Status=%v",
+		l.TeacherId, l.Datetime.Format(lessonTimeFormat), l.Status,
 	)
 }
 
@@ -106,15 +110,15 @@ LIMIT 1000
 func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Lesson) []*Lesson {
 	// Pattern
 	// 2016-01-01 00:00@Any -> Available
-	oldLessonsMap := make(map[time.Time]*Lesson, len(oldLessons))
-	newLessonsMap := make(map[time.Time]*Lesson, len(newLessons))
+	oldLessonsMap := make(map[string]*Lesson, len(oldLessons))
+	newLessonsMap := make(map[string]*Lesson, len(newLessons))
 	availableLessons := make([]*Lesson, 0, len(oldLessons)+len(newLessons))
-	availableLessonsMap := make(map[time.Time]*Lesson, len(oldLessons)+len(newLessons))
+	availableLessonsMap := make(map[string]*Lesson, len(oldLessons)+len(newLessons))
 	for _, l := range oldLessons {
-		oldLessonsMap[l.Datetime] = l
+		oldLessonsMap[l.Datetime.Format(lessonTimeFormat)] = l
 	}
 	for _, l := range newLessons {
-		newLessonsMap[l.Datetime] = l
+		newLessonsMap[l.Datetime.Format(lessonTimeFormat)] = l
 	}
 	for datetime, oldLesson := range oldLessonsMap {
 		if newLesson, ok := newLessonsMap[datetime]; ok && strings.ToLower(oldLesson.Status) != "available" && strings.ToLower(newLesson.Status) == "available" {
@@ -125,10 +129,11 @@ func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Les
 	}
 
 	for _, l := range newLessons {
-		if _, ok := oldLessonsMap[l.Datetime]; !ok && strings.ToLower(l.Status) == "available" {
+		datetime := l.Datetime.Format(lessonTimeFormat)
+		if _, ok := oldLessonsMap[datetime]; !ok && strings.ToLower(l.Status) == "available" {
 			// not exists in oldLessons
 			availableLessons = append(availableLessons, l)
-			availableLessonsMap[l.Datetime] = l
+			availableLessonsMap[datetime] = l
 		}
 	}
 
