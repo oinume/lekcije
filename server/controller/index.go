@@ -14,12 +14,14 @@ import (
 var _ = fmt.Print
 
 type commonTemplateData struct {
-	StaticUrl string
+	StaticUrl         string
+	GoogleAnalyticsId string
 }
 
 func getCommonTemplateData() commonTemplateData {
 	return commonTemplateData{
-		StaticUrl: config.StaticUrl(),
+		StaticUrl:         config.StaticUrl(),
+		GoogleAnalyticsId: config.GoogleAnalyticsId(),
 	}
 }
 

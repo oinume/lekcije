@@ -20,6 +20,10 @@ func StaticUrl() string {
 	}
 }
 
+func GoogleAnalyticsId() string {
+	return os.Getenv("GOOGLE_ANALYTICS_ID")
+}
+
 func EnvString() string {
 	return os.Getenv("NODE_ENV")
 }
