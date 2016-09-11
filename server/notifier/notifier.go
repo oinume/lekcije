@@ -154,11 +154,11 @@ func getEmailTemplate() string {
 	return strings.TrimSpace(`
 {{- range $teacherId := .TeacherIds }}
 {{- $teacher := index $.Teachers $teacherId -}}
---- Available lessons of Teacher "{{ $teacher.Name }}" ---
+--- Available lessons of {{ $teacher.Name }} ---
 PC: http://eikaiwa.dmm.com/teacher/index/{{ $teacherId }}/
 Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherId }}/
 
-  {{- $lessons := index $.LessonsPerTeacher $teacherId -}}
+  {{ $lessons := index $.LessonsPerTeacher $teacherId -}}
   {{- range $lesson := $lessons }}
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
