@@ -26,17 +26,19 @@ func (*User) TableName() string {
 	return "user"
 }
 
-type UserServiceType struct {
+type UserService struct {
 	db *gorm.DB
 }
 
-var UserService UserServiceType
+func NewUserService(db *gorm.DB) *UserService {
+	return &UserService{db}
+}
 
-func (s *UserServiceType) TableName() string {
+func (s *UserService) TableName() string {
 	return (&User{}).TableName()
 }
 
-func (s *UserServiceType) FindByPk(id uint32) (*User, error) {
+func (s *UserService) FindByPk(id uint32) (*User, error) {
 	user := &User{}
 	if err := s.db.First(user, &User{Id: id}).Error; err != nil {
 		return nil, err
@@ -44,7 +46,7 @@ func (s *UserServiceType) FindByPk(id uint32) (*User, error) {
 	return user, nil
 }
 
-func (s *UserServiceType) FindOrCreate(name string, email Email) (*User, error) {
+func (s *UserService) FindOrCreate(name string, email Email) (*User, error) {
 	user := User{
 		Name:          name,
 		Email:         email,
@@ -56,7 +58,7 @@ func (s *UserServiceType) FindOrCreate(name string, email Email) (*User, error) 
 	return &user, nil
 }
 
-func (s *UserServiceType) Create(name, email string) (*User, error) {
+func (s *UserService) Create(name, email string) (*User, error) {
 	e, err := NewEmailFromRaw(email)
 	if err != nil {
 		return nil, err
@@ -71,7 +73,7 @@ func (s *UserServiceType) Create(name, email string) (*User, error) {
 	return user, nil
 }
 
-func (s *UserServiceType) UpdateEmail(user *User, newEmail string) error {
+func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 	email, err := NewEmailFromRaw(newEmail)
 	if err != nil {
 		return err

@@ -65,7 +65,8 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		InternalServerError(w, err)
 		return
 	}
-	user, err := model.UserService.FindOrCreate(name, dbEmail)
+	userService := model.NewUserService(model.MustDb(ctx))
+	user, err := userService.FindOrCreate(name, dbEmail)
 	if err != nil {
 		InternalServerError(w, err)
 		return

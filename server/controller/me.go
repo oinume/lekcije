@@ -126,7 +126,8 @@ func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := model.UserService.UpdateEmail(user, email); err != nil {
+	service := model.NewUserService(model.MustDb(ctx))
+	if err := service.UpdateEmail(user, email); err != nil {
 		InternalServerError(w, err)
 		return
 	}

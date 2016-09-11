@@ -49,5 +49,4 @@ func attachDbToService(db *gorm.DB) {
 	LessonService.db = db
 	UserApiTokenService.db = db
 	UserGoogleService.db = db
-	UserService.db = db
 }

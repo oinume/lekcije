@@ -11,6 +11,7 @@ import (
 
 var _ = fmt.Print
 var db *gorm.DB
+var userService *UserService
 
 func TestMain(m *testing.M) {
 	dbDsn := os.Getenv("DB_DSN")
@@ -23,6 +24,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	attachDbToService(db)
+	userService = NewUserService(db)
 
 	tables := []string{
 		"following_teacher", "lesson",
