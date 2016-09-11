@@ -99,7 +99,8 @@ func Logout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	if err := model.UserApiTokenService.DeleteByUserIdAndToken(user.Id, token); err != nil {
+	userApiTokenService := model.NewUserApiTokenService(model.MustDb(ctx))
+	if err := userApiTokenService.DeleteByUserIdAndToken(user.Id, token); err != nil {
 		InternalServerError(w, err)
 		return
 	}

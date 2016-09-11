@@ -77,7 +77,8 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	userApiToken, err := model.UserApiTokenService.Create(user.Id)
+	userApiTokenService := model.NewUserApiTokenService(model.MustDb(ctx))
+	userApiToken, err := userApiTokenService.Create(user.Id)
 	if err != nil {
 		InternalServerError(w, err)
 		return

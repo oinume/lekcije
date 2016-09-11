@@ -9,9 +9,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var _ = fmt.Print
-var db *gorm.DB
-var userService *UserService
+var (
+	_                   = fmt.Print
+	db                  *gorm.DB
+	userService         *UserService
+	userApiTokenService *UserApiTokenService
+)
 
 func TestMain(m *testing.M) {
 	dbDsn := os.Getenv("DB_DSN")
@@ -25,6 +28,7 @@ func TestMain(m *testing.M) {
 	}
 	attachDbToService(db)
 	userService = NewUserService(db)
+	userApiTokenService = NewUserApiTokenService(db)
 
 	tables := []string{
 		"following_teacher", "lesson",

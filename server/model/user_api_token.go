@@ -21,13 +21,15 @@ func (*UserApiToken) TableName() string {
 	return "user_api_token"
 }
 
-type UserApiTokenServiceType struct {
+type UserApiTokenService struct {
 	db *gorm.DB
 }
 
-var UserApiTokenService UserApiTokenServiceType
+func NewUserApiTokenService(db *gorm.DB) *UserApiTokenService {
+	return &UserApiTokenService{db: db}
+}
 
-func (s *UserApiTokenServiceType) Create(userId uint32) (*UserApiToken, error) {
+func (s *UserApiTokenService) Create(userId uint32) (*UserApiToken, error) {
 	apiToken := util.RandomString(64)
 	userApiToken := UserApiToken{
 		UserId: userId,
@@ -39,7 +41,7 @@ func (s *UserApiTokenServiceType) Create(userId uint32) (*UserApiToken, error) {
 	return &userApiToken, nil
 }
 
-func (s *UserApiTokenServiceType) DeleteByUserIdAndToken(userId uint32, token string) error {
+func (s *UserApiTokenService) DeleteByUserIdAndToken(userId uint32, token string) error {
 	result := s.db.Where("user_id = ? AND token = ?", userId, token).Delete(&UserApiToken{})
 	if result.Error != nil {
 		return errors.InternalWrapf(

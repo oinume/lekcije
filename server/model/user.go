@@ -31,7 +31,7 @@ type UserService struct {
 }
 
 func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{db}
+	return &UserService{db: db}
 }
 
 func (s *UserService) TableName() string {
