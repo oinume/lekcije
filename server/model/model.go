@@ -45,7 +45,6 @@ func MustDb(ctx context.Context) *gorm.DB {
 }
 
 func attachDbToService(db *gorm.DB) {
-	FollowingTeacherService.db = db
 	LessonService.db = db
 	UserGoogleService.db = db
 }

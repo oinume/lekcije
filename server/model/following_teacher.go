@@ -21,17 +21,19 @@ func (*FollowingTeacher) TableName() string {
 	return "following_teacher"
 }
 
-type FollowingTeacherServiceType struct {
+type FollowingTeacherService struct {
 	db *gorm.DB
 }
 
-var FollowingTeacherService FollowingTeacherServiceType
+func NewFollowingTeacherService(db *gorm.DB) *FollowingTeacherService {
+	return &FollowingTeacherService{db: db}
+}
 
-func (s *FollowingTeacherServiceType) TableName() string {
+func (s *FollowingTeacherService) TableName() string {
 	return (&FollowingTeacher{}).TableName()
 }
 
-func (s *FollowingTeacherServiceType) FindTeachersByUserId(userId uint32) ([]*Teacher, error) {
+func (s *FollowingTeacherService) FindTeachersByUserId(userId uint32) ([]*Teacher, error) {
 	limit := 100
 	values := make([]*Teacher, 0, limit)
 	sql := fmt.Sprintf(`
@@ -51,7 +53,7 @@ func (s *FollowingTeacherServiceType) FindTeachersByUserId(userId uint32) ([]*Te
 	return values, nil
 }
 
-func (s *FollowingTeacherServiceType) FindTeacherIdsByUserId(userId uint32) ([]uint32, error) {
+func (s *FollowingTeacherService) FindTeacherIdsByUserId(userId uint32) ([]uint32, error) {
 	values := make([]*FollowingTeacher, 0, 1000)
 	sql := `SELECT teacher_id FROM following_teacher WHERE user_id = ?`
 	if result := s.db.Raw(sql, userId).Scan(&values); result.Error != nil {
@@ -67,7 +69,7 @@ func (s *FollowingTeacherServiceType) FindTeacherIdsByUserId(userId uint32) ([]u
 	return ids, nil
 }
 
-func (s *FollowingTeacherServiceType) DeleteTeachersByUserIdAndTeacherIds(
+func (s *FollowingTeacherService) DeleteTeachersByUserIdAndTeacherIds(
 	userId uint32,
 	teacherIds []uint32,
 ) (int, error) {

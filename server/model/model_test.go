@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	_                   = fmt.Print
-	db                  *gorm.DB
-	userService         *UserService
-	userApiTokenService *UserApiTokenService
+	_                       = fmt.Print
+	db                      *gorm.DB
+	followingTeacherService *FollowingTeacherService
+	userService             *UserService
+	userApiTokenService     *UserApiTokenService
 )
 
 func TestMain(m *testing.M) {

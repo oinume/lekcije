@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
@@ -27,19 +28,22 @@ func init() {
 }
 
 type Notifier struct {
+	db       *gorm.DB
 	dryRun   bool
 	teachers map[uint32]*model.Teacher
 }
 
-func NewNotifier(dryRun bool) *Notifier {
+func NewNotifier(db *gorm.DB, dryRun bool) *Notifier {
 	return &Notifier{
+		db:       db,
 		dryRun:   dryRun,
 		teachers: make(map[uint32]*model.Teacher, 1000),
 	}
 }
 
 func (n *Notifier) SendNotification(user *model.User) error {
-	teacherIds, err := model.FollowingTeacherService.FindTeacherIdsByUserId(user.Id)
+	followingTeacherService := model.NewFollowingTeacherService(n.db)
+	teacherIds, err := followingTeacherService.FindTeacherIdsByUserId(user.Id)
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIdsByUserId(): userId=%v", user.Id)
 	}

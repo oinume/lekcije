@@ -49,7 +49,8 @@ func indexLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, use
 	}
 	data := &Data{commonTemplateData: getCommonTemplateData()}
 
-	teachers, err := model.FollowingTeacherService.FindTeachersByUserId(user.Id)
+	followingTeacherService := model.NewFollowingTeacherService(model.MustDb(ctx))
+	teachers, err := followingTeacherService.FindTeachersByUserId(user.Id)
 	if err != nil {
 		InternalServerError(w, err)
 		return
