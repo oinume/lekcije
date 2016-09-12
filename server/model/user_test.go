@@ -19,7 +19,7 @@ func TestCreateUser(t *testing.T) {
 		fmt.Printf("%+v\n", e.StackTrace())
 	}
 	a.NoError(err)
-	a.True(user.Id > 0)
+	a.True(user.ID > 0)
 	a.Equal(email, user.Email.Raw())
 }
 
@@ -33,7 +33,7 @@ func TestUpdateEmail(t *testing.T) {
 	}
 	a.NoError(err)
 
-	actual, err := userService.FindByPk(user.Id)
+	actual, err := userService.FindByPk(user.ID)
 	a.NoError(err)
 	a.NotEqual(user.Email.Raw(), actual.Email.Raw())
 	a.Equal(email, actual.Email.Raw())

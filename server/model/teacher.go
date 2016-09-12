@@ -16,7 +16,7 @@ var (
 )
 
 type Teacher struct {
-	Id        uint32
+	ID        uint32
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -27,10 +27,10 @@ func (*Teacher) TableName() string {
 }
 
 func NewTeacher(id uint32) *Teacher {
-	return &Teacher{Id: id}
+	return &Teacher{ID: id}
 }
 
-func NewTeachersFromIdsOrUrl(idsOrUrl string) ([]*Teacher, error) {
+func NewTeachersFromIDsOrURL(idsOrUrl string) ([]*Teacher, error) {
 	if idsRegexp.MatchString(idsOrUrl) {
 		ids := strings.Split(idsOrUrl, ",")
 		teachers := make([]*Teacher, 0, len(ids))
@@ -49,6 +49,6 @@ func NewTeachersFromIdsOrUrl(idsOrUrl string) ([]*Teacher, error) {
 	return nil, fmt.Errorf("Failed to parse idOrUrl: %s", idsOrUrl)
 }
 
-func (t *Teacher) Url() string {
-	return fmt.Sprintf(teacherUrlBase, t.Id)
+func (t *Teacher) URL() string {
+	return fmt.Sprintf(teacherUrlBase, t.ID)
 }

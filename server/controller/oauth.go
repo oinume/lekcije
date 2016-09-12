@@ -53,7 +53,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		InternalServerError(w, err)
 		return
 	}
-	googleId, name, email, err := getGoogleUserInfo(token, idToken)
+	googleID, name, email, err := getGoogleUserInfo(token, idToken)
 	if err != nil {
 		InternalServerError(w, err)
 		return
@@ -65,21 +65,21 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		InternalServerError(w, err)
 		return
 	}
-	userService := model.NewUserService(model.MustDb(ctx))
+	userService := model.NewUserService(model.MustDB(ctx))
 	user, err := userService.FindOrCreate(name, dbEmail)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
 
-	userGoogleService := model.NewUserGoogleService(model.MustDb(ctx))
-	if _, err := userGoogleService.FindOrCreate(googleId, user.Id); err != nil {
+	userGoogleService := model.NewUserGoogleService(model.MustDB(ctx))
+	if _, err := userGoogleService.FindOrCreate(googleID, user.ID); err != nil {
 		InternalServerError(w, err)
 		return
 	}
 
-	userApiTokenService := model.NewUserApiTokenService(model.MustDb(ctx))
-	userApiToken, err := userApiTokenService.Create(user.Id)
+	userApiTokenService := model.NewUserApiTokenService(model.MustDB(ctx))
+	userApiToken, err := userApiTokenService.Create(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
 		return
@@ -95,7 +95,7 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 	http.SetCookie(w, cookie)
 
 	//data := map[string]interface{}{
-	//	"id":          user.Id,
+	//	"id":          user.ID,
 	//	"name":        user.Name,
 	//	"email":       user.Email,
 	//	"accessToken": token.AccessToken,

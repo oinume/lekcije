@@ -6,17 +6,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewTeachersFromIdOrUrl(t *testing.T) {
+func TestNewTeachersFromIDOrURL(t *testing.T) {
 	a := assert.New(t)
-	teachers, err := NewTeachersFromIdsOrUrl("1,2")
+	teachers, err := NewTeachersFromIDsOrURL("1,2")
 	a.NoError(err)
 	a.Equal(2, len(teachers))
 
-	teachers2, err := NewTeachersFromIdsOrUrl("1,2,3,")
+	teachers2, err := NewTeachersFromIDsOrURL("1,2,3,")
 	a.NoError(err)
 	a.Equal(3, len(teachers2))
 
-	teachers3, err := NewTeachersFromIdsOrUrl("")
+	teachers3, err := NewTeachersFromIDsOrURL("")
 	a.Error(err)
 	a.Equal(0, len(teachers3))
 }

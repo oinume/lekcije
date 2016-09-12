@@ -11,15 +11,15 @@ import (
 
 func TestUpdateLessons(t *testing.T) {
 	a := assert.New(t)
-	teacherId := uint32(1)
+	teacherID := uint32(1)
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
-	lessons := createLessons(teacherId, datetime, "Reserved", 5)
+	lessons := createLessons(teacherID, datetime, "Reserved", 5)
 
 	affected, err := lessonService.UpdateLessons(lessons)
 	a.NoError(err)
 	a.Equal(int64(5), affected)
 
-	foundLessons, err := lessonService.FindLessons(teacherId, datetime, datetime)
+	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
 	a.NoError(err)
 	a.Equal(len(lessons), len(foundLessons))
 	for i := range lessons {
@@ -67,12 +67,12 @@ func TestGetNewAvailableLessons2(t *testing.T) {
 	a.Equal(0, len(availableLessons))
 }
 
-func createLessons(teacherId uint32, baseDatetime time.Time, status string, length int) []*Lesson {
+func createLessons(teacherID uint32, baseDatetime time.Time, status string, length int) []*Lesson {
 	lessons := make([]*Lesson, length)
 	now := time.Now()
 	for i := range lessons {
 		lessons[i] = &Lesson{
-			TeacherId: teacherId,
+			TeacherID: teacherID,
 			Datetime:  baseDatetime.Add(time.Duration(i) * time.Hour),
 			Status:    status,
 			CreatedAt: now,

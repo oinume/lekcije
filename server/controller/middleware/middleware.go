@@ -120,8 +120,8 @@ func LoginRequiredFilter(h goji.Handler) goji.Handler {
 
 func CORS(h goji.Handler) goji.Handler {
 	origins := []string{}
-	if strings.HasPrefix(config.StaticUrl(), "http") {
-		origins = append(origins, strings.TrimRight(config.StaticUrl(), "/static"))
+	if strings.HasPrefix(config.StaticURL(), "http") {
+		origins = append(origins, strings.TrimRight(config.StaticURL(), "/static"))
 	}
 	c := cors.New(cors.Options{
 		AllowedOrigins: origins,

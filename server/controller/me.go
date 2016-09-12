@@ -19,12 +19,12 @@ var _ = fmt.Printf
 
 func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	user := model.MustLoggedInUser(ctx)
-	teacherIdsOrUrl := r.FormValue("teacherIdsOrUrl")
-	if teacherIdsOrUrl == "" {
+	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
+	if teacherIDsOrUrl == "" {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	teachers, err := model.NewTeachersFromIdsOrUrl(teacherIdsOrUrl)
+	teachers, err := model.NewTeachersFromIDsOrURL(teacherIDsOrUrl)
 	if err != nil {
 		InternalServerError(w, err)
 		return
@@ -32,7 +32,7 @@ func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r
 	fetcher := fetcher.NewTeacherLessonFetcher(http.DefaultClient, logger.AppLogger)
 
 	for _, t := range teachers {
-		teacher, _, err := fetcher.Fetch(t.Id)
+		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
 			// TODO: continue the loop
 			InternalServerError(w, err)
@@ -43,24 +43,24 @@ func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r
 		teacher.CreatedAt = now
 		teacher.UpdatedAt = now
 		// TODO: Create method on service (FollowTeacher)
-		db := model.MustDb(ctx)
+		db := model.MustDB(ctx)
 		if err := db.FirstOrCreate(teacher).Error; err != nil {
-			e := errors.InternalWrapf(err, "Failed to create Teacher: teacherId=%d", teacher.Id)
+			e := errors.InternalWrapf(err, "Failed to create Teacher: teacherID=%d", teacher.ID)
 			InternalServerError(w, e)
 			return
 		}
 
 		ft := &model.FollowingTeacher{
-			UserId:    user.Id,
-			TeacherId: teacher.Id,
+			UserID:    user.ID,
+			TeacherID: teacher.ID,
 			CreatedAt: now,
 			UpdatedAt: now,
 		}
 		if err := db.FirstOrCreate(ft).Error; err != nil {
 			e := errors.InternalWrapf(
 				err,
-				"Failed to create FollowingTeacher: userId=%d, teacherId=%d",
-				user.Id, teacher.Id,
+				"Failed to create FollowingTeacher: userID=%d, teacherID=%d",
+				user.ID, teacher.ID,
 			)
 			InternalServerError(w, e)
 			return
@@ -76,19 +76,19 @@ func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	teacherIds := r.Form["teacherIds"]
-	if len(teacherIds) == 0 {
+	teacherIDs := r.Form["teacherIds"]
+	if len(teacherIDs) == 0 {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 
-	followingTeacherService := model.NewFollowingTeacherService(model.MustDb(ctx))
-	_, err := followingTeacherService.DeleteTeachersByUserIdAndTeacherIds(
-		user.Id,
-		util.StringToUint32Slice(teacherIds...),
+	followingTeacherService := model.NewFollowingTeacherService(model.MustDB(ctx))
+	_, err := followingTeacherService.DeleteTeachersByUserIDAndTeacherIDs(
+		user.ID,
+		util.StringToUint32Slice(teacherIDs...),
 	)
 	if err != nil {
-		e := errors.InternalWrapf(err, "Failed to delete Teachers: teacherIds=%v", teacherIds)
+		e := errors.InternalWrapf(err, "Failed to delete Teachers: teacherIds=%v", teacherIDs)
 		InternalServerError(w, e)
 		return
 	}
@@ -127,7 +127,7 @@ func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	service := model.NewUserService(model.MustDb(ctx))
+	service := model.NewUserService(model.MustDB(ctx))
 	if err := service.UpdateEmail(user, email); err != nil {
 		InternalServerError(w, err)
 		return

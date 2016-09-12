@@ -15,7 +15,7 @@ const (
 )
 
 type Lesson struct {
-	TeacherId uint32    `gorm:"primary_key"`
+	TeacherID uint32    `gorm:"primary_key"`
 	Datetime  time.Time `gorm:"primary_key"`
 	Status    string    // TODO: enum
 	CreatedAt time.Time
@@ -28,8 +28,8 @@ func (*Lesson) TableName() string {
 
 func (l *Lesson) String() string {
 	return fmt.Sprintf(
-		"TeacherId=%v, Datetime=%v, Status=%v",
-		l.TeacherId, l.Datetime.Format(lessonTimeFormat), l.Status,
+		"TeacherID=%v, Datetime=%v, Status=%v",
+		l.TeacherID, l.Datetime.Format(lessonTimeFormat), l.Status,
 	)
 }
 
@@ -71,7 +71,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 		sql += " (?, ?, ?, ?, ?),"
 		values = append(
 			values,
-			l.TeacherId, l.Datetime, strings.ToLower(l.Status), // TODO: enum?
+			l.TeacherID, l.Datetime, strings.ToLower(l.Status), // TODO: enum?
 			now.Format(dbDatetimeFormat), now.Format(dbDatetimeFormat),
 		)
 	}
@@ -86,7 +86,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 	return result.RowsAffected, nil
 }
 
-func (s *LessonService) FindLessons(teacherId uint32, fromDate, toDate time.Time) ([]*Lesson, error) {
+func (s *LessonService) FindLessons(teacherID uint32, fromDate, toDate time.Time) ([]*Lesson, error) {
 	lessons := make([]*Lesson, 0, 1000)
 	sql := strings.TrimSpace(fmt.Sprintf(`
 SELECT * FROM %s
@@ -98,12 +98,12 @@ LIMIT 1000
 	`, s.TableName()))
 
 	toDateAdded := toDate.Add(24 * 2 * time.Hour)
-	result := s.db.Raw(sql, teacherId, fromDate.Format("2006-01-02"), toDateAdded.Format("2006-01-02")).Scan(&lessons)
+	result := s.db.Raw(sql, teacherID, fromDate.Format("2006-01-02"), toDateAdded.Format("2006-01-02")).Scan(&lessons)
 	if result.Error != nil {
 		if result.RecordNotFound() {
 			return lessons, nil
 		}
-		return nil, errors.InternalWrapf(result.Error, "Failed to find lessons: teacherId=%v", teacherId)
+		return nil, errors.InternalWrapf(result.Error, "Failed to find lessons: teacherID=%v", teacherID)
 	}
 
 	return lessons, nil
