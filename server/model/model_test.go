@@ -9,8 +9,15 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var _ = fmt.Print
-var db *gorm.DB
+var (
+	_                       = fmt.Print
+	db                      *gorm.DB
+	followingTeacherService *FollowingTeacherService
+	lessonService           *LessonService
+	userService             *UserService
+	userGoogleService       *UserGoogleService
+	userApiTokenService     *UserApiTokenService
+)
 
 func TestMain(m *testing.M) {
 	dbDsn := os.Getenv("DB_DSN")
@@ -22,7 +29,12 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	attachDbToService(db)
+
+	followingTeacherService = NewFollowingTeacherService(db)
+	lessonService = NewLessonService(db)
+	userService = NewUserService(db)
+	userGoogleService = NewUserGoogleService(db)
+	userApiTokenService = NewUserApiTokenService(db)
 
 	tables := []string{
 		"following_teacher", "lesson",

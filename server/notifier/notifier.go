@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
@@ -27,19 +28,25 @@ func init() {
 }
 
 type Notifier struct {
-	dryRun   bool
-	teachers map[uint32]*model.Teacher
+	db            *gorm.DB
+	dryRun        bool
+	lessonService *model.LessonService
+	teachers      map[uint32]*model.Teacher
 }
 
-func NewNotifier(dryRun bool) *Notifier {
+func NewNotifier(db *gorm.DB, dryRun bool) *Notifier {
 	return &Notifier{
+		db:       db,
 		dryRun:   dryRun,
 		teachers: make(map[uint32]*model.Teacher, 1000),
 	}
 }
 
 func (n *Notifier) SendNotification(user *model.User) error {
-	teacherIds, err := model.FollowingTeacherService.FindTeacherIdsByUserId(user.Id)
+	followingTeacherService := model.NewFollowingTeacherService(n.db)
+	n.lessonService = model.NewLessonService(n.db)
+
+	teacherIds, err := followingTeacherService.FindTeacherIdsByUserId(user.Id)
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIdsByUserId(): userId=%v", user.Id)
 	}
@@ -64,7 +71,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 
 	if !n.dryRun {
-		model.LessonService.UpdateLessons(allFetchedLessons)
+		n.lessonService.UpdateLessons(allFetchedLessons)
 	}
 
 	return nil
@@ -86,7 +93,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	now := time.Now()
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalTimezone())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := model.LessonService.FindLessons(teacher.Id, fromDate, toDate)
+	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.Id, fromDate, toDate)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -95,7 +102,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	newAvailableLessons := model.LessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
+	newAvailableLessons := n.lessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)

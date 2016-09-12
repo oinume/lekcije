@@ -49,7 +49,8 @@ func indexLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, use
 	}
 	data := &Data{commonTemplateData: getCommonTemplateData()}
 
-	teachers, err := model.FollowingTeacherService.FindTeachersByUserId(user.Id)
+	followingTeacherService := model.NewFollowingTeacherService(model.MustDb(ctx))
+	teachers, err := followingTeacherService.FindTeachersByUserId(user.Id)
 	if err != nil {
 		InternalServerError(w, err)
 		return
@@ -99,7 +100,8 @@ func Logout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	if err := model.UserApiTokenService.DeleteByUserIdAndToken(user.Id, token); err != nil {
+	userApiTokenService := model.NewUserApiTokenService(model.MustDb(ctx))
+	if err := userApiTokenService.DeleteByUserIdAndToken(user.Id, token); err != nil {
 		InternalServerError(w, err)
 		return
 	}

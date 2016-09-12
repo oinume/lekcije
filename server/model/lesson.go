@@ -47,17 +47,19 @@ var LessonStatuses = goenum.EnumerateStruct(&LessonStatus{
 	Cancelled: 4,
 })
 
-type LessonServiceType struct {
+type LessonService struct {
 	db *gorm.DB
 }
 
-var LessonService LessonServiceType
+func NewLessonService(db *gorm.DB) *LessonService {
+	return &LessonService{db: db}
+}
 
-func (s *LessonServiceType) TableName() string {
+func (s *LessonService) TableName() string {
 	return (&Lesson{}).TableName()
 }
 
-func (s *LessonServiceType) UpdateLessons(lessons []*Lesson) (int64, error) {
+func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 	if len(lessons) == 0 {
 		return 0, nil
 	}
@@ -84,7 +86,7 @@ func (s *LessonServiceType) UpdateLessons(lessons []*Lesson) (int64, error) {
 	return result.RowsAffected, nil
 }
 
-func (s *LessonServiceType) FindLessons(teacherId uint32, fromDate, toDate time.Time) ([]*Lesson, error) {
+func (s *LessonService) FindLessons(teacherId uint32, fromDate, toDate time.Time) ([]*Lesson, error) {
 	lessons := make([]*Lesson, 0, 1000)
 	sql := strings.TrimSpace(fmt.Sprintf(`
 SELECT * FROM %s
@@ -107,7 +109,7 @@ LIMIT 1000
 	return lessons, nil
 }
 
-func (s *LessonServiceType) GetNewAvailableLessons(oldLessons, newLessons []*Lesson) []*Lesson {
+func (s *LessonService) GetNewAvailableLessons(oldLessons, newLessons []*Lesson) []*Lesson {
 	// Pattern
 	// 2016-01-01 00:00@Any -> Available
 	oldLessonsMap := make(map[string]*Lesson, len(oldLessons))

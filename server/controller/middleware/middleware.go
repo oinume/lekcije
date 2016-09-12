@@ -23,6 +23,7 @@ func AccessLogger(h goji.Handler) goji.Handler {
 	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		writerProxy := controller.WrapWriter(w)
+		// TODO: handle panic
 		h.ServeHTTPC(ctx, writerProxy, r)
 
 		end := time.Now()

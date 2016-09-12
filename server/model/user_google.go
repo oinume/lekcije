@@ -18,13 +18,15 @@ func (*UserGoogle) TableName() string {
 	return "user_google"
 }
 
-type UserGoogleServiceType struct {
+type UserGoogleService struct {
 	db *gorm.DB
 }
 
-var UserGoogleService UserGoogleServiceType
+func NewUserGoogleService(db *gorm.DB) *UserGoogleService {
+	return &UserGoogleService{db: db}
+}
 
-func (s *UserGoogleServiceType) FindOrCreate(googleId string, userId uint32) (*UserGoogle, error) {
+func (s *UserGoogleService) FindOrCreate(googleId string, userId uint32) (*UserGoogle, error) {
 	userGoogle := UserGoogle{
 		GoogleId: googleId,
 		UserId:   userId,

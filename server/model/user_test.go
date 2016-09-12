@@ -14,7 +14,7 @@ var _ = fmt.Print
 func TestCreateUser(t *testing.T) {
 	a := assert.New(t)
 	email := randomEmail()
-	user, err := UserService.Create("test", email)
+	user, err := userService.Create("test", email)
 	if e, ok := err.(*errors.Internal); ok {
 		fmt.Printf("%+v\n", e.StackTrace())
 	}
@@ -27,13 +27,13 @@ func TestUpdateEmail(t *testing.T) {
 	a := assert.New(t)
 	user := createTestUser()
 	email := randomEmail()
-	err := UserService.UpdateEmail(user, email)
+	err := userService.UpdateEmail(user, email)
 	if e, ok := err.(*errors.Internal); ok {
 		fmt.Printf("%+v\n", e.StackTrace())
 	}
 	a.NoError(err)
 
-	actual, err := UserService.FindByPk(user.Id)
+	actual, err := userService.FindByPk(user.Id)
 	a.NoError(err)
 	a.NotEqual(user.Email.Raw(), actual.Email.Raw())
 	a.Equal(email, actual.Email.Raw())
@@ -46,7 +46,7 @@ func randomEmail() string {
 func createTestUser() *User {
 	name := util.RandomString(16)
 	email := name + "@example.com"
-	user, err := UserService.Create(name, email)
+	user, err := userService.Create(name, email)
 	if err != nil {
 		panic(err)
 	}

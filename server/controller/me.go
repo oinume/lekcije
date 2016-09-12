@@ -82,7 +82,8 @@ func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r
 		return
 	}
 
-	_, err := model.FollowingTeacherService.DeleteTeachersByUserIdAndTeacherIds(
+	followingTeacherService := model.NewFollowingTeacherService(model.MustDb(ctx))
+	_, err := followingTeacherService.DeleteTeachersByUserIdAndTeacherIds(
 		user.Id,
 		util.StringToUint32Slice(teacherIds...),
 	)
@@ -126,7 +127,8 @@ func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := model.UserService.UpdateEmail(user, email); err != nil {
+	service := model.NewUserService(model.MustDb(ctx))
+	if err := service.UpdateEmail(user, email); err != nil {
 		InternalServerError(w, err)
 		return
 	}
