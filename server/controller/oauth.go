@@ -72,7 +72,8 @@ func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if _, err := model.UserGoogleService.FindOrCreate(googleId, user.Id); err != nil {
+	userGoogleService := model.NewUserGoogleService(model.MustDb(ctx))
+	if _, err := userGoogleService.FindOrCreate(googleId, user.Id); err != nil {
 		InternalServerError(w, err)
 		return
 	}

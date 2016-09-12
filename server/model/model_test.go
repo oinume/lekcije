@@ -15,6 +15,7 @@ var (
 	followingTeacherService *FollowingTeacherService
 	lessonService           *LessonService
 	userService             *UserService
+	userGoogleService       *UserGoogleService
 	userApiTokenService     *UserApiTokenService
 )
 
@@ -28,9 +29,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	attachDbToService(db)
+
+	followingTeacherService = NewFollowingTeacherService(db)
 	lessonService = NewLessonService(db)
 	userService = NewUserService(db)
+	userGoogleService = NewUserGoogleService(db)
 	userApiTokenService = NewUserApiTokenService(db)
 
 	tables := []string{

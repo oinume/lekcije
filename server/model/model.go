@@ -31,7 +31,6 @@ func OpenAndSetToContext(ctx context.Context, dsn string) (*gorm.DB, context.Con
 		return nil, nil, err
 	}
 	c := context.WithValue(ctx, contextKeyDb, db)
-	attachDbToService(db)
 	return db, c, nil
 }
 
@@ -42,8 +41,4 @@ func MustDb(ctx context.Context) *gorm.DB {
 	} else {
 		panic("Failed to get *gorm.DB from context")
 	}
-}
-
-func attachDbToService(db *gorm.DB) {
-	UserGoogleService.db = db
 }
