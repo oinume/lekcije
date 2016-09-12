@@ -28,9 +28,10 @@ func init() {
 }
 
 type Notifier struct {
-	db       *gorm.DB
-	dryRun   bool
-	teachers map[uint32]*model.Teacher
+	db            *gorm.DB
+	dryRun        bool
+	lessonService *model.LessonService
+	teachers      map[uint32]*model.Teacher
 }
 
 func NewNotifier(db *gorm.DB, dryRun bool) *Notifier {
@@ -43,6 +44,8 @@ func NewNotifier(db *gorm.DB, dryRun bool) *Notifier {
 
 func (n *Notifier) SendNotification(user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
+	n.lessonService = model.NewLessonService(n.db)
+
 	teacherIds, err := followingTeacherService.FindTeacherIdsByUserId(user.Id)
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIdsByUserId(): userId=%v", user.Id)
@@ -68,7 +71,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 
 	if !n.dryRun {
-		model.LessonService.UpdateLessons(allFetchedLessons)
+		n.lessonService.UpdateLessons(allFetchedLessons)
 	}
 
 	return nil
@@ -90,7 +93,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	now := time.Now()
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalTimezone())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := model.LessonService.FindLessons(teacher.Id, fromDate, toDate)
+	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.Id, fromDate, toDate)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -99,7 +102,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	newAvailableLessons := model.LessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
+	newAvailableLessons := n.lessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)

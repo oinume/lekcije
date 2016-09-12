@@ -15,11 +15,11 @@ func TestUpdateLessons(t *testing.T) {
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
 	lessons := createLessons(teacherId, datetime, "Reserved", 5)
 
-	affected, err := LessonService.UpdateLessons(lessons)
+	affected, err := lessonService.UpdateLessons(lessons)
 	a.NoError(err)
 	a.Equal(int64(5), affected)
 
-	foundLessons, err := LessonService.FindLessons(teacherId, datetime, datetime)
+	foundLessons, err := lessonService.FindLessons(teacherId, datetime, datetime)
 	a.NoError(err)
 	a.Equal(len(lessons), len(foundLessons))
 	for i := range lessons {
@@ -34,10 +34,10 @@ func TestUpdateLessonsOverwrite(t *testing.T) {
 	lessons := createLessons(1, datetime, "Reserved", 5)
 
 	lessons[0].Status = "Available"
-	affected, err := LessonService.UpdateLessons(lessons)
+	affected, err := lessonService.UpdateLessons(lessons)
 	a.NoError(err)
 	a.Equal(int64(2), affected) // Why 2????
-	foundLessons, err := LessonService.FindLessons(1, datetime, datetime)
+	foundLessons, err := lessonService.FindLessons(1, datetime, datetime)
 	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
 }
 
@@ -49,7 +49,7 @@ func TestGetNewAvailableLessons1(t *testing.T) {
 	lessons2 := createLessons(1, datetime, "Reserved", 3)
 	lessons2[1].Status = "Available"
 	// Test GetNewAvailableLessons returns a lesson when new lesson is "Available"
-	availableLessons := LessonService.GetNewAvailableLessons(lessons1, lessons2)
+	availableLessons := lessonService.GetNewAvailableLessons(lessons1, lessons2)
 	a.Equal(1, len(availableLessons))
 	a.Equal(datetime.Add(1*time.Hour), availableLessons[0].Datetime)
 }
@@ -63,7 +63,7 @@ func TestGetNewAvailableLessons2(t *testing.T) {
 	lessons1[0].Status = "Available"
 	lessons2[0].Status = "Available"
 	// Test GetNewAvailableLessons returns nothing when both lessons are "Available"
-	availableLessons := LessonService.GetNewAvailableLessons(lessons1, lessons2)
+	availableLessons := lessonService.GetNewAvailableLessons(lessons1, lessons2)
 	a.Equal(0, len(availableLessons))
 }
 

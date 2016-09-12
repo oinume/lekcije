@@ -13,6 +13,7 @@ var (
 	_                       = fmt.Print
 	db                      *gorm.DB
 	followingTeacherService *FollowingTeacherService
+	lessonService           *LessonService
 	userService             *UserService
 	userApiTokenService     *UserApiTokenService
 )
@@ -28,6 +29,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	attachDbToService(db)
+	lessonService = NewLessonService(db)
 	userService = NewUserService(db)
 	userApiTokenService = NewUserApiTokenService(db)
 
