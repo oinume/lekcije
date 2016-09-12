@@ -14,14 +14,14 @@ import (
 var _ = fmt.Print
 
 type commonTemplateData struct {
-	StaticUrl         string
-	GoogleAnalyticsId string
+	StaticURL         string
+	GoogleAnalyticsID string
 }
 
 func getCommonTemplateData() commonTemplateData {
 	return commonTemplateData{
-		StaticUrl:         config.StaticUrl(),
-		GoogleAnalyticsId: config.GoogleAnalyticsId(),
+		StaticURL:         config.StaticURL(),
+		GoogleAnalyticsID: config.GoogleAnalyticsID(),
 	}
 }
 
@@ -49,8 +49,8 @@ func indexLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, use
 	}
 	data := &Data{commonTemplateData: getCommonTemplateData()}
 
-	followingTeacherService := model.NewFollowingTeacherService(model.MustDb(ctx))
-	teachers, err := followingTeacherService.FindTeachersByUserId(user.Id)
+	followingTeacherService := model.NewFollowingTeacherService(model.MustDB(ctx))
+	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
 		return
@@ -100,8 +100,8 @@ func Logout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	userApiTokenService := model.NewUserApiTokenService(model.MustDb(ctx))
-	if err := userApiTokenService.DeleteByUserIdAndToken(user.Id, token); err != nil {
+	userApiTokenService := model.NewUserApiTokenService(model.MustDB(ctx))
+	if err := userApiTokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
 		InternalServerError(w, err)
 		return
 	}

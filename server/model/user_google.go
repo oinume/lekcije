@@ -8,8 +8,8 @@ import (
 )
 
 type UserGoogle struct {
-	GoogleId  string `gorm:"primary_key"`
-	UserId    uint32
+	GoogleID  string `gorm:"primary_key"`
+	UserID    uint32
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -26,10 +26,10 @@ func NewUserGoogleService(db *gorm.DB) *UserGoogleService {
 	return &UserGoogleService{db: db}
 }
 
-func (s *UserGoogleService) FindOrCreate(googleId string, userId uint32) (*UserGoogle, error) {
+func (s *UserGoogleService) FindOrCreate(googleID string, userID uint32) (*UserGoogle, error) {
 	userGoogle := UserGoogle{
-		GoogleId: googleId,
-		UserId:   userId,
+		GoogleID: googleID,
+		UserID:   userID,
 	}
 	if err := s.db.FirstOrCreate(&userGoogle).Error; err != nil {
 		return nil, errors.InternalWrapf(err, "Failed to find or create UserGoogle")

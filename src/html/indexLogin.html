@@ -26,8 +26,8 @@
         <tbody>
         {{ range $teacher := .Teachers }}
           <tr>
-            <td class="col-md-1"><input type="checkbox" name="teacherIds" value="{{ $teacher.Id }}"></td>
-            <td class="col-md-1">{{ $teacher.Id }}</td>
+            <td class="col-md-1"><input type="checkbox" name="teacherIds" value="{{ $teacher.ID }}"></td>
+            <td class="col-md-1">{{ $teacher.ID }}</td>
             <td class="col-md-2">{{ $teacher.Name }}</td>
           </tr>
         {{ end }}

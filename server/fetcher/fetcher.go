@@ -44,12 +44,12 @@ func NewTeacherLessonFetcher(httpClient *http.Client, log zap.Logger) *TeacherLe
 	}
 }
 
-func (fetcher *TeacherLessonFetcher) Fetch(teacherId uint32) (*model.Teacher, []*model.Lesson, error) {
-	teacher := model.NewTeacher(teacherId)
+func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
+	teacher := model.NewTeacher(teacherID)
 	var content string
 	err := retry.Retry(2, 300*time.Millisecond, func() error {
 		var err error
-		content, err = fetcher.fetchContent(teacher.Url())
+		content, err = fetcher.fetchContent(teacher.URL())
 		return err
 	})
 	if err != nil {
@@ -97,7 +97,7 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 	if title, ok := titleXPath.String(root); ok {
 		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
 	} else {
-		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.Url)
+		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.URL)
 	}
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
@@ -152,7 +152,7 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 				zap.String("status", model.LessonStatuses.MustName(status)),
 			)
 			lessons = append(lessons, &model.Lesson{
-				TeacherId: teacher.Id,
+				TeacherID: teacher.ID,
 				Datetime:  dt,
 				Status:    model.LessonStatuses.MustName(status),
 			})

@@ -46,23 +46,23 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	n.lessonService = model.NewLessonService(n.db)
 
-	teacherIds, err := followingTeacherService.FindTeacherIdsByUserId(user.Id)
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID)
 	if err != nil {
-		return errors.Wrapperf(err, "Failed to FindTeacherIdsByUserId(): userId=%v", user.Id)
+		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	allFetchedLessons := make([]*model.Lesson, 0, 5000)
-	for _, teacherId := range teacherIds {
-		teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherId)
+	for _, teacherID := range teacherIDs {
+		teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 		if err != nil {
 			return err
 		}
 
 		allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
-		n.teachers[teacherId] = teacher
+		n.teachers[teacherID] = teacher
 		if len(newAvailableLessons) > 0 {
-			availableLessonsPerTeacher[teacherId] = newAvailableLessons
+			availableLessonsPerTeacher[teacherID] = newAvailableLessons
 		}
 	}
 
@@ -93,7 +93,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	now := time.Now()
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalTimezone())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.Id, fromDate, toDate)
+	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.ID, fromDate, toDate)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -115,9 +115,9 @@ func (n *Notifier) sendNotificationToUser(
 	lessonsPerTeacher map[uint32][]*model.Lesson,
 ) error {
 	lessonsCount := 0
-	var teacherIds []int
-	for teacherId, lessons := range lessonsPerTeacher {
-		teacherIds = append(teacherIds, int(teacherId))
+	var teacherIDs []int
+	for teacherID, lessons := range lessonsPerTeacher {
+		teacherIDs = append(teacherIDs, int(teacherID))
 		lessonsCount += len(lessons)
 	}
 	if lessonsCount == 0 {
@@ -125,23 +125,23 @@ func (n *Notifier) sendNotificationToUser(
 		return nil
 	}
 
-	sort.Ints(teacherIds)
-	var teacherIds2 []uint32
+	sort.Ints(teacherIDs)
+	var teacherIDs2 []uint32
 	var teacherNames []string
-	for _, id := range teacherIds {
-		teacherIds2 = append(teacherIds2, uint32(id))
+	for _, id := range teacherIDs {
+		teacherIDs2 = append(teacherIDs2, uint32(id))
 		teacherNames = append(teacherNames, n.teachers[uint32(id)].Name)
 	}
 
 	t := template.New("email")
 	t = template.Must(t.Parse(getEmailTemplate()))
 	type TemplateData struct {
-		TeacherIds        []uint32
+		TeacherIDs        []uint32
 		Teachers          map[uint32]*model.Teacher
 		LessonsPerTeacher map[uint32][]*model.Lesson
 	}
 	data := &TemplateData{
-		TeacherIds:        teacherIds2,
+		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
 		LessonsPerTeacher: lessonsPerTeacher,
 	}
@@ -159,13 +159,13 @@ func (n *Notifier) sendNotificationToUser(
 
 func getEmailTemplate() string {
 	return strings.TrimSpace(`
-{{- range $teacherId := .TeacherIds }}
-{{- $teacher := index $.Teachers $teacherId -}}
+{{- range $teacherID := .TeacherIDs }}
+{{- $teacher := index $.Teachers $teacherID -}}
 --- Available lessons of {{ $teacher.Name }} ---
-PC: http://eikaiwa.dmm.com/teacher/index/{{ $teacherId }}/
-Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherId }}/
+PC: http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/
+Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/
 
-  {{ $lessons := index $.LessonsPerTeacher $teacherId -}}
+  {{ $lessons := index $.LessonsPerTeacher $teacherID -}}
   {{- range $lesson := $lessons }}
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}

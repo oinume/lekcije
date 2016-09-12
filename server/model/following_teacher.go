@@ -11,8 +11,8 @@ import (
 )
 
 type FollowingTeacher struct {
-	UserId    uint32 `gorm:"primary_key"`
-	TeacherId uint32 `gorm:"primary_key"`
+	UserID    uint32 `gorm:"primary_key"`
+	TeacherID uint32 `gorm:"primary_key"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -33,7 +33,7 @@ func (s *FollowingTeacherService) TableName() string {
 	return (&FollowingTeacher{}).TableName()
 }
 
-func (s *FollowingTeacherService) FindTeachersByUserId(userId uint32) ([]*Teacher, error) {
+func (s *FollowingTeacherService) FindTeachersByUserID(userID uint32) ([]*Teacher, error) {
 	limit := 100
 	values := make([]*Teacher, 0, limit)
 	sql := fmt.Sprintf(`
@@ -44,7 +44,7 @@ func (s *FollowingTeacherService) FindTeachersByUserId(userId uint32) ([]*Teache
 	LIMIT %d
 	`, limit) // TODO: OFFSET
 
-	if result := s.db.Raw(strings.TrimSpace(sql), userId).Scan(&values); result.Error != nil {
+	if result := s.db.Raw(strings.TrimSpace(sql), userID).Scan(&values); result.Error != nil {
 		if result.RecordNotFound() {
 			return values, nil
 		}
@@ -53,10 +53,10 @@ func (s *FollowingTeacherService) FindTeachersByUserId(userId uint32) ([]*Teache
 	return values, nil
 }
 
-func (s *FollowingTeacherService) FindTeacherIdsByUserId(userId uint32) ([]uint32, error) {
+func (s *FollowingTeacherService) FindTeacherIDsByUserID(userID uint32) ([]uint32, error) {
 	values := make([]*FollowingTeacher, 0, 1000)
 	sql := `SELECT teacher_id FROM following_teacher WHERE user_id = ?`
-	if result := s.db.Raw(sql, userId).Scan(&values); result.Error != nil {
+	if result := s.db.Raw(sql, userID).Scan(&values); result.Error != nil {
 		if result.RecordNotFound() {
 			return nil, nil
 		}
@@ -64,24 +64,24 @@ func (s *FollowingTeacherService) FindTeacherIdsByUserId(userId uint32) ([]uint3
 	}
 	ids := make([]uint32, len(values))
 	for i, t := range values {
-		ids[i] = t.TeacherId
+		ids[i] = t.TeacherID
 	}
 	return ids, nil
 }
 
-func (s *FollowingTeacherService) DeleteTeachersByUserIdAndTeacherIds(
-	userId uint32,
-	teacherIds []uint32,
+func (s *FollowingTeacherService) DeleteTeachersByUserIDAndTeacherIDs(
+	userID uint32,
+	teacherIDs []uint32,
 ) (int, error) {
-	if len(teacherIds) == 0 {
+	if len(teacherIDs) == 0 {
 		return 0, nil
 	}
 
-	placeholder := strings.TrimRight(strings.Repeat("?,", len(teacherIds)), ",")
+	placeholder := strings.TrimRight(strings.Repeat("?,", len(teacherIDs)), ",")
 	sql := fmt.Sprintf("DELETE FROM %s WHERE user_id = ? AND teacher_id IN (%s)", s.TableName(), placeholder)
-	args := []interface{}{userId}
-	for _, teacherId := range teacherIds {
-		args = append(args, teacherId)
+	args := []interface{}{userID}
+	for _, teacherID := range teacherIDs {
+		args = append(args, teacherID)
 	}
 	if result := s.db.Exec(sql, args...); result.Error != nil {
 		return 0, result.Error

@@ -14,7 +14,7 @@ const (
 )
 
 type User struct {
-	Id            uint32 `gorm:"primary_key;AUTO_INCREMENT"`
+	ID            uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name          string
 	Email         Email
 	EmailVerified bool
@@ -40,7 +40,7 @@ func (s *UserService) TableName() string {
 
 func (s *UserService) FindByPk(id uint32) (*User, error) {
 	user := &User{}
-	if err := s.db.First(user, &User{Id: id}).Error; err != nil {
+	if err := s.db.First(user, &User{ID: id}).Error; err != nil {
 		return nil, err
 	}
 	return user, nil
@@ -78,18 +78,18 @@ func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 	if err != nil {
 		return err
 	}
-	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.Id)
+	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.ID)
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,
-			"Failed to update email: id=%v, email=%v", user.Id, email,
+			"Failed to update email: id=%v, email=%v", user.ID, email,
 		)
 	}
 	return nil
 }
 
 func FindLoggedInUserAndSetToContext(token string, ctx context.Context) (*User, context.Context, error) {
-	db := MustDb(ctx)
+	db := MustDB(ctx)
 	user := &User{}
 	sql := `
 		SELECT * FROM user AS u

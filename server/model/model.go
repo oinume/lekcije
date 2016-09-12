@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	contextKeyDb     = "db"
+	contextKeyDB     = "db"
 	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
 
@@ -30,12 +30,12 @@ func OpenAndSetToContext(ctx context.Context, dsn string) (*gorm.DB, context.Con
 	if err != nil {
 		return nil, nil, err
 	}
-	c := context.WithValue(ctx, contextKeyDb, db)
+	c := context.WithValue(ctx, contextKeyDB, db)
 	return db, c, nil
 }
 
-func MustDb(ctx context.Context) *gorm.DB {
-	value := ctx.Value(contextKeyDb)
+func MustDB(ctx context.Context) *gorm.DB {
+	value := ctx.Value(contextKeyDB)
 	if db, ok := value.(*gorm.DB); ok {
 		return db
 	} else {

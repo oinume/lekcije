@@ -10,7 +10,7 @@ var (
 	jst = time.FixedZone("Asia/Tokyo", 9*60*60)
 )
 
-func StaticUrl() string {
+func StaticURL() string {
 	if IsProductionEnv() {
 		return "https://asset.lekcije.com/static"
 	} else if IsDevelopmentEnv() {
@@ -20,7 +20,7 @@ func StaticUrl() string {
 	}
 }
 
-func GoogleAnalyticsId() string {
+func GoogleAnalyticsID() string {
 	return os.Getenv("GOOGLE_ANALYTICS_ID")
 }
 
