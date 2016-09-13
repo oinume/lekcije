@@ -181,7 +181,7 @@ type NotificationSender interface {
 type EmailNotificationSender struct{}
 
 func (s *EmailNotificationSender) Send(user *model.User, subject, body string) error {
-	from := mail.NewEmail("noreply", "noreply@lampetty.net") // TODO: noreply@lekcije.com
+	from := mail.NewEmail("lekcije", "lekcije@lekcije.com")
 	to := mail.NewEmail(user.Name, user.Email.Raw())
 	content := mail.NewContent("text/html", strings.Replace(body, "\n", "<br>", -1))
 	m := mail.NewV3MailInit(from, subject, to, content)
