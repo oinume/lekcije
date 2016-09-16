@@ -1,6 +1,7 @@
 machine:
   environment:
     GOPATH: "${HOME}/.go_workspace"
+    GOROOT: "${HOME}/go"
     PATH: "${GOPATH}/bin:${HOME}/go/bin:${PATH}"
     GOPATH_PROJECT: "${GOPATH}/src/github.com/oinume/lekcije"
     DB_DSN: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
