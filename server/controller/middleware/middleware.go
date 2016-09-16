@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/logger"
@@ -47,6 +48,26 @@ func AccessLogger(h http.Handler) http.Handler {
 			zap.String("referer", r.Referer()),
 			zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
 		)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func NewRelic(h http.Handler) http.Handler {
+	key := os.Getenv("NEW_RELIC_LICENSE_KEY")
+	if key == "" {
+		return h
+	}
+
+	c := newrelic.NewConfig("lekcije", key)
+	app, err := newrelic.NewApplication(c)
+	if err != nil {
+		logger.AppLogger.Error("Failed to newrelic.NewApplication()", zap.Error(err))
+		return h
+	}
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		tx := app.StartTransaction(r.URL.Path, w, r)
+		defer tx.End()
+		h.ServeHTTP(tx, r)
 	}
 	return http.HandlerFunc(fn)
 }
