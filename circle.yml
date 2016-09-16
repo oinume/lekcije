@@ -8,8 +8,6 @@ machine:
   services:
     - mysql
 dependencies:
-  cache_directories:
-    - "~/go"
   pre:
     - echo "" > ~/.gitconfig
     - git config --global url."https://github.com".insteadOf git://github.com
