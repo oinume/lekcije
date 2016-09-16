@@ -12,12 +12,12 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
-	"golang.org/x/net/context"
 )
 
 var _ = fmt.Printf
 
-func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user := model.MustLoggedInUser(ctx)
 	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
 	if teacherIDsOrUrl == "" {
@@ -70,7 +70,8 @@ func PostMeFollowingTeachersCreate(ctx context.Context, w http.ResponseWriter, r
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user := model.MustLoggedInUser(ctx)
 	if err := r.ParseForm(); err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
@@ -97,7 +98,8 @@ func PostMeFollowingTeachersDelete(ctx context.Context, w http.ResponseWriter, r
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func GetMeSetting(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user := model.MustLoggedInUser(ctx)
 	t := template.Must(template.ParseFiles(
 		TemplatePath("_base.html"),
@@ -118,7 +120,8 @@ func GetMeSetting(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PostMeSettingUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user := model.MustLoggedInUser(ctx)
 	email := r.FormValue("email")
 	// TODO: better validation

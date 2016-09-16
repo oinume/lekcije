@@ -10,23 +10,23 @@ import (
 
 func Create() *goji.Mux {
 	mux := goji.NewMux()
-	mux.UseC(middleware.AccessLogger)
-	mux.UseC(middleware.SetDbToContext)
-	mux.UseC(middleware.SetLoggedInUserToContext)
-	mux.UseC(middleware.LoginRequiredFilter)
-	mux.UseC(middleware.CORS)
+	mux.Use(middleware.AccessLogger)
+	mux.Use(middleware.SetDbToContext)
+	mux.Use(middleware.SetLoggedInUserToContext)
+	mux.Use(middleware.LoginRequiredFilter)
+	mux.Use(middleware.CORS)
 
 	mux.HandleFunc(pat.Get("/static/*"), controller.Static)
-	mux.HandleFuncC(pat.Get("/"), controller.Index)
-	mux.HandleFuncC(pat.Get("/logout"), controller.Logout)
-	mux.HandleFuncC(pat.Get("/oauth/google"), controller.OAuthGoogle)
-	mux.HandleFuncC(pat.Get("/oauth/google/callback"), controller.OAuthGoogleCallback)
-	mux.HandleFuncC(pat.Post("/me/followingTeachers/create"), controller.PostMeFollowingTeachersCreate)
-	mux.HandleFuncC(pat.Post("/me/followingTeachers/delete"), controller.PostMeFollowingTeachersDelete)
-	mux.HandleFuncC(pat.Get("/me/setting"), controller.GetMeSetting)
-	mux.HandleFuncC(pat.Post("/me/setting/update"), controller.PostMeSettingUpdate)
-	mux.HandleFuncC(pat.Get("/api/status"), api.GetStatus)
-	mux.HandleFuncC(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
+	mux.HandleFunc(pat.Get("/"), controller.Index)
+	mux.HandleFunc(pat.Get("/logout"), controller.Logout)
+	mux.HandleFunc(pat.Get("/oauth/google"), controller.OAuthGoogle)
+	mux.HandleFunc(pat.Get("/oauth/google/callback"), controller.OAuthGoogleCallback)
+	mux.HandleFunc(pat.Post("/me/followingTeachers/create"), controller.PostMeFollowingTeachersCreate)
+	mux.HandleFunc(pat.Post("/me/followingTeachers/delete"), controller.PostMeFollowingTeachersDelete)
+	mux.HandleFunc(pat.Get("/me/setting"), controller.GetMeSetting)
+	mux.HandleFunc(pat.Post("/me/setting/update"), controller.PostMeSettingUpdate)
+	mux.HandleFunc(pat.Get("/api/status"), api.GetStatus)
+	mux.HandleFunc(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
 
 	return mux
 }
