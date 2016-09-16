@@ -11,7 +11,6 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/errors"
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
@@ -29,7 +28,7 @@ var googleOAuthConfig = oauth2.Config{
 	},
 }
 
-func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func OAuthGoogle(w http.ResponseWriter, r *http.Request) {
 	state := util.RandomString(32)
 	cookie := &http.Cookie{
 		Name:     "oauthState",
@@ -43,7 +42,8 @@ func OAuthGoogle(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
 }
 
-func OAuthGoogleCallback(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	if err := checkState(r); err != nil {
 		InternalServerError(w, err)
 		return

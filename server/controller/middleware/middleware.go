@@ -7,24 +7,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
 	"github.com/uber-go/zap"
-	"goji.io"
-	"golang.org/x/net/context"
 )
 
 var _ = fmt.Print
 
-func AccessLogger(h goji.Handler) goji.Handler {
-	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func AccessLogger(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		writerProxy := controller.WrapWriter(w)
 		// TODO: handle panic
-		h.ServeHTTPC(ctx, writerProxy, r)
+		h.ServeHTTP(writerProxy, r)
 
 		end := time.Now()
 		status := writerProxy.Status()
@@ -50,13 +49,34 @@ func AccessLogger(h goji.Handler) goji.Handler {
 			zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
 		)
 	}
-	return goji.HandlerFunc(fn)
+	return http.HandlerFunc(fn)
 }
 
-func SetDbToContext(h goji.Handler) goji.Handler {
-	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func NewRelic(h http.Handler) http.Handler {
+	key := os.Getenv("NEW_RELIC_LICENSE_KEY")
+	if key == "" {
+		return h
+	}
+
+	c := newrelic.NewConfig("lekcije", key)
+	app, err := newrelic.NewApplication(c)
+	if err != nil {
+		logger.AppLogger.Error("Failed to newrelic.NewApplication()", zap.Error(err))
+		return h
+	}
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		tx := app.StartTransaction(r.URL.Path, w, r)
+		defer tx.End()
+		h.ServeHTTP(tx, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func SetDbToContext(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
-			h.ServeHTTPC(ctx, w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
 		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
@@ -67,58 +87,60 @@ func SetDbToContext(h goji.Handler) goji.Handler {
 			return
 		}
 		defer db.Close()
-		h.ServeHTTPC(c, w, r)
+		h.ServeHTTP(w, r.WithContext(c))
 	}
-	return goji.HandlerFunc(fn)
+	return http.HandlerFunc(fn)
 }
 
-func SetLoggedInUserToContext(h goji.Handler) goji.Handler {
-	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func SetLoggedInUserToContext(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
-			h.ServeHTTPC(ctx, w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
 		cookie, err := r.Cookie(controller.ApiTokenCookieName)
 		if err != nil {
-			h.ServeHTTPC(ctx, w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
 
 		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
 		if err != nil {
 			fmt.Printf("loggedInUser = %+v\n", user)
-			h.ServeHTTPC(ctx, w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
-		h.ServeHTTPC(c, w, r)
+		h.ServeHTTP(w, r.WithContext(c))
 	}
-	return goji.HandlerFunc(fn)
+	return http.HandlerFunc(fn)
 }
 
-func LoginRequiredFilter(h goji.Handler) goji.Handler {
-	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func LoginRequiredFilter(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		if !strings.HasPrefix(r.RequestURI, "/me") {
-			h.ServeHTTPC(ctx, w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
 		cookie, err := r.Cookie(controller.ApiTokenCookieName)
 		if err != nil {
-			h.ServeHTTPC(ctx, w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
 
 		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
 		if err != nil {
 			fmt.Printf("loggedInUser = %+v\n", user)
-			h.ServeHTTPC(ctx, w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
-		h.ServeHTTPC(c, w, r)
+		h.ServeHTTP(w, r.WithContext(c))
 	}
-	return goji.HandlerFunc(fn)
+	return http.HandlerFunc(fn)
 }
 
-func CORS(h goji.Handler) goji.Handler {
+func CORS(h http.Handler) http.Handler {
 	origins := []string{}
 	if strings.HasPrefix(config.StaticURL(), "http") {
 		origins = append(origins, strings.TrimRight(config.StaticURL(), "/static"))
@@ -127,9 +149,9 @@ func CORS(h goji.Handler) goji.Handler {
 		AllowedOrigins: origins,
 		//Debug:          true,
 	})
-	fn := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	fn := func(w http.ResponseWriter, r *http.Request) {
 		c.HandlerFunc(w, r)
-		h.ServeHTTPC(ctx, w, r)
+		h.ServeHTTP(w, r)
 	}
-	return goji.HandlerFunc(fn)
+	return http.HandlerFunc(fn)
 }

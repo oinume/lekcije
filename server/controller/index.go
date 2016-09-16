@@ -8,7 +8,6 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
-	"golang.org/x/net/context"
 )
 
 var _ = fmt.Print
@@ -29,16 +28,18 @@ func Static(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
-func Index(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func Index(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user, err := model.GetLoggedInUser(ctx)
 	if err == nil {
-		indexLogin(ctx, w, r, user)
+		indexLogin(w, r, user)
 	} else {
-		indexLogout(ctx, w, r)
+		indexLogout(w, r)
 	}
 }
 
-func indexLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, user *model.User) {
+func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
+	ctx := r.Context()
 	t := template.Must(template.ParseFiles(
 		TemplatePath("_base.html"),
 		TemplatePath("indexLogin.html")),
@@ -63,7 +64,7 @@ func indexLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, use
 	}
 }
 
-func indexLogout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func indexLogout(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles(
 		TemplatePath("_base.html"),
 		TemplatePath("indexLogout.html")),
@@ -79,7 +80,8 @@ func indexLogout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Logout(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func Logout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user, err := model.GetLoggedInUser(ctx)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)

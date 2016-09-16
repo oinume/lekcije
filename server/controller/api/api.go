@@ -9,11 +9,10 @@ import (
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/pkg/errors"
-	"golang.org/x/net/context"
 )
 
 // GET /api/status
-func GetStatus(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func GetStatus(w http.ResponseWriter, r *http.Request) {
 	db, err := model.Open(os.Getenv("DB_DSN"))
 	if err != nil {
 		controller.InternalServerError(w, fmt.Errorf("Failed to model.Open(): err=%v", err))
@@ -33,7 +32,7 @@ func GetStatus(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 // GET /api/me/followingTeachers
-func GetMeFollowingTeachers(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func GetMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 	// SELECT t.id, t.name FROM following_teachers AS ft
 	// INNER JOIN teachers AS t ON ft.teacher_id = t.id
 	// WHERE ft.user_id = ?

@@ -36,3 +36,4 @@ import:
     subpackages:
       - helpers/mail
   - package: github.com/sendgrid/rest
+  - package: github.com/newrelic/go-agent
