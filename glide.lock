@@ -1,5 +1,5 @@
-hash: d97227dd6fe65d80d72995b0d80bc0b61090a550c5820b8d89a059cb15c2d632
-updated: 2016-09-16T19:10:20.699790707+09:00
+hash: 8b9599cf6530338d95a00016dc281e06ec6bcea531e48fbb3f461f3c6f68f686
+updated: 2016-09-17T21:40:03.73470718+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -30,6 +30,12 @@ imports:
   version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
 - name: github.com/newrelic/go-agent
   version: a923caa59930cbb1b27d2a9fb2d5663d9e5c637c
+  subpackages:
+  - internal
+  - internal/jsonx
+  - internal/logger
+  - internal/sysinfo
+  - internal/utilization
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
@@ -102,6 +108,8 @@ imports:
   - internal/remote_api
   - internal/urlfetch
   - urlfetch
+- name: gopkg.in/redis.v4
+  version: 938235994ea88a05678f8060741d5f34ed6a5ff3
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 testImports:
