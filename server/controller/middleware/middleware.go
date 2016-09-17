@@ -81,7 +81,7 @@ func SetDbToContext(h http.Handler) http.Handler {
 		}
 		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 
-		db, c, err := model.OpenAndSetToContext(ctx, os.Getenv("DB_DSN"))
+		db, c, err := model.OpenDBAndSetToContext(ctx, os.Getenv("DB_DSN"))
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return

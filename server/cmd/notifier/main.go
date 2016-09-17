@@ -43,7 +43,7 @@ func run() error {
 		}
 	}
 
-	db, _, err := model.OpenAndSetToContext(context.Background(), definedEnvs["DB_DSN"])
+	db, _, err := model.OpenDBAndSetToContext(context.Background(), definedEnvs["DB_DSN"])
 	if err != nil {
 		return err
 	}

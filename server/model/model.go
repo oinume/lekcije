@@ -13,7 +13,7 @@ const (
 	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
 
-func Open(dsn string) (*gorm.DB, error) {
+func OpenDB(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(
 		"mysql",
 		dsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
@@ -25,8 +25,8 @@ func Open(dsn string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func OpenAndSetToContext(ctx context.Context, dsn string) (*gorm.DB, context.Context, error) {
-	db, err := Open(dsn)
+func OpenDBAndSetToContext(ctx context.Context, dsn string) (*gorm.DB, context.Context, error) {
+	db, err := OpenDB(dsn)
 	if err != nil {
 		return nil, nil, err
 	}

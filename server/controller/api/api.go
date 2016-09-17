@@ -13,7 +13,7 @@ import (
 
 // GET /api/status
 func GetStatus(w http.ResponseWriter, r *http.Request) {
-	db, err := model.Open(os.Getenv("DB_DSN"))
+	db, err := model.OpenDB(os.Getenv("DB_DSN"))
 	if err != nil {
 		controller.InternalServerError(w, fmt.Errorf("Failed to model.Open(): err=%v", err))
 		return

@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 		dbDsn = strings.Replace(dbDsn, "/lekcije", "/lekcije_test", 1)
 	}
 	var err error
-	db, err = Open(dbDsn)
+	db, err = OpenDB(dbDsn)
 	if err != nil {
 		panic(err)
 	}
