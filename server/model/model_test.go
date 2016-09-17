@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -47,4 +48,13 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(m.Run())
+}
+
+func TestOpenRedis(t *testing.T) {
+	a := assert.New(t)
+
+	client, err := OpenRedis("redis://h:@192.168.99.100:16379")
+	a.NoError(err)
+	defer client.Close()
+	a.NoError(client.Ping().Err())
 }

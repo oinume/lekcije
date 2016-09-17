@@ -1,5 +1,5 @@
 hash: 8b9599cf6530338d95a00016dc281e06ec6bcea531e48fbb3f461f3c6f68f686
-updated: 2016-09-17T21:40:03.73470718+09:00
+updated: 2016-09-17T22:10:16.878230806+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -108,8 +108,17 @@ imports:
   - internal/remote_api
   - internal/urlfetch
   - urlfetch
+- name: gopkg.in/bsm/ratelimit.v1
+  version: db14e161995a5177acef654cb0dd785e8ee8bc22
 - name: gopkg.in/redis.v4
   version: 938235994ea88a05678f8060741d5f34ed6a5ff3
+  subpackages:
+  - internal
+  - internal/consistenthash
+  - internal/errors
+  - internal/hashtag
+  - internal/pool
+  - internal/proto
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 testImports:

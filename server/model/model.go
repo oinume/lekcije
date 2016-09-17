@@ -1,11 +1,14 @@
 package model
 
 import (
+	"net/url"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
+	"gopkg.in/redis.v4"
 )
 
 const (
@@ -41,4 +44,21 @@ func MustDB(ctx context.Context) *gorm.DB {
 	} else {
 		panic("Failed to get *gorm.DB from context")
 	}
+}
+
+func OpenRedis(dsn string) (*redis.Client, error) {
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return nil, err
+	}
+	password, _ := u.User.Password()
+	client := redis.NewClient(&redis.Options{
+		Addr:     u.Host,
+		Password: password,
+		DB:       0,
+	})
+	if err := client.Ping().Err(); err != nil {
+		return nil, err
+	}
+	return client, nil
 }
