@@ -36,20 +36,20 @@ func (f *FlashMessage) Set() (string, error) {
 	return string(bytes), nil
 }
 
-type FlashMessageStore interface {
+type Store interface {
 	Load(key string) ([]byte, error)
 	Save(key string, bytes []byte) error
 }
 
-type FlashMessageStoreRedis struct {
+type StoreRedis struct {
 	client *redis.Client
 }
 
-func NewStoreRedis(client *redis.Client) *FlashMessageStoreRedis {
-	return &FlashMessageStoreRedis{client: client}
+func NewStoreRedis(client *redis.Client) *StoreRedis {
+	return &StoreRedis{client: client}
 }
 
-func (s *FlashMessageStoreRedis) Load(key string) (*FlashMessage, error) {
+func (s *StoreRedis) Load(key string) (*FlashMessage, error) {
 	value, err := s.client.Get(key).Result()
 	if err != nil {
 		return nil, err
@@ -61,11 +61,11 @@ func (s *FlashMessageStoreRedis) Load(key string) (*FlashMessage, error) {
 	return v, nil
 }
 
-func (s *FlashMessageStoreRedis) Save(key string, value *FlashMessage) error {
+func (s *StoreRedis) Save(key string, value *FlashMessage) error {
 	return s.SaveWithExpiration(key, value, time.Hour*24)
 }
 
-func (s *FlashMessageStoreRedis) SaveWithExpiration(key string, value *FlashMessage, expiration time.Duration) error {
+func (s *StoreRedis) SaveWithExpiration(key string, value *FlashMessage, expiration time.Duration) error {
 	bytes, err := json.Marshal(value)
 	if err != nil {
 		return err

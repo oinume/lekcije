@@ -53,7 +53,11 @@ func TestMain(m *testing.M) {
 func TestOpenRedis(t *testing.T) {
 	a := assert.New(t)
 
-	client, err := OpenRedis("redis://h:@192.168.99.100:16379")
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		a.Fail("Env 'REDIS_URL' required.")
+	}
+	client, err := OpenRedis(redisURL)
 	a.NoError(err)
 	defer client.Close()
 	a.NoError(client.Ping().Err())
