@@ -10,6 +10,7 @@ import (
 	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -94,6 +95,8 @@ func SetDBAndRedisToContext(h http.Handler) http.Handler {
 			return
 		}
 		defer redisClient.Close()
+
+		_, c = flash_message.NewStoreRedisAndSetToContext(c, redisClient)
 
 		h.ServeHTTP(w, r.WithContext(c))
 	}

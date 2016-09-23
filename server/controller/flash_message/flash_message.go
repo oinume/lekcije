@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
+	"golang.org/x/net/context"
 	"gopkg.in/redis.v4"
 )
 
@@ -14,6 +15,8 @@ const (
 	KindInfo = iota + 1
 	KindError
 )
+
+type contextKey struct{}
 
 type FlashMessage struct {
 	Kind    Kind   `json:"kind"`
@@ -37,8 +40,8 @@ func (f *FlashMessage) Set() (string, error) {
 }
 
 type Store interface {
-	Load(key string) ([]byte, error)
-	Save(key string, bytes []byte) error
+	Load(key string) (*FlashMessage, error)
+	Save(key string, value *FlashMessage) error
 }
 
 type StoreRedis struct {
@@ -47,6 +50,23 @@ type StoreRedis struct {
 
 func NewStoreRedis(client *redis.Client) *StoreRedis {
 	return &StoreRedis{client: client}
+}
+
+func NewStoreRedisAndSetToContext(
+	ctx context.Context, client *redis.Client,
+) (Store, context.Context) {
+	store := NewStoreRedis(client)
+	c := context.WithValue(ctx, contextKey{}, store)
+	return store, c
+}
+
+func MustStore(ctx context.Context) Store {
+	value := ctx.Value(contextKey{})
+	if store, ok := value.(Store); ok {
+		return store
+	} else {
+		panic("Failed to get Store from context")
+	}
 }
 
 func (s *StoreRedis) Load(key string) (*FlashMessage, error) {
