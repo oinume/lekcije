@@ -72,7 +72,7 @@ func NewRelic(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetDbToContext(h http.Handler) http.Handler {
+func SetDBToContext(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
