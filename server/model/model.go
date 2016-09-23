@@ -12,9 +12,11 @@ import (
 )
 
 const (
-	contextKeyDB     = "db"
 	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
+
+type contextKeyDB struct{}
+type contextKeyRedis struct{}
 
 func OpenDB(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(
@@ -28,17 +30,17 @@ func OpenDB(dsn string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func OpenDBAndSetToContext(ctx context.Context, dsn string) (*gorm.DB, context.Context, error) {
-	db, err := OpenDB(dsn)
+func OpenDBAndSetToContext(ctx context.Context, dbURL string) (*gorm.DB, context.Context, error) {
+	db, err := OpenDB(dbURL)
 	if err != nil {
 		return nil, nil, err
 	}
-	c := context.WithValue(ctx, contextKeyDB, db)
+	c := context.WithValue(ctx, contextKeyDB{}, db)
 	return db, c, nil
 }
 
 func MustDB(ctx context.Context) *gorm.DB {
-	value := ctx.Value(contextKeyDB)
+	value := ctx.Value(contextKeyDB{})
 	if db, ok := value.(*gorm.DB); ok {
 		return db
 	} else {
@@ -46,8 +48,8 @@ func MustDB(ctx context.Context) *gorm.DB {
 	}
 }
 
-func OpenRedis(dsn string) (*redis.Client, error) {
-	u, err := url.Parse(dsn)
+func OpenRedis(redisURL string) (*redis.Client, error) {
+	u, err := url.Parse(redisURL)
 	if err != nil {
 		return nil, err
 	}
@@ -61,4 +63,22 @@ func OpenRedis(dsn string) (*redis.Client, error) {
 		DB:       0,
 	})
 	return client, nil
+}
+
+func OpenRedisAndSetToContext(ctx context.Context, redisURL string) (*redis.Client, context.Context, error) {
+	r, err := OpenRedis(redisURL)
+	if err != nil {
+		return nil, nil, err
+	}
+	c := context.WithValue(ctx, contextKeyRedis{}, r)
+	return r, c, nil
+}
+
+func MustRedis(ctx context.Context) *redis.Client {
+	value := ctx.Value(contextKeyRedis{})
+	if r, ok := value.(*redis.Client); ok {
+		return r
+	} else {
+		panic("Failed to get *redis.Client from context")
+	}
 }

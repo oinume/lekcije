@@ -12,7 +12,7 @@ func Create() *goji.Mux {
 	mux := goji.NewMux()
 	mux.Use(middleware.AccessLogger)
 	mux.Use(middleware.NewRelic)
-	mux.Use(middleware.SetDBToContext)
+	mux.Use(middleware.SetDBAndRedisToContext)
 	mux.Use(middleware.SetLoggedInUserToContext)
 	mux.Use(middleware.LoginRequiredFilter)
 	mux.Use(middleware.CORS)

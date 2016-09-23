@@ -72,7 +72,7 @@ func NewRelic(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetDBToContext(h http.Handler) http.Handler {
+func SetDBAndRedisToContext(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
@@ -87,6 +87,14 @@ func SetDBToContext(h http.Handler) http.Handler {
 			return
 		}
 		defer db.Close()
+
+		redisClient, c, err := model.OpenRedisAndSetToContext(c, os.Getenv("REDIS_URL"))
+		if err != nil {
+			controller.InternalServerError(w, err)
+			return
+		}
+		defer redisClient.Close()
+
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
