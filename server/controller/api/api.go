@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -13,22 +12,36 @@ import (
 
 // GET /api/status
 func GetStatus(w http.ResponseWriter, r *http.Request) {
-	db, err := model.OpenDB(os.Getenv("DB_DSN"))
-	if err != nil {
-		controller.InternalServerError(w, fmt.Errorf("Failed to model.Open(): err=%v", err))
-		return
-	}
-	if err := db.DB().Ping(); err != nil {
-		controller.InternalServerError(w, fmt.Errorf("Failed to DB.Ping(): err=%v", err))
-		return
-	}
 	data := map[string]bool{
-		"db": true,
+		"db":    true,
+		"redis": true,
 	}
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		controller.InternalServerError(w, fmt.Errorf("Failed to encode JSON: err=%v", err))
-		return
+
+	db, err := model.OpenDB(os.Getenv("DB_DSN"))
+	if err == nil {
+		if err := db.DB().Ping(); err != nil {
+			data["db"] = false
+		}
+	} else {
+		data["db"] = false
 	}
+
+	redis, err := model.OpenRedis(os.Getenv("REDIS_URL"))
+	if err == nil {
+		if redis.Ping().Err() != nil {
+			data["redis"] = false
+		}
+	} else {
+		data["redis"] = false
+	}
+
+	for _, status := range data {
+		if !status {
+			controller.JSON(w, http.StatusInternalServerError, data)
+			return
+		}
+	}
+	controller.JSON(w, http.StatusOK, data)
 }
 
 // GET /api/me/followingTeachers

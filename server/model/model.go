@@ -51,14 +51,14 @@ func OpenRedis(dsn string) (*redis.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	password, _ := u.User.Password()
+	password := ""
+	if u.User != nil {
+		password, _ = u.User.Password()
+	}
 	client := redis.NewClient(&redis.Options{
 		Addr:     u.Host,
 		Password: password,
 		DB:       0,
 	})
-	if err := client.Ping().Err(); err != nil {
-		return nil, err
-	}
 	return client, nil
 }

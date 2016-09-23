@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"path"
@@ -38,4 +39,14 @@ func InternalServerError(w http.ResponseWriter, err error) {
 		}
 	}
 	//}
+}
+
+func JSON(w http.ResponseWriter, code int, body interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	//w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(code)
+	if err := json.NewEncoder(w).Encode(body); err != nil {
+		http.Error(w, `{ "status": "Failed to Encode as JSON" }`, http.StatusInternalServerError)
+		return
+	}
 }
