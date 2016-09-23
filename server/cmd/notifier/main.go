@@ -18,7 +18,7 @@ var (
 
 // TODO: move somewhere proper and make it be struct
 var definedEnvs = map[string]string{
-	"DB_DSN":         "",
+	"DB_URL":         "",
 	"NODE_ENV":       "",
 	"ENCRYPTION_KEY": "",
 }
@@ -43,7 +43,7 @@ func run() error {
 		}
 	}
 
-	db, _, err := model.OpenDBAndSetToContext(context.Background(), definedEnvs["DB_DSN"])
+	db, _, err := model.OpenDBAndSetToContext(context.Background(), definedEnvs["DB_URL"])
 	if err != nil {
 		return err
 	}

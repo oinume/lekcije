@@ -15,7 +15,7 @@ import (
 var definedEnvs = map[string]string{
 	"GOOGLE_CLIENT_ID":     "",
 	"GOOGLE_CLIENT_SECRET": "",
-	"DB_DSN":               "",
+	"DB_URL":               "",
 	"NODE_ENV":             "",
 	"ENCRYPTION_KEY":       "",
 }

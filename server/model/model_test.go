@@ -21,12 +21,12 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	dbDsn := os.Getenv("DB_DSN")
-	if strings.HasSuffix(dbDsn, "/lekcije") {
-		dbDsn = strings.Replace(dbDsn, "/lekcije", "/lekcije_test", 1)
+	dbURL := os.Getenv("DB_URL")
+	if strings.HasSuffix(dbURL, "/lekcije") {
+		dbURL = strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
 	}
 	var err error
-	db, err = OpenDB(dbDsn)
+	db, err = OpenDB(dbURL)
 	if err != nil {
 		panic(err)
 	}

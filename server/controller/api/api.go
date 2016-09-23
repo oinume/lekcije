@@ -17,7 +17,7 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 		"redis": true,
 	}
 
-	db, err := model.OpenDB(os.Getenv("DB_DSN"))
+	db, err := model.OpenDB(os.Getenv("DB_URL"))
 	if err == nil {
 		if err := db.DB().Ping(); err != nil {
 			data["db"] = false
