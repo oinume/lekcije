@@ -28,10 +28,11 @@ func TestMain(m *testing.M) {
 
 func TestStoreRedis_LoadSave(t *testing.T) {
 	a := assert.New(t)
-	err := storeRedis.Save("key1", &FlashMessage{Kind: KindInfo, Message: "Your operation succeeded!"})
+	flashMessage := New(KindInfo, "Your operation succeeded!")
+	err := storeRedis.Save(flashMessage)
 	a.NoError(err)
 
-	v, err := storeRedis.Load("key1")
+	v, err := storeRedis.Load(flashMessage.Key)
 	a.NoError(err)
-	a.Equal("Your operation succeeded!", v.Message)
+	a.Equal("Your operation succeeded!", v.Messages[0])
 }

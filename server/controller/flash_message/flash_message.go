@@ -2,7 +2,6 @@ package flash_message
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
@@ -32,18 +31,21 @@ const (
 type contextKey struct{}
 
 type FlashMessage struct {
-	Kind    Kind   `json:"kind"`
-	Key     string `json:"key"`
-	Message string `json:"message"`
+	Kind     Kind     `json:"kind"`
+	Key      string   `json:"key"`
+	Messages []string `json:"messages"`
 }
 
-func New(kind Kind, message string) *FlashMessage {
-	key := fmt.Sprintf("flashMessage-%s", util.RandomString(32))
+func New(kind Kind, messages ...string) *FlashMessage {
 	return &FlashMessage{
-		Kind:    kind,
-		Key:     key,
-		Message: message,
+		Kind:     kind,
+		Key:      util.RandomString(32),
+		Messages: messages,
 	}
+}
+
+func (f *FlashMessage) HasMultipleMessage() bool {
+	return len(f.Messages) > 1
 }
 
 func (f *FlashMessage) Set() (string, error) {
@@ -57,7 +59,7 @@ func (f *FlashMessage) Set() (string, error) {
 
 type Store interface {
 	Load(key string) (*FlashMessage, error)
-	Save(key string, value *FlashMessage) error
+	Save(value *FlashMessage) error
 }
 
 type StoreRedis struct {
@@ -86,7 +88,7 @@ func MustStore(ctx context.Context) Store {
 }
 
 func (s *StoreRedis) Load(key string) (*FlashMessage, error) {
-	value, err := s.client.Get(key).Result()
+	value, err := s.client.Get(s.getKey(key)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -97,14 +99,19 @@ func (s *StoreRedis) Load(key string) (*FlashMessage, error) {
 	return v, nil
 }
 
-func (s *StoreRedis) Save(key string, value *FlashMessage) error {
-	return s.SaveWithExpiration(key, value, time.Hour*24)
+func (s *StoreRedis) Save(value *FlashMessage) error {
+	return s.SaveWithExpiration(value, time.Hour*24)
 }
 
-func (s *StoreRedis) SaveWithExpiration(key string, value *FlashMessage, expiration time.Duration) error {
+func (s *StoreRedis) SaveWithExpiration(value *FlashMessage, expiration time.Duration) error {
 	bytes, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
-	return s.client.Set(key, string(bytes), expiration).Err()
+	return s.client.Set(s.getKey(value.Key), string(bytes), expiration).Err()
+}
+
+// Append prefix to key
+func (s *StoreRedis) getKey(key string) string {
+	return "flashMessage:" + key
 }
