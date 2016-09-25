@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 )
@@ -42,13 +43,25 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 	ctx := r.Context()
 	t := template.Must(template.ParseFiles(
 		TemplatePath("_base.html"),
+		TemplatePath("_flashMessage.html"),
 		TemplatePath("indexLogin.html")),
 	)
 	type Data struct {
 		commonTemplateData
-		Teachers []*model.Teacher
+		Teachers     []*model.Teacher
+		FlashMessage *flash_message.FlashMessage
 	}
 	data := &Data{commonTemplateData: getCommonTemplateData()}
+
+	flashMessageKey := r.FormValue("flashMessageKey")
+	if flashMessageKey != "" {
+		flashMessage, err := flash_message.MustStore(ctx).Load(flashMessageKey)
+		if err != nil {
+			InternalServerError(w, err)
+			return
+		}
+		data.FlashMessage = flashMessage
+	}
 
 	followingTeacherService := model.NewFollowingTeacherService(model.MustDB(ctx))
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)

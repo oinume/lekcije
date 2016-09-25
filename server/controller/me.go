@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -67,7 +68,10 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	flashMessage := flash_message.New(flash_message.KindInfo, "フォローしました")
+	flash_message.MustStore(ctx).Save(flashMessage.Key, flashMessage)
+
+	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
 }
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {

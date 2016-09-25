@@ -2,14 +2,27 @@ package flash_message
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/util"
 	"golang.org/x/net/context"
 	"gopkg.in/redis.v4"
 )
 
 type Kind int
+
+func (k Kind) String() string {
+	switch k {
+	case KindInfo:
+		return "info"
+	case KindError:
+		return "error"
+	default:
+		return ""
+	}
+}
 
 const (
 	KindInfo = iota + 1
@@ -20,12 +33,15 @@ type contextKey struct{}
 
 type FlashMessage struct {
 	Kind    Kind   `json:"kind"`
+	Key     string `json:"key"`
 	Message string `json:"message"`
 }
 
 func New(kind Kind, message string) *FlashMessage {
+	key := fmt.Sprintf("flashMessage-%s", util.RandomString(32))
 	return &FlashMessage{
 		Kind:    kind,
+		Key:     key,
 		Message: message,
 	}
 }
