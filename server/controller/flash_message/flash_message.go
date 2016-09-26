@@ -12,10 +12,21 @@ import (
 
 type Kind int
 
+const (
+	KindSuccess = iota + 1
+	KindInfo
+	KindWarning
+	KindError
+)
+
 func (k Kind) String() string {
 	switch k {
+	case KindSuccess:
+		return "success"
 	case KindInfo:
 		return "info"
+	case KindWarning:
+		return "warning"
 	case KindError:
 		return "error"
 	default:
@@ -23,10 +34,20 @@ func (k Kind) String() string {
 	}
 }
 
-const (
-	KindInfo = iota + 1
-	KindError
-)
+func (k Kind) ViewStyle() string {
+	switch k {
+	case KindSuccess:
+		return "success"
+	case KindInfo:
+		return "info"
+	case KindWarning:
+		return "warning"
+	case KindError:
+		return "danger"
+	default:
+		return ""
+	}
+}
 
 type contextKey struct{}
 

@@ -68,7 +68,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	flashMessage := flash_message.New(flash_message.KindInfo, "フォローしました")
+	flashMessage := flash_message.New(flash_message.KindSuccess, "フォローしました！")
 	flash_message.MustStore(ctx).Save(flashMessage)
 
 	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)

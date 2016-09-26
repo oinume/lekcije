@@ -1,3 +1,6 @@
 {{ if .FlashMessage -}}
-{{ index .FlashMessage.Messages 0 }}
+<div class="alert alert-{{ .FlashMessage.Kind.ViewStyle }}" role="alert">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {{ index .FlashMessage.Messages 0 }}
+</div>
 {{ end -}}
