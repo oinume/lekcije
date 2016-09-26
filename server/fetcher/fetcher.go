@@ -146,7 +146,7 @@ func (fetcher *TeacherLessonFetcher) parseHtml(
 				config.LocalTimezone(),
 			)
 			status := model.LessonStatuses.MustValueForAlias(text)
-			fetcher.log.Info(
+			fetcher.log.Debug(
 				"lesson",
 				zap.String("dt", dt.Format("2006-01-02 15:04")),
 				zap.String("status", model.LessonStatuses.MustName(status)),

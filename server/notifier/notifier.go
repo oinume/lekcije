@@ -18,6 +18,7 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	"github.com/uber-go/zap"
 )
 
 var lessonFetcher *fetcher.TeacherLessonFetcher
@@ -78,16 +79,28 @@ func (n *Notifier) SendNotification(user *model.User) error {
 }
 
 // Returns teacher, fetchedLessons, newAvailableLessons, error
-func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
+func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	*model.Teacher, []*model.Lesson, []*model.Lesson, error,
 ) {
-	teacher, fetchedLessons, err := lessonFetcher.Fetch(teacherId)
+	teacher, fetchedLessons, err := lessonFetcher.Fetch(teacherID)
 	if err != nil {
+		// TODO: log?
+		logger.AppLogger.Error(
+			"TeacherLessonFetcher.Fetch",
+			zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
+		)
 		return nil, nil, nil, err
 	}
+	logger.AppLogger.Info(
+		"TeacherLessonFetcher.Fetch",
+		zap.Uint("teacherID", uint(teacher.ID)),
+		zap.String("teacherName", teacher.Name),
+		zap.Int("fetchedLessons", len(fetchedLessons)),
+	)
+
 	//fmt.Printf("fetchedLessons ---\n")
 	//for _, l := range fetchedLessons {
-	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
+	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
 	now := time.Now()
@@ -99,13 +112,13 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherId uint32) (
 	}
 	//fmt.Printf("lastFetchedLessons ---\n")
 	//for _, l := range lastFetchedLessons {
-	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
+	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
 	newAvailableLessons := n.lessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
-	//	fmt.Printf("teacherId=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
+	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 	return teacher, fetchedLessons, newAvailableLessons, nil
 }
