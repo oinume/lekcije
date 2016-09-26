@@ -5,8 +5,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCheckEnvs(t *testing.T) {
+func TestCheckCommonEnvVars(t *testing.T) {
 	a := assert.New(t)
-	CheckEnvs()
-	a.NotEmpty(Envs.DBURL)
+	CheckCLIEnvVars()
+	a.NotEmpty(CLIEnvVars.DBURL)
 }

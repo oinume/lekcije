@@ -9,31 +9,58 @@ import (
 	"net/http"
 )
 
-type Environments struct {
+// TODO: Fix reflection problem and use this struct
+// http://stackoverflow.com/questions/24333494/golang-reflection-on-embedded-structs
+//type CommonEnvVarsType struct {
+//	DBURL string `env:"DB_URL"`
+//	EncryptionKey string `env:"ENCRYPTION_KEY"`
+//	NodeEnv string `env:"NODE_ENV"`
+//	RedisURL string `env:"REDIS_URL"`
+//}
+
+type CLIEnvVarsType struct {
 	DBURL string `env:"DB_URL"`
 	EncryptionKey string `env:"ENCRYPTION_KEY"`
-	GoogleClientID string `env:"GOOGLE_CLIENT_ID"`
-	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
 	NodeEnv string `env:"NODE_ENV"`
 	RedisURL string `env:"REDIS_URL"`
 }
 
+type HTTPServerEnvVarsType struct {
+	DBURL string `env:"DB_URL"`
+	EncryptionKey string `env:"ENCRYPTION_KEY"`
+	NodeEnv string `env:"NODE_ENV"`
+	RedisURL string `env:"REDIS_URL"`
+	GoogleClientID string `env:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
+}
+
 var _ = fmt.Print
-var Envs = &Environments{}
+var CLIEnvVars = CLIEnvVarsType{}
+var HTTPServerEnvVars = HTTPServerEnvVarsType{}
 
 func init() {
 	http.DefaultClient.Timeout = 5 * time.Second
 }
 
-func CheckEnvs() {
-	reflectValue := reflect.Indirect(reflect.ValueOf(Envs))
-	for i := 0; i < reflectValue.Type().NumField(); i++ {
-		fieldType := reflectValue.Type().Field(i)
+func CheckCLIEnvVars() {
+	checkEnvVars(reflect.Indirect(reflect.ValueOf(&CLIEnvVars)))
+}
+
+func CheckHTTPServerEnvVars() {
+	checkEnvVars(reflect.Indirect(reflect.ValueOf(&HTTPServerEnvVars)))
+}
+
+func checkEnvVars(value reflect.Value) {
+	for i := 0; i < value.Type().NumField(); i++ {
+		fieldType := value.Type().Field(i)
 		envName := fieldType.Tag.Get("env")
+		if envName == "" {
+			continue
+		}
 		envValue := os.Getenv(envName)
 		if envValue == "" {
 			log.Fatalf("Env '%v' must be defined.", envName)
 		}
-		reflectValue.FieldByName(fieldType.Name).SetString(envValue)
+		value.FieldByName(fieldType.Name).SetString(envValue)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
@@ -15,13 +16,6 @@ var (
 	dryRun   = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
 	logLevel = flag.String("log-level", "info", "Log level")
 )
-
-// TODO: move somewhere proper and make it be struct
-var definedEnvs = map[string]string{
-	"DB_URL":         "",
-	"NODE_ENV":       "",
-	"ENCRYPTION_KEY": "",
-}
 
 func main() {
 	flag.Parse()
@@ -34,16 +28,9 @@ func main() {
 }
 
 func run() error {
-	// Check env
-	for key := range definedEnvs {
-		if value := os.Getenv(key); value != "" {
-			definedEnvs[key] = value
-		} else {
-			log.Fatalf("Env '%v' must be defined.", key)
-		}
-	}
+	bootstrap.CheckCLIEnvVars()
 
-	db, _, err := model.OpenDBAndSetToContext(context.Background(), definedEnvs["DB_URL"])
+	db, _, err := model.OpenDBAndSetToContext(context.Background(), bootstrap.CLIEnvVars.DBURL)
 	if err != nil {
 		return err
 	}
