@@ -50,11 +50,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 
 	flashMessageKey := r.FormValue("flashMessageKey")
 	if flashMessageKey != "" {
-		flashMessage, err := flash_message.MustStore(ctx).Load(flashMessageKey)
-		if err != nil {
-			InternalServerError(w, err)
-			return
-		}
+		flashMessage, _ := flash_message.MustStore(ctx).Load(flashMessageKey)
 		data.FlashMessage = flashMessage
 	}
 

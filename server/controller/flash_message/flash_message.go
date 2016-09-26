@@ -2,6 +2,7 @@ package flash_message
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
@@ -9,6 +10,8 @@ import (
 	"golang.org/x/net/context"
 	"gopkg.in/redis.v4"
 )
+
+var _ = fmt.Print
 
 type Kind int
 
