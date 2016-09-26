@@ -1,6 +1,8 @@
 package model
 
 import (
+	"os"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -21,7 +23,11 @@ func Open(dsn string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
 	}
-	db.LogMode(true) // TODO: off in production
+	if os.Getenv("NODE_ENV") == "production" {
+		db.LogMode(false)
+	} else {
+		db.LogMode(true)
+	}
 	return db, nil
 }
 
