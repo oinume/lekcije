@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 	"time"
@@ -105,10 +104,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := model.MustLoggedInUser(ctx)
-	t := template.Must(template.ParseFiles(
-		TemplatePath("_base.html"),
-		TemplatePath("me/setting.html")),
-	)
+	t := ParseHTMLTemplates(TemplatePath("me/setting.html"))
 	type Data struct {
 		commonTemplateData
 		Email string

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/oinume/lekcije/server/config"
@@ -41,11 +40,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 	ctx := r.Context()
-	t := template.Must(template.ParseFiles(
-		TemplatePath("_base.html"),
-		TemplatePath("_flashMessage.html"),
-		TemplatePath("indexLogin.html")),
-	)
+	t := ParseHTMLTemplates(TemplatePath("indexLogin.html"))
 	type Data struct {
 		commonTemplateData
 		Teachers     []*model.Teacher
@@ -78,10 +73,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 }
 
 func indexLogout(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles(
-		TemplatePath("_base.html"),
-		TemplatePath("indexLogout.html")),
-	)
+	t := ParseHTMLTemplates(TemplatePath("indexLogout.html"))
 	type Data struct {
 		commonTemplateData
 	}

@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"path"
 
@@ -26,6 +27,15 @@ func TemplateDir() string {
 
 func TemplatePath(file string) string {
 	return path.Join(TemplateDir(), file)
+}
+
+func ParseHTMLTemplates(files ...string) *template.Template {
+	f := []string{
+		TemplatePath("_base.html"),
+		TemplatePath("_flashMessage.html"),
+	}
+	f = append(f, files...)
+	return template.Must(template.ParseFiles(f...))
 }
 
 func InternalServerError(w http.ResponseWriter, err error) {
