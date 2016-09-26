@@ -10,6 +10,7 @@ import (
 	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -72,7 +73,7 @@ func NewRelic(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetDbToContext(h http.Handler) http.Handler {
+func SetDBAndRedisToContext(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
@@ -81,12 +82,22 @@ func SetDbToContext(h http.Handler) http.Handler {
 		}
 		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 
-		db, c, err := model.OpenAndSetToContext(ctx, os.Getenv("DB_DSN"))
+		db, c, err := model.OpenDBAndSetToContext(ctx, os.Getenv("DB_URL"))
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
 		}
 		defer db.Close()
+
+		redisClient, c, err := model.OpenRedisAndSetToContext(c, os.Getenv("REDIS_URL"))
+		if err != nil {
+			controller.InternalServerError(w, err)
+			return
+		}
+		defer redisClient.Close()
+
+		_, c = flash_message.NewStoreRedisAndSetToContext(c, redisClient)
+
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)

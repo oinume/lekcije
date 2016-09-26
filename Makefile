@@ -1,7 +1,7 @@
 E2E_TEST_ARGS=-v
 GO_TEST_ARGS=-v
-GO_TEST_PACKAGES=$(shell go list ./... | grep -v cmd | grep -v e2e | grep -v vendor)
-#DB_DSN=lekcije:lekcije@tcp(192.168.99.100:13306)/lekcije
+GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
+#DB_URL=lekcije:lekcije@tcp(192.168.99.100:13306)/lekcije
 
 all: install
 

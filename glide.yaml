@@ -28,6 +28,7 @@ import:
   - package: github.com/uber-go/atomic
   - package: github.com/oinume/goenum
   - package: github.com/pkg/errors
+  - package: gopkg.in/redis.v4
   - package: github.com/sclevine/agouti
   - package: github.com/rs/cors
   - package: github.com/rs/xhandler

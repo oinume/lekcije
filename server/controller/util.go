@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"path"
 
@@ -27,6 +29,15 @@ func TemplatePath(file string) string {
 	return path.Join(TemplateDir(), file)
 }
 
+func ParseHTMLTemplates(files ...string) *template.Template {
+	f := []string{
+		TemplatePath("_base.html"),
+		TemplatePath("_flashMessage.html"),
+	}
+	f = append(f, files...)
+	return template.Must(template.ParseFiles(f...))
+}
+
 func InternalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
@@ -38,4 +49,14 @@ func InternalServerError(w http.ResponseWriter, err error) {
 		}
 	}
 	//}
+}
+
+func JSON(w http.ResponseWriter, code int, body interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	//w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(code)
+	if err := json.NewEncoder(w).Encode(body); err != nil {
+		http.Error(w, `{ "status": "Failed to Encode as JSON" }`, http.StatusInternalServerError)
+		return
+	}
 }

@@ -4,9 +4,11 @@ machine:
     GOROOT: "${HOME}/go"
     PATH: "${GOPATH}/bin:${HOME}/go/bin:${PATH}"
     GOPATH_PROJECT: "${GOPATH}/src/github.com/oinume/lekcije"
-    DB_DSN: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
+    DB_URL: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
+    REDIS_URL: "redis://h:@127.0.0.1:6379"
   services:
     - mysql
+    - redis
 dependencies:
   pre:
     - echo "" > ~/.gitconfig

@@ -2,6 +2,7 @@
 <div class="container">
   <div>
     <h2>Follow a teacher!</h2>
+    {{ template "_flashMessage.html" . }}
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
         <label for="teacherIdsOrUrl">Teacher's URL or ID</label>

@@ -2,11 +2,11 @@ package controller
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -67,7 +67,10 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	flashMessage := flash_message.New(flash_message.KindSuccess, "フォローしました！")
+	flash_message.MustStore(ctx).Save(flashMessage)
+
+	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
 }
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
@@ -101,10 +104,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := model.MustLoggedInUser(ctx)
-	t := template.Must(template.ParseFiles(
-		TemplatePath("_base.html"),
-		TemplatePath("me/setting.html")),
-	)
+	t := ParseHTMLTemplates(TemplatePath("me/setting.html"))
 	type Data struct {
 		commonTemplateData
 		Email string

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -20,12 +21,12 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	dbDsn := os.Getenv("DB_DSN")
-	if strings.HasSuffix(dbDsn, "/lekcije") {
-		dbDsn = strings.Replace(dbDsn, "/lekcije", "/lekcije_test", 1)
+	dbURL := os.Getenv("DB_URL")
+	if strings.HasSuffix(dbURL, "/lekcije") {
+		dbURL = strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
 	}
 	var err error
-	db, err = Open(dbDsn)
+	db, err = OpenDB(dbURL)
 	if err != nil {
 		panic(err)
 	}
@@ -47,4 +48,17 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(m.Run())
+}
+
+func TestOpenRedis(t *testing.T) {
+	a := assert.New(t)
+
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		a.Fail("Env 'REDIS_URL' required.")
+	}
+	client, err := OpenRedis(redisURL)
+	a.NoError(err)
+	defer client.Close()
+	a.NoError(client.Ping().Err())
 }

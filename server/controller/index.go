@@ -2,10 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 )
@@ -40,15 +40,19 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 	ctx := r.Context()
-	t := template.Must(template.ParseFiles(
-		TemplatePath("_base.html"),
-		TemplatePath("indexLogin.html")),
-	)
+	t := ParseHTMLTemplates(TemplatePath("indexLogin.html"))
 	type Data struct {
 		commonTemplateData
-		Teachers []*model.Teacher
+		Teachers     []*model.Teacher
+		FlashMessage *flash_message.FlashMessage
 	}
 	data := &Data{commonTemplateData: getCommonTemplateData()}
+
+	flashMessageKey := r.FormValue("flashMessageKey")
+	if flashMessageKey != "" {
+		flashMessage, _ := flash_message.MustStore(ctx).Load(flashMessageKey)
+		data.FlashMessage = flashMessage
+	}
 
 	followingTeacherService := model.NewFollowingTeacherService(model.MustDB(ctx))
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
@@ -65,10 +69,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 }
 
 func indexLogout(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles(
-		TemplatePath("_base.html"),
-		TemplatePath("indexLogout.html")),
-	)
+	t := ParseHTMLTemplates(TemplatePath("indexLogout.html"))
 	type Data struct {
 		commonTemplateData
 	}
