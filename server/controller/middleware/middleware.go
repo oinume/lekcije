@@ -19,36 +19,63 @@ import (
 
 var _ = fmt.Print
 
+func PanicHandler(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		// TOOD: output stack trace to view on local environment
+		defer func() {
+			if r := recover(); r != nil {
+				var err error
+				switch errorType := r.(type) {
+				case string:
+					err = fmt.Errorf(errorType)
+				case error:
+					err = errorType
+				default:
+					err = fmt.Errorf("Unknown error type: %v", errorType)
+				}
+				if err != nil {
+					// TODO: send error to bugsnag or somewhere
+					logger.AppLogger.Error("panic was recovered", zap.Error(err), zap.Stack())
+					controller.InternalServerError(w, err)
+					return
+				}
+			}
+		}()
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
 func AccessLogger(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		writerProxy := controller.WrapWriter(w)
-		// TODO: handle panic
 		h.ServeHTTP(writerProxy, r)
+		func() {
+			end := time.Now()
+			status := writerProxy.Status()
+			if status == 0 {
+				status = http.StatusOK
+			}
+			remoteAddr := r.RemoteAddr
+			if remoteAddr != "" {
+				remoteAddr = (strings.Split(remoteAddr, ":"))[0]
+			}
 
-		end := time.Now()
-		status := writerProxy.Status()
-		if status == 0 {
-			status = http.StatusOK
-		}
-		remoteAddr := r.RemoteAddr
-		if remoteAddr != "" {
-			remoteAddr = (strings.Split(remoteAddr, ":"))[0]
-		}
-
-		// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
-		logger.AccessLogger.Info(
-			"",
-			zap.String("date", start.Format(time.RFC3339)),
-			zap.String("method", r.Method),
-			zap.String("url", r.URL.String()),
-			zap.Int("status", status),
-			zap.Int("bytes", writerProxy.BytesWritten()),
-			zap.String("remoteAddr", remoteAddr),
-			zap.String("userAgent", r.Header.Get("User-Agent")),
-			zap.String("referer", r.Referer()),
-			zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
-		)
+			// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
+			logger.AccessLogger.Info(
+				"",
+				zap.String("date", start.Format(time.RFC3339)),
+				zap.String("method", r.Method),
+				zap.String("url", r.URL.String()),
+				zap.Int("status", status),
+				zap.Int("bytes", writerProxy.BytesWritten()),
+				zap.String("remoteAddr", remoteAddr),
+				zap.String("userAgent", r.Header.Get("User-Agent")),
+				zap.String("referer", r.Referer()),
+				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
+			)
+		}()
 	}
 	return http.HandlerFunc(fn)
 }
