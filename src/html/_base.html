@@ -27,9 +27,10 @@
       </div>
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="/me/setting">Setting</a></li>
-          <li><a href="/logout">Logout</a></li>
+          {{ $currentURL := .CurrentURL }}
+          {{ range $item := .NavigationItems }}
+          <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}><a href="{{ $item.URL }}">{{ $item.Text }}</a></li>
+          {{ end }}
         </ul>
       </div>
     </div>
