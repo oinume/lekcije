@@ -12,15 +12,30 @@ import (
 
 var _ = fmt.Print
 
+type navigationItem struct {
+	Text string
+	URL  string
+}
+
 type commonTemplateData struct {
 	StaticURL         string
 	GoogleAnalyticsID string
+	CurrentURL        string
+	NavigationItems   []navigationItem
 }
 
-func getCommonTemplateData() commonTemplateData {
+var navigationItems = []navigationItem{
+	{"Home", "/"},
+	{"Setting", "/me/setting"},
+	{"Logout", "/logout"},
+}
+
+func getCommonTemplateData(currentURL string) commonTemplateData {
 	return commonTemplateData{
 		StaticURL:         config.StaticURL(),
 		GoogleAnalyticsID: config.GoogleAnalyticsID(),
+		CurrentURL:        currentURL,
+		NavigationItems:   navigationItems,
 	}
 }
 
@@ -46,7 +61,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 		Teachers     []*model.Teacher
 		FlashMessage *flash_message.FlashMessage
 	}
-	data := &Data{commonTemplateData: getCommonTemplateData()}
+	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI)}
 
 	flashMessageKey := r.FormValue("flashMessageKey")
 	if flashMessageKey != "" {
@@ -73,7 +88,7 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 	type Data struct {
 		commonTemplateData
 	}
-	data := &Data{commonTemplateData: getCommonTemplateData()}
+	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI)}
 
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))

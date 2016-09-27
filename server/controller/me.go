@@ -110,7 +110,7 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(),
+		commonTemplateData: getCommonTemplateData(r.RequestURI),
 		Email:              user.Email.Raw(),
 	}
 
