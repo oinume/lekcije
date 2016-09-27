@@ -1,12 +1,12 @@
 package bootstrap
 
 import (
-	"reflect"
 	"fmt"
-	"os"
 	"log"
-	"time"
 	"net/http"
+	"os"
+	"reflect"
+	"time"
 )
 
 // TODO: Fix reflection problem and use this struct
@@ -19,18 +19,18 @@ import (
 //}
 
 type CLIEnvVarsType struct {
-	DBURL string `env:"DB_URL"`
+	DBURL         string `env:"DB_URL"`
 	EncryptionKey string `env:"ENCRYPTION_KEY"`
-	NodeEnv string `env:"NODE_ENV"`
-	RedisURL string `env:"REDIS_URL"`
+	NodeEnv       string `env:"NODE_ENV"`
+	RedisURL      string `env:"REDIS_URL"`
 }
 
 type HTTPServerEnvVarsType struct {
-	DBURL string `env:"DB_URL"`
-	EncryptionKey string `env:"ENCRYPTION_KEY"`
-	NodeEnv string `env:"NODE_ENV"`
-	RedisURL string `env:"REDIS_URL"`
-	GoogleClientID string `env:"GOOGLE_CLIENT_ID"`
+	DBURL              string `env:"DB_URL"`
+	EncryptionKey      string `env:"ENCRYPTION_KEY"`
+	NodeEnv            string `env:"NODE_ENV"`
+	RedisURL           string `env:"REDIS_URL"`
+	GoogleClientID     string `env:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
 }
 
