@@ -2,10 +2,14 @@ package fetcher
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,6 +31,7 @@ func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		Header:     make(http.Header),
 		Request:    req,
 		StatusCode: http.StatusOK,
+		Status:     "200 OK",
 	}
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
 
@@ -35,6 +40,20 @@ func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 	resp.Body = file // Close() will be called by client
+	return resp, nil
+}
+
+type redirectTransport struct{}
+
+func (t *redirectTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp := &http.Response{
+		Header:     make(http.Header),
+		Request:    req,
+		StatusCode: http.StatusFound,
+		Status:     "302 Found",
+		Body:       ioutil.NopCloser(strings.NewReader("")),
+	}
+	resp.Header.Set("Location", "https://twitter.com/")
 	return resp, nil
 }
 
@@ -69,14 +88,26 @@ func TestFetchRetry(t *testing.T) {
 	a.Equal(2, transport.callCount)
 }
 
-func TestParseHtml(t *testing.T) {
+func TestFetchRedirect(t *testing.T) {
+	a := assert.New(t)
+	client := &http.Client{
+		Transport:     &redirectTransport{},
+		CheckRedirect: redirectErrorFunc,
+	}
+	fetcher := NewTeacherLessonFetcher(client, nil)
+	_, _, err := fetcher.Fetch(5982)
+	a.Error(err)
+	a.Equal(reflect.TypeOf(&errors.NotFound{}), reflect.TypeOf(err))
+}
+
+func TestParseHTML(t *testing.T) {
 	a := assert.New(t)
 	fetcher := NewTeacherLessonFetcher(http.DefaultClient, nil)
 	file, err := os.Open("testdata/5982.html")
 	a.NoError(err)
 	defer file.Close()
 
-	teacher, lessons, err := fetcher.parseHtml(model.NewTeacher(uint32(5982)), file)
+	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)
 	a.Equal("Xai", teacher.Name)
 	a.True(len(lessons) > 0)
 	for _, lesson := range lessons {

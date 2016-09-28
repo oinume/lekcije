@@ -3,7 +3,6 @@ package notifier
 import (
 	"bytes"
 	"fmt"
-	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -24,8 +23,7 @@ import (
 var lessonFetcher *fetcher.TeacherLessonFetcher
 
 func init() {
-	http.DefaultClient.Timeout = 5 * time.Second
-	lessonFetcher = fetcher.NewTeacherLessonFetcher(http.DefaultClient, nil)
+	lessonFetcher = fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
 }
 
 type Notifier struct {
@@ -57,7 +55,14 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	for _, teacherID := range teacherIDs {
 		teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 		if err != nil {
-			return err
+			switch err.(type) {
+			case *errors.NotFound:
+				// TODO: update teacher table flag
+				logger.AppLogger.Warn("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)))
+				continue
+			default:
+				return err
+			}
 		}
 
 		allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
@@ -84,7 +89,6 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 ) {
 	teacher, fetchedLessons, err := lessonFetcher.Fetch(teacherID)
 	if err != nil {
-		// TODO: log?
 		logger.AppLogger.Error(
 			"TeacherLessonFetcher.Fetch",
 			zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
