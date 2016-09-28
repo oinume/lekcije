@@ -33,10 +33,8 @@ func PanicHandler(h http.Handler) http.Handler {
 				default:
 					err = fmt.Errorf("Unknown error type: %v", errorType)
 				}
-				if err != nil {
-					controller.InternalServerError(w, errors.InternalWrapf(err, "panic ocurred"))
-					return
-				}
+				controller.InternalServerError(w, errors.InternalWrapf(err, "panic ocurred"))
+				return
 			}
 		}()
 		h.ServeHTTP(w, r)
