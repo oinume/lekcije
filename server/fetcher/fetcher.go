@@ -22,8 +22,16 @@ const (
 	userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17"
 )
 
+var redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
+	return http.ErrUseLastResponse
+}
+
 var (
-	_              = fmt.Print
+	_                 = fmt.Print
+	fetcherHTTPClient = &http.Client{
+		Timeout:       5 * time.Second,
+		CheckRedirect: redirectErrorFunc,
+	}
 	titleXPath     = xmlpath.MustCompile(`//title`)
 	lessonXPath    = xmlpath.MustCompile("//ul[@class='oneday']//li")
 	classAttrXPath = xmlpath.MustCompile("@class")
@@ -35,6 +43,9 @@ type TeacherLessonFetcher struct {
 }
 
 func NewTeacherLessonFetcher(httpClient *http.Client, log zap.Logger) *TeacherLessonFetcher {
+	if httpClient == nil {
+		httpClient = fetcherHTTPClient
+	}
 	if log == nil {
 		log = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")))
 	}
@@ -55,7 +66,7 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []
 	if err != nil {
 		return nil, nil, err
 	}
-	return fetcher.parseHtml(teacher, strings.NewReader(content))
+	return fetcher.parseHTML(teacher, strings.NewReader(content))
 }
 
 func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
@@ -71,9 +82,12 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode == http.StatusMovedPermanently || resp.StatusCode == http.StatusFound {
+		return "", errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
+	}
+	if resp.StatusCode != http.StatusOK {
 		return "", errors.Internalf(
-			"fetch schedule error: url=%v, status =%v",
+			"fetchContent error: url=%v, status=%v",
 			url, resp.StatusCode,
 		)
 	}
@@ -84,7 +98,7 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
 	return string(b), nil
 }
 
-func (fetcher *TeacherLessonFetcher) parseHtml(
+func (fetcher *TeacherLessonFetcher) parseHTML(
 	teacher *model.Teacher,
 	html io.Reader,
 ) (*model.Teacher, []*model.Lesson, error) {

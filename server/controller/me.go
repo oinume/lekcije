@@ -29,14 +29,20 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(http.DefaultClient, logger.AppLogger)
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
 
 	for _, t := range teachers {
 		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
-			// TODO: continue the loop
-			InternalServerError(w, err)
-			return
+			switch err.(type) {
+			case *errors.NotFound:
+				// TODO: return error to user
+				continue
+			default:
+				// TODO: continue the loop
+				InternalServerError(w, err)
+				return
+			}
 		}
 
 		now := time.Now()

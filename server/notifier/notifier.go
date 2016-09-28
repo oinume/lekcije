@@ -3,7 +3,6 @@ package notifier
 import (
 	"bytes"
 	"fmt"
-	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -24,8 +23,7 @@ import (
 var lessonFetcher *fetcher.TeacherLessonFetcher
 
 func init() {
-	http.DefaultClient.Timeout = 5 * time.Second
-	lessonFetcher = fetcher.NewTeacherLessonFetcher(http.DefaultClient, nil)
+	lessonFetcher = fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
 }
 
 type Notifier struct {
