@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/errors"
 )
@@ -43,12 +44,13 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	//default:
 	// unknown error
 	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
-	if e, ok := err.(stackTracer); ok {
-		for _, f := range e.StackTrace() {
-			fmt.Fprintf(w, "%+v\n", f)
+	if !config.IsProductionEnv() {
+		if e, ok := err.(stackTracer); ok {
+			for _, f := range e.StackTrace() {
+				fmt.Fprintf(w, "%+v\n", f)
+			}
 		}
 	}
-	//}
 }
 
 func JSON(w http.ResponseWriter, code int, body interface{}) {

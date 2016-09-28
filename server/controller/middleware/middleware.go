@@ -11,6 +11,7 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/flash_message"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -21,7 +22,6 @@ var _ = fmt.Print
 
 func PanicHandler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		// TOOD: output stack trace to view on local environment
 		defer func() {
 			if r := recover(); r != nil {
 				var err error
@@ -36,7 +36,7 @@ func PanicHandler(h http.Handler) http.Handler {
 				if err != nil {
 					// TODO: send error to bugsnag or somewhere
 					logger.AppLogger.Error("panic was recovered", zap.Error(err), zap.Stack())
-					controller.InternalServerError(w, err)
+					controller.InternalServerError(w, errors.InternalWrapf(err, "panic ocurred"))
 					return
 				}
 			}
