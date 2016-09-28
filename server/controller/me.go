@@ -113,7 +113,6 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData: getCommonTemplateData(r.RequestURI),
 		Email:              user.Email.Raw(),
 	}
-
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
 		return

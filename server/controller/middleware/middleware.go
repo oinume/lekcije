@@ -34,8 +34,6 @@ func PanicHandler(h http.Handler) http.Handler {
 					err = fmt.Errorf("Unknown error type: %v", errorType)
 				}
 				if err != nil {
-					// TODO: send error to bugsnag or somewhere
-					logger.AppLogger.Error("panic was recovered", zap.Error(err), zap.Stack())
 					controller.InternalServerError(w, errors.InternalWrapf(err, "panic ocurred"))
 					return
 				}
