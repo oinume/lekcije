@@ -83,7 +83,7 @@ func (e *NotFound) Error() string {
 }
 
 func Internalf(format string, args ...interface{}) *Internal {
-	return &Internal{NewBaseError(fmt.Errorf(format, args...))}
+	return &Internal{NewBaseError(errors.Errorf(format, args...))}
 }
 
 func InternalWrapf(err error, format string, args ...interface{}) *Internal {
