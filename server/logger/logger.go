@@ -7,6 +7,6 @@ import (
 )
 
 var (
-	AccessLogger = zap.New(zap.NewJSONEncoder(), zap.Output(os.Stdout))
-	AppLogger    = zap.New(zap.NewJSONEncoder(), zap.Output(os.Stderr))
+	AccessLogger = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stdout))
+	AppLogger    = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stderr))
 )

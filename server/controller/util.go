@@ -1,21 +1,21 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"path"
 
+	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/pkg/errors"
+	"github.com/uber-go/zap"
 )
 
 const ApiTokenCookieName = "apiToken"
-
-type stackTracer interface {
-	StackTrace() errors.StackTrace
-}
 
 func TemplateDir() string {
 	if util.IsProductionEnv() {
@@ -42,13 +42,28 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
-	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
-	if e, ok := err.(stackTracer); ok {
+	// TODO: send error to bugsnag or somewhere
+	fields := []zap.Field{
+		zap.Error(err),
+	}
+	if e, ok := err.(errors.StackTracer); ok {
+		b := &bytes.Buffer{}
 		for _, f := range e.StackTrace() {
-			fmt.Fprintf(w, "%+v\n", f)
+			fmt.Fprintf(b, "%+v\n", f)
+		}
+		fields = append(fields, zap.String("stacktrace", b.String()))
+	}
+	logger.AppLogger.Error("InternalServerError", fields...)
+
+	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
+	if !config.IsProductionEnv() {
+		fmt.Fprintf(w, "----- stacktrace -----\n")
+		if e, ok := err.(errors.StackTracer); ok {
+			for _, f := range e.StackTrace() {
+				fmt.Fprintf(w, "%+v\n", f)
+			}
 		}
 	}
-	//}
 }
 
 func JSON(w http.ResponseWriter, code int, body interface{}) {

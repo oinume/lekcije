@@ -11,6 +11,7 @@ import (
 func Create() *goji.Mux {
 	mux := goji.NewMux()
 	mux.Use(middleware.AccessLogger)
+	mux.Use(middleware.PanicHandler)
 	mux.Use(middleware.NewRelic)
 	mux.Use(middleware.SetDBAndRedisToContext)
 	mux.Use(middleware.SetLoggedInUserToContext)
