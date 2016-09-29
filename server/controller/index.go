@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
@@ -15,28 +14,6 @@ var _ = fmt.Print
 type navigationItem struct {
 	Text string
 	URL  string
-}
-
-type commonTemplateData struct {
-	StaticURL         string
-	GoogleAnalyticsID string
-	CurrentURL        string
-	NavigationItems   []navigationItem
-}
-
-var navigationItems = []navigationItem{
-	{"Home", "/"},
-	{"Setting", "/me/setting"},
-	{"Logout", "/logout"},
-}
-
-func getCommonTemplateData(currentURL string) commonTemplateData {
-	return commonTemplateData{
-		StaticURL:         config.StaticURL(),
-		GoogleAnalyticsID: config.GoogleAnalyticsID(),
-		CurrentURL:        currentURL,
-		NavigationItems:   navigationItems,
-	}
 }
 
 func Static(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +38,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 		Teachers     []*model.Teacher
 		FlashMessage *flash_message.FlashMessage
 	}
-	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI)}
+	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI, true)}
 
 	flashMessageKey := r.FormValue("flashMessageKey")
 	if flashMessageKey != "" {
@@ -88,7 +65,7 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 	type Data struct {
 		commonTemplateData
 	}
-	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI)}
+	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI, false)}
 
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
