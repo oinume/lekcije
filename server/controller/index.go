@@ -24,19 +24,28 @@ type commonTemplateData struct {
 	NavigationItems   []navigationItem
 }
 
-var navigationItems = []navigationItem{
+var loggedInNavigationItems = []navigationItem{
 	{"Home", "/"},
 	{"Setting", "/me/setting"},
 	{"Logout", "/logout"},
 }
 
-func getCommonTemplateData(currentURL string) commonTemplateData {
-	return commonTemplateData{
+var loggedOutNavigationItems = []navigationItem{
+	{"Home", "/"},
+}
+
+func getCommonTemplateData(currentURL string, loggedIn bool) commonTemplateData {
+	data := commonTemplateData{
 		StaticURL:         config.StaticURL(),
 		GoogleAnalyticsID: config.GoogleAnalyticsID(),
 		CurrentURL:        currentURL,
-		NavigationItems:   navigationItems,
 	}
+	if loggedIn {
+		data.NavigationItems = loggedInNavigationItems
+	} else {
+		data.NavigationItems = loggedOutNavigationItems
+	}
+	return data
 }
 
 func Static(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +70,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 		Teachers     []*model.Teacher
 		FlashMessage *flash_message.FlashMessage
 	}
-	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI)}
+	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI, true)}
 
 	flashMessageKey := r.FormValue("flashMessageKey")
 	if flashMessageKey != "" {
@@ -88,7 +97,7 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 	type Data struct {
 		commonTemplateData
 	}
-	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI)}
+	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI, false)}
 
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
