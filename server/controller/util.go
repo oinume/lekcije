@@ -75,3 +75,34 @@ func JSON(w http.ResponseWriter, code int, body interface{}) {
 		return
 	}
 }
+
+type commonTemplateData struct {
+	StaticURL         string
+	GoogleAnalyticsID string
+	CurrentURL        string
+	NavigationItems   []navigationItem
+}
+
+var loggedInNavigationItems = []navigationItem{
+	{"Home", "/"},
+	{"Setting", "/me/setting"},
+	{"Logout", "/logout"},
+}
+
+var loggedOutNavigationItems = []navigationItem{
+	{"Home", "/"},
+}
+
+func getCommonTemplateData(currentURL string, loggedIn bool) commonTemplateData {
+	data := commonTemplateData{
+		StaticURL:         config.StaticURL(),
+		GoogleAnalyticsID: config.GoogleAnalyticsID(),
+		CurrentURL:        currentURL,
+	}
+	if loggedIn {
+		data.NavigationItems = loggedInNavigationItems
+	} else {
+		data.NavigationItems = loggedOutNavigationItems
+	}
+	return data
+}

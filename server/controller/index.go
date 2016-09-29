@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
@@ -15,37 +14,6 @@ var _ = fmt.Print
 type navigationItem struct {
 	Text string
 	URL  string
-}
-
-type commonTemplateData struct {
-	StaticURL         string
-	GoogleAnalyticsID string
-	CurrentURL        string
-	NavigationItems   []navigationItem
-}
-
-var loggedInNavigationItems = []navigationItem{
-	{"Home", "/"},
-	{"Setting", "/me/setting"},
-	{"Logout", "/logout"},
-}
-
-var loggedOutNavigationItems = []navigationItem{
-	{"Home", "/"},
-}
-
-func getCommonTemplateData(currentURL string, loggedIn bool) commonTemplateData {
-	data := commonTemplateData{
-		StaticURL:         config.StaticURL(),
-		GoogleAnalyticsID: config.GoogleAnalyticsID(),
-		CurrentURL:        currentURL,
-	}
-	if loggedIn {
-		data.NavigationItems = loggedInNavigationItems
-	} else {
-		data.NavigationItems = loggedOutNavigationItems
-	}
-	return data
 }
 
 func Static(w http.ResponseWriter, r *http.Request) {
