@@ -3,8 +3,8 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 
+	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/pkg/errors"
@@ -12,13 +12,15 @@ import (
 
 // GET /api/status
 func GetStatus(w http.ResponseWriter, r *http.Request) {
+	// TODO: Include connection statistics
 	data := map[string]bool{
 		"db":    true,
 		"redis": true,
 	}
 
-	db, err := model.OpenDB(os.Getenv("DB_URL"))
+	db, err := model.OpenDB(bootstrap.HTTPServerEnvVars.DBURL)
 	if err == nil {
+		defer db.Close()
 		if err := db.DB().Ping(); err != nil {
 			data["db"] = false
 		}
@@ -26,8 +28,9 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 		data["db"] = false
 	}
 
-	redis, err := model.OpenRedis(os.Getenv("REDIS_URL"))
+	redis, err := model.OpenRedis(bootstrap.HTTPServerEnvVars.RedisURL)
 	if err == nil {
+		defer redis.Close()
 		if redis.Ping().Err() != nil {
 			data["redis"] = false
 		}
