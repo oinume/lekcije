@@ -95,3 +95,74 @@ func MustRedis(ctx context.Context) *redis.Client {
 		panic("Failed to get *redis.Client from context")
 	}
 }
+
+type GORMTransactional func(tx *gorm.DB) error
+
+func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error {
+	tx := db.Begin()
+	if tx.Error != nil {
+		return errors.InternalWrapf(tx.Error, "Failed to begin transaction: name=%v", name)
+	}
+
+	var err error
+	success := false
+	defer func() {
+		if success {
+			return
+		}
+		if err2 := tx.Rollback().Error; err2 != nil {
+			err = errors.InternalWrapf(err2, "Failed to rollback transaction: name=%v", name)
+		}
+	}()
+
+	if err2 := callback(tx); err2 != nil {
+		return err2
+	}
+	if tx.Error != nil {
+		return tx.Error
+	}
+	if err2 := tx.Commit().Error; err2 != nil {
+		return errors.InternalWrapf(err2, "Failed to commit transaction: name=%v", name)
+	}
+	success = true
+	return nil
+}
+
+/*
+func SimpleGormTransaction(db *gorm.DB, name string, fn func(*gorm.DB) error) (err error) {
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		return &TxErrBegin{err: err}
+	}
+
+	succeed := false
+	defer func() {
+		if succeed {
+			return
+		}
+
+		if rerr := tx.Rollback().Error; rerr != nil {
+			err = &TxErrRollback{err: err, cause: err}
+		}
+	}()
+
+	err = fn(tx)
+	if err != nil {
+		return
+	}
+
+	err = tx.Error
+	if err != nil {
+		return
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		err = &TxErrCommit{err: err}
+		return
+	}
+
+	succeed = true
+	return
+}
+*/

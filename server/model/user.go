@@ -46,6 +46,28 @@ func (s *UserService) FindByPk(id uint32) (*User, error) {
 	return user, nil
 }
 
+func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
+	user := &User{}
+	sql := `
+	SELECT u.* FROM user AS u
+	INNER JOIN user_google AS ug ON u.id = ug.user_id
+	WHERE ug.google_id = ?
+	LIMIT 1
+	`
+	if result := s.db.Raw(sql, googleID).Scan(user); result.Error != nil {
+		if result.RecordNotFound() {
+			return nil, errors.NotFoundWrapf(
+				result.Error, "UserGoogle not found: googleID=%v", googleID,
+			)
+		} else {
+			return nil, errors.InternalWrapf(
+				result.Error, "googleID=%v", googleID,
+			)
+		}
+	}
+	return user, nil
+}
+
 func (s *UserService) FindOrCreate(name string, email Email) (*User, error) {
 	user := User{
 		Name:          name,
@@ -71,6 +93,35 @@ func (s *UserService) Create(name, email string) (*User, error) {
 		return nil, errors.InternalWrapf(result.Error, "")
 	}
 	return user, nil
+}
+
+func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
+	e, err := NewEmailFromRaw(email)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	user := &User{
+		Name:  name,
+		Email: e,
+	}
+	if result := s.db.Create(user); result.Error != nil {
+		return nil, nil, errors.InternalWrapf(
+			result.Error, "Failed to create User: email=%v", email,
+		)
+	}
+
+	userGoogle := &UserGoogle{
+		GoogleID: googleID,
+		UserID:   user.ID,
+	}
+	if result := s.db.Create(userGoogle); result.Error != nil {
+		return nil, nil, errors.InternalWrapf(
+			result.Error, "Failed to create UserGoogle: email=%v", email,
+		)
+	}
+
+	return user, userGoogle, nil
 }
 
 func (s *UserService) UpdateEmail(user *User, newEmail string) error {

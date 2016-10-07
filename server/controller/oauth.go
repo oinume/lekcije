@@ -8,9 +8,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/jinzhu/gorm"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
@@ -59,23 +60,23 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: transaction
-	dbEmail, err := model.NewEmailFromRaw(email)
+	db := model.MustDB(ctx)
+	userService := model.NewUserService(db)
+	user, err := userService.FindByGoogleID(googleID)
 	if err != nil {
-		InternalServerError(w, err)
-		return
-	}
-	userService := model.NewUserService(model.MustDB(ctx))
-	user, err := userService.FindOrCreate(name, dbEmail)
-	if err != nil {
-		InternalServerError(w, err)
-		return
-	}
-
-	userGoogleService := model.NewUserGoogleService(model.MustDB(ctx))
-	if _, err := userGoogleService.FindOrCreate(googleID, user.ID); err != nil {
-		InternalServerError(w, err)
-		return
+		if _, notFound := err.(*errors.NotFound); !notFound {
+			InternalServerError(w, err)
+			return
+		}
+		// Couldn't find user for the googleID, so create a new user
+		errTx := model.GORMTransaction(db, "OAuthGoogleCallback", func(tx *gorm.DB) error {
+			_, _, errCreate := userService.CreateWithGoogle(name, email, googleID)
+			return errCreate
+		})
+		if errTx != nil {
+			InternalServerError(w, errTx)
+			return
+		}
 	}
 
 	userApiTokenService := model.NewUserApiTokenService(model.MustDB(ctx))
@@ -113,10 +114,10 @@ func checkState(r *http.Request) error {
 	state := r.FormValue("state")
 	oauthState, err := r.Cookie("oauthState")
 	if err != nil {
-		return errors.Wrap(err, "Failed to get cookie oauthState")
+		return errors.InternalWrapf(err, "Failed to get cookie oauthState")
 	}
 	if state != oauthState.Value {
-		return errors.Wrap(err, "state mismatch")
+		return errors.InternalWrapf(err, "state mismatch")
 	}
 	return nil
 }
@@ -126,11 +127,11 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	c := getGoogleOAuthConfig(r)
 	token, err := c.Exchange(oauth2.NoContext, code)
 	if err != nil {
-		return nil, "", errors.Wrap(err, "Failed to exchange")
+		return nil, "", errors.InternalWrapf(err, "Failed to exchange")
 	}
 	idToken, ok := token.Extra("id_token").(string)
 	if !ok {
-		return nil, "", errors.Errorf("Failed to get id_token")
+		return nil, "", errors.Internalf("Failed to get id_token")
 	}
 	return token, idToken, nil
 }
@@ -141,17 +142,17 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 	service, err := google_auth2.New(oauth2Client)
 	if err != nil {
 		// TODO: quit using errors.Wrap
-		return "", "", "", errors.Wrap(err, "Failed to create oauth2.Client")
+		return "", "", "", errors.InternalWrapf(err, "Failed to create oauth2.Client")
 	}
 
 	userinfo, err := service.Userinfo.V2.Me.Get().Do()
 	if err != nil {
-		return "", "", "", errors.Wrap(err, "Failed to get userinfo")
+		return "", "", "", errors.InternalWrapf(err, "Failed to get userinfo")
 	}
 
 	tokeninfo, err := service.Tokeninfo().IdToken(idToken).Do()
 	if err != nil {
-		return "", "", "", errors.Wrap(err, "Failed to get tokeninfo")
+		return "", "", "", errors.InternalWrapf(err, "Failed to get tokeninfo")
 	}
 
 	return tokeninfo.UserId, userinfo.Name, tokeninfo.Email, nil
