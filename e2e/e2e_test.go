@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/mux"
 	"github.com/uber-go/zap"
@@ -20,11 +20,16 @@ var server *httptest.Server
 var client = http.DefaultClient
 
 func TestMain(m *testing.M) {
-	var accessLogBuffer bytes.Buffer
-	var appLogBuffer bytes.Buffer
-	logger.AccessLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&accessLogBuffer)))
-	logger.AppLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&appLogBuffer)))
-	port := controller.ListenPort()
+	var accessLogBuffer, appLogBuffer bytes.Buffer
+	logger.AccessLogger = zap.New(
+		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
+		zap.Output(zap.AddSync(&accessLogBuffer)),
+	)
+	logger.AppLogger = zap.New(
+		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
+		zap.Output(zap.AddSync(&appLogBuffer)),
+	)
+	port := config.ListenPort()
 	mux := mux.Create()
 	port += 1
 	server = newTestServer(mux, port)

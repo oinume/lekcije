@@ -102,8 +102,9 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 	}
 
 	user := &User{
-		Name:  name,
-		Email: e,
+		Name:          name,
+		Email:         e,
+		EmailVerified: true, // TODO: set false after implement email verification
 	}
 	if result := s.db.Create(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
