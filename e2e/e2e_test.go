@@ -13,6 +13,7 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/mux"
+	"github.com/sclevine/agouti"
 	"github.com/uber-go/zap"
 )
 
@@ -56,4 +57,11 @@ func newTestServer(handler http.Handler, port int) *httptest.Server {
 	}
 	ts.Start()
 	return ts
+}
+
+func newWebDriver() *agouti.WebDriver {
+	driver := agouti.ChromeDriver()
+	//driver := agouti.PhantomJS()
+	driver.HTTPClient = client
+	return driver
 }
