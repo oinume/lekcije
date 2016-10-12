@@ -10,8 +10,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/mux"
 	"github.com/sclevine/agouti"
 	"github.com/uber-go/zap"
@@ -21,6 +23,9 @@ var server *httptest.Server
 var client = http.DefaultClient
 
 func TestMain(m *testing.M) {
+	// TODO: Replace DB_URL to test DB
+	bootstrap.CheckCLIEnvVars()
+
 	var accessLogBuffer, appLogBuffer bytes.Buffer
 	logger.AccessLogger = zap.New(
 		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
@@ -30,7 +35,16 @@ func TestMain(m *testing.M) {
 		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
 		zap.Output(zap.AddSync(&appLogBuffer)),
 	)
-	// TODO: delete DB data
+
+	dbURL := model.ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
+	db, err := model.OpenDB(dbURL)
+	if err != nil {
+		panic(err)
+	}
+	if err := model.TruncateAllTables(db, model.GetDBName(dbURL)); err != nil {
+		panic(err)
+	}
+
 	port := config.ListenPort()
 	mux := mux.Create()
 	port += 1

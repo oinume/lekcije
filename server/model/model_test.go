@@ -3,16 +3,17 @@ package model
 import (
 	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/jinzhu/gorm"
+	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
 	_                       = fmt.Print
 	db                      *gorm.DB
+	testDBURL               string
 	followingTeacherService *FollowingTeacherService
 	lessonService           *LessonService
 	userService             *UserService
@@ -21,12 +22,10 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	dbURL := os.Getenv("DB_URL")
-	if strings.HasSuffix(dbURL, "/lekcije") {
-		dbURL = strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
-	}
+	bootstrap.CheckCLIEnvVars()
+	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
 	var err error
-	db, err = OpenDB(dbURL)
+	db, err = OpenDB(testDBURL)
 	if err != nil {
 		panic(err)
 	}
@@ -37,14 +36,8 @@ func TestMain(m *testing.M) {
 	userGoogleService = NewUserGoogleService(db)
 	userApiTokenService = NewUserApiTokenService(db)
 
-	tables := []string{
-		"following_teacher", "lesson",
-		"user", "user_api_token", "user_google", "teacher",
-	}
-	for _, t := range tables {
-		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
-			panic(err)
-		}
+	if err := TruncateAllTables(db, GetDBName(testDBURL)); err != nil {
+		panic(err)
 	}
 
 	os.Exit(m.Run())

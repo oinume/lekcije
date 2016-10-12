@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql"
 	"net/url"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -128,41 +129,49 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 	return nil
 }
 
-/*
-func SimpleGormTransaction(db *gorm.DB, name string, fn func(*gorm.DB) error) (err error) {
-	tx := db.Begin()
-	if err := tx.Error; err != nil {
-		return &TxErrBegin{err: err}
+func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {
+	type Table struct {
+		Name string `gorm:"column:table_name"`
+	}
+	tables := []Table{}
+	sql := "SELECT table_name FROM information_schema.tables WHERE table_schema = ?"
+	if err := db.Raw(sql, dbName).Scan(&tables).Error; err != nil {
+		return nil, err
 	}
 
-	succeed := false
-	defer func() {
-		if succeed {
-			return
+	tableNames := []string{}
+	for _, t := range tables {
+		if t.Name == "goose_db_version" {
+			continue
 		}
-
-		if rerr := tx.Rollback().Error; rerr != nil {
-			err = &TxErrRollback{err: err, cause: err}
-		}
-	}()
-
-	err = fn(tx)
-	if err != nil {
-		return
+		tableNames = append(tableNames, t.Name)
 	}
-
-	err = tx.Error
-	if err != nil {
-		return
-	}
-
-	err = tx.Commit().Error
-	if err != nil {
-		err = &TxErrCommit{err: err}
-		return
-	}
-
-	succeed = true
-	return
+	return tableNames, nil
 }
-*/
+
+func TruncateAllTables(db *gorm.DB, dbName string) error {
+	tables, err := LoadAllTables(db, dbName)
+	if err != nil {
+		return err
+	}
+	for _, t := range tables {
+		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func ReplaceToTestDBURL(dbURL string) string {
+	if strings.HasSuffix(bootstrap.CLIEnvVars.DBURL, "/lekcije") {
+		return strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
+	}
+	return dbURL
+}
+
+func GetDBName(dbURL string) string {
+	if index := strings.LastIndex(dbURL, "/"); index != -1 {
+		return dbURL[index+1:]
+	}
+	return ""
+}

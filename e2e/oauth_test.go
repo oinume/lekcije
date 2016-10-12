@@ -30,7 +30,6 @@ func TestOAuthGoogle(t *testing.T) {
 	link.Click()
 	//time.Sleep(10 * time.Second)
 
-	// TODO: env
 	err = page.Find("#Email").Fill(os.Getenv("E2E_GOOGLE_ACCOUNT"))
 	a.NoError(err)
 	page.Find("#gaia_loginform").Submit()
@@ -46,4 +45,5 @@ func TestOAuthGoogle(t *testing.T) {
 	err = page.Find("#submit_approve_access").Click()
 	a.NoError(err)
 	time.Sleep(time.Second * 10)
+	// TODO: Check content
 }
