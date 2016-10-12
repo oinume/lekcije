@@ -46,4 +46,7 @@ func TestOAuthGoogle(t *testing.T) {
 	a.NoError(err)
 	time.Sleep(time.Second * 10)
 	// TODO: Check content
+	// user.email == E2E_GOOGLE_ACCOUNT
 }
+
+// TODO: user_api_token will be deleted after logout
