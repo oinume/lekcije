@@ -163,7 +163,7 @@ func TruncateAllTables(db *gorm.DB, dbName string) error {
 }
 
 func ReplaceToTestDBURL(dbURL string) string {
-	if strings.HasSuffix(bootstrap.CLIEnvVars.DBURL, "/lekcije") {
+	if strings.HasSuffix(dbURL, "/lekcije") {
 		return strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
 	}
 	return dbURL

@@ -23,8 +23,12 @@ var server *httptest.Server
 var client = http.DefaultClient
 
 func TestMain(m *testing.M) {
-	// TODO: Replace DB_URL to test DB
-	bootstrap.CheckCLIEnvVars()
+	dbURL := model.ReplaceToTestDBURL(os.Getenv("DB_URL"))
+	if err := os.Setenv("DB_URL", dbURL); err != nil {
+		// TODO: Not use panic
+		panic(err)
+	}
+	bootstrap.CheckHTTPServerEnvVars()
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
 	logger.AccessLogger = zap.New(
@@ -36,7 +40,6 @@ func TestMain(m *testing.M) {
 		zap.Output(zap.AddSync(&appLogBuffer)),
 	)
 
-	dbURL := model.ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
 	db, err := model.OpenDB(dbURL)
 	if err != nil {
 		panic(err)

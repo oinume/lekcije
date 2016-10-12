@@ -70,7 +70,8 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 		// Couldn't find user for the googleID, so create a new user
 		errTx := model.GORMTransaction(db, "OAuthGoogleCallback", func(tx *gorm.DB) error {
-			_, _, errCreate := userService.CreateWithGoogle(name, email, googleID)
+			var errCreate error
+			user, _, errCreate = userService.CreateWithGoogle(name, email, googleID)
 			return errCreate
 		})
 		if errTx != nil {
