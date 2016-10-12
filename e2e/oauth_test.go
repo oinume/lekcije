@@ -1,12 +1,16 @@
 package e2e
 
 import (
-	"testing"
-
 	"fmt"
+	"os"
+	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var _ = time.UTC
+var _ = fmt.Print
 
 func TestOAuthGoogle(t *testing.T) {
 	a := assert.New(t)
@@ -24,4 +28,22 @@ func TestOAuthGoogle(t *testing.T) {
 	a.NoError(err)
 	fmt.Printf("u = %v, err = %v\n", u, err)
 	link.Click()
+	//time.Sleep(10 * time.Second)
+
+	// TODO: env
+	err = page.Find("#Email").Fill(os.Getenv("E2E_GOOGLE_ACCOUNT"))
+	a.NoError(err)
+	page.Find("#gaia_loginform").Submit()
+	a.NoError(err)
+
+	time.Sleep(time.Second * 1)
+	page.Find("#Passwd").Fill(os.Getenv("E2E_GOOGLE_PASSWORD"))
+	a.NoError(err)
+	page.Find("#gaia_loginform").Submit()
+	a.NoError(err)
+
+	time.Sleep(time.Second * 3)
+	err = page.Find("#submit_approve_access").Click()
+	a.NoError(err)
+	time.Sleep(time.Second * 10)
 }

@@ -30,6 +30,7 @@ func TestMain(m *testing.M) {
 		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
 		zap.Output(zap.AddSync(&appLogBuffer)),
 	)
+	// TODO: delete DB data
 	port := config.ListenPort()
 	mux := mux.Create()
 	port += 1

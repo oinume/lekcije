@@ -23,13 +23,4 @@ func TestIndex(t *testing.T) {
 	a.NoError(page.Navigate(server.URL))
 	button := page.Find("#btn-primary")
 	a.NotEmpty(button.String())
-	//if err := page.Navigate(oauthURL); err != nil {
-	//	return "", err
-	//}
-	//if err := page.Find("#Email").Fill(email); err != nil {
-	//	return "", err
-	//}
-	//if err := page.Find("#gaia_loginform").Submit(); err != nil {
-	//	return "", err
-	//}
 }
