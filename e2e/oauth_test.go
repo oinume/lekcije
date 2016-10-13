@@ -44,9 +44,18 @@ func TestOAuthGoogle(t *testing.T) {
 	time.Sleep(time.Second * 3)
 	err = page.Find("#submit_approve_access").Click()
 	a.NoError(err)
-	time.Sleep(time.Second * 10)
+	//time.Sleep(time.Second * 10)
 	// TODO: Check content
 	// user.email == E2E_GOOGLE_ACCOUNT
+
+	// TODO: GetCookies() returns error
+	/*
+		$ ag 'unexpected response' vendor/github.com/sclevine/agouti         ✱
+		vendor/github.com/sclevine/agouti/api/internal/bus/client.go
+		32:                     return fmt.Errorf("unexpected response: %s", responseBody)
+	*/
+	//cookies, err := page.GetCookies()
+	//fmt.Printf("cookies = %+v, err = %v\n", cookies)
 }
 
 // TODO: user_api_token will be deleted after logout
