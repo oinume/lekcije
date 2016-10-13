@@ -16,7 +16,6 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/mux"
 	"github.com/sclevine/agouti"
-	"github.com/uber-go/zap"
 )
 
 var server *httptest.Server
@@ -31,14 +30,8 @@ func TestMain(m *testing.M) {
 	bootstrap.CheckHTTPServerEnvVars()
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
-	logger.AccessLogger = zap.New(
-		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
-		zap.Output(zap.AddSync(&accessLogBuffer)),
-	)
-	logger.AppLogger = zap.New(
-		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
-		zap.Output(zap.AddSync(&appLogBuffer)),
-	)
+	logger.InitializeAccessLogger(&accessLogBuffer)
+	logger.InitializeAppLogger(&appLogBuffer)
 
 	db, err := model.OpenDB(dbURL)
 	if err != nil {
