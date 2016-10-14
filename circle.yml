@@ -6,6 +6,7 @@ machine:
     GOPATH_PROJECT: "${GOPATH}/src/github.com/oinume/lekcije"
     DB_URL: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
     REDIS_URL: "redis://h:@127.0.0.1:6379"
+    E2E_WEB_DRIVER: "PhantomJS"
   services:
     - mysql
     - redis
@@ -28,4 +29,4 @@ dependencies:
     - goose -env=circle_ci up
 test:
   override:
-    - cd ${GOPATH_PROJECT} && make go_test
+    - cd ${GOPATH_PROJECT} && make go_test && make e2e_test

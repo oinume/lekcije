@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -74,8 +75,16 @@ func newTestServer(handler http.Handler, port int) *httptest.Server {
 }
 
 func newWebDriver() *agouti.WebDriver {
-	driver := agouti.ChromeDriver()
-	//driver := agouti.PhantomJS()
+	e2eWebDriver := os.Getenv("E2E_WEB_DRIVER")
+	var driver *agouti.WebDriver
+	switch strings.ToLower(e2eWebDriver) {
+	case "chromedriver":
+		driver = agouti.ChromeDriver()
+	case "phantomjs":
+		driver = agouti.PhantomJS()
+	default:
+		driver = agouti.PhantomJS()
+	}
 	driver.HTTPClient = client
 	return driver
 }
