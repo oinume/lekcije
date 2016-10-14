@@ -6,8 +6,8 @@ import (
 
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/pkg/errors"
 )
 
 // GET /api/status
@@ -59,7 +59,7 @@ func GetMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 		{"id": "3", "name": "Tasha"},
 	}
 	if err := json.NewEncoder(w).Encode(teachers); err != nil {
-		controller.InternalServerError(w, errors.Wrapf(err, "Failed to encode JSON"))
+		controller.InternalServerError(w, errors.InternalWrapf(err, "Failed to encode JSON"))
 		return
 	}
 }
