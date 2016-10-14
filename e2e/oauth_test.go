@@ -48,14 +48,8 @@ func TestOAuthGoogle(t *testing.T) {
 	// TODO: Check content
 	// user.email == E2E_GOOGLE_ACCOUNT
 
-	// TODO: GetCookies() returns error
-	/*
-		$ ag 'unexpected response' vendor/github.com/sclevine/agouti         ✱
-		vendor/github.com/sclevine/agouti/api/internal/bus/client.go
-		32:                     return fmt.Errorf("unexpected response: %s", responseBody)
-	*/
-	//cookies, err := page.GetCookies()
-	//fmt.Printf("cookies = %+v, err = %v\n", cookies)
+	cookies, err := page.GetCookies()
+	fmt.Printf("cookies = %+v, err = %v\n", cookies, err)
 }
 
 // TODO: user_api_token will be deleted after logout
