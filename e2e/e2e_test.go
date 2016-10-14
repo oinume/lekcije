@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
@@ -20,6 +21,7 @@ import (
 
 var server *httptest.Server
 var client = http.DefaultClient
+var db *gorm.DB
 
 func TestMain(m *testing.M) {
 	dbURL := model.ReplaceToTestDBURL(os.Getenv("DB_URL"))
@@ -33,7 +35,8 @@ func TestMain(m *testing.M) {
 	logger.InitializeAccessLogger(&accessLogBuffer)
 	logger.InitializeAppLogger(&appLogBuffer)
 
-	db, err := model.OpenDB(dbURL)
+	var err error
+	db, err = model.OpenDB(dbURL)
 	if err != nil {
 		panic(err)
 	}

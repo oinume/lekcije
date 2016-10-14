@@ -175,3 +175,11 @@ func GetDBName(dbURL string) string {
 	}
 	return ""
 }
+
+func wrapNotFound(result *gorm.DB, format string, args ...interface{}) *errors.NotFound {
+	if result.RecordNotFound() {
+		return errors.NotFoundWrapf(result.Error, format, args)
+	} else {
+		return nil
+	}
+}

@@ -2,10 +2,12 @@ package e2e
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +32,8 @@ func TestOAuthGoogle(t *testing.T) {
 	link.Click()
 	//time.Sleep(10 * time.Second)
 
-	err = page.Find("#Email").Fill(os.Getenv("E2E_GOOGLE_ACCOUNT"))
+	googleAccount := os.Getenv("E2E_GOOGLE_ACCOUNT")
+	err = page.Find("#Email").Fill(googleAccount)
 	a.NoError(err)
 	page.Find("#gaia_loginform").Submit()
 	a.NoError(err)
@@ -45,11 +48,27 @@ func TestOAuthGoogle(t *testing.T) {
 	err = page.Find("#submit_approve_access").Click()
 	a.NoError(err)
 	//time.Sleep(time.Second * 10)
-	// TODO: Check content
-	// user.email == E2E_GOOGLE_ACCOUNT
+	// TODO: Check HTML content
 
 	cookies, err := page.GetCookies()
-	fmt.Printf("cookies = %+v, err = %v\n", cookies, err)
+	a.NoError(err)
+	apiToken := getAPIToken(cookies)
+	a.NotEmpty(apiToken)
+
+	user, err := model.NewUserService(db).FindByUserAPIToken(apiToken)
+	a.NoError(err)
+	a.Equal(googleAccount, user.Email.Raw())
 }
 
-// TODO: user_api_token will be deleted after logout
+func TestOAuthGoogleLogout(t *testing.T) {
+	// TODO: user_api_token will be deleted after logout
+}
+
+func getAPIToken(cookies []*http.Cookie) string {
+	for _, cookie := range cookies {
+		if cookie.Name == "apiToken" {
+			return cookie.Value
+		}
+	}
+	return ""
+}

@@ -68,6 +68,24 @@ func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
 	return user, nil
 }
 
+func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
+	user := &User{}
+	sql := `
+	SELECT u.* FROM user AS u
+	INNER JOIN user_api_token AS uat ON u.id = uat.user_id
+	WHERE uat.token = ?
+	`
+	if result := s.db.Raw(sql, userAPIToken).Scan(user); result.Error != nil {
+		if err := wrapNotFound(result, "User not found: userAPIToken=%v", userAPIToken); err != nil {
+			return nil, err
+		}
+		return nil, errors.InternalWrapf(
+			result.Error, "userAPIToken=%v", userAPIToken,
+		)
+	}
+	return user, nil
+}
+
 func (s *UserService) FindOrCreate(name string, email Email) (*User, error) {
 	user := User{
 		Name:          name,
