@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
@@ -59,23 +60,24 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: transaction
-	dbEmail, err := model.NewEmailFromRaw(email)
+	db := model.MustDB(ctx)
+	userService := model.NewUserService(db)
+	user, err := userService.FindByGoogleID(googleID)
 	if err != nil {
-		InternalServerError(w, err)
-		return
-	}
-	userService := model.NewUserService(model.MustDB(ctx))
-	user, err := userService.FindOrCreate(name, dbEmail)
-	if err != nil {
-		InternalServerError(w, err)
-		return
-	}
-
-	userGoogleService := model.NewUserGoogleService(model.MustDB(ctx))
-	if _, err := userGoogleService.FindOrCreate(googleID, user.ID); err != nil {
-		InternalServerError(w, err)
-		return
+		if _, notFound := err.(*errors.NotFound); !notFound {
+			InternalServerError(w, err)
+			return
+		}
+		// Couldn't find user for the googleID, so create a new user
+		errTx := model.GORMTransaction(db, "OAuthGoogleCallback", func(tx *gorm.DB) error {
+			var errCreate error
+			user, _, errCreate = userService.CreateWithGoogle(name, email, googleID)
+			return errCreate
+		})
+		if errTx != nil {
+			InternalServerError(w, errTx)
+			return
+		}
 	}
 
 	userApiTokenService := model.NewUserApiTokenService(model.MustDB(ctx))

@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql"
 	"net/url"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -93,5 +94,92 @@ func MustRedis(ctx context.Context) *redis.Client {
 		return r
 	} else {
 		panic("Failed to get *redis.Client from context")
+	}
+}
+
+type GORMTransactional func(tx *gorm.DB) error
+
+func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error {
+	tx := db.Begin()
+	if tx.Error != nil {
+		return errors.InternalWrapf(tx.Error, "Failed to begin transaction: name=%v", name)
+	}
+
+	var err error
+	success := false
+	defer func() {
+		if success {
+			return
+		}
+		if err2 := tx.Rollback().Error; err2 != nil {
+			err = errors.InternalWrapf(err2, "Failed to rollback transaction: name=%v", name)
+		}
+	}()
+
+	if err2 := callback(tx); err2 != nil {
+		return err2
+	}
+	if tx.Error != nil {
+		return tx.Error
+	}
+	if err2 := tx.Commit().Error; err2 != nil {
+		return errors.InternalWrapf(err2, "Failed to commit transaction: name=%v", name)
+	}
+	success = true
+	return nil
+}
+
+func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {
+	type Table struct {
+		Name string `gorm:"column:table_name"`
+	}
+	tables := []Table{}
+	sql := "SELECT table_name FROM information_schema.tables WHERE table_schema = ?"
+	if err := db.Raw(sql, dbName).Scan(&tables).Error; err != nil {
+		return nil, err
+	}
+
+	tableNames := []string{}
+	for _, t := range tables {
+		if t.Name == "goose_db_version" {
+			continue
+		}
+		tableNames = append(tableNames, t.Name)
+	}
+	return tableNames, nil
+}
+
+func TruncateAllTables(db *gorm.DB, dbName string) error {
+	tables, err := LoadAllTables(db, dbName)
+	if err != nil {
+		return err
+	}
+	for _, t := range tables {
+		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func ReplaceToTestDBURL(dbURL string) string {
+	if strings.HasSuffix(dbURL, "/lekcije") {
+		return strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
+	}
+	return dbURL
+}
+
+func GetDBName(dbURL string) string {
+	if index := strings.LastIndex(dbURL, "/"); index != -1 {
+		return dbURL[index+1:]
+	}
+	return ""
+}
+
+func wrapNotFound(result *gorm.DB, format string, args ...interface{}) *errors.NotFound {
+	if result.RecordNotFound() {
+		return errors.NotFoundWrapf(result.Error, format, args)
+	} else {
+		return nil
 	}
 }

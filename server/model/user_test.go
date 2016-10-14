@@ -11,6 +11,17 @@ import (
 
 var _ = fmt.Print
 
+func TestUserService_FindByGoogleID(t *testing.T) {
+	a := assert.New(t)
+
+	user := createTestUser()
+	userGoogle := createTestUserGoogle("1", user.ID)
+	userActual, err := userService.FindByGoogleID(userGoogle.GoogleID)
+	a.NoError(err)
+	a.Equal(user.ID, userActual.ID)
+	a.Equal(user.Email.Raw(), userActual.Email.Raw())
+}
+
 func TestCreateUser(t *testing.T) {
 	a := assert.New(t)
 	email := randomEmail()
@@ -51,4 +62,15 @@ func createTestUser() *User {
 		panic(err)
 	}
 	return user
+}
+
+func createTestUserGoogle(googleID string, userID uint32) *UserGoogle {
+	userGoogle := &UserGoogle{
+		GoogleID: googleID,
+		UserID:   userID,
+	}
+	if err := db.Create(userGoogle).Error; err != nil {
+		panic(err)
+	}
+	return userGoogle
 }

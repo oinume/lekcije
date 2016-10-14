@@ -10,21 +10,41 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oinume/lekcije/server/controller"
+	"github.com/jinzhu/gorm"
+	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/mux"
-	"github.com/uber-go/zap"
+	"github.com/sclevine/agouti"
 )
 
 var server *httptest.Server
 var client = http.DefaultClient
+var db *gorm.DB
 
 func TestMain(m *testing.M) {
-	var accessLogBuffer bytes.Buffer
-	var appLogBuffer bytes.Buffer
-	logger.AccessLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&accessLogBuffer)))
-	logger.AppLogger = zap.New(zap.NewJSONEncoder(), zap.Output(zap.AddSync(&appLogBuffer)))
-	port := controller.ListenPort()
+	dbURL := model.ReplaceToTestDBURL(os.Getenv("DB_URL"))
+	if err := os.Setenv("DB_URL", dbURL); err != nil {
+		// TODO: Not use panic
+		panic(err)
+	}
+	bootstrap.CheckHTTPServerEnvVars()
+
+	var accessLogBuffer, appLogBuffer bytes.Buffer
+	logger.InitializeAccessLogger(&accessLogBuffer)
+	logger.InitializeAppLogger(&appLogBuffer)
+
+	var err error
+	db, err = model.OpenDB(dbURL)
+	if err != nil {
+		panic(err)
+	}
+	if err := model.TruncateAllTables(db, model.GetDBName(dbURL)); err != nil {
+		panic(err)
+	}
+
+	port := config.ListenPort()
 	mux := mux.Create()
 	port += 1
 	server = newTestServer(mux, port)
@@ -51,4 +71,11 @@ func newTestServer(handler http.Handler, port int) *httptest.Server {
 	}
 	ts.Start()
 	return ts
+}
+
+func newWebDriver() *agouti.WebDriver {
+	driver := agouti.ChromeDriver()
+	//driver := agouti.PhantomJS()
+	driver.HTTPClient = client
+	return driver
 }

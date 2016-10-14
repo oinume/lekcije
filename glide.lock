@@ -45,7 +45,7 @@ imports:
 - name: github.com/rs/xhandler
   version: ed27b6fd65218132ee50cd95f38474a3d8a2cd12
 - name: github.com/sclevine/agouti
-  version: dab7b01f206e43278618a7e0f5bc3ea39e48445a
+  version: 1d217930b95113e88565b177e12192b75aa74fd1
   subpackages:
   - api
   - api/internal/bus
