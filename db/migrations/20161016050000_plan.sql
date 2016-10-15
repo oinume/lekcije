@@ -16,7 +16,7 @@ INSERT INTO plan VALUES (1, 'Free', 'Free', 0, 20, 1, '2016-10-16 00:00:00', '20
 INSERT INTO plan VALUES (2, 'Standard', 'Standard', 300, 10, 0, '2016-10-16 00:00:00', '2016-10-16 00:00:00');
 INSERT INTO plan VALUES (3, 'Plus', 'Plus', 500, 5, 0, '2016-10-16 00:00:00', '2016-10-16 00:00:00');
 
-ALTER TABLE user ADD COLUMN `plan_id` tinyint unsigned NOT NULL AFTER `email_verified`;
+ALTER TABLE user ADD COLUMN `plan_id` tinyint unsigned NOT NULL DEFAULT 1 AFTER `email_verified`;
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
