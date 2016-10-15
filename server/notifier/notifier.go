@@ -169,7 +169,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	//fmt.Printf("--- mail ---\n%s", body.String())
 
-	subject := "[lekcije] Schedule of teacher " + strings.Join(teacherNames, ", ")
+	subject := "Schedule of teacher " + strings.Join(teacherNames, ", ")
 	sender := &EmailNotificationSender{}
 	return sender.Send(user, subject, body.String())
 }
@@ -178,7 +178,7 @@ func getEmailTemplate() string {
 	return strings.TrimSpace(`
 {{- range $teacherID := .TeacherIDs }}
 {{- $teacher := index $.Teachers $teacherID -}}
---- Available lessons of {{ $teacher.Name }} ---
+--- {{ $teacher.Name }} ---
 PC: http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/
 Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/
 
