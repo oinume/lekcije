@@ -24,17 +24,17 @@ func TestEncryptString(t *testing.T) {
 
 	for _, v := range table {
 		encrypted, err := EncryptString(v.email, key)
-		a.NoError(err)
+		a.Nil(err)
 		a.NotEmpty(encrypted)
 		fmt.Printf("%s -> %s\n", v.email, encrypted)
 		//a.True(len(encrypted) > aes.BlockSize)
 
 		decrypted, err := DecryptString(encrypted, key)
-		a.NoError(err)
+		a.Nil(err)
 		a.Equal(v.email, decrypted)
 
 		encrypted2, err := EncryptString(v.email, key)
-		a.NoError(err)
+		a.Nil(err)
 		a.Equal(encrypted, encrypted2)
 	}
 }
