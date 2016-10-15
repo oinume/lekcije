@@ -87,18 +87,6 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 	return user, nil
 }
 
-func (s *UserService) FindOrCreate(name string, email Email) (*User, error) {
-	user := User{
-		Name:          name,
-		Email:         email,
-		EmailVerified: true, // TODO: set false after implement email verification
-	}
-	if err := s.db.FirstOrCreate(&user, User{Email: email}).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to get or create User: email=%v", email)
-	}
-	return &user, nil
-}
-
 func (s *UserService) Create(name, email string) (*User, error) {
 	e, err := NewEmailFromRaw(email)
 	if err != nil {
