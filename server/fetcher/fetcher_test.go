@@ -63,7 +63,7 @@ func TestFetch(t *testing.T) {
 	client := &http.Client{Transport: transport}
 	fetcher := NewTeacherLessonFetcher(client, nil)
 	teacher, _, err := fetcher.Fetch(5982)
-	a.NoError(err)
+	a.Nil(err)
 	a.Equal("Xai", teacher.Name)
 	a.Equal(1, transport.callCount)
 }
@@ -73,7 +73,7 @@ func TestFetch(t *testing.T) {
 //	http.DefaultClient.Timeout = 10 * time.Second
 //	fetcher := NewTeacherLessonFetcher(http.DefaultClient, nil)
 //	teacher, _, err := fetcher.Fetch(5982)
-//	a.NoError(err)
+//	a.Nil(err)
 //	a.Equal("Xai", teacher.Name)
 //}
 
@@ -83,7 +83,7 @@ func TestFetchRetry(t *testing.T) {
 	client := &http.Client{Transport: transport}
 	fetcher := NewTeacherLessonFetcher(client, nil)
 	teacher, _, err := fetcher.Fetch(5982)
-	a.NoError(err)
+	a.Nil(err)
 	a.Equal("Xai", teacher.Name)
 	a.Equal(2, transport.callCount)
 }
@@ -104,7 +104,7 @@ func TestParseHTML(t *testing.T) {
 	a := assert.New(t)
 	fetcher := NewTeacherLessonFetcher(http.DefaultClient, nil)
 	file, err := os.Open("testdata/5982.html")
-	a.NoError(err)
+	a.Nil(err)
 	defer file.Close()
 
 	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)

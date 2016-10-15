@@ -16,11 +16,11 @@ func TestUpdateLessons(t *testing.T) {
 	lessons := createLessons(teacherID, datetime, "Reserved", 5)
 
 	affected, err := lessonService.UpdateLessons(lessons)
-	a.NoError(err)
+	a.Nil(err)
 	a.Equal(int64(5), affected)
 
 	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
-	a.NoError(err)
+	a.Nil(err)
 	a.Equal(len(lessons), len(foundLessons))
 	for i := range lessons {
 		// TODO: custom enum type
@@ -35,7 +35,7 @@ func TestUpdateLessonsOverwrite(t *testing.T) {
 
 	lessons[0].Status = "Available"
 	affected, err := lessonService.UpdateLessons(lessons)
-	a.NoError(err)
+	a.Nil(err)
 	a.Equal(int64(2), affected) // Why 2????
 	foundLessons, err := lessonService.FindLessons(1, datetime, datetime)
 	a.Equal(strings.ToLower(foundLessons[0].Status), "available")

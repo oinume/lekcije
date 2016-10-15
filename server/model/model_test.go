@@ -51,7 +51,7 @@ func TestOpenRedis(t *testing.T) {
 		a.Fail("Env 'REDIS_URL' required.")
 	}
 	client, err := OpenRedis(redisURL)
-	a.NoError(err)
+	a.Nil(err)
 	defer client.Close()
-	a.NoError(client.Ping().Err())
+	a.Nil(client.Ping().Err())
 }

@@ -17,7 +17,7 @@ func TestUserService_FindByGoogleID(t *testing.T) {
 	user := createTestUser()
 	userGoogle := createTestUserGoogle("1", user.ID)
 	userActual, err := userService.FindByGoogleID(userGoogle.GoogleID)
-	a.NoError(err)
+	a.Nil(err)
 	a.Equal(user.ID, userActual.ID)
 	a.Equal(user.Email.Raw(), userActual.Email.Raw())
 }
@@ -29,7 +29,7 @@ func TestCreateUser(t *testing.T) {
 	if e, ok := err.(*errors.Internal); ok {
 		fmt.Printf("%+v\n", e.StackTrace())
 	}
-	a.NoError(err)
+	a.Nil(err)
 	a.True(user.ID > 0)
 	a.Equal(email, user.Email.Raw())
 }
@@ -42,10 +42,10 @@ func TestUpdateEmail(t *testing.T) {
 	if e, ok := err.(*errors.Internal); ok {
 		fmt.Printf("%+v\n", e.StackTrace())
 	}
-	a.NoError(err)
+	a.Nil(err)
 
 	actual, err := userService.FindByPk(user.ID)
-	a.NoError(err)
+	a.Nil(err)
 	a.NotEqual(user.Email.Raw(), actual.Email.Raw())
 	a.Equal(email, actual.Email.Raw())
 }
