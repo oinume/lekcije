@@ -18,6 +18,7 @@ type User struct {
 	Name          string
 	Email         Email
 	EmailVerified bool
+	PlanID        uint8
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
@@ -104,8 +105,10 @@ func (s *UserService) Create(name, email string) (*User, error) {
 		return nil, err
 	}
 	user := &User{
-		Name:  name,
-		Email: e,
+		Name:          name,
+		Email:         e,
+		EmailVerified: true,
+		PlanID:        DefaultPlanID,
 	}
 	if result := s.db.Create(user); result.Error != nil {
 		return nil, errors.InternalWrapf(result.Error, "")
@@ -123,6 +126,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 		Name:          name,
 		Email:         e,
 		EmailVerified: true, // TODO: set false after implement email verification
+		PlanID:        DefaultPlanID,
 	}
 	if result := s.db.Create(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
