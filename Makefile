@@ -25,3 +25,6 @@ e2e_test:
 
 go_test:
 	go test $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
+
+minify_static:
+	MINIFY=true npm run build
