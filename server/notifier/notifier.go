@@ -156,11 +156,13 @@ func (n *Notifier) sendNotificationToUser(
 		TeacherIDs        []uint32
 		Teachers          map[uint32]*model.Teacher
 		LessonsPerTeacher map[uint32][]*model.Lesson
+		WebURL            string
 	}
 	data := &TemplateData{
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
 		LessonsPerTeacher: lessonsPerTeacher,
+		WebURL:            config.WebURL(),
 	}
 
 	var body bytes.Buffer
@@ -187,7 +189,10 @@ Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
 
-{{ end }}
+{{- end }}
+
+Click below if you want to stop notification of the teacher.
+{{ .WebURL }}/
 	`)
 }
 
