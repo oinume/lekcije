@@ -20,6 +20,16 @@ func StaticURL() string {
 	}
 }
 
+func WebURL() string {
+	if IsProductionEnv() {
+		return "https://lekcije.herokuapp.com" // TODO: production URL
+	} else if IsDevelopmentEnv() {
+		return "http://www.local.lekcije.com"
+	} else {
+		return "http://localhost:4000"
+	}
+}
+
 func GoogleAnalyticsID() string {
 	return os.Getenv("GOOGLE_ANALYTICS_ID")
 }
