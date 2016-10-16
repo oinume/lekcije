@@ -37,8 +37,18 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 		commonTemplateData
 		Teachers     []*model.Teacher
 		FlashMessage *flash_message.FlashMessage
+		Plan         *model.Plan
 	}
 	data := &Data{commonTemplateData: getCommonTemplateData(r.RequestURI, true)}
+	db := model.MustDB(ctx)
+
+	planService := model.NewPlanService(db)
+	plan, err := planService.FindByPk(user.PlanID)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+	data.Plan = plan
 
 	flashMessageKey := r.FormValue("flashMessageKey")
 	if flashMessageKey != "" {
@@ -46,7 +56,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 		data.FlashMessage = flashMessage
 	}
 
-	followingTeacherService := model.NewFollowingTeacherService(model.MustDB(ctx))
+	followingTeacherService := model.NewFollowingTeacherService(db)
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
