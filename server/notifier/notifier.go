@@ -189,8 +189,7 @@ Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
 
-{{- end }}
-
+{{ end }}
 Click below if you want to stop notification of the teacher.
 {{ .WebURL }}/
 	`)
