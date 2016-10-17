@@ -115,17 +115,11 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	t := ParseHTMLTemplates(TemplatePath("me/setting.html"))
 	type Data struct {
 		commonTemplateData
-		FlashMessage *flash_message.FlashMessage
-		Email        string
+		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r.RequestURI, true),
+		commonTemplateData: getCommonTemplateData(ctx, r.RequestURI, true, r.FormValue("flashMessageKey")),
 		Email:              user.Email.Raw(),
-	}
-	flashMessageKey := r.FormValue("flashMessageKey")
-	if flashMessageKey != "" {
-		flashMessage, _ := flash_message.MustStore(ctx).Load(flashMessageKey)
-		data.FlashMessage = flashMessage
 	}
 
 	if err := t.Execute(w, data); err != nil {

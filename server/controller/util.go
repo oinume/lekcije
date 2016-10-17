@@ -9,10 +9,12 @@ import (
 	"path"
 
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/uber-go/zap"
+	"golang.org/x/net/context"
 )
 
 const ApiTokenCookieName = "apiToken"
@@ -81,6 +83,7 @@ type commonTemplateData struct {
 	GoogleAnalyticsID string
 	CurrentURL        string
 	NavigationItems   []navigationItem
+	FlashMessage      *flash_message.FlashMessage
 }
 
 var loggedInNavigationItems = []navigationItem{
@@ -93,7 +96,7 @@ var loggedOutNavigationItems = []navigationItem{
 	{"Home", "/"},
 }
 
-func getCommonTemplateData(currentURL string, loggedIn bool) commonTemplateData {
+func getCommonTemplateData(ctx context.Context, currentURL string, loggedIn bool, flashMessageKey string) commonTemplateData {
 	data := commonTemplateData{
 		StaticURL:         config.StaticURL(),
 		GoogleAnalyticsID: config.GoogleAnalyticsID(),
@@ -104,5 +107,10 @@ func getCommonTemplateData(currentURL string, loggedIn bool) commonTemplateData 
 	} else {
 		data.NavigationItems = loggedOutNavigationItems
 	}
+	if flashMessageKey != "" {
+		flashMessage, _ := flash_message.MustStore(ctx).Load(flashMessageKey)
+		data.FlashMessage = flashMessage
+	}
+
 	return data
 }
