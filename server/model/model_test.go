@@ -16,6 +16,7 @@ var (
 	testDBURL               string
 	followingTeacherService *FollowingTeacherService
 	lessonService           *LessonService
+	planService             *PlanService
 	userService             *UserService
 	userGoogleService       *UserGoogleService
 	userApiTokenService     *UserApiTokenService
@@ -32,6 +33,7 @@ func TestMain(m *testing.M) {
 
 	followingTeacherService = NewFollowingTeacherService(db)
 	lessonService = NewLessonService(db)
+	planService = NewPlanService(db)
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
 	userApiTokenService = NewUserApiTokenService(db)

@@ -1,6 +1,6 @@
 {{ define "content" }}
 <div class="container">
-  <div>
+  <div id="followingForm">
     <h2>Follow a teacher!</h2>
     {{ template "_flashMessage.html" . }}
     <form method="POST" action="/me/followingTeachers/create">
@@ -18,7 +18,22 @@
     </form>
   </div>
 
-  <div>
+  {{ if .Plan.ShowAd -}}
+  <div id="showAd" style="margin: 20px">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <!-- lekcije -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-9196567892895746"
+         data-ad-slot="2801212670"
+         data-ad-format="auto"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+  {{ end -}}
+
+  <div id="followingTeachers">
     <form method="POST" action="/me/followingTeachers/delete">
       <table class="table table-striped table-hover">
         <thead>
