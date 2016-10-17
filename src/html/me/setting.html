@@ -1,6 +1,7 @@
 {{ define "content" }}
 <div class="container">
   <form method="POST" action="/me/setting/update">
+    {{ template "_flashMessage.html" . }}
     <div class="form-group">
       <label for="email">Email address</label>
       <input type="email" class="form-control" name="email" id="email" placeholder="Email" value="{{ .Email }}" required autofocus autocomplete="on">

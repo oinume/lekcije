@@ -103,8 +103,10 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: stash
-	http.Redirect(w, r, "/", http.StatusFound)
+	flashMessage := flash_message.New(flash_message.KindSuccess, "削除しました")
+	flash_message.MustStore(ctx).Save(flashMessage)
+
+	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
 }
 
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
@@ -113,12 +115,19 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	t := ParseHTMLTemplates(TemplatePath("me/setting.html"))
 	type Data struct {
 		commonTemplateData
-		Email string
+		FlashMessage *flash_message.FlashMessage
+		Email        string
 	}
 	data := &Data{
 		commonTemplateData: getCommonTemplateData(r.RequestURI, true),
 		Email:              user.Email.Raw(),
 	}
+	flashMessageKey := r.FormValue("flashMessageKey")
+	if flashMessageKey != "" {
+		flashMessage, _ := flash_message.MustStore(ctx).Load(flashMessageKey)
+		data.FlashMessage = flashMessage
+	}
+
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
 		return
@@ -140,7 +149,11 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	http.Redirect(w, r, "/me/setting", http.StatusFound)
+
+	flashMessage := flash_message.New(flash_message.KindSuccess, "更新しました")
+	flash_message.MustStore(ctx).Save(flashMessage)
+
+	http.Redirect(w, r, "/me/setting?flashMessageKey="+flashMessage.Key, http.StatusFound)
 }
 
 func validateEmail(email string) bool {
