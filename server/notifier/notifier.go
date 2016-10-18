@@ -171,7 +171,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	//fmt.Printf("--- mail ---\n%s", body.String())
 
-	subject := "Available lessons of teacher " + strings.Join(teacherNames, ", ")
+	subject := "Schedule of teacher " + strings.Join(teacherNames, ", ")
 	sender := &EmailNotificationSender{}
 	return sender.Send(user, subject, body.String())
 }
@@ -181,15 +181,14 @@ func getEmailTemplate() string {
 {{- range $teacherID := .TeacherIDs }}
 {{- $teacher := index $.Teachers $teacherID -}}
 --- {{ $teacher.Name }} ---
-{{ $teacher.Name }}'s schedule:
-<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">For PC</a>
-<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">For mobile</a>
-
   {{- $lessons := index $.LessonsPerTeacher $teacherID }}
   {{- range $lesson := $lessons }}
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
 
+Reserve here:
+<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
+<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
 {{ end }}
 Click <a href="{{ .WebURL }}/">here</a> if you want to stop notification of the teacher.
 	`)
