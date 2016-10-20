@@ -22,7 +22,7 @@ func StaticURL() string {
 
 func WebURL() string {
 	if IsProductionEnv() {
-		return "https://lekcije.herokuapp.com" // TODO: production URL
+		return "https://www.lekcije.com"
 	} else if IsDevelopmentEnv() {
 		return "http://www.local.lekcije.com"
 	} else {
