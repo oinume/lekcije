@@ -1,5 +1,5 @@
-hash: 2acaf62de1046e144d077e1a945c76a01faab07fcbe97558db8e6ffdfc94d5f4
-updated: 2016-10-21T16:41:00.747401921+09:00
+hash: 9684c535bd8852875396435db8aa7af84ece280ca5521b693e6c776b0b6121e1
+updated: 2016-10-21T16:52:35.074404446+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -116,13 +116,16 @@ imports:
   version: 938235994ea88a05678f8060741d5f34ed6a5ff3
   subpackages:
   - internal
-  - internal/consistenthash
   - internal/errors
   - internal/hashtag
   - internal/pool
   - internal/proto
+- name: gopkg.in/redis.v4/internal/consistenthash
+  version: 938235994ea88a05678f8060741d5f34ed6a5ff3
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
+- name: gopkg.in/yaml.v2
+  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
 testImports:
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d

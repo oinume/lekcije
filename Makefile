@@ -13,6 +13,7 @@ setup:
 	glide install
 	go install ./vendor/bitbucket.org/liamstask/goose/cmd/goose
 	go install ./vendor/github.com/cespare/reflex
+	go install ./vendor/github.com/nicksnyder/go-i18n/...
 
 serve:
 	go run server/cmd/lekcije/main.go
