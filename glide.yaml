@@ -1,0 +1,43 @@
+package: github.com/oinume/lekcije
+import:
+  - package: bitbucket.org/liamstask/goose/cmd/goose
+  - package: github.com/cespare/reflex
+  - package: gopkg.in/xmlpath.v2
+  - package: goji.io
+    subpackages:
+      - pat
+      - internal
+      - pattern
+  - package: golang.org/x/net/context
+  - package: golang.org/x/oauth2
+    subpackages:
+      - google
+  - package: google.golang.org/api
+    subpackages:
+      #- googleapi
+      - oauth2/v2
+  - package: github.com/jinzhu/gorm
+  - package: github.com/jinzhu/inflection
+  - package: github.com/go-sql-driver/mysql
+  - package: github.com/stretchr/testify
+    subpackages:
+      - assert
+      - mock
+  - package: github.com/davecgh/go-spew/spew
+  - package: github.com/uber-go/zap
+  - package: github.com/uber-go/atomic
+  - package: github.com/oinume/goenum
+  - package: github.com/pkg/errors
+  - package: github.com/go-redis/redis
+    version: v4.2.3
+  - package: github.com/sclevine/agouti
+  - package: github.com/rs/cors
+  - package: github.com/rs/xhandler
+  - package: github.com/Songmu/retry
+  - package: github.com/sendgrid/sendgrid-go
+    subpackages:
+      - helpers/mail
+  - package: github.com/sendgrid/rest
+  - package: github.com/newrelic/go-agent
+  - package: gopkg.in/yaml.v2
+  - package: github.com/nicksnyder/go-i18n
