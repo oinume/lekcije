@@ -1,5 +1,5 @@
-hash: 8b9599cf6530338d95a00016dc281e06ec6bcea531e48fbb3f461f3c6f68f686
-updated: 2016-09-17T22:10:16.878230806+09:00
+hash: 2acaf62de1046e144d077e1a945c76a01faab07fcbe97558db8e6ffdfc94d5f4
+updated: 2016-10-21T16:41:00.747401921+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -13,7 +13,7 @@ imports:
 - name: github.com/cespare/reflex
   version: d99c749bd424bf5fb5f63229f0cb4baffdc81f9d
 - name: github.com/davecgh/go-spew
-  version: 6cf5744a041a0022271cefed95ba843f6d87fd51
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
   - spew
 - name: github.com/go-sql-driver/mysql
@@ -32,10 +32,12 @@ imports:
   version: a923caa59930cbb1b27d2a9fb2d5663d9e5c637c
   subpackages:
   - internal
-  - internal/jsonx
   - internal/logger
-  - internal/sysinfo
   - internal/utilization
+  - internal/jsonx
+  - internal/sysinfo
+- name: github.com/nicksnyder/go-i18n
+  version: 1c9e01733308fe876a840a54ce7633540b182a75
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
@@ -48,10 +50,10 @@ imports:
   version: 1d217930b95113e88565b177e12192b75aa74fd1
   subpackages:
   - api
-  - api/internal/bus
-  - api/internal/service
   - internal/element
   - internal/target
+  - api/internal/bus
+  - api/internal/service
 - name: github.com/sendgrid/rest
   version: d37acbf70185e33da36a233f4df95848b052427c
 - name: github.com/sendgrid/sendgrid-go
@@ -72,8 +74,8 @@ imports:
 - name: goji.io
   version: bc2e9e7dc2769805d1b6ce4dc48ec23a03ae82ec
   subpackages:
-  - internal
   - pat
+  - internal
   - pattern
 - name: golang.org/x/net
   version: 1358eff22f0dd0c54fc521042cc607f6ff4b531a
@@ -92,22 +94,22 @@ imports:
 - name: google.golang.org/api
   version: 5d9c84e3b78a84b6ddc17f88164527f935501e94
   subpackages:
+  - oauth2/v2
   - gensupport
   - googleapi
   - googleapi/internal/uritemplates
-  - oauth2/v2
 - name: google.golang.org/appengine
   version: 4f7eeb5305a4ba1966344836ba4af9996b7b4e05
   subpackages:
+  - urlfetch
   - internal
+  - internal/urlfetch
   - internal/app_identity
+  - internal/modules
   - internal/base
   - internal/datastore
   - internal/log
-  - internal/modules
   - internal/remote_api
-  - internal/urlfetch
-  - urlfetch
 - name: gopkg.in/bsm/ratelimit.v1
   version: db14e161995a5177acef654cb0dd785e8ee8bc22
 - name: gopkg.in/redis.v4
@@ -123,6 +125,6 @@ imports:
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 testImports:
 - name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
   - difflib
