@@ -38,4 +38,5 @@ import:
       - helpers/mail
   - package: github.com/sendgrid/rest
   - package: github.com/newrelic/go-agent
+  - package: gopkg.in/yaml.v2
   - package: github.com/nicksnyder/go-i18n
