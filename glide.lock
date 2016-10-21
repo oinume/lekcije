@@ -1,5 +1,5 @@
-hash: 9684c535bd8852875396435db8aa7af84ece280ca5521b693e6c776b0b6121e1
-updated: 2016-10-21T16:52:35.074404446+09:00
+hash: 8de59a54893b40125e3c3c1b29b8ffd8d87afbcc3308aff379a098d294be0047
+updated: 2016-10-21T17:41:57.386200785+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -16,6 +16,8 @@ imports:
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
   - spew
+- name: github.com/go-redis/redis
+  version: 8a8d997ad58dc600d2ff0f64914102192f3b51ac
 - name: github.com/go-sql-driver/mysql
   version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
 - name: github.com/golang/protobuf
@@ -116,12 +118,11 @@ imports:
   version: 938235994ea88a05678f8060741d5f34ed6a5ff3
   subpackages:
   - internal
+  - internal/consistenthash
   - internal/errors
   - internal/hashtag
   - internal/pool
   - internal/proto
-- name: gopkg.in/redis.v4/internal/consistenthash
-  version: 938235994ea88a05678f8060741d5f34ed6a5ff3
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 - name: gopkg.in/yaml.v2
