@@ -32,12 +32,21 @@ func TemplatePath(file string) string {
 }
 
 func ParseHTMLTemplates(files ...string) *template.Template {
+	base := template.Must(template.ParseFiles(TemplatePath("_base.html")))
 	f := []string{
-		TemplatePath("_base.html"),
 		TemplatePath("_flashMessage.html"),
 	}
 	f = append(f, files...)
-	return template.Must(template.ParseFiles(f...))
+	base.Funcs(map[string]interface{}{
+		"divTag": func() string {
+			return `<div id="func"></div>`
+		},
+		"safeHTML": func(text string) template.HTML {
+			return template.HTML(text)
+		},
+	})
+	template.Must(base.ParseFiles(f...))
+	return base
 }
 
 func InternalServerError(w http.ResponseWriter, err error) {
