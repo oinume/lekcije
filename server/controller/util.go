@@ -31,6 +31,7 @@ func TemplatePath(file string) string {
 	return path.Join(TemplateDir(), file)
 }
 
+// TODO: NewTemplateLoader(baseDir string)
 func ParseHTMLTemplates(files ...string) *template.Template {
 	base := template.Must(template.ParseFiles(TemplatePath("_base.html")))
 	f := []string{
