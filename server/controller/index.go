@@ -87,22 +87,22 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := r.Cookie(ApiTokenCookieName)
+	cookie, err := r.Cookie(APITokenCookieName)
 	if err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to get token cookie"))
 		return
 	}
 	token := cookie.Value
 	cookieToDelete := &http.Cookie{
-		Name:     ApiTokenCookieName,
+		Name:     APITokenCookieName,
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	userApiTokenService := model.NewUserApiTokenService(model.MustDB(ctx))
-	if err := userApiTokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
+	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
+	if err := userAPITokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
 		InternalServerError(w, err)
 		return
 	}

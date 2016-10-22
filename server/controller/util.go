@@ -17,7 +17,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-const ApiTokenCookieName = "apiToken"
+const APITokenCookieName = "apiToken"
 
 func TemplateDir() string {
 	if util.IsProductionEnv() {
