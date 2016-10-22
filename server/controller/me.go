@@ -14,6 +14,12 @@ import (
 	"github.com/oinume/lekcije/server/util"
 )
 
+const (
+	followedMessage   = "Followed!"
+	unfollowedMessage = "Unfollowed!"
+	updatedMessage    = "Updated!"
+)
+
 var _ = fmt.Printf
 
 func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +79,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	flashMessage := flash_message.New(flash_message.KindSuccess, "フォローしました！")
+	flashMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
 	flash_message.MustStore(ctx).Save(flashMessage)
 
 	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
@@ -103,7 +109,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flashMessage := flash_message.New(flash_message.KindSuccess, "削除しました")
+	flashMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
 	flash_message.MustStore(ctx).Save(flashMessage)
 
 	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
@@ -144,7 +150,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flashMessage := flash_message.New(flash_message.KindSuccess, "更新しました")
+	flashMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
 	flash_message.MustStore(ctx).Save(flashMessage)
 
 	http.Redirect(w, r, "/me/setting?flashMessageKey="+flashMessage.Key, http.StatusFound)
