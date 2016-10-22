@@ -1,7 +1,7 @@
 {{ define "content" }}
 <div class="container">
   <div id="followingForm">
-    <h2>Follow a teacher!</h2>
+    <h3>講師をフォローしましょう</h3>
     {{ template "_flashMessage.html" . }}
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
@@ -37,7 +37,7 @@
     <form method="POST" action="/me/followingTeachers/delete">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th><button type="submit" class="btn btn-default btn-xs">Unfollow</button></th><th>Name</th></tr>
+          <tr><th><button type="submit" class="btn btn-default btn-xs">削除</button></th><th>講師</th></tr>
         </thead>
         <tbody>
         {{ range $teacher := .Teachers }}
