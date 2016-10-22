@@ -87,13 +87,13 @@ type commonTemplateData struct {
 }
 
 var loggedInNavigationItems = []navigationItem{
-	{"Home", "/"},
-	{"Setting", "/me/setting"},
-	{"Logout", "/logout"},
+	{"ホーム", "/"},
+	{"設定", "/me/setting"},
+	{"ログアウト", "/logout"},
 }
 
 var loggedOutNavigationItems = []navigationItem{
-	{"Home", "/"},
+	{"ホーム", "/"},
 }
 
 func getCommonTemplateData(ctx context.Context, currentURL string, loggedIn bool, flashMessageKey string) commonTemplateData {
