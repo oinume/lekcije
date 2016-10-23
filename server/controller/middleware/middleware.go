@@ -133,7 +133,7 @@ func SetLoggedInUserToContext(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		cookie, err := r.Cookie(controller.ApiTokenCookieName)
+		cookie, err := r.Cookie(controller.APITokenCookieName)
 		if err != nil {
 			h.ServeHTTP(w, r)
 			return
@@ -157,7 +157,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		cookie, err := r.Cookie(controller.ApiTokenCookieName)
+		cookie, err := r.Cookie(controller.APITokenCookieName)
 		if err != nil {
 			h.ServeHTTP(w, r)
 			return

@@ -81,18 +81,18 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	userApiTokenService := model.NewUserApiTokenService(model.MustDB(ctx))
-	userApiToken, err := userApiTokenService.Create(user.ID)
+	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
+	userAPIToken, err := userAPITokenService.Create(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
 
 	cookie := &http.Cookie{
-		Name:     ApiTokenCookieName,
-		Value:    userApiToken.Token,
+		Name:     APITokenCookieName,
+		Value:    userAPIToken.Token,
 		Path:     "/",
-		Expires:  time.Now().Add(model.UserApiTokenExpiration),
+		Expires:  time.Now().Add(model.UserAPITokenExpiration),
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookie)

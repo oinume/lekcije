@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	followedMessage   = "Followed!"
-	unfollowedMessage = "Unfollowed!"
-	updatedMessage    = "Updated!"
+	followedMessage   = "フォローしました！"
+	unfollowedMessage = "削除しました！"
+	updatedMessage    = "設定を更新しました！"
 )
 
 var _ = fmt.Printf
