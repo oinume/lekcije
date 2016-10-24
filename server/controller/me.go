@@ -124,7 +124,7 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(ctx, r.RequestURI, true, r.FormValue("flashMessageKey")),
+		commonTemplateData: getCommonTemplateData(r, true),
 		Email:              user.Email.Raw(),
 	}
 

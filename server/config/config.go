@@ -1,6 +1,7 @@
 package config
 
 import (
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -48,6 +49,16 @@ func IsDevelopmentEnv() bool {
 
 func IsLocalEnv() bool {
 	return EnvString() == "local"
+}
+
+func WebURLScheme(r *http.Request) string {
+	if IsProductionEnv() {
+		return "https"
+	}
+	if r != nil && r.Header.Get("X-Forwarded-Proto") == "https" {
+		return "https"
+	}
+	return "http"
 }
 
 func ListenPort() int {
