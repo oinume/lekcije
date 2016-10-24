@@ -38,7 +38,7 @@ func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
 		Plan     *model.Plan
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(ctx, r.RequestURI, true, r.FormValue("flashMessageKey")),
+		commonTemplateData: getCommonTemplateData(r, true),
 	}
 	db := model.MustDB(ctx)
 
@@ -70,7 +70,7 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r.Context(), r.RequestURI, false, ""),
+		commonTemplateData: getCommonTemplateData(r, false),
 	}
 
 	if err := t.Execute(w, data); err != nil {

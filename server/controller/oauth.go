@@ -162,13 +162,6 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 
 func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	c := googleOAuthConfig
-	scheme := "http"
-	if r.Header.Get("X-Forwarded-Proto") == "https" {
-		scheme = "https"
-	}
-	if config.IsProductionEnv() {
-		scheme = "https"
-	}
-	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", scheme, r.Host)
+	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.WebURLScheme(r), r.Host)
 	return c
 }

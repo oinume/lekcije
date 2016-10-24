@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"path"
+	"strings"
 
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller/flash_message"
@@ -14,7 +15,6 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/uber-go/zap"
-	"golang.org/x/net/context"
 )
 
 const APITokenCookieName = "apiToken"
@@ -82,6 +82,7 @@ type commonTemplateData struct {
 	StaticURL         string
 	GoogleAnalyticsID string
 	CurrentURL        string
+	CanonicalURL      string
 	NavigationItems   []navigationItem
 	FlashMessage      *flash_message.FlashMessage
 }
@@ -96,19 +97,22 @@ var loggedOutNavigationItems = []navigationItem{
 	{"ホーム", "/"},
 }
 
-func getCommonTemplateData(ctx context.Context, currentURL string, loggedIn bool, flashMessageKey string) commonTemplateData {
+func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData {
+	canonicalURL := fmt.Sprintf("%s://%s%s", config.WebURLScheme(req), req.Host, req.RequestURI)
+	canonicalURL = (strings.SplitN(canonicalURL, "?", 2))[0] // TODO: use url.Parse
 	data := commonTemplateData{
 		StaticURL:         config.StaticURL(),
 		GoogleAnalyticsID: config.GoogleAnalyticsID(),
-		CurrentURL:        currentURL,
+		CurrentURL:        req.RequestURI,
+		CanonicalURL:      canonicalURL,
 	}
 	if loggedIn {
 		data.NavigationItems = loggedInNavigationItems
 	} else {
 		data.NavigationItems = loggedOutNavigationItems
 	}
-	if flashMessageKey != "" {
-		flashMessage, _ := flash_message.MustStore(ctx).Load(flashMessageKey)
+	if flashMessageKey := req.FormValue("flashMessageKey"); flashMessageKey != "" {
+		flashMessage, _ := flash_message.MustStore(req.Context()).Load(flashMessageKey)
 		data.FlashMessage = flashMessage
 	}
 
