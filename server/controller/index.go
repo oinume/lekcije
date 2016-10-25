@@ -10,11 +10,6 @@ import (
 
 var _ = fmt.Print
 
-type navigationItem struct {
-	Text string
-	URL  string
-}
-
 func Static(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, r.URL.Path[1:])
 }

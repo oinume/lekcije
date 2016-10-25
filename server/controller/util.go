@@ -87,14 +87,21 @@ type commonTemplateData struct {
 	FlashMessage      *flash_message.FlashMessage
 }
 
+type navigationItem struct {
+	Text      string
+	URL       string
+	NewWindow bool
+}
+
 var loggedInNavigationItems = []navigationItem{
-	{"ホーム", "/"},
-	{"設定", "/me/setting"},
-	{"ログアウト", "/logout"},
+	{"ホーム", "/", false},
+	{"設定", "/me/setting", false},
+	{"DMM英会話", "http://eikaiwa.dmm.com/", true},
+	{"ログアウト", "/logout", false},
 }
 
 var loggedOutNavigationItems = []navigationItem{
-	{"ホーム", "/"},
+	{"ホーム", "/", false},
 }
 
 func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData {

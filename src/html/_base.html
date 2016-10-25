@@ -31,7 +31,7 @@
         <ul class="nav navbar-nav">
           {{ $currentURL := .CurrentURL }}
           {{ range $item := .NavigationItems }}
-          <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}><a href="{{ $item.URL }}">{{ $item.Text }}</a></li>
+          <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}><a href="{{ $item.URL }}" {{ if $item.NewWindow }}target="_blank"{{ end }}>{{ $item.Text }}</a></li>
           {{ end }}
         </ul>
       </div>
