@@ -189,3 +189,14 @@ func CORS(h http.Handler) http.Handler {
 	}
 	return http.HandlerFunc(fn)
 }
+
+func Redirecter(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		if r.Host == "lekcije.herokuapp.com" {
+			http.Redirect(w, r, config.WebURL()+r.RequestURI, http.StatusMovedPermanently)
+			return
+		}
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
