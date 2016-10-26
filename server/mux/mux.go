@@ -29,6 +29,8 @@ func Create() *goji.Mux {
 	mux.HandleFunc(pat.Post("/me/setting/update"), controller.PostMeSettingUpdate)
 	mux.HandleFunc(pat.Get("/api/status"), controller.GetAPIStatus)
 	mux.HandleFunc(pat.Get("/api/me/followingTeachers"), controller.GetAPIMeFollowingTeachers)
+	mux.HandleFunc(pat.Get("/api/debug/envVar"), controller.GetAPIDebugEnvVar)
+	mux.HandleFunc(pat.Get("/api/debug/httpHeader"), controller.GetAPIDebugHTTPHeader)
 
 	return mux
 }
