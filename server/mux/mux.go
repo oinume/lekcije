@@ -2,7 +2,6 @@ package mux
 
 import (
 	"github.com/oinume/lekcije/server/controller"
-	"github.com/oinume/lekcije/server/controller/api"
 	"github.com/oinume/lekcije/server/controller/middleware"
 	"goji.io"
 	"goji.io/pat"
@@ -28,8 +27,10 @@ func Create() *goji.Mux {
 	mux.HandleFunc(pat.Post("/me/followingTeachers/delete"), controller.PostMeFollowingTeachersDelete)
 	mux.HandleFunc(pat.Get("/me/setting"), controller.GetMeSetting)
 	mux.HandleFunc(pat.Post("/me/setting/update"), controller.PostMeSettingUpdate)
-	mux.HandleFunc(pat.Get("/api/status"), api.GetStatus)
-	mux.HandleFunc(pat.Get("/api/me/followingTeachers"), api.GetMeFollowingTeachers)
+	mux.HandleFunc(pat.Get("/api/status"), controller.GetAPIStatus)
+	mux.HandleFunc(pat.Get("/api/me/followingTeachers"), controller.GetAPIMeFollowingTeachers)
+	mux.HandleFunc(pat.Get("/api/debug/envVar"), controller.GetAPIDebugEnvVar)
+	mux.HandleFunc(pat.Get("/api/debug/httpHeader"), controller.GetAPIDebugHTTPHeader)
 
 	return mux
 }
