@@ -15,11 +15,11 @@ var (
 
 func StaticURL() string {
 	if IsProductionEnv() {
-		return "https://asset.lekcije.com/static"
+		return "https://asset.lekcije.com/static/" + SourceVersion()
 	} else if IsDevelopmentEnv() {
-		return "http://asset.local.lekcije.com/static"
+		return "http://asset.local.lekcije.com/static/" + SourceVersion()
 	} else {
-		return "/static"
+		return "/static/" + SourceVersion()
 	}
 }
 
