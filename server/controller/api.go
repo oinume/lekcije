@@ -1,11 +1,10 @@
-package api
+package controller
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"github.com/oinume/lekcije/server/bootstrap"
-	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 )
@@ -40,11 +39,11 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 
 	for _, status := range data {
 		if !status {
-			controller.JSON(w, http.StatusInternalServerError, data)
+			JSON(w, http.StatusInternalServerError, data)
 			return
 		}
 	}
-	controller.JSON(w, http.StatusOK, data)
+	JSON(w, http.StatusOK, data)
 }
 
 // GET /api/me/followingTeachers
@@ -59,7 +58,8 @@ func GetMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 		{"id": "3", "name": "Tasha"},
 	}
 	if err := json.NewEncoder(w).Encode(teachers); err != nil {
-		controller.InternalServerError(w, errors.InternalWrapf(err, "Failed to encode JSON"))
+		// TODO: JSON
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to encode JSON"))
 		return
 	}
 }
