@@ -8,7 +8,9 @@ import (
 )
 
 var (
-	jst = time.FixedZone("Asia/Tokyo", 9*60*60)
+	jst           = time.FixedZone("Asia/Tokyo", 9*60*60)
+	sourceVersion = os.Getenv("SOURCE_VERSION")
+	timestamp     = time.Now().UTC()
 )
 
 func StaticURL() string {
@@ -75,4 +77,16 @@ func ListenPort() int {
 
 func LocalTimezone() *time.Location {
 	return jst
+}
+
+func SourceVersion() string {
+	if sourceVersion == "" {
+		return timestamp.Format("20060102150405")
+	} else {
+		return sourceVersion
+	}
+}
+
+func SetSourceVersion(version string) {
+	sourceVersion = version
 }
