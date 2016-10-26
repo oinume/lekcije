@@ -10,7 +10,7 @@ import (
 )
 
 // GET /api/status
-func GetStatus(w http.ResponseWriter, r *http.Request) {
+func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 	// TODO: Include connection statistics
 	data := map[string]bool{
 		"db":    true,
@@ -47,7 +47,7 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET /api/me/followingTeachers
-func GetMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
+func GetAPIMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 	// SELECT t.id, t.name FROM following_teachers AS ft
 	// INNER JOIN teachers AS t ON ft.teacher_id = t.id
 	// WHERE ft.user_id = ?
