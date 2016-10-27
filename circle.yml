@@ -7,6 +7,7 @@ machine:
     DB_URL: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
     REDIS_URL: "redis://h:@127.0.0.1:6379"
     E2E_WEB_DRIVER: "PhantomJS"
+    SOURCE_VERSION: "_version_"
   services:
     - mysql
     - redis
