@@ -59,8 +59,8 @@ const config = {
   devtool: devtool,
   //output config
   output: {
-    path: path.join(buildPath, process.env.SOURCE_VERSION),
-    publicPath: "/static/" + process.env.SOURCE_VERSION,
+    path: path.join(buildPath, process.env.VERSION_HASH),
+    publicPath: "/static/" + process.env.VERSION_HASH,
     filename: 'js/main.js',  // Name of output file
   },
   plugins: plugins,
