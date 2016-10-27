@@ -27,4 +27,4 @@ go_test:
 	go test $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
 
 minify_static:
-	MINIFY=true SOURCE_VERSION=$(shell git rev-parse HEAD) npm run build
+	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build

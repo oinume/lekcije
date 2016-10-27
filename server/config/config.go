@@ -8,18 +8,18 @@ import (
 )
 
 var (
-	jst           = time.FixedZone("Asia/Tokyo", 9*60*60)
-	sourceVersion = os.Getenv("SOURCE_VERSION")
-	timestamp     = time.Now().UTC()
+	jst         = time.FixedZone("Asia/Tokyo", 9*60*60)
+	versionHash = os.Getenv("VERSION_HASH")
+	timestamp   = time.Now().UTC()
 )
 
 func StaticURL() string {
 	if IsProductionEnv() {
-		return "https://asset.lekcije.com/static/" + SourceVersion()
+		return "https://asset.lekcije.com/static/" + VersionHash()
 	} else if IsDevelopmentEnv() {
-		return "http://asset.local.lekcije.com/static/" + SourceVersion()
+		return "http://asset.local.lekcije.com/static/" + VersionHash()
 	} else {
-		return "/static/" + SourceVersion()
+		return "/static/" + VersionHash()
 	}
 }
 
@@ -79,14 +79,14 @@ func LocalTimezone() *time.Location {
 	return jst
 }
 
-func SourceVersion() string {
-	if sourceVersion == "" {
+func VersionHash() string {
+	if versionHash == "" {
 		return timestamp.Format("20060102150405")
 	} else {
-		return sourceVersion
+		return versionHash
 	}
 }
 
-func SetSourceVersion(version string) {
-	sourceVersion = version
+func SetVersionHash(version string) {
+	versionHash = version
 }
