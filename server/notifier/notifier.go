@@ -187,9 +187,10 @@ func getEmailTemplateJP() string {
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
 
-予約はこちらから:
+レッスンの予約はこちらから:
 <a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
 <a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
+
 {{ end }}
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/">こちら</a>
 	`)
