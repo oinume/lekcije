@@ -9,7 +9,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
 	"gopkg.in/redis.v4"
@@ -23,7 +22,7 @@ const (
 type contextKeyDB struct{}
 type contextKeyRedis struct{}
 
-func OpenDB(dsn string) (*gorm.DB, error) {
+func OpenDB(dsn string, logging bool) (*gorm.DB, error) {
 	db, err := sql.Open(
 		"mysql",
 		dsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
@@ -39,13 +38,13 @@ func OpenDB(dsn string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
 	}
-	gormDB.LogMode(bootstrap.HTTPServerEnvVars.NodeEnv != "production")
+	gormDB.LogMode(logging)
 
 	return gormDB, nil
 }
 
-func OpenDBAndSetToContext(ctx context.Context, dbURL string) (*gorm.DB, context.Context, error) {
-	db, err := OpenDB(dbURL)
+func OpenDBAndSetToContext(ctx context.Context, dbURL string, logging bool) (*gorm.DB, context.Context, error) {
+	db, err := OpenDB(dbURL, logging)
 	if err != nil {
 		return nil, nil, err
 	}

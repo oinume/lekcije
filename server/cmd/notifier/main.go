@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
@@ -30,7 +31,7 @@ func main() {
 func run() error {
 	bootstrap.CheckCLIEnvVars()
 
-	db, _, err := model.OpenDBAndSetToContext(context.Background(), bootstrap.CLIEnvVars.DBURL)
+	db, _, err := model.OpenDBAndSetToContext(context.Background(), bootstrap.CLIEnvVars.DBURL, !config.IsProductionEnv())
 	if err != nil {
 		return err
 	}

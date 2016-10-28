@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 	logger.InitializeAppLogger(&appLogBuffer)
 
 	var err error
-	db, err = model.OpenDB(dbURL)
+	db, err = model.OpenDB(dbURL, true) // TODO: env
 	if err != nil {
 		panic(err)
 	}

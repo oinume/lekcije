@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 )
@@ -17,7 +18,7 @@ func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 		"redis": true,
 	}
 
-	db, err := model.OpenDB(bootstrap.HTTPServerEnvVars.DBURL)
+	db, err := model.OpenDB(bootstrap.HTTPServerEnvVars.DBURL, !config.IsProductionEnv())
 	if err == nil {
 		defer db.Close()
 		if err := db.DB().Ping(); err != nil {
