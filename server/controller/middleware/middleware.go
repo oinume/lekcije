@@ -105,7 +105,7 @@ func SetDBAndRedisToContext(h http.Handler) http.Handler {
 		}
 		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 
-		db, c, err := model.OpenDBAndSetToContext(ctx, os.Getenv("DB_URL"))
+		db, c, err := model.OpenDBAndSetToContext(ctx, os.Getenv("DB_URL"), !config.IsProductionEnv())
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
