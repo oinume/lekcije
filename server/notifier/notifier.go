@@ -80,6 +80,8 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		n.lessonService.UpdateLessons(allFetchedLessons)
 	}
 
+	time.Sleep(500 * time.Millisecond)
+
 	return nil
 }
 
