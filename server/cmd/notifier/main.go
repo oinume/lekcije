@@ -5,12 +5,15 @@ import (
 	"flag"
 	"log"
 	"os"
+	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
+	"github.com/uber-go/zap"
 )
 
 var (
@@ -30,6 +33,12 @@ func main() {
 
 func run() error {
 	bootstrap.CheckCLIEnvVars()
+	startedAt := time.Now().UTC()
+	logger.AppLogger.Info("notifier started")
+	defer func() {
+		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
+		logger.AppLogger.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
+	}()
 
 	db, _, err := model.OpenDBAndSetToContext(context.Background(), bootstrap.CLIEnvVars.DBURL, !config.IsProductionEnv())
 	if err != nil {
