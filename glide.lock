@@ -1,5 +1,5 @@
-hash: 8b9599cf6530338d95a00016dc281e06ec6bcea531e48fbb3f461f3c6f68f686
-updated: 2016-09-17T22:10:16.878230806+09:00
+hash: 49e818974822b926ba233bb7e77788ccc5afc5a2c259f1cef3492db3f322363a
+updated: 2016-11-01T00:36:52.574089269+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -13,7 +13,7 @@ imports:
 - name: github.com/cespare/reflex
   version: d99c749bd424bf5fb5f63229f0cb4baffdc81f9d
 - name: github.com/davecgh/go-spew
-  version: 6cf5744a041a0022271cefed95ba843f6d87fd51
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
   - spew
 - name: github.com/go-sql-driver/mysql
@@ -65,6 +65,8 @@ imports:
   subpackages:
   - assert
   - mock
+- name: github.com/stvp/rollbar
+  version: 3eb4713e2655cd1be805795be31b3f85b74b05fd
 - name: github.com/uber-go/atomic
   version: 0c9e689d64f004564b79d9a663634756df322902
 - name: github.com/uber-go/zap
@@ -123,6 +125,6 @@ imports:
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 testImports:
 - name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
   - difflib
