@@ -14,6 +14,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
+	"github.com/stvp/rollbar"
 	"github.com/uber-go/zap"
 )
 
@@ -44,7 +45,9 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
-	// TODO: send error to bugsnag or somewhere
+	if rollbar.Token != "" {
+		rollbar.Error(rollbar.ERR, err)
+	}
 	fields := []zap.Field{
 		zap.Error(err),
 	}
