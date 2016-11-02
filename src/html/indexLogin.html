@@ -5,7 +5,8 @@
     {{ template "_flashMessage.html" . }}
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
-        <label for="teacherIdsOrUrl">講師のIDまたはURLを入力</label>
+        <label for="teacherIdsOrUrl">講師のIDまたはURLを入力 (<a href="http://eikaiwa.dmm.com/list/" target="_blank">DMM英会話で検索</a>)</label>
+
         <input id="teacherIdsOrUrl"
                type="text"
                class="form-control"
