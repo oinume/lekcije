@@ -16,6 +16,7 @@ var plugins = [
     { context: 'src', from: '**/*.html' },
     { context: 'src', from: '**/*.png' },
     { context: 'src', from: '**/*.jpg' },
+    { context: 'src', from: '**/*.svg' },
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
