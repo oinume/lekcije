@@ -91,7 +91,7 @@ type commonTemplateData struct {
 }
 
 var loggedInNavigationItems = []navigationItem{
-	{"ホーム", "/"},
+	{"ホーム", "/me"},
 	{"設定", "/me/setting"},
 	{"ログアウト", "/logout"},
 }
