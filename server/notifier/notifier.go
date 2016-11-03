@@ -80,6 +80,8 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		n.lessonService.UpdateLessons(allFetchedLessons)
 	}
 
+	time.Sleep(500 * time.Millisecond)
+
 	return nil
 }
 
@@ -151,7 +153,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 
 	t := template.New("email")
-	t = template.Must(t.Parse(getEmailTemplate()))
+	t = template.Must(t.Parse(getEmailTemplateJP()))
 	type TemplateData struct {
 		TeacherIDs        []uint32
 		Teachers          map[uint32]*model.Teacher
@@ -171,27 +173,46 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	//fmt.Printf("--- mail ---\n%s", body.String())
 
-	subject := "Schedule of teacher " + strings.Join(teacherNames, ", ")
+	//subject := "Schedule of teacher " + strings.Join(teacherNames, ", ")
+	subject := strings.Join(teacherNames, ", ") + "の空きレッスンがあります"
 	sender := &EmailNotificationSender{}
 	return sender.Send(user, subject, body.String())
 }
 
-func getEmailTemplate() string {
+func getEmailTemplateJP() string {
 	return strings.TrimSpace(`
 {{- range $teacherID := .TeacherIDs }}
 {{- $teacher := index $.Teachers $teacherID -}}
 --- {{ $teacher.Name }} ---
-PC: http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/
-Mobile: http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/
-
-  {{ $lessons := index $.LessonsPerTeacher $teacherID -}}
+  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
   {{- range $lesson := $lessons }}
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
 
+レッスンの予約はこちらから:
+<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
+<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
+
 {{ end }}
-Click below if you want to stop notification of the teacher.
-{{ .WebURL }}/
+空きレッスンの通知の解除は<a href="{{ .WebURL }}/">こちら</a>
+	`)
+}
+
+func getEmailTemplateEN() string {
+	return strings.TrimSpace(`
+{{- range $teacherID := .TeacherIDs }}
+{{- $teacher := index $.Teachers $teacherID -}}
+--- {{ $teacher.Name }} ---
+  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
+  {{- range $lesson := $lessons }}
+{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
+  {{- end }}
+
+Reserve here:
+<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
+<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
+{{ end }}
+Click <a href="{{ .WebURL }}/">here</a> if you want to stop notification of the teacher.
 	`)
 }
 

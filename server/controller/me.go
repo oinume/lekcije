@@ -14,6 +14,12 @@ import (
 	"github.com/oinume/lekcije/server/util"
 )
 
+const (
+	followedMessage   = "フォローしました！"
+	unfollowedMessage = "削除しました！"
+	updatedMessage    = "設定を更新しました！"
+)
+
 var _ = fmt.Printf
 
 func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +79,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	flashMessage := flash_message.New(flash_message.KindSuccess, "フォローしました！")
+	flashMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
 	flash_message.MustStore(ctx).Save(flashMessage)
 
 	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
@@ -103,8 +109,10 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: stash
-	http.Redirect(w, r, "/", http.StatusFound)
+	flashMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
+	flash_message.MustStore(ctx).Save(flashMessage)
+
+	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
 }
 
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
@@ -116,9 +124,10 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r.RequestURI, true),
+		commonTemplateData: getCommonTemplateData(r, true),
 		Email:              user.Email.Raw(),
 	}
+
 	if err := t.Execute(w, data); err != nil {
 		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
 		return
@@ -140,7 +149,11 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	http.Redirect(w, r, "/me/setting", http.StatusFound)
+
+	flashMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
+	flash_message.MustStore(ctx).Save(flashMessage)
+
+	http.Redirect(w, r, "/me/setting?flashMessageKey="+flashMessage.Key, http.StatusFound)
 }
 
 func validateEmail(email string) bool {

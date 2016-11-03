@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
@@ -80,18 +81,18 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	userApiTokenService := model.NewUserApiTokenService(model.MustDB(ctx))
-	userApiToken, err := userApiTokenService.Create(user.ID)
+	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
+	userAPIToken, err := userAPITokenService.Create(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
 
 	cookie := &http.Cookie{
-		Name:     ApiTokenCookieName,
-		Value:    userApiToken.Token,
+		Name:     APITokenCookieName,
+		Value:    userAPIToken.Token,
 		Path:     "/",
-		Expires:  time.Now().Add(model.UserApiTokenExpiration),
+		Expires:  time.Now().Add(model.UserAPITokenExpiration),
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookie)
@@ -161,10 +162,6 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 
 func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	c := googleOAuthConfig
-	scheme := "http"
-	if r.Header.Get("X-Forwarded-Proto") == "https" {
-		scheme = "https"
-	}
-	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", scheme, r.Host)
+	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.WebURLScheme(r), r.Host)
 	return c
 }

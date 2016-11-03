@@ -1,19 +1,20 @@
 {{ define "content" }}
 <div class="container">
   <div id="followingForm">
-    <h2>Follow a teacher!</h2>
+    <h3>講師をフォローしましょう</h3>
     {{ template "_flashMessage.html" . }}
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
-        <label for="teacherIdsOrUrl">Teacher's URL or ID</label>
+        <label for="teacherIdsOrUrl">講師のIDまたはURLを入力 (<a href="http://eikaiwa.dmm.com/list/" target="_blank">DMM英会話で検索</a>)</label>
+
         <input id="teacherIdsOrUrl"
                type="text"
                class="form-control"
                name="teacherIdsOrUrl"
-               placeholder="http://eikaiwa.dmm.com/teacher/index/3845/" />
+               placeholder="http://eikaiwa.dmm.com/teacher/index/492/" />
       </div>
       <div class="form-group">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">送信</button>
       </div>
     </form>
   </div>
@@ -37,7 +38,7 @@
     <form method="POST" action="/me/followingTeachers/delete">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th><button type="submit" class="btn btn-default btn-xs">Unfollow</button></th><th>Name</th></tr>
+          <tr><th><button type="submit" class="btn btn-default btn-xs">削除</button></th><th>講師</th></tr>
         </thead>
         <tbody>
         {{ range $teacher := .Teachers }}

@@ -7,6 +7,8 @@ import (
 	"os"
 	"reflect"
 	"time"
+
+	"github.com/stvp/rollbar"
 )
 
 // TODO: Fix reflection problem and use this struct
@@ -44,10 +46,16 @@ func init() {
 
 func CheckCLIEnvVars() {
 	checkEnvVars(reflect.Indirect(reflect.ValueOf(&CLIEnvVars)))
+	rollbar.Token = os.Getenv("ROLLBAR_ACCESS_TOKEN")
+	rollbar.Endpoint = os.Getenv("ROLLBAR_ENDPOINT")
+	rollbar.Environment = HTTPServerEnvVars.NodeEnv
 }
 
 func CheckHTTPServerEnvVars() {
 	checkEnvVars(reflect.Indirect(reflect.ValueOf(&HTTPServerEnvVars)))
+	rollbar.Token = os.Getenv("ROLLBAR_ACCESS_TOKEN")
+	rollbar.Endpoint = os.Getenv("ROLLBAR_ENDPOINT")
+	rollbar.Environment = HTTPServerEnvVars.NodeEnv
 }
 
 func checkEnvVars(value reflect.Value) {

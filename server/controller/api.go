@@ -1,24 +1,24 @@
-package api
+package controller
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"github.com/oinume/lekcije/server/bootstrap"
-	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 )
 
 // GET /api/status
-func GetStatus(w http.ResponseWriter, r *http.Request) {
+func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 	// TODO: Include connection statistics
 	data := map[string]bool{
 		"db":    true,
 		"redis": true,
 	}
 
-	db, err := model.OpenDB(bootstrap.HTTPServerEnvVars.DBURL)
+	db, err := model.OpenDB(bootstrap.HTTPServerEnvVars.DBURL, !config.IsProductionEnv())
 	if err == nil {
 		defer db.Close()
 		if err := db.DB().Ping(); err != nil {
@@ -40,15 +40,15 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 
 	for _, status := range data {
 		if !status {
-			controller.JSON(w, http.StatusInternalServerError, data)
+			JSON(w, http.StatusInternalServerError, data)
 			return
 		}
 	}
-	controller.JSON(w, http.StatusOK, data)
+	JSON(w, http.StatusOK, data)
 }
 
 // GET /api/me/followingTeachers
-func GetMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
+func GetAPIMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 	// SELECT t.id, t.name FROM following_teachers AS ft
 	// INNER JOIN teachers AS t ON ft.teacher_id = t.id
 	// WHERE ft.user_id = ?
@@ -59,7 +59,8 @@ func GetMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 		{"id": "3", "name": "Tasha"},
 	}
 	if err := json.NewEncoder(w).Encode(teachers); err != nil {
-		controller.InternalServerError(w, errors.InternalWrapf(err, "Failed to encode JSON"))
+		// TODO: JSON
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to encode JSON"))
 		return
 	}
 }

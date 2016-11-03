@@ -105,7 +105,7 @@ func SetDBAndRedisToContext(h http.Handler) http.Handler {
 		}
 		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 
-		db, c, err := model.OpenDBAndSetToContext(ctx, os.Getenv("DB_URL"))
+		db, c, err := model.OpenDBAndSetToContext(ctx, os.Getenv("DB_URL"), !config.IsProductionEnv())
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
@@ -133,7 +133,7 @@ func SetLoggedInUserToContext(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		cookie, err := r.Cookie(controller.ApiTokenCookieName)
+		cookie, err := r.Cookie(controller.APITokenCookieName)
 		if err != nil {
 			h.ServeHTTP(w, r)
 			return
@@ -157,18 +157,26 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		cookie, err := r.Cookie(controller.ApiTokenCookieName)
+		cookie, err := r.Cookie(controller.APITokenCookieName)
 		if err != nil {
-			h.ServeHTTP(w, r)
+			logger.AppLogger.Debug("Not logged in")
+			http.Redirect(w, r, config.WebURL(), http.StatusFound)
 			return
 		}
 
 		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
 		if err != nil {
-			fmt.Printf("loggedInUser = %+v\n", user)
-			h.ServeHTTP(w, r)
-			return
+			switch err.(type) {
+			case *errors.NotFound:
+				logger.AppLogger.Debug("not logged in")
+				http.Redirect(w, r, config.WebURL(), http.StatusFound)
+				return
+			default:
+				controller.InternalServerError(w, err)
+				return
+			}
 		}
+		logger.AppLogger.Debug("Logged in user", zap.Object("user", user))
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
@@ -185,6 +193,17 @@ func CORS(h http.Handler) http.Handler {
 	})
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		c.HandlerFunc(w, r)
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func Redirecter(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		if r.Host == "lekcije.herokuapp.com" {
+			http.Redirect(w, r, config.WebURL()+r.RequestURI, http.StatusMovedPermanently)
+			return
+		}
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)

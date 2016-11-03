@@ -60,8 +60,8 @@ const config = {
   devtool: devtool,
   //output config
   output: {
-    path: buildPath,
-    publicPath: "/static/",
+    path: path.join(buildPath, process.env.VERSION_HASH),
+    publicPath: "/static/" + process.env.VERSION_HASH,
     filename: 'js/main.js',  // Name of output file
   },
   plugins: plugins,

@@ -7,15 +7,18 @@ import (
 	"html/template"
 	"net/http"
 	"path"
+	"strings"
 
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
+	"github.com/stvp/rollbar"
 	"github.com/uber-go/zap"
 )
 
-const ApiTokenCookieName = "apiToken"
+const APITokenCookieName = "apiToken"
 
 func TemplateDir() string {
 	if util.IsProductionEnv() {
@@ -42,7 +45,9 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
-	// TODO: send error to bugsnag or somewhere
+	if rollbar.Token != "" {
+		rollbar.Error(rollbar.ERR, err)
+	}
 	fields := []zap.Field{
 		zap.Error(err),
 	}
@@ -80,29 +85,39 @@ type commonTemplateData struct {
 	StaticURL         string
 	GoogleAnalyticsID string
 	CurrentURL        string
+	CanonicalURL      string
 	NavigationItems   []navigationItem
+	FlashMessage      *flash_message.FlashMessage
 }
 
 var loggedInNavigationItems = []navigationItem{
-	{"Home", "/"},
-	{"Setting", "/me/setting"},
-	{"Logout", "/logout"},
+	{"ホーム", "/"},
+	{"設定", "/me/setting"},
+	{"ログアウト", "/logout"},
 }
 
 var loggedOutNavigationItems = []navigationItem{
-	{"Home", "/"},
+	{"ホーム", "/"},
 }
 
-func getCommonTemplateData(currentURL string, loggedIn bool) commonTemplateData {
+func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData {
+	canonicalURL := fmt.Sprintf("%s://%s%s", config.WebURLScheme(req), req.Host, req.RequestURI)
+	canonicalURL = (strings.SplitN(canonicalURL, "?", 2))[0] // TODO: use url.Parse
 	data := commonTemplateData{
 		StaticURL:         config.StaticURL(),
 		GoogleAnalyticsID: config.GoogleAnalyticsID(),
-		CurrentURL:        currentURL,
+		CurrentURL:        req.RequestURI,
+		CanonicalURL:      canonicalURL,
 	}
 	if loggedIn {
 		data.NavigationItems = loggedInNavigationItems
 	} else {
 		data.NavigationItems = loggedOutNavigationItems
 	}
+	if flashMessageKey := req.FormValue("flashMessageKey"); flashMessageKey != "" {
+		flashMessage, _ := flash_message.MustStore(req.Context()).Load(flashMessageKey)
+		data.FlashMessage = flashMessage
+	}
+
 	return data
 }

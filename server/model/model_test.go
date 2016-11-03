@@ -19,14 +19,14 @@ var (
 	planService             *PlanService
 	userService             *UserService
 	userGoogleService       *UserGoogleService
-	userApiTokenService     *UserApiTokenService
+	userAPITokenService     *UserAPITokenService
 )
 
 func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
 	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
 	var err error
-	db, err = OpenDB(testDBURL)
+	db, err = OpenDB(testDBURL, true) // TODO: env
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +36,7 @@ func TestMain(m *testing.M) {
 	planService = NewPlanService(db)
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
-	userApiTokenService = NewUserApiTokenService(db)
+	userAPITokenService = NewUserAPITokenService(db)
 
 	if err := TruncateAllTables(db, GetDBName(testDBURL)); err != nil {
 		panic(err)

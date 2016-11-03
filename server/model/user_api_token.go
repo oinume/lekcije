@@ -8,41 +8,41 @@ import (
 	"github.com/oinume/lekcije/server/util"
 )
 
-const UserApiTokenExpiration = time.Hour * 24 * 30
+const UserAPITokenExpiration = time.Hour * 24 * 30
 
-type UserApiToken struct {
+type UserAPIToken struct {
 	Token     string `gorm:"primary_key;AUTO_INCREMENT"`
 	UserID    uint32
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func (*UserApiToken) TableName() string {
+func (*UserAPIToken) TableName() string {
 	return "user_api_token"
 }
 
-type UserApiTokenService struct {
+type UserAPITokenService struct {
 	db *gorm.DB
 }
 
-func NewUserApiTokenService(db *gorm.DB) *UserApiTokenService {
-	return &UserApiTokenService{db: db}
+func NewUserAPITokenService(db *gorm.DB) *UserAPITokenService {
+	return &UserAPITokenService{db: db}
 }
 
-func (s *UserApiTokenService) Create(userID uint32) (*UserApiToken, error) {
+func (s *UserAPITokenService) Create(userID uint32) (*UserAPIToken, error) {
 	apiToken := util.RandomString(64)
-	userApiToken := UserApiToken{
+	userAPIToken := UserAPIToken{
 		UserID: userID,
 		Token:  apiToken,
 	}
-	if err := s.db.Create(&userApiToken).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to create UserApiToken")
+	if err := s.db.Create(&userAPIToken).Error; err != nil {
+		return nil, errors.InternalWrapf(err, "Failed to create UserAPIToken")
 	}
-	return &userApiToken, nil
+	return &userAPIToken, nil
 }
 
-func (s *UserApiTokenService) DeleteByUserIDAndToken(userID uint32, token string) error {
-	result := s.db.Where("user_id = ? AND token = ?", userID, token).Delete(&UserApiToken{})
+func (s *UserAPITokenService) DeleteByUserIDAndToken(userID uint32, token string) error {
+	result := s.db.Where("user_id = ? AND token = ?", userID, token).Delete(&UserAPIToken{})
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,
