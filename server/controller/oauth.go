@@ -109,7 +109,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	//	return
 	//}
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
 func checkState(r *http.Request) error {

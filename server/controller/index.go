@@ -20,47 +20,10 @@ func Static(w http.ResponseWriter, r *http.Request) {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user, err := model.GetLoggedInUser(ctx)
-	if err == nil {
-		indexLogin(w, r, user)
+	if _, err := model.GetLoggedInUser(r.Context()); err == nil {
+		http.Redirect(w, r, "/me", http.StatusFound)
 	} else {
 		indexLogout(w, r)
-	}
-}
-
-func indexLogin(w http.ResponseWriter, r *http.Request, user *model.User) {
-	ctx := r.Context()
-	t := ParseHTMLTemplates(TemplatePath("indexLogin.html"))
-	type Data struct {
-		commonTemplateData
-		Teachers []*model.Teacher
-		Plan     *model.Plan
-	}
-	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true),
-	}
-	db := model.MustDB(ctx)
-
-	planService := model.NewPlanService(db)
-	plan, err := planService.FindByPk(user.PlanID)
-	if err != nil {
-		InternalServerError(w, err)
-		return
-	}
-	data.Plan = plan
-
-	followingTeacherService := model.NewFollowingTeacherService(db)
-	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
-	if err != nil {
-		InternalServerError(w, err)
-		return
-	}
-	data.Teachers = teachers
-
-	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
-		return
 	}
 }
 

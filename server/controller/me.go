@@ -22,6 +22,42 @@ const (
 
 var _ = fmt.Printf
 
+func GetMe(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := model.MustLoggedInUser(ctx)
+	t := ParseHTMLTemplates(TemplatePath("me/index.html"))
+	type Data struct {
+		commonTemplateData
+		Teachers []*model.Teacher
+		Plan     *model.Plan
+	}
+	data := &Data{
+		commonTemplateData: getCommonTemplateData(r, true),
+	}
+	db := model.MustDB(ctx)
+
+	planService := model.NewPlanService(db)
+	plan, err := planService.FindByPk(user.PlanID)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+	data.Plan = plan
+
+	followingTeacherService := model.NewFollowingTeacherService(db)
+	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+	data.Teachers = teachers
+
+	if err := t.Execute(w, data); err != nil {
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		return
+	}
+}
+
 func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := model.MustLoggedInUser(ctx)
