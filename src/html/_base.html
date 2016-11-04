@@ -24,6 +24,14 @@
   <meta property="og:description" content="lekcije(レクシエ)は、登録したDMM英会話の講師のレッスンに空きができた時にメールでお知らせするサービスです。" />
   <meta property="og:site_name" content="lekcije" />
   <meta property="og:locale" content="ja_JP">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@lekcije">
+  <meta name="twitter:creator" content="@lekcije">
+  <meta name="twitter:url" content="{{ .CanonicalURL }}">
+  <meta name="twitter:title" content="{{ block "twitterTitle" . }}lekcije - DMM英会話のお気に入り講師をフォローしよう{{ end }}">
+  <meta name="twitter:description" content="lekcije(レクシエ)は、登録したDMM英会話の講師のレッスンに空きができた時にメールでお知らせするサービスです。">
+  <meta name="twitter:image" content="{{ .StaticURL }}/image/logoLarge.png">
 </head>
 <body>
 <div>
