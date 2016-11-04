@@ -28,7 +28,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexLogout(w http.ResponseWriter, r *http.Request) {
-	t := ParseHTMLTemplates(TemplatePath("indexLogout.html"))
+	t := ParseHTMLTemplates(TemplatePath("index.html"))
 	type Data struct {
 		commonTemplateData
 	}
