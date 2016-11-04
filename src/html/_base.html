@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{{ block "title" . }}lekcije - Follow your favorite teachers of DMM Eikaiwa{{ end }}</title>
+  <title>{{ block "title" . }}lekcije - DMM英会話のお気に入り講師をフォローしよう{{ end }}</title>
   <meta name="description" content="lekcije(レクシエ)は、登録したDMM英会話の講師のレッスンに空きができた時にメールでお知らせするサービスです。" />
-  <meta name="keywords" content="lekcije,DMM英会話,英会話" />
+  <meta name="keywords" content="lekcije,レクシエ,DMM英会話,英会話" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1" />
   <link rel="canonical" href="{{ .CanonicalURL }}" />
   {{- block "headCss" . }}
@@ -13,6 +13,8 @@
   <link rel="stylesheet" type="text/css" href="{{ .StaticURL }}/lib/bootswatch/yeti/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="{{ .StaticURL }}/css/main.css">
   {{- end }}
+  <link rel="icon" href="{{ .StaticURL }}/image/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="{{ .StaticURL }}/image/logo.png">
 </head>
 <body>
 <div>
@@ -42,7 +44,7 @@
     default block
   </div>
   {{- end }}
-  <footer class="container">
+  <footer class="container" style="padding-top:20px;">
     <p style="text-align:center; font-size:small">Copyright(C) lekcije all rights reserved.</p>
   </footer>
 </div>
