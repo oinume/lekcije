@@ -1,8 +1,20 @@
 {{ define "content" }}
 <div class="container">
   <div id="followingForm">
-    <h3>講師をフォローしましょう</h3>
+    <h3>講師をフォローしよう</h3>
     {{ template "_flashMessage.html" . }}
+
+    <div class="alert alert-success" role="alert">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <h4><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 講師をフォローするには</h4>
+      <ol>
+        <li><a href="http://eikaiwa.dmm.com/list/" class="alert-link" target="_blank">DMM英会話</a>でお気に入りの講師のページを表示しよう</li>
+        <li>講師のURLをコピーしよう(<a href="https://lekcije.amebaownd.com/posts/1577091" class="alert-link" target="_blank">ヘルプ</a>)</li>
+        <li>コピーしたURLを下の入力欄にペーストしてフォローしよう</li>
+        <li>フォローすると、その講師の空きレッスンがあった時にメールでお知らせ</li>
+      </ol>
+    </div>
+
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
         <label for="teacherIdsOrUrl">講師のIDまたはURLを入力 (<a href="http://eikaiwa.dmm.com/list/" target="_blank">DMM英会話で検索</a>)</label>
