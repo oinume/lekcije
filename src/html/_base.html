@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{{ block "title" . }}lekcije - Follow your favorite teachers of DMM Eikaiwa{{ end }}</title>
+  <title>{{ block "title" . }}lekcije - DMM英会話のお気に入り講師をフォローしよう{{ end }}</title>
   <meta name="description" content="lekcije(レクシエ)は、登録したDMM英会話の講師のレッスンに空きができた時にメールでお知らせするサービスです。" />
-  <meta name="keywords" content="lekcije,DMM英会話,英会話" />
+  <meta name="keywords" content="lekcije,レクシエ,DMM英会話,英会話" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1" />
   <link rel="canonical" href="{{ .CanonicalURL }}" />
   {{- block "headCss" . }}
@@ -13,6 +13,25 @@
   <link rel="stylesheet" type="text/css" href="{{ .StaticURL }}/lib/bootswatch/yeti/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="{{ .StaticURL }}/css/main.css">
   {{- end }}
+  <link rel="icon" href="{{ .StaticURL }}/image/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="{{ .StaticURL }}/image/logo.png">
+  <!-- Facebook OpenGraph -->
+  <meta property="fb:app_id" content="552348908286128" />
+  <meta property="og:url" content="{{ .CanonicalURL }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ block "ogTitle" . }}lekcije - DMM英会話のお気に入り講師をフォローしよう{{ end }}">
+  <meta property="og:image" content="{{ .StaticURL }}/image/logoLarge.png">
+  <meta property="og:description" content="lekcije(レクシエ)は、登録したDMM英会話の講師のレッスンに空きができた時にメールでお知らせするサービスです。" />
+  <meta property="og:site_name" content="lekcije" />
+  <meta property="og:locale" content="ja_JP">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@lekcije">
+  <meta name="twitter:creator" content="@lekcije">
+  <meta name="twitter:url" content="{{ .CanonicalURL }}">
+  <meta name="twitter:title" content="{{ block "twitterTitle" . }}lekcije - DMM英会話のお気に入り講師をフォローしよう{{ end }}">
+  <meta name="twitter:description" content="lekcije(レクシエ)は、登録したDMM英会話の講師のレッスンに空きができた時にメールでお知らせするサービスです。">
+  <meta name="twitter:image" content="{{ .StaticURL }}/image/logoLarge.png">
 </head>
 <body>
 <div>
@@ -31,7 +50,7 @@
         <ul class="nav navbar-nav">
           {{ $currentURL := .CurrentURL }}
           {{ range $item := .NavigationItems }}
-          <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}><a href="{{ $item.URL }}" {{ if $item.NewWindow }}target="_blank"{{ end }}>{{ $item.Text }}</a></li>
+          <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}><a href="{{ $item.URL }}">{{ $item.Text }}</a></li>
           {{ end }}
         </ul>
       </div>
@@ -42,6 +61,9 @@
     default block
   </div>
   {{- end }}
+  <footer class="container" style="padding-top:20px;">
+    <p style="text-align:center; font-size:small">Copyright(C) lekcije all rights reserved.</p>
+  </footer>
 </div>
 <!-- This script adds the Roboto font to our project. For more detail go to this site:  http://www.google.com/fonts#UsePlace:use/Collection:Roboto:400,300,500 -->
 <script>

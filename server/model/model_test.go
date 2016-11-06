@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
 	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
 	var err error
-	db, err = OpenDB(testDBURL)
+	db, err = OpenDB(testDBURL, true) // TODO: env
 	if err != nil {
 		panic(err)
 	}

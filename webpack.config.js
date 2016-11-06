@@ -15,6 +15,8 @@ var plugins = [
     { context: 'src', from: '**/*.css' },
     { context: 'src', from: '**/*.html' },
     { context: 'src', from: '**/*.png' },
+    { context: 'src', from: '**/*.jpg' },
+    { context: 'src', from: '**/*.svg' },
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
@@ -59,8 +61,8 @@ const config = {
   devtool: devtool,
   //output config
   output: {
-    path: buildPath,
-    publicPath: "/static/",
+    path: path.join(buildPath, process.env.VERSION_HASH),
+    publicPath: "/static/" + process.env.VERSION_HASH,
     filename: 'js/main.js',  // Name of output file
   },
   plugins: plugins,

@@ -14,6 +14,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
+	"github.com/stvp/rollbar"
 	"github.com/uber-go/zap"
 )
 
@@ -44,7 +45,9 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
-	// TODO: send error to bugsnag or somewhere
+	if rollbar.Token != "" {
+		rollbar.Error(rollbar.ERR, err)
+	}
 	fields := []zap.Field{
 		zap.Error(err),
 	}
@@ -88,20 +91,18 @@ type commonTemplateData struct {
 }
 
 type navigationItem struct {
-	Text      string
-	URL       string
-	NewWindow bool
+	Text string
+	URL  string
 }
 
 var loggedInNavigationItems = []navigationItem{
-	{"ホーム", "/", false},
-	{"設定", "/me/setting", false},
-	{"DMM英会話", "http://eikaiwa.dmm.com/", true},
-	{"ログアウト", "/logout", false},
+	{"ホーム", "/me"},
+	{"設定", "/me/setting"},
+	{"ログアウト", "/logout"},
 }
 
 var loggedOutNavigationItems = []navigationItem{
-	{"ホーム", "/", false},
+	{"ホーム", "/"},
 }
 
 func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData {

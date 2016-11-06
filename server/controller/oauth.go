@@ -19,6 +19,7 @@ import (
 )
 
 var _ = fmt.Print
+
 var googleOAuthConfig = oauth2.Config{
 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
@@ -28,6 +29,23 @@ var googleOAuthConfig = oauth2.Config{
 		"openid email",
 		"openid profile",
 	},
+}
+
+type oauthError int
+
+const (
+	oauthErrorUnknown oauthError = 1 + iota
+	oauthErrorAccessDenied
+)
+
+func (e oauthError) Error() string {
+	switch e {
+	case oauthErrorUnknown:
+		return "oauthError: unknown"
+	case oauthErrorAccessDenied:
+		return "oauthError: access denied"
+	}
+	return fmt.Sprintf("oauthError: invalid: %v", e)
 }
 
 func OAuthGoogle(w http.ResponseWriter, r *http.Request) {
@@ -52,6 +70,10 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	token, idToken, err := exchange(r)
 	if err != nil {
+		if err == oauthErrorAccessDenied {
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
 		InternalServerError(w, err)
 		return
 	}
@@ -109,7 +131,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	//	return
 	//}
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
 func checkState(r *http.Request) error {
@@ -125,6 +147,14 @@ func checkState(r *http.Request) error {
 }
 
 func exchange(r *http.Request) (*oauth2.Token, string, error) {
+	if e := r.FormValue("error"); e != "" {
+		switch e {
+		case "access_denied":
+			return nil, "", oauthErrorAccessDenied
+		default:
+			return nil, "", oauthErrorUnknown
+		}
+	}
 	code := r.FormValue("code")
 	c := getGoogleOAuthConfig(r)
 	token, err := c.Exchange(oauth2.NoContext, code)
