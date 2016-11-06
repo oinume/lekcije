@@ -90,6 +90,11 @@ type commonTemplateData struct {
 	FlashMessage      *flash_message.FlashMessage
 }
 
+type navigationItem struct {
+	Text string
+	URL  string
+}
+
 var loggedInNavigationItems = []navigationItem{
 	{"ホーム", "/me"},
 	{"設定", "/me/setting"},
