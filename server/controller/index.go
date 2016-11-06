@@ -67,3 +67,18 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
+func Terms(w http.ResponseWriter, r *http.Request) {
+	t := ParseHTMLTemplates(TemplatePath("terms.html"))
+	type Data struct {
+		commonTemplateData
+	}
+	data := &Data{
+		commonTemplateData: getCommonTemplateData(r, false),
+	}
+
+	if err := t.Execute(w, data); err != nil {
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		return
+	}
+}
