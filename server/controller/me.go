@@ -28,14 +28,20 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	t := ParseHTMLTemplates(TemplatePath("me/index.html"))
 	type Data struct {
 		commonTemplateData
-		Teachers []*model.Teacher
-		Plan     *model.Plan
+		ShowTutorial bool
+		Teachers     []*model.Teacher
+		Plan         *model.Plan
 	}
 	data := &Data{
 		commonTemplateData: getCommonTemplateData(r, true),
 	}
-	db := model.MustDB(ctx)
 
+	showTutorialStr := r.FormValue("showTutorial")
+	if showTutorialStr == "true" {
+		data.ShowTutorial = true
+	}
+
+	db := model.MustDB(ctx)
 	planService := model.NewPlanService(db)
 	plan, err := planService.FindByPk(user.PlanID)
 	if err != nil {

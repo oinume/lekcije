@@ -4,6 +4,7 @@
     <h3>講師をフォローしよう</h3>
     {{ template "_flashMessage.html" . }}
 
+    {{ if .ShowTutorial }}
     <div class="alert alert-success" role="alert">
       <button type="button" class="close" data-dismiss="alert">&times;</button>
       <h4><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 講師をフォローするには</h4>
@@ -14,6 +15,7 @@
         <li>フォローすると、その講師の空きレッスンがあった時にメールでお知らせ</li>
       </ol>
     </div>
+    {{ end }}
 
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">

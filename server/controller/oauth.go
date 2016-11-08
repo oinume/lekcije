@@ -86,6 +86,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	db := model.MustDB(ctx)
 	userService := model.NewUserService(db)
 	user, err := userService.FindByGoogleID(googleID)
+	userCreated := false
 	if err != nil {
 		if _, notFound := err.(*errors.NotFound); !notFound {
 			InternalServerError(w, err)
@@ -101,6 +102,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
+		userCreated = true
 	}
 
 	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
@@ -119,19 +121,11 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	//data := map[string]interface{}{
-	//	"id":          user.ID,
-	//	"name":        user.Name,
-	//	"email":       user.Email,
-	//	"accessToken": token.AccessToken,
-	//	"idToken":     idToken,
-	//}
-	//if err := json.NewEncoder(w).Encode(data); err != nil {
-	//	InternalServerError(w, errors.Errorf("Failed to encode JSON"))
-	//	return
-	//}
-
-	http.Redirect(w, r, "/me", http.StatusFound)
+	redirectURL := "/me"
+	if userCreated {
+		redirectURL += "?showTutorial=true"
+	}
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 func checkState(r *http.Request) error {
