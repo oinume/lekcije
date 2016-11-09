@@ -28,3 +28,7 @@ go_test:
 
 minify_static:
 	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build
+
+reset_db:
+	mysql -h 192.168.99.100 -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
+	mysql -h 192.168.99.100 -P 13306 -uroot -proot < db/create_database.sql

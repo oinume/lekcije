@@ -118,19 +118,6 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookie)
-
-	//data := map[string]interface{}{
-	//	"id":          user.ID,
-	//	"name":        user.Name,
-	//	"email":       user.Email,
-	//	"accessToken": token.AccessToken,
-	//	"idToken":     idToken,
-	//}
-	//if err := json.NewEncoder(w).Encode(data); err != nil {
-	//	InternalServerError(w, errors.Errorf("Failed to encode JSON"))
-	//	return
-	//}
-
 	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
