@@ -86,7 +86,6 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	db := model.MustDB(ctx)
 	userService := model.NewUserService(db)
 	user, err := userService.FindByGoogleID(googleID)
-	userCreated := false
 	if err != nil {
 		if _, notFound := err.(*errors.NotFound); !notFound {
 			InternalServerError(w, err)
@@ -102,7 +101,6 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
-		userCreated = true
 	}
 
 	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
@@ -120,12 +118,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookie)
-
-	redirectURL := "/me"
-	if userCreated {
-		redirectURL += "?showTutorial=true"
-	}
-	http.Redirect(w, r, redirectURL, http.StatusFound)
+	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
 func checkState(r *http.Request) error {

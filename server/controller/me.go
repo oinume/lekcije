@@ -35,7 +35,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	data := &Data{
 		commonTemplateData: getCommonTemplateData(r, true),
 	}
-	data.ShowTutorial = r.FormValue("showTutorial") == "true"
+	data.ShowTutorial = !user.FollowedTeacherAt.Valid
 
 	db := model.MustDB(ctx)
 	planService := model.NewPlanService(db)
@@ -73,8 +73,19 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
+	db := model.MustDB(ctx)
 
+	// Update user.followed_teacher_at when first time to follow teachers.
+	// user.followed_teacher_at is used for showing tutorial.
+	if !user.FollowedTeacherAt.Valid {
+		userService := model.NewUserService(db)
+		if err := userService.UpdateFollowedTeacherAt(user); err != nil {
+			InternalServerError(w, err)
+			return
+		}
+	}
+
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
 	for _, t := range teachers {
 		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
@@ -93,7 +104,6 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		teacher.CreatedAt = now
 		teacher.UpdatedAt = now
 		// TODO: Create method on service (FollowTeacher)
-		db := model.MustDB(ctx)
 		if err := db.FirstOrCreate(teacher).Error; err != nil {
 			e := errors.InternalWrapf(err, "Failed to create Teacher: teacherID=%d", teacher.ID)
 			InternalServerError(w, e)

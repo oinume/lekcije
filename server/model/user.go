@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
@@ -14,13 +15,14 @@ const (
 )
 
 type User struct {
-	ID            uint32 `gorm:"primary_key;AUTO_INCREMENT"`
-	Name          string
-	Email         Email
-	EmailVerified bool
-	PlanID        uint8
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID                uint32 `gorm:"primary_key;AUTO_INCREMENT"`
+	Name              string
+	Email             Email
+	EmailVerified     bool
+	PlanID            uint8
+	FollowedTeacherAt mysql.NullTime
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 func (*User) TableName() string {
@@ -146,6 +148,14 @@ func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 			result.Error,
 			"Failed to update email: id=%v, email=%v", user.ID, email,
 		)
+	}
+	return nil
+}
+
+func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
+	sql := "UPDATE user SET followed_teacher_at = NOW() WHERE id = ?"
+	if err := s.db.Exec(sql, user.ID).Error; err != nil {
+		return errors.InternalWrapf(err, "Failed to update followed_teacher_at: id=%v", user.ID)
 	}
 	return nil
 }
