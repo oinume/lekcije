@@ -35,11 +35,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	data := &Data{
 		commonTemplateData: getCommonTemplateData(r, true),
 	}
-
-	showTutorialStr := r.FormValue("showTutorial")
-	if showTutorialStr == "true" {
-		data.ShowTutorial = true
-	}
+	data.ShowTutorial = r.FormValue("showTutorial") == "true"
 
 	db := model.MustDB(ctx)
 	planService := model.NewPlanService(db)
