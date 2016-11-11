@@ -30,14 +30,14 @@ func TestMain(m *testing.M) {
 		// TODO: Not use panic
 		panic(err)
 	}
-	bootstrap.CheckHTTPServerEnvVars()
+	bootstrap.CheckServerEnvVars()
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
 	logger.InitializeAccessLogger(&accessLogBuffer)
 	logger.InitializeAppLogger(&appLogBuffer)
 
 	var err error
-	db, err = model.OpenDB(dbURL, true) // TODO: env
+	db, err = model.OpenDB(dbURL, 1, true) // TODO: env
 	if err != nil {
 		panic(err)
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	bootstrap.CheckHTTPServerEnvVars()
+	bootstrap.CheckServerEnvVars()
 }
 
 func main() {
