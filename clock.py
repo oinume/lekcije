@@ -1,9 +1,11 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
+import subprocess
 
 scheduler = BlockingScheduler()
 
-@scheduler.scheduled_job('interval', minutes=30)
+@scheduler.scheduled_job('interval', minutes=5)
 def timed_job():
-    print('This job is run every 30 minutes.')
+    print("Run notifier")
+    subprocess.run("notifier && curl https://nosnch.in/c411a3a685", shell=True, check=True)
 
 scheduler.start()
