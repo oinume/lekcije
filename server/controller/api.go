@@ -18,7 +18,7 @@ func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 		"redis": true,
 	}
 
-	db, err := model.OpenDB(bootstrap.HTTPServerEnvVars.DBURL, !config.IsProductionEnv())
+	db, err := model.OpenDB(bootstrap.ServerEnvVars.DBURL, 1, !config.IsProductionEnv())
 	if err == nil {
 		defer db.Close()
 		if err := db.DB().Ping(); err != nil {
@@ -28,7 +28,7 @@ func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 		data["db"] = false
 	}
 
-	redis, err := model.OpenRedis(bootstrap.HTTPServerEnvVars.RedisURL)
+	redis, err := model.OpenRedis(bootstrap.ServerEnvVars.RedisURL)
 	if err == nil {
 		defer redis.Close()
 		if redis.Ping().Err() != nil {

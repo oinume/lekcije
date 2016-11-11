@@ -16,13 +16,12 @@ import (
 
 const (
 	dbDatetimeFormat = "2006-01-02 15:04:05"
-	maxConnections   = 7
 )
 
 type contextKeyDB struct{}
 type contextKeyRedis struct{}
 
-func OpenDB(dsn string, logging bool) (*gorm.DB, error) {
+func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	db, err := sql.Open(
 		"mysql",
 		dsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
@@ -43,8 +42,10 @@ func OpenDB(dsn string, logging bool) (*gorm.DB, error) {
 	return gormDB, nil
 }
 
-func OpenDBAndSetToContext(ctx context.Context, dbURL string, logging bool) (*gorm.DB, context.Context, error) {
-	db, err := OpenDB(dbURL, logging)
+func OpenDBAndSetToContext(
+	ctx context.Context, dbURL string, maxConnections int, logging bool,
+) (*gorm.DB, context.Context, error) {
+	db, err := OpenDB(dbURL, maxConnections, logging)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -40,7 +40,10 @@ func run() error {
 		logger.AppLogger.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	db, _, err := model.OpenDBAndSetToContext(context.Background(), bootstrap.CLIEnvVars.DBURL, !config.IsProductionEnv())
+	db, _, err := model.OpenDBAndSetToContext(
+		context.Background(), bootstrap.CLIEnvVars.DBURL,
+		1, !config.IsProductionEnv(),
+	)
 	if err != nil {
 		return err
 	}

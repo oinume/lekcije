@@ -38,7 +38,7 @@ type HTTPServerEnvVarsType struct {
 
 var _ = fmt.Print
 var CLIEnvVars = CLIEnvVarsType{}
-var HTTPServerEnvVars = HTTPServerEnvVarsType{}
+var ServerEnvVars = HTTPServerEnvVarsType{}
 
 func init() {
 	http.DefaultClient.Timeout = 5 * time.Second
@@ -48,14 +48,14 @@ func CheckCLIEnvVars() {
 	checkEnvVars(reflect.Indirect(reflect.ValueOf(&CLIEnvVars)))
 	rollbar.Token = os.Getenv("ROLLBAR_ACCESS_TOKEN")
 	rollbar.Endpoint = os.Getenv("ROLLBAR_ENDPOINT")
-	rollbar.Environment = HTTPServerEnvVars.NodeEnv
+	rollbar.Environment = ServerEnvVars.NodeEnv
 }
 
-func CheckHTTPServerEnvVars() {
-	checkEnvVars(reflect.Indirect(reflect.ValueOf(&HTTPServerEnvVars)))
+func CheckServerEnvVars() {
+	checkEnvVars(reflect.Indirect(reflect.ValueOf(&ServerEnvVars)))
 	rollbar.Token = os.Getenv("ROLLBAR_ACCESS_TOKEN")
 	rollbar.Endpoint = os.Getenv("ROLLBAR_ENDPOINT")
-	rollbar.Environment = HTTPServerEnvVars.NodeEnv
+	rollbar.Environment = ServerEnvVars.NodeEnv
 }
 
 func checkEnvVars(value reflect.Value) {
