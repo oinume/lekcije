@@ -25,3 +25,4 @@ volume/nginx/var/log
 # Other
 deploy.sh
 
+.venv
