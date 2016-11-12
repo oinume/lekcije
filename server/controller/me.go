@@ -81,7 +81,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	if count > model.MaxFollowTeacherCount { // TODO: As plan
+	if count >= model.MaxFollowTeacherCount { // TODO: As plan
 		http.Redirect(w, r, "/me", http.StatusFound) // TODO: Show error
 		return
 	}
