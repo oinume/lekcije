@@ -15,9 +15,11 @@ import (
 )
 
 const (
-	followedMessage   = "フォローしました！"
-	unfollowedMessage = "削除しました！"
-	updatedMessage    = "設定を更新しました！"
+	followedMessage          = "フォローしました！"
+	unfollowedMessage        = "削除しました！"
+	updatedMessage           = "設定を更新しました！"
+	emptyTeacherURLMessage   = "講師のURLまたはIDを入力して下さい"
+	invalidTeacherURLMessage = "正しい講師のURLまたはIDを入力して下さい"
 )
 
 var _ = fmt.Printf
@@ -65,12 +67,23 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	user := model.MustLoggedInUser(ctx)
 	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
 	if teacherIDsOrUrl == "" {
-		http.Redirect(w, r, "/me", http.StatusFound)
+		e := flash_message.New(flash_message.KindWarning, emptyTeacherURLMessage)
+		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+			InternalServerError(w, err)
+			return
+		}
+		http.Redirect(w, r, "/me?flashMessageKey="+e.Key, http.StatusFound)
 		return
 	}
+
 	teachers, err := model.NewTeachersFromIDsOrURL(teacherIDsOrUrl)
 	if err != nil {
-		InternalServerError(w, err)
+		e := flash_message.New(flash_message.KindWarning, invalidTeacherURLMessage)
+		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+			InternalServerError(w, err)
+			return
+		}
+		http.Redirect(w, r, "/me?flashMessageKey="+e.Key, http.StatusFound)
 		return
 	}
 
@@ -117,10 +130,13 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	flashMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
-	flash_message.MustStore(ctx).Save(flashMessage)
+	successMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
+	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
+		InternalServerError(w, err)
+		return
+	}
 
-	http.Redirect(w, r, "/me?flashMessageKey="+flashMessage.Key, http.StatusFound)
+	http.Redirect(w, r, "/me?flashMessageKey="+successMessage.Key, http.StatusFound)
 }
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
