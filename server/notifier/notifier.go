@@ -58,6 +58,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			switch err.(type) {
 			case *errors.NotFound:
 				// TODO: update teacher table flag
+				// TODO: Not need to log
 				logger.AppLogger.Warn("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)))
 				continue
 			default:

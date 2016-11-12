@@ -10,6 +10,8 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
+const MaxFollowTeacherCount = 30
+
 type FollowingTeacher struct {
 	UserID    uint32 `gorm:"primary_key"`
 	TeacherID uint32 `gorm:"primary_key"`
@@ -67,6 +69,42 @@ func (s *FollowingTeacherService) FindTeacherIDsByUserID(userID uint32) ([]uint3
 		ids[i] = t.TeacherID
 	}
 	return ids, nil
+}
+
+func (s *FollowingTeacherService) CountFollowingTeachersByUserID(userID uint32) (int, error) {
+	count := struct {
+		Count int
+	}{}
+	sql := `SELECT COUNT(*) AS count FROM following_teacher WHERE user_id = ?`
+	if err := s.db.Raw(sql, userID).Scan(&count).Error; err != nil {
+		return 0, errors.InternalWrapf(err, "Failed to count: userID=%v", userID)
+	}
+	return count.Count, nil
+}
+
+func (s *FollowingTeacherService) FollowTeacher(
+	userID uint32, teacher *Teacher, timestamp time.Time,
+) error {
+	teacher.CreatedAt = timestamp
+	teacher.UpdatedAt = timestamp
+	if err := s.db.FirstOrCreate(teacher).Error; err != nil {
+		return errors.InternalWrapf(err, "Failed to create Teacher: teacherID=%d", teacher.ID)
+	}
+
+	ft := &FollowingTeacher{
+		UserID:    userID,
+		TeacherID: teacher.ID,
+		CreatedAt: timestamp,
+		UpdatedAt: timestamp,
+	}
+	if err := s.db.FirstOrCreate(ft).Error; err != nil {
+		return errors.InternalWrapf(
+			err,
+			"Failed to create FollowingTeacher: userID=%d, teacherID=%d",
+			userID, teacher.ID,
+		)
+	}
+	return nil
 }
 
 func (s *FollowingTeacherService) DeleteTeachersByUserIDAndTeacherIDs(

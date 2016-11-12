@@ -65,7 +65,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	user := model.MustLoggedInUser(ctx)
 	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
 	if teacherIDsOrUrl == "" {
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, "/me", http.StatusFound)
 		return
 	}
 	teachers, err := model.NewTeachersFromIDsOrURL(teacherIDsOrUrl)
@@ -73,7 +73,18 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
+
 	db := model.MustDB(ctx)
+	followingTeacherService := model.NewFollowingTeacherService(db)
+	count, err := followingTeacherService.CountFollowingTeachersByUserID(user.ID)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+	if count > model.MaxFollowTeacherCount { // TODO: As plan
+		http.Redirect(w, r, "/me", http.StatusFound) // TODO: Show error
+		return
+	}
 
 	// Update user.followed_teacher_at when first time to follow teachers.
 	// user.followed_teacher_at is used for showing tutorial.
@@ -86,6 +97,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fetcher := fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
+	now := time.Now().UTC()
 	for _, t := range teachers {
 		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
@@ -99,30 +111,8 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-
-		now := time.Now()
-		teacher.CreatedAt = now
-		teacher.UpdatedAt = now
-		// TODO: Create method on service (FollowTeacher)
-		if err := db.FirstOrCreate(teacher).Error; err != nil {
-			e := errors.InternalWrapf(err, "Failed to create Teacher: teacherID=%d", teacher.ID)
-			InternalServerError(w, e)
-			return
-		}
-
-		ft := &model.FollowingTeacher{
-			UserID:    user.ID,
-			TeacherID: teacher.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		if err := db.FirstOrCreate(ft).Error; err != nil {
-			e := errors.InternalWrapf(
-				err,
-				"Failed to create FollowingTeacher: userID=%d, teacherID=%d",
-				user.ID, teacher.ID,
-			)
-			InternalServerError(w, e)
+		if err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
+			InternalServerError(w, err)
 			return
 		}
 	}
@@ -130,7 +120,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	flashMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
 	flash_message.MustStore(ctx).Save(flashMessage)
 
-	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
+	http.Redirect(w, r, "/me?flashMessageKey="+flashMessage.Key, http.StatusFound)
 }
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
