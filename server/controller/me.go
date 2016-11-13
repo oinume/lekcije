@@ -73,7 +73,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?flashMessageKey="+e.Key, http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
 		return
 	}
 
@@ -84,7 +84,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?flashMessageKey="+e.Key, http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
 		return
 	}
 
@@ -104,8 +104,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		// TODO: Generate flashMessageKey=fugafuga by e.ToURLParam
-		http.Redirect(w, r, "/me?flashMessageKey="+e.Key, http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
 		return
 	}
 
@@ -146,7 +145,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/me?flashMessageKey="+successMessage.Key, http.StatusFound)
+	http.Redirect(w, r, "/me?"+successMessage.AsURLParam(), http.StatusFound)
 }
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
@@ -173,10 +172,13 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flashMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
-	flash_message.MustStore(ctx).Save(flashMessage)
+	successMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
+	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
+		InternalServerError(w, err)
+		return
+	}
 
-	http.Redirect(w, r, "/?flashMessageKey="+flashMessage.Key, http.StatusFound)
+	http.Redirect(w, r, "/me?"+successMessage.AsURLParam(), http.StatusFound)
 }
 
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
@@ -214,10 +216,13 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flashMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
-	flash_message.MustStore(ctx).Save(flashMessage)
+	successMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
+	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
+		InternalServerError(w, err)
+		return
+	}
 
-	http.Redirect(w, r, "/me/setting?flashMessageKey="+flashMessage.Key, http.StatusFound)
+	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLParam(), http.StatusFound)
 }
 
 func validateEmail(email string) bool {
