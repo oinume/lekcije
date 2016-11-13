@@ -77,8 +77,11 @@ func (f *FlashMessage) Set() (string, error) {
 	if err != nil {
 		return "", errors.InternalWrapf(err, "Failed to json.Marshal()")
 	}
-
 	return string(bytes), nil
+}
+
+func (f *FlashMessage) AsURLParam() string {
+	return "flashMessageKey=" + f.Key
 }
 
 type Store interface {
