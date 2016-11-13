@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	followedMessage          = "フォローしました！"
-	unfollowedMessage        = "削除しました！"
-	updatedMessage           = "設定を更新しました！"
-	emptyTeacherURLMessage   = "講師のURLまたはIDを入力して下さい"
-	invalidTeacherURLMessage = "正しい講師のURLまたはIDを入力して下さい"
+	followedMessage                = "フォローしました！"
+	unfollowedMessage              = "削除しました！"
+	updatedMessage                 = "設定を更新しました！"
+	emptyTeacherURLMessage         = "講師のURLまたはIDを入力して下さい"
+	invalidTeacherURLMessage       = "正しい講師のURLまたはIDを入力して下さい"
+	reachedMaxFollowTeacherMessage = "フォロー可能な上限数(%d)を超えました"
 )
 
 var _ = fmt.Printf
@@ -94,8 +95,17 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	if count >= model.MaxFollowTeacherCount { // TODO: As plan
-		http.Redirect(w, r, "/me", http.StatusFound) // TODO: Show error
+	if count+len(teachers) > model.MaxFollowTeacherCount { // TODO: As plan
+		e := flash_message.New(
+			flash_message.KindWarning,
+			fmt.Sprintf(reachedMaxFollowTeacherMessage, model.MaxFollowTeacherCount),
+		)
+		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+			InternalServerError(w, err)
+			return
+		}
+		// TODO: Generate flashMessageKey=fugafuga by e.ToURLParam
+		http.Redirect(w, r, "/me?flashMessageKey="+e.Key, http.StatusFound)
 		return
 	}
 
