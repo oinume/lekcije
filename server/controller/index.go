@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
@@ -66,6 +67,17 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func RobotsTxt(w http.ResponseWriter, r *http.Request) {
+	content := `
+User-agent: *
+Allow: /
+`
+	// TODO: sitemap https://www.lekcije.com/sitemap.xml
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, strings.TrimSpace(content))
 }
 
 func Terms(w http.ResponseWriter, r *http.Request) {
