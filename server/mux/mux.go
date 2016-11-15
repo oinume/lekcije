@@ -24,6 +24,7 @@ func Create() *goji.Mux {
 	mux.HandleFunc(pat.Get("/oauth/google"), controller.OAuthGoogle)
 	mux.HandleFunc(pat.Get("/oauth/google/callback"), controller.OAuthGoogleCallback)
 	mux.HandleFunc(pat.Get("/robots.txt"), controller.RobotsTxt)
+	mux.HandleFunc(pat.Get("/sitemap.xml"), controller.SitemapXML)
 	mux.HandleFunc(pat.Get("/terms"), controller.Terms)
 	mux.HandleFunc(pat.Get("/me"), controller.GetMe)
 	mux.HandleFunc(pat.Post("/me/followingTeachers/create"), controller.PostMeFollowingTeachersCreate)
