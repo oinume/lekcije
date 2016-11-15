@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 )
@@ -76,6 +77,20 @@ Allow: /
 `
 	// TODO: sitemap https://www.lekcije.com/sitemap.xml
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, strings.TrimSpace(content))
+}
+
+func SitemapXML(w http.ResponseWriter, r *http.Request) {
+	content := fmt.Sprintf(`
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>%s/</loc>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+	`, config.WebURL())
+	w.Header().Set("Content-Type", "text/xml; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, strings.TrimSpace(content))
 }
