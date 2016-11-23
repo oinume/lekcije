@@ -21,7 +21,7 @@ var _ = fmt.Print
 
 func TestOAuthGoogle(t *testing.T) {
 	if os.Getenv("CIRCLECI") != "" {
-		t.Skipf("Skip because it can't render Google log in page.")
+		t.Skipf("Skip because it can't render Google login page.")
 	}
 	a := assert.New(t)
 	driver := newWebDriver()
@@ -69,6 +69,10 @@ func TestOAuthGoogle(t *testing.T) {
 }
 
 func TestOAuthGoogleLogout(t *testing.T) {
+	if os.Getenv("CIRCLECI") != "" {
+		t.Skipf("Skip because PhantomJS can't SetCookie.")
+	}
+
 	a := assert.New(t)
 
 	_, apiToken, err := createUserAndLogin("oinume", randomEmail("oinume"), util.RandomString(16))
