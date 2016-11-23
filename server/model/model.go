@@ -155,6 +155,9 @@ func TruncateAllTables(db *gorm.DB, dbName string) error {
 		return err
 	}
 	for _, t := range tables {
+		if t == "plan" {
+			continue // TODO: rename to m_plan
+		}
 		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
 			return err
 		}

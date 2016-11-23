@@ -41,6 +41,14 @@ func (s *UserAPITokenService) Create(userID uint32) (*UserAPIToken, error) {
 	return &userAPIToken, nil
 }
 
+func (s *UserAPITokenService) FindByPK(token string) (*UserAPIToken, error) {
+	userAPIToken := &UserAPIToken{}
+	if err := s.db.First(userAPIToken, &UserAPIToken{Token: token}).Error; err != nil {
+		return nil, errors.NotFoundWrapf(err, "UserAPIToken not found for token = %v", token)
+	}
+	return userAPIToken, nil
+}
+
 func (s *UserAPITokenService) DeleteByUserIDAndToken(userID uint32, token string) error {
 	result := s.db.Where("user_id = ? AND token = ?", userID, token).Delete(&UserAPIToken{})
 	if result.Error != nil {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/oinume/lekcije/server/errors"
 )
 
 const DefaultPlanID = uint8(4)
@@ -35,10 +36,10 @@ func (s *PlanService) TableName() string {
 	return (&Plan{}).TableName()
 }
 
-func (s *PlanService) FindByPk(id uint8) (*Plan, error) {
+func (s *PlanService) FindByPK(id uint8) (*Plan, error) {
 	plan := &Plan{}
 	if err := s.db.First(plan, &Plan{ID: id}).Error; err != nil {
-		return nil, err
+		return nil, errors.NotFoundWrapf(err, "Plan not found for id = %v", id)
 	}
 	return plan, nil
 }

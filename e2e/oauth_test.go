@@ -7,7 +7,12 @@ import (
 	"testing"
 	"time"
 
+	"net/url"
+
+	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +21,7 @@ var _ = fmt.Print
 
 func TestOAuthGoogle(t *testing.T) {
 	if os.Getenv("CIRCLECI") != "" {
-		t.Skipf("Skip because it can't render Google log in page.")
+		t.Skipf("Skip because it can't render Google login page.")
 	}
 	a := assert.New(t)
 	driver := newWebDriver()
@@ -64,7 +69,39 @@ func TestOAuthGoogle(t *testing.T) {
 }
 
 func TestOAuthGoogleLogout(t *testing.T) {
-	// TODO: user_api_token will be deleted after logout
+	if os.Getenv("CIRCLECI") != "" {
+		t.Skipf("Skip because PhantomJS can't SetCookie.")
+	}
+
+	a := assert.New(t)
+
+	_, apiToken, err := createUserAndLogin("oinume", randomEmail("oinume"), util.RandomString(16))
+	a.Nil(err)
+
+	driver := newWebDriver()
+	a.Nil(driver.Start())
+	defer driver.Stop()
+
+	page, err := driver.NewPage()
+	a.Nil(err)
+	a.Nil(page.Navigate(server.URL))
+	u, err := url.Parse(server.URL)
+	a.Nil(err)
+	cookie := &http.Cookie{
+		Name:     controller.APITokenCookieName,
+		Domain:   u.Host,
+		Value:    apiToken,
+		Path:     "/",
+		Expires:  time.Now().Add(model.UserAPITokenExpiration),
+		HttpOnly: false,
+	}
+	a.Nil(page.SetCookie(cookie))
+	a.Nil(page.Navigate(server.URL + "/me"))
+
+	a.Nil(page.Navigate(server.URL + "/logout"))
+	userAPITokenService := model.NewUserAPITokenService(db)
+	_, err = userAPITokenService.FindByPK(apiToken)
+	a.IsType(&errors.NotFound{}, err)
 }
 
 func getAPIToken(cookies []*http.Cookie) string {
