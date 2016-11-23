@@ -31,4 +31,5 @@ minify_static:
 
 reset_db:
 	mysql -h 192.168.99.100 -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
+	mysql -h 192.168.99.100 -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
 	mysql -h 192.168.99.100 -P 13306 -uroot -proot < db/create_database.sql
