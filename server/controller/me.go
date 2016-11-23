@@ -42,7 +42,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 
 	db := model.MustDB(ctx)
 	planService := model.NewPlanService(db)
-	plan, err := planService.FindByPk(user.PlanID)
+	plan, err := planService.FindByPK(user.PlanID)
 	if err != nil {
 		InternalServerError(w, err)
 		return

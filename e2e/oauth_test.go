@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	"github.com/oinume/lekcije/server/controller"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
@@ -70,7 +71,7 @@ func TestOAuthGoogle(t *testing.T) {
 func TestOAuthGoogleLogout(t *testing.T) {
 	a := assert.New(t)
 
-	user, apiToken, err := createUserAndLogin("oinume", randomEmail("oinume"), util.RandomString(16))
+	_, apiToken, err := createUserAndLogin("oinume", randomEmail("oinume"), util.RandomString(16))
 	a.Nil(err)
 
 	driver := newWebDriver()
@@ -82,7 +83,6 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	a.Nil(page.Navigate(server.URL))
 	u, err := url.Parse(server.URL)
 	a.Nil(err)
-	fmt.Printf("server.URL = %v\n", server.URL)
 	cookie := &http.Cookie{
 		Name:     controller.APITokenCookieName,
 		Domain:   u.Host,
@@ -93,10 +93,11 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	}
 	a.Nil(page.SetCookie(cookie))
 	a.Nil(page.Navigate(server.URL + "/me"))
-	time.Sleep(100 * time.Second)
-	a.Nil(user)
 
-	// TODO: user_api_token will be deleted after logout
+	a.Nil(page.Navigate(server.URL + "/logout"))
+	userAPITokenService := model.NewUserAPITokenService(db)
+	_, err = userAPITokenService.FindByPK(apiToken)
+	a.IsType(&errors.NotFound{}, err)
 }
 
 func getAPIToken(cookies []*http.Cookie) string {
