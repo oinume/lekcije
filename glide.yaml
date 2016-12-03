@@ -1,5 +1,10 @@
 package: github.com/oinume/lekcije
 import:
+  # goose's dep
+  - package: github.com/kylelemons/go-gypsy/yaml
+  - package: github.com/lib/pq
+  - package: github.com/mattn/go-sqlite3
+  - package: github.com/ziutek/mymysql/godrv
   - package: bitbucket.org/liamstask/goose/cmd/goose
   - package: github.com/cespare/reflex
   - package: gopkg.in/xmlpath.v2

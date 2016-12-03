@@ -1,5 +1,5 @@
-hash: 49e818974822b926ba233bb7e77788ccc5afc5a2c259f1cef3492db3f322363a
-updated: 2016-11-01T00:36:52.574089269+09:00
+hash: 6dc2100cd24a98fc6d7866c916f4bdd9270281132a161f9bcd6b072592002ce6
+updated: 2016-12-03T23:59:18.242526742+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -28,6 +28,14 @@ imports:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
   version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
+- name: github.com/kylelemons/go-gypsy
+  version: 08cad365cd28a7fba23bb1e57aa43c5e18ad8bb8
+  subpackages:
+  - yaml
+- name: github.com/lib/pq
+  version: 4a82388ebc5138c8289fe9bc602cb0b3e32cd617
+- name: github.com/mattn/go-sqlite3
+  version: 8ecd77c707d698b39fbcf76e4e8d08f284c8307f
 - name: github.com/newrelic/go-agent
   version: a923caa59930cbb1b27d2a9fb2d5663d9e5c637c
   subpackages:
@@ -71,6 +79,10 @@ imports:
   version: 0c9e689d64f004564b79d9a663634756df322902
 - name: github.com/uber-go/zap
   version: fc9fbdfe46f6dc6a78028f22a2fb086dd13182fd
+- name: github.com/ziutek/mymysql
+  version: 501176fc99be4b4fb0fd01ae8d6af5d8bb408e44
+  subpackages:
+  - godrv
 - name: goji.io
   version: bc2e9e7dc2769805d1b6ce4dc48ec23a03ae82ec
   subpackages:
