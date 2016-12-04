@@ -1,5 +1,5 @@
-hash: 6dc2100cd24a98fc6d7866c916f4bdd9270281132a161f9bcd6b072592002ce6
-updated: 2016-12-03T23:59:18.242526742+09:00
+hash: 89e16f45dbdaf734104f4b4dbe163bfcf66587b7529e83fa567f1ef0753f4dfc
+updated: 2016-12-05T00:19:17.932337549+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -28,6 +28,10 @@ imports:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
   version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
+- name: github.com/kballard/go-shellquote
+  version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
+- name: github.com/kr/pty
+  version: ce7fa45920dc37a92de8377972e52bc55ffa8d57
 - name: github.com/kylelemons/go-gypsy
   version: 08cad365cd28a7fba23bb1e57aa43c5e18ad8bb8
   subpackages:
@@ -44,6 +48,8 @@ imports:
   - internal/logger
   - internal/sysinfo
   - internal/utilization
+- name: github.com/ogier/pflag
+  version: 45c278ab3607870051a2ea9040bb85fcb8557481
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
@@ -103,6 +109,10 @@ imports:
   - internal
   - jws
   - jwt
+- name: golang.org/x/sys
+  version: ca83bd2cb9abb47839b50eb4da612f00158f5870
+  subpackages:
+  - unix
 - name: google.golang.org/api
   version: 5d9c84e3b78a84b6ddc17f88164527f935501e94
   subpackages:
@@ -124,6 +134,8 @@ imports:
   - urlfetch
 - name: gopkg.in/bsm/ratelimit.v1
   version: db14e161995a5177acef654cb0dd785e8ee8bc22
+- name: gopkg.in/fsnotify.v1
+  version: 629574ca2a5df945712d3079857300b5e4da0236
 - name: gopkg.in/redis.v4
   version: 938235994ea88a05678f8060741d5f34ed6a5ff3
   subpackages:

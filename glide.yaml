@@ -6,6 +6,12 @@ import:
   - package: github.com/mattn/go-sqlite3
   - package: github.com/ziutek/mymysql/godrv
   - package: bitbucket.org/liamstask/goose/cmd/goose
+  # reflex's dep
+  - package: github.com/kballard/go-shellquote
+  - package: github.com/kr/pty
+  - package: github.com/ogier/pflag
+  - package: gopkg.in/fsnotify.v1
+  - package: golang.org/x/sys/unix
   - package: github.com/cespare/reflex
   - package: gopkg.in/xmlpath.v2
   - package: goji.io
@@ -44,3 +50,4 @@ import:
   - package: github.com/sendgrid/rest
   - package: github.com/newrelic/go-agent
   - package: github.com/stvp/rollbar
+
