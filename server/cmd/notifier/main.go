@@ -26,7 +26,6 @@ func main() {
 	err := run()
 	if err != nil {
 		log.Fatalf("err = %v", err) // TODO: Error handling
-		os.Exit(1)
 	}
 	os.Exit(0)
 }
