@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/oinume/lekcije/server/bootstrap"
@@ -17,5 +18,7 @@ func main() {
 	port := config.ListenPort()
 	mux := mux.Create()
 	fmt.Printf("Listening on :%v\n", port)
-	http.ListenAndServe(fmt.Sprintf(":%v", port), mux)
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), mux); err != nil {
+		log.Fatalf("ListenAndServe() on :%v failed: err = %v", port, err)
+	}
 }
