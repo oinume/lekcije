@@ -12,10 +12,13 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/google_analytics"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stvp/rollbar"
 	"github.com/uber-go/zap"
+	"github.com/oinume/lekcije/server/bootstrap"
+	"os"
 )
 
 const APITokenCookieName = "apiToken"
@@ -125,4 +128,24 @@ func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData 
 	}
 
 	return data
+}
+
+var gaClient = google_analytics.NewClient(http.DefaultClient)
+
+func newGAEventParams(req *http.Request) (*google_analytics.EventParams, error) {
+	cookie, err := req.Cookie("_ga")
+	if err != nil {
+		return nil, err
+	}
+	clientID, err := google_analytics.GetClientID(cookie)
+	if err != nil {
+		return nil, err
+	}
+	return google_analytics.NewEventParams(os.Getenv("GOOGLE_ANALYTICS_ID"), clientID, "", "", "", ""), nil // TODO:
+}
+
+func sendGARequest(params google_analytics.Params) {
+	if err := gaClient.Do(params); err != nil {
+		panic(err) // TODO: log
+	}
 }

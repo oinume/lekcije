@@ -101,6 +101,14 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
+
+		// TODO: Send GA event
+		if params, err := newGAEventParams(r); err == nil {
+			sendGARequest(params)
+		} else {
+
+		}
+
 	}
 
 	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
