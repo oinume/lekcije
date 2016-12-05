@@ -23,8 +23,7 @@ var (
 
 func main() {
 	flag.Parse()
-	err := run()
-	if err != nil {
+	if err := run(); err != nil {
 		log.Fatalf("err = %v", err) // TODO: Error handling
 	}
 	os.Exit(0)
