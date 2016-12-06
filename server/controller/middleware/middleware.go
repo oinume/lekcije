@@ -55,10 +55,6 @@ func AccessLogger(h http.Handler) http.Handler {
 			if status == 0 {
 				status = http.StatusOK
 			}
-			remoteAddr := r.RemoteAddr
-			if remoteAddr != "" {
-				remoteAddr = (strings.Split(remoteAddr, ":"))[0]
-			}
 
 			// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
 			logger.AccessLogger.Info(
@@ -68,7 +64,7 @@ func AccessLogger(h http.Handler) http.Handler {
 				zap.String("url", r.URL.String()),
 				zap.Int("status", status),
 				zap.Int("bytes", writerProxy.BytesWritten()),
-				zap.String("remoteAddr", remoteAddr),
+				zap.String("remoteAddr", controller.GetRemoteAddress(r)),
 				zap.String("userAgent", r.Header.Get("User-Agent")),
 				zap.String("referer", r.Referer()),
 				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),

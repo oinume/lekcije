@@ -6,19 +6,18 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/google_analytics"
+	"github.com/oinume/lekcije/server/google_analytics/measurement"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stvp/rollbar"
 	"github.com/uber-go/zap"
-	"github.com/oinume/lekcije/server/bootstrap"
-	"os"
 )
 
 const APITokenCookieName = "apiToken"
@@ -130,22 +129,50 @@ func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData 
 	return data
 }
 
-var gaClient = google_analytics.NewClient(http.DefaultClient)
+var measurementClient = measurement.NewClient(http.DefaultClient)
 
-func newGAEventParams(req *http.Request) (*google_analytics.EventParams, error) {
-	cookie, err := req.Cookie("_ga")
-	if err != nil {
-		return nil, err
+const (
+	eventCategoryAccount = "account"
+)
+
+func sendMeasurementEvent(req *http.Request, category, action, label string, value int64) {
+	trackingID := os.Getenv("GOOGLE_ANALYTICS_ID")
+	var clientID string
+	if cookie, err := req.Cookie("ga"); err == nil {
+		clientID, err = measurement.GetClientID(cookie)
+		if err != nil {
+			logger.AppLogger.Warn("measurement.GetClientID() failed", zap.Error(err))
+		}
+	} else {
+		clientID = GetRemoteAddress(req)
 	}
-	clientID, err := google_analytics.GetClientID(cookie)
-	if err != nil {
-		return nil, err
+
+	params := measurement.NewEventParams(trackingID, clientID, category, action)
+	params.DataSource = "server"
+	if label != "" {
+		params.EventLabel = label
 	}
-	return google_analytics.NewEventParams(os.Getenv("GOOGLE_ANALYTICS_ID"), clientID, "", "", "", ""), nil // TODO:
+	if value != 0 {
+		params.EventValue = value
+	}
+
+	if err := measurementClient.Do(params); err == nil {
+		logger.AppLogger.Debug(
+			"sendMeasurementEvent() success",
+			zap.String("category", category),
+			zap.String("action", action),
+			zap.String("label", label),
+			zap.Int64("value", value),
+		)
+	} else {
+		logger.AppLogger.Warn("measurementClient.Do() failed", zap.Error(err))
+	}
 }
 
-func sendGARequest(params google_analytics.Params) {
-	if err := gaClient.Do(params); err != nil {
-		panic(err) // TODO: log
+func GetRemoteAddress(req *http.Request) string {
+	xForwardedFor := req.Header.Get("X-Forwarded-For")
+	if xForwardedFor == "" {
+		return (strings.Split(req.RemoteAddr, ":"))[0]
 	}
+	return strings.TrimSpace((strings.Split(xForwardedFor, ","))[0])
 }

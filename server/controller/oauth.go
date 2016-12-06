@@ -102,13 +102,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: Send GA event
-		if params, err := newGAEventParams(r); err == nil {
-			sendGARequest(params)
-		} else {
-
-		}
-
+		go sendMeasurementEvent(r, eventCategoryAccount, "create", "via:google", int64(user.ID))
 	}
 
 	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
@@ -117,6 +111,8 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
+
+	go sendMeasurementEvent(r, eventCategoryAccount, "login", "via:google", int64(user.ID))
 
 	cookie := &http.Cookie{
 		Name:     APITokenCookieName,
