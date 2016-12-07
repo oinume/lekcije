@@ -195,7 +195,7 @@ func getEmailTemplateJP() string {
 <a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
 
 {{ end }}
-空きレッスンの通知の解除は<a href="{{ .WebURL }}/">こちら</a>
+空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
 	`)
 }
 
@@ -213,7 +213,7 @@ Reserve here:
 <a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
 <a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
 {{ end }}
-Click <a href="{{ .WebURL }}/">here</a> if you want to stop notification of the teacher.
+Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of the teacher.
 	`)
 }
 
