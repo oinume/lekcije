@@ -105,7 +105,9 @@ func SetDBAndRedisToContext(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		fmt.Printf("%s %s\n", r.Method, r.RequestURI)
+		if config.IsLocalEnv() {
+			fmt.Printf("%s %s\n", r.Method, r.RequestURI)
+		}
 
 		db, c, err := model.OpenDBAndSetToContext(
 			ctx, os.Getenv("DB_URL"), maxDBConnections, !config.IsProductionEnv(),
