@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	baseURL    = "http://www.google-analytics.com"
+	baseURL    = "https://www.google-analytics.com"
 	collectURL = baseURL + "/collect"
 	version    = 1
 )
