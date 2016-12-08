@@ -151,7 +151,7 @@ func sendMeasurementEvent(req *http.Request, category, action, label string, val
 		clientID = GetRemoteAddress(req)
 	}
 
-	params := measurement.NewEventParams(trackingID, clientID, category, action)
+	params := measurement.NewEventParams(req.UserAgent(), trackingID, clientID, category, action)
 	params.DataSource = "server"
 	if label != "" {
 		params.EventLabel = label

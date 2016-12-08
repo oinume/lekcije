@@ -22,9 +22,11 @@ const (
 type Params interface {
 	Validate() []error
 	Values() url.Values
+	GetUserAgent() string
 }
 
 type CommonParams struct {
+	userAgent   string
 	version     int    // v
 	trackingID  string // tid
 	clientID    string // cid
@@ -52,9 +54,14 @@ func (cp *CommonParams) Values() url.Values {
 	return v
 }
 
-func NewPageviewParams(trackingID, clientID, documentHostname, page, title string) *PageviewParams {
+func (cp *CommonParams) GetUserAgent() string {
+	return cp.userAgent
+}
+
+func NewPageviewParams(userAgent, trackingID, clientID, documentHostname, page, title string) *PageviewParams {
 	return &PageviewParams{
 		CommonParams: &CommonParams{
+			userAgent: userAgent,
 			version:    version,
 			trackingID: trackingID,
 			clientID:   clientID,
@@ -75,12 +82,10 @@ func (pp *PageviewParams) Validate() []error {
 	return nil
 }
 
-func NewEventParams(trackingID, clientID, eventCategory, eventAction string) *EventParams {
-	if trackingID == "" {
-		panic("trackingID is required.") // TODO: return error?
-	}
+func NewEventParams(userAgent, trackingID, clientID, eventCategory, eventAction string) *EventParams {
 	return &EventParams{
 		CommonParams: &CommonParams{
+			userAgent: userAgent,
 			version:    version,
 			trackingID: trackingID,
 			clientID:   clientID,
@@ -146,6 +151,9 @@ func (c *Client) Do(params Params) error {
 	req, err := http.NewRequest("POST", collectURL, bytes.NewBufferString(v.Encode()))
 	if err != nil {
 		return errors.InternalWrapf(err, "http.NewRequest() failed")
+	}
+	if ua := params.GetUserAgent(); ua != "" {
+		req.Header.Set("User-Agent", params.GetUserAgent())
 	}
 
 	resp, err := c.httpClient.Do(req)
