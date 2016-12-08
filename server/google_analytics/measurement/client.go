@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"io/ioutil"
 
 	"github.com/oinume/lekcije/server/errors"
 )
@@ -152,6 +153,13 @@ func (c *Client) Do(params Params) error {
 		return errors.InternalWrapf(err, "httpClient.Do() failed: url=%v, values=%v", collectURL, v.Encode())
 	}
 	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.InternalWrapf(err, "ioutil.ReadAll(resp.Body) failed")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.Internalf("Call Measurement API failed: status=%v, body=%v", resp.StatusCode, string(body))
+	}
 
 	return nil
 }
