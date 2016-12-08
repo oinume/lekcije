@@ -42,7 +42,7 @@ func (cp *CommonParams) Values() url.Values {
 	v.Set("v", fmt.Sprint(cp.version))
 	v.Set("tid", cp.trackingID)
 	v.Set("cid", cp.clientID)
-	v.Set("hitType", cp.hitType)
+	v.Set("t", cp.hitType)
 	if cp.AnonymousIP {
 		v.Set("aip", "1")
 	}
