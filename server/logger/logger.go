@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/oinume/lekcije/server/config"
 	"github.com/uber-go/zap"
 )
 
@@ -11,6 +12,12 @@ var (
 	AccessLogger = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stdout))
 	AppLogger    = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stderr))
 )
+
+func init() {
+	if !config.IsProductionEnv() {
+		AppLogger.SetLevel(zap.DebugLevel)
+	}
+}
 
 func InitializeAccessLogger(writer io.Writer) {
 	AccessLogger = zap.New(
