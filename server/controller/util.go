@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller/flash_message"
@@ -129,7 +130,10 @@ func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData 
 	return data
 }
 
-var measurementClient = measurement.NewClient(http.DefaultClient)
+var measurementClient = measurement.NewClient(&http.Client{
+	//Transport: &logger.LoggingHTTPTransport{DumpHeaderBody: true},
+	Timeout: time.Second * 7,
+})
 
 const (
 	eventCategoryAccount = "account"
@@ -138,7 +142,7 @@ const (
 func sendMeasurementEvent(req *http.Request, category, action, label string, value int64) {
 	trackingID := os.Getenv("GOOGLE_ANALYTICS_ID")
 	var clientID string
-	if cookie, err := req.Cookie("ga"); err == nil {
+	if cookie, err := req.Cookie("_ga"); err == nil {
 		clientID, err = measurement.GetClientID(cookie)
 		if err != nil {
 			logger.AppLogger.Warn("measurement.GetClientID() failed", zap.Error(err))
