@@ -1,5 +1,5 @@
-hash: 89e16f45dbdaf734104f4b4dbe163bfcf66587b7529e83fa567f1ef0753f4dfc
-updated: 2016-12-05T00:19:17.932337549+09:00
+hash: db4576b9d98fb8b265ccddce7533a82586696bfa18b0043b5d084f784e7b7187
+updated: 2016-12-09T16:28:29.506482713+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -30,6 +30,8 @@ imports:
   version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
 - name: github.com/kballard/go-shellquote
   version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
+- name: github.com/kelseyhightower/envconfig
+  version: 5c008110b20b657eb7e005b83d0a5f6aa6bb5f4b
 - name: github.com/kr/pty
   version: ce7fa45920dc37a92de8377972e52bc55ffa8d57
 - name: github.com/kylelemons/go-gypsy
@@ -39,15 +41,15 @@ imports:
 - name: github.com/lib/pq
   version: 4a82388ebc5138c8289fe9bc602cb0b3e32cd617
 - name: github.com/mattn/go-sqlite3
-  version: 8ecd77c707d698b39fbcf76e4e8d08f284c8307f
+  version: 056f235aa609d5d2a8ba71f4707f2ba138033e9e
 - name: github.com/newrelic/go-agent
   version: a923caa59930cbb1b27d2a9fb2d5663d9e5c637c
   subpackages:
   - internal
-  - internal/jsonx
   - internal/logger
-  - internal/sysinfo
   - internal/utilization
+  - internal/jsonx
+  - internal/sysinfo
 - name: github.com/ogier/pflag
   version: 45c278ab3607870051a2ea9040bb85fcb8557481
 - name: github.com/oinume/goenum
@@ -62,10 +64,10 @@ imports:
   version: 1d217930b95113e88565b177e12192b75aa74fd1
   subpackages:
   - api
-  - api/internal/bus
-  - api/internal/service
   - internal/element
   - internal/target
+  - api/internal/bus
+  - api/internal/service
 - name: github.com/sendgrid/rest
   version: d37acbf70185e33da36a233f4df95848b052427c
 - name: github.com/sendgrid/sendgrid-go
@@ -92,8 +94,8 @@ imports:
 - name: goji.io
   version: bc2e9e7dc2769805d1b6ce4dc48ec23a03ae82ec
   subpackages:
-  - internal
   - pat
+  - internal
   - pattern
 - name: golang.org/x/net
   version: 1358eff22f0dd0c54fc521042cc607f6ff4b531a
@@ -110,28 +112,28 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: ca83bd2cb9abb47839b50eb4da612f00158f5870
+  version: 478fcf54317e52ab69f40bb4c7a1520288d7f7ea
   subpackages:
   - unix
 - name: google.golang.org/api
   version: 5d9c84e3b78a84b6ddc17f88164527f935501e94
   subpackages:
+  - oauth2/v2
   - gensupport
   - googleapi
   - googleapi/internal/uritemplates
-  - oauth2/v2
 - name: google.golang.org/appengine
   version: 4f7eeb5305a4ba1966344836ba4af9996b7b4e05
   subpackages:
+  - urlfetch
   - internal
+  - internal/urlfetch
   - internal/app_identity
+  - internal/modules
   - internal/base
   - internal/datastore
   - internal/log
-  - internal/modules
   - internal/remote_api
-  - internal/urlfetch
-  - urlfetch
 - name: gopkg.in/bsm/ratelimit.v1
   version: db14e161995a5177acef654cb0dd785e8ee8bc22
 - name: gopkg.in/fsnotify.v1
