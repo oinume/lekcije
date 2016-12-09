@@ -5,10 +5,10 @@ package measurement
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
-	"io/ioutil"
 
 	"github.com/oinume/lekcije/server/errors"
 )
@@ -61,7 +61,7 @@ func (cp *CommonParams) GetUserAgent() string {
 func NewPageviewParams(userAgent, trackingID, clientID, documentHostname, page, title string) *PageviewParams {
 	return &PageviewParams{
 		CommonParams: &CommonParams{
-			userAgent: userAgent,
+			userAgent:  userAgent,
 			version:    version,
 			trackingID: trackingID,
 			clientID:   clientID,
@@ -85,7 +85,7 @@ func (pp *PageviewParams) Validate() []error {
 func NewEventParams(userAgent, trackingID, clientID, eventCategory, eventAction string) *EventParams {
 	return &EventParams{
 		CommonParams: &CommonParams{
-			userAgent: userAgent,
+			userAgent:  userAgent,
 			version:    version,
 			trackingID: trackingID,
 			clientID:   clientID,
