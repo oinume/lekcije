@@ -7,7 +7,7 @@ import (
 
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
-	"github.com/oinume/lekcije/server/mux"
+	"github.com/oinume/lekcije/server/route"
 )
 
 func init() {
@@ -16,9 +16,9 @@ func init() {
 
 func main() {
 	port := config.ListenPort()
-	mux := mux.Create()
+	routes := route.Create()
 	fmt.Printf("Listening on :%v\n", port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), mux); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), routes); err != nil {
 		log.Fatalf("ListenAndServe() on :%v failed: err = %v", port, err)
 	}
 }
