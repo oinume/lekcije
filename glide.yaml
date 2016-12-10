@@ -50,4 +50,6 @@ import:
   - package: github.com/sendgrid/rest
   - package: github.com/newrelic/go-agent
   - package: github.com/stvp/rollbar
+  - package: github.com/jpillora/go-ogle-analytics
+
 
