@@ -102,7 +102,7 @@ type navigationItem struct {
 var loggedInNavigationItems = []navigationItem{
 	{"ホーム", "/me"},
 	{"設定", "/me/setting"},
-	{"ログアウト", "/logout"},
+	{"ログアウト", "/me/logout"},
 }
 
 var loggedOutNavigationItems = []navigationItem{

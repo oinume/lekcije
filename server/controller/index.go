@@ -39,37 +39,6 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Logout(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user, err := model.GetLoggedInUser(ctx)
-	if err != nil {
-		http.Redirect(w, r, "/", http.StatusFound)
-		return
-	}
-
-	cookie, err := r.Cookie(APITokenCookieName)
-	if err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to get token cookie"))
-		return
-	}
-	token := cookie.Value
-	cookieToDelete := &http.Cookie{
-		Name:     APITokenCookieName,
-		Value:    "",
-		Path:     "/",
-		MaxAge:   -1,
-		HttpOnly: false,
-	}
-	http.SetCookie(w, cookieToDelete)
-	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
-	if err := userAPITokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
-		InternalServerError(w, err)
-		return
-	}
-
-	http.Redirect(w, r, "/", http.StatusFound)
-}
-
 func RobotsTxt(w http.ResponseWriter, r *http.Request) {
 	content := `
 User-agent: *

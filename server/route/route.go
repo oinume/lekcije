@@ -20,7 +20,6 @@ func Create() *goji.Mux {
 
 	routes.HandleFunc(pat.Get("/static/*"), controller.Static)
 	routes.HandleFunc(pat.Get("/"), controller.Index)
-	routes.HandleFunc(pat.Get("/logout"), controller.Logout)
 	routes.HandleFunc(pat.Get("/oauth/google"), controller.OAuthGoogle)
 	routes.HandleFunc(pat.Get("/oauth/google/callback"), controller.OAuthGoogleCallback)
 	routes.HandleFunc(pat.Get("/robots.txt"), controller.RobotsTxt)
@@ -29,6 +28,7 @@ func Create() *goji.Mux {
 	routes.HandleFunc(pat.Get("/me"), controller.GetMe)
 	routes.HandleFunc(pat.Post("/me/followingTeachers/create"), controller.PostMeFollowingTeachersCreate)
 	routes.HandleFunc(pat.Post("/me/followingTeachers/delete"), controller.PostMeFollowingTeachersDelete)
+	routes.HandleFunc(pat.Get("/me/logout"), controller.GetMeLogout)
 	routes.HandleFunc(pat.Get("/me/setting"), controller.GetMeSetting)
 	routes.HandleFunc(pat.Post("/me/setting/update"), controller.PostMeSettingUpdate)
 	routes.HandleFunc(pat.Get("/api/status"), controller.GetAPIStatus)
