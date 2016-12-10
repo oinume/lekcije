@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jpillora/go-ogle-analytics"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
@@ -135,9 +136,63 @@ var measurementClient = measurement.NewClient(&http.Client{
 	Timeout: time.Second * 7,
 })
 
+var gaHTTPClient *http.Client = &http.Client{
+	Transport: &logger.LoggingHTTPTransport{DumpHeaderBody: true},
+	Timeout:   time.Second * 7,
+}
+
 const (
 	eventCategoryAccount = "account"
 )
+
+func sendMeasurementEvent2(req *http.Request, category, action, label string, value int64, userID uint32) {
+	gaClient, err := ga.NewClient(os.Getenv("GOOGLE_ANALYTICS_ID"))
+	if err != nil {
+		logger.AppLogger.Warn("ga.NewClient() failed", zap.Error(err))
+	}
+	gaClient.HttpClient = gaHTTPClient
+	gaClient.UserAgentOverride(req.UserAgent())
+
+	var clientID string
+	if cookie, err := req.Cookie("_ga"); err == nil {
+		clientID, err = measurement.GetClientID(cookie)
+		if err != nil {
+			logger.AppLogger.Warn("measurement.GetClientID() failed", zap.Error(err))
+		}
+	} else {
+		clientID = GetRemoteAddress(req)
+	}
+	gaClient.ClientID(clientID)
+	gaClient.DocumentHostName(req.Host)
+	gaClient.DocumentPath(req.URL.Path)
+	gaClient.DocumentTitle(req.URL.Path)
+	gaClient.DocumentReferrer(req.Referer())
+	gaClient.IPOverride(GetRemoteAddress(req))
+
+	logFields := []zap.Field{
+		zap.String("category", category),
+		zap.String("action", action),
+	}
+	event := ga.NewEvent(category, action)
+	if label != "" {
+		event.Label(label)
+		logFields = append(logFields, zap.String("label", label))
+	}
+	if value != 0 {
+		event.Value(value)
+		logFields = append(logFields, zap.Int64("value", value))
+	}
+	if userID != 0 {
+		gaClient.UserID(fmt.Sprint(userID))
+		logFields = append(logFields, zap.Uint("userID", uint(userID)))
+	}
+	if err := gaClient.Send(event); err == nil {
+		// TODO: stats log
+		logger.AppLogger.Debug("sendMeasurementEvent() success", logFields...)
+	} else {
+		logger.AppLogger.Warn("gaClient.Send() failed", zap.Error(err))
+	}
+}
 
 func sendMeasurementEvent(req *http.Request, category, action, label string, value int64, userID uint32) {
 	trackingID := os.Getenv("GOOGLE_ANALYTICS_ID")
