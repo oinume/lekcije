@@ -253,6 +253,8 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go sendMeasurementEvent2(r, eventCategoryAccount, "logout", "", 0, user.ID)
+
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
