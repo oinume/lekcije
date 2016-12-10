@@ -139,7 +139,7 @@ const (
 	eventCategoryAccount = "account"
 )
 
-func sendMeasurementEvent(req *http.Request, category, action, label string, value int64) {
+func sendMeasurementEvent(req *http.Request, category, action, label string, value int64, userID uint32) {
 	trackingID := os.Getenv("GOOGLE_ANALYTICS_ID")
 	var clientID string
 	if cookie, err := req.Cookie("_ga"); err == nil {
@@ -159,6 +159,9 @@ func sendMeasurementEvent(req *http.Request, category, action, label string, val
 	if value != 0 {
 		params.EventValue = value
 	}
+	if userID != 0 {
+		params.UserID = fmt.Sprint(userID)
+	}
 
 	if err := measurementClient.Do(params); err == nil {
 		logger.AppLogger.Debug(
@@ -167,6 +170,7 @@ func sendMeasurementEvent(req *http.Request, category, action, label string, val
 			zap.String("action", action),
 			zap.String("label", label),
 			zap.Int64("value", value),
+			zap.Uint("userID", uint(userID)),
 		)
 	} else {
 		logger.AppLogger.Warn("measurementClient.Do() failed", zap.Error(err))
