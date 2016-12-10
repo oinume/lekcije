@@ -17,12 +17,8 @@ var (
 	letters    = []rune(`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`)
 	lekcijeEnv = os.Getenv("LEKCIJE_ENV")
 	commonIV   = []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
+	random     = mrand.New(mrand.NewSource(time.Now().UnixNano()))
 )
-
-func init() {
-	// TODO: should use rand.New?
-	mrand.Seed(time.Now().UnixNano())
-}
 
 func IsProductionEnv() bool {
 	return lekcijeEnv == "production"
@@ -31,7 +27,7 @@ func IsProductionEnv() bool {
 func RandomString(length int) string {
 	b := make([]rune, length)
 	for i := range b {
-		b[i] = letters[mrand.Intn(len(letters))]
+		b[i] = letters[random.Intn(len(letters))]
 	}
 	return string(b)
 }

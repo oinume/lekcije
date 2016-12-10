@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 const teacherUrlBase = "http://eikaiwa.dmm.com/teacher/index/%v/"
@@ -46,7 +48,7 @@ func NewTeachersFromIDsOrURL(idsOrUrl string) ([]*Teacher, error) {
 		id, _ := strconv.ParseUint(group[1], 10, 32)
 		return []*Teacher{NewTeacher(uint32(id))}, nil
 	}
-	return nil, fmt.Errorf("Failed to parse idOrUrl: %s", idsOrUrl)
+	return nil, errors.InvalidArgumentf("Failed to parse idsOrUrl: %s", idsOrUrl)
 }
 
 func (t *Teacher) URL() string {

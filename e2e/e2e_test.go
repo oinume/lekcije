@@ -16,7 +16,7 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/mux"
+	"github.com/oinume/lekcije/server/route"
 	"github.com/sclevine/agouti"
 )
 
@@ -46,9 +46,9 @@ func TestMain(m *testing.M) {
 	}
 
 	port := config.ListenPort()
-	mux := mux.Create()
+	routes := route.Create()
 	port += 1
-	server = newTestServer(mux, port)
+	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
 	defer server.Close()
 
