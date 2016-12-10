@@ -23,12 +23,12 @@ func TestEventParams_Values(t *testing.T) {
 		label      = "label"
 		value      = 100
 	)
-	params := NewEventParams(trackingID, clientID, category, action)
+	params := NewEventParams("user-agent", trackingID, clientID, category, action)
 	params.EventLabel = label
 	params.EventValue = value
 	v := params.Values()
 
-	a.Equal(len(v), 8)
+	a.Equal(len(v), 9)
 	a.Equal(trackingID, v.Get("tid"))
 	a.Equal(clientID, v.Get("cid"))
 	a.Equal(category, v.Get("ec"))
@@ -74,7 +74,7 @@ func TestClient_Do(t *testing.T) {
 		label      = "label"
 		value      = 100
 	)
-	params := NewEventParams(trackingID, clientID, category, action)
+	params := NewEventParams("user-agent", trackingID, clientID, category, action)
 	params.EventLabel = label
 	params.EventValue = value
 
