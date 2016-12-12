@@ -1,5 +1,5 @@
-hash: 89e16f45dbdaf734104f4b4dbe163bfcf66587b7529e83fa567f1ef0753f4dfc
-updated: 2016-12-05T00:19:17.932337549+09:00
+hash: e39e24727a532abfc5bbf17c1a1586e0a1eb7d42a3485fae199b84c2f0d1572c
+updated: 2016-12-10T21:49:46.518140199+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -28,6 +28,8 @@ imports:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
   version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
+- name: github.com/jpillora/go-ogle-analytics
+  version: 49dbddd69887519886adf7763e0306e1f33ba50f
 - name: github.com/kballard/go-shellquote
   version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
 - name: github.com/kr/pty

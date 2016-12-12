@@ -86,7 +86,9 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	db := model.MustDB(ctx)
 	userService := model.NewUserService(db)
 	user, err := userService.FindByGoogleID(googleID)
-	if err != nil {
+	if err == nil {
+		go sendMeasurementEvent2(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
+	} else {
 		if _, notFound := err.(*errors.NotFound); !notFound {
 			InternalServerError(w, err)
 			return
@@ -101,6 +103,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
+		go sendMeasurementEvent2(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
 	}
 
 	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
