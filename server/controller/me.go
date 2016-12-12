@@ -221,6 +221,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
+	go sendMeasurementEvent2(r, eventCategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
 
 	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLParam(), http.StatusFound)
 }
@@ -253,7 +254,7 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go sendMeasurementEvent2(r, eventCategoryAccount, "logout", "", 0, user.ID)
+	go sendMeasurementEvent2(r, eventCategoryUser, "logout", "", 0, user.ID)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
