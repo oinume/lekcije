@@ -51,5 +51,5 @@ import:
   - package: github.com/newrelic/go-agent
   - package: github.com/stvp/rollbar
   - package: github.com/jpillora/go-ogle-analytics
-
+    version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
 

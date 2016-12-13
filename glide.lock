@@ -29,7 +29,7 @@ imports:
 - name: github.com/jinzhu/inflection
   version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
 - name: github.com/jpillora/go-ogle-analytics
-  version: 49dbddd69887519886adf7763e0306e1f33ba50f
+  version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
 - name: github.com/kballard/go-shellquote
   version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
 - name: github.com/kr/pty
