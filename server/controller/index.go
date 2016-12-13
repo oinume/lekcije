@@ -57,8 +57,12 @@ func SitemapXML(w http.ResponseWriter, r *http.Request) {
     <loc>%s/</loc>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>%s/terms</loc>
+    <priority>1.0</priority>
+  </url>
 </urlset>
-	`, config.WebURL())
+	`, config.WebURL(), config.WebURL())
 	w.Header().Set("Content-Type", "text/xml; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, strings.TrimSpace(content))
