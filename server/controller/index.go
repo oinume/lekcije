@@ -40,11 +40,11 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func RobotsTxt(w http.ResponseWriter, r *http.Request) {
-	content := `
+	content := fmt.Sprintf(`
 User-agent: *
 Allow: /
-`
-	// TODO: sitemap https://www.lekcije.com/sitemap.xml
+Sitemap: %s/sitemap.xml
+`, config.WebURL())
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, strings.TrimSpace(content))
