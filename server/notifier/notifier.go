@@ -23,7 +23,7 @@ import (
 var lessonFetcher *fetcher.TeacherLessonFetcher
 
 func init() {
-	lessonFetcher = fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
+	lessonFetcher = fetcher.NewTeacherLessonFetcher(nil, logger.App)
 }
 
 type Notifier struct {
@@ -59,7 +59,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			case *errors.NotFound:
 				// TODO: update teacher table flag
 				// TODO: Not need to log
-				logger.AppLogger.Warn("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)))
+				logger.App.Warn("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)))
 				continue
 			default:
 				return err
@@ -92,13 +92,13 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 ) {
 	teacher, fetchedLessons, err := lessonFetcher.Fetch(teacherID)
 	if err != nil {
-		logger.AppLogger.Error(
+		logger.App.Error(
 			"TeacherLessonFetcher.Fetch",
 			zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
 		)
 		return nil, nil, nil, err
 	}
-	logger.AppLogger.Info(
+	logger.App.Info(
 		"TeacherLessonFetcher.Fetch",
 		zap.Uint("teacherID", uint(teacher.ID)),
 		zap.String("teacherName", teacher.Name),
@@ -245,7 +245,7 @@ func (s *EmailNotificationSender) Send(user *model.User, subject, body string) e
 			"Failed to send email by sendgrid: statusCode=%v, body=%v",
 			resp.StatusCode, strings.Replace(resp.Body, "\n", "\\n", -1),
 		)
-		logger.AppLogger.Error(message)
+		logger.App.Error(message)
 		return errors.InternalWrapf(
 			err,
 			"Failed to send email by sendgrid: statusCode=%v",

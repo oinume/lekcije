@@ -57,7 +57,7 @@ func AccessLogger(h http.Handler) http.Handler {
 			}
 
 			// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
-			logger.AccessLogger.Info(
+			logger.Access.Info(
 				"",
 				zap.String("date", start.Format(time.RFC3339)),
 				zap.String("method", r.Method),
@@ -83,7 +83,7 @@ func NewRelic(h http.Handler) http.Handler {
 	c := newrelic.NewConfig("lekcije", key)
 	app, err := newrelic.NewApplication(c)
 	if err != nil {
-		logger.AppLogger.Error("Failed to newrelic.NewApplication()", zap.Error(err))
+		logger.App.Error("Failed to newrelic.NewApplication()", zap.Error(err))
 		return h
 	}
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +161,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 		}
 		cookie, err := r.Cookie(controller.APITokenCookieName)
 		if err != nil {
-			logger.AppLogger.Debug("Not logged in")
+			logger.App.Debug("Not logged in")
 			http.Redirect(w, r, config.WebURL(), http.StatusFound)
 			return
 		}
@@ -170,7 +170,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 		if err != nil {
 			switch err.(type) {
 			case *errors.NotFound:
-				logger.AppLogger.Debug("not logged in")
+				logger.App.Debug("not logged in")
 				http.Redirect(w, r, config.WebURL(), http.StatusFound)
 				return
 			default:
@@ -178,7 +178,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 				return
 			}
 		}
-		logger.AppLogger.Debug("Logged in user", zap.Object("user", user))
+		logger.App.Debug("Logged in user", zap.Object("user", user))
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)

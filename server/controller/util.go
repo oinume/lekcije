@@ -62,7 +62,7 @@ func InternalServerError(w http.ResponseWriter, err error) {
 		}
 		fields = append(fields, zap.String("stacktrace", b.String()))
 	}
-	logger.AppLogger.Error("InternalServerError", fields...)
+	logger.App.Error("InternalServerError", fields...)
 
 	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
 	if !config.IsProductionEnv() {
@@ -148,7 +148,7 @@ const (
 func sendMeasurementEvent2(req *http.Request, category, action, label string, value int64, userID uint32) {
 	gaClient, err := ga.NewClient(os.Getenv("GOOGLE_ANALYTICS_ID"))
 	if err != nil {
-		logger.AppLogger.Warn("ga.NewClient() failed", zap.Error(err))
+		logger.App.Warn("ga.NewClient() failed", zap.Error(err))
 	}
 	gaClient.HttpClient = gaHTTPClient
 	gaClient.UserAgentOverride(req.UserAgent())
@@ -157,7 +157,7 @@ func sendMeasurementEvent2(req *http.Request, category, action, label string, va
 	if cookie, err := req.Cookie("_ga"); err == nil {
 		clientID, err = measurement.GetClientID(cookie)
 		if err != nil {
-			logger.AppLogger.Warn("measurement.GetClientID() failed", zap.Error(err))
+			logger.App.Warn("measurement.GetClientID() failed", zap.Error(err))
 		}
 	} else {
 		clientID = GetRemoteAddress(req)
@@ -188,9 +188,9 @@ func sendMeasurementEvent2(req *http.Request, category, action, label string, va
 	}
 	if err := gaClient.Send(event); err == nil {
 		// TODO: stats log
-		logger.AppLogger.Debug("sendMeasurementEvent() success", logFields...)
+		logger.App.Debug("sendMeasurementEvent() success", logFields...)
 	} else {
-		logger.AppLogger.Warn("gaClient.Send() failed", zap.Error(err))
+		logger.App.Warn("gaClient.Send() failed", zap.Error(err))
 	}
 }
 
@@ -200,7 +200,7 @@ func sendMeasurementEvent(req *http.Request, category, action, label string, val
 	if cookie, err := req.Cookie("_ga"); err == nil {
 		clientID, err = measurement.GetClientID(cookie)
 		if err != nil {
-			logger.AppLogger.Warn("measurement.GetClientID() failed", zap.Error(err))
+			logger.App.Warn("measurement.GetClientID() failed", zap.Error(err))
 		}
 	} else {
 		clientID = GetRemoteAddress(req)
@@ -219,7 +219,7 @@ func sendMeasurementEvent(req *http.Request, category, action, label string, val
 	}
 
 	if err := measurementClient.Do(params); err == nil {
-		logger.AppLogger.Debug(
+		logger.App.Debug(
 			"sendMeasurementEvent() success",
 			zap.String("category", category),
 			zap.String("action", action),
@@ -228,7 +228,7 @@ func sendMeasurementEvent(req *http.Request, category, action, label string, val
 			zap.Uint("userID", uint(userID)),
 		)
 	} else {
-		logger.AppLogger.Warn("measurementClient.Do() failed", zap.Error(err))
+		logger.App.Warn("measurementClient.Do() failed", zap.Error(err))
 	}
 }
 

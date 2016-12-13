@@ -118,7 +118,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, logger.AppLogger)
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, logger.App)
 	now := time.Now().UTC()
 	for _, t := range teachers {
 		teacher, _, err := fetcher.Fetch(t.ID)
