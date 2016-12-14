@@ -19,7 +19,7 @@ import (
 var _ = time.UTC
 var _ = fmt.Print
 
-func TestOAuthGoogle(t *testing.T) {
+func TestOAuthGoogleLogin(t *testing.T) {
 	if os.Getenv("CIRCLECI") != "" {
 		t.Skipf("Skip because it can't render Google login page.")
 	}
