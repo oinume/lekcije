@@ -36,7 +36,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 		Plan         *model.Plan
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true),
+		commonTemplateData: getCommonTemplateData(r, true, user.ID),
 	}
 	data.ShowTutorial = !user.FollowedTeacherAt.Valid
 
@@ -190,7 +190,7 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true),
+		commonTemplateData: getCommonTemplateData(r, true, user.ID),
 		Email:              user.Email.Raw(),
 	}
 

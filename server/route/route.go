@@ -9,6 +9,7 @@ import (
 
 func Create() *goji.Mux {
 	routes := goji.NewMux()
+	routes.Use(middleware.SetTrackingID)
 	routes.Use(middleware.AccessLogger)
 	routes.Use(middleware.Redirecter)
 	routes.Use(middleware.PanicHandler)

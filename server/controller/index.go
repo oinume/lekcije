@@ -30,7 +30,7 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, false),
+		commonTemplateData: getCommonTemplateData(r, false, 0),
 	}
 
 	if err := t.Execute(w, data); err != nil {
@@ -73,8 +73,13 @@ func Terms(w http.ResponseWriter, r *http.Request) {
 	type Data struct {
 		commonTemplateData
 	}
+
+	userID := uint32(0)
+	if user, err := model.GetLoggedInUser(r.Context()); err == nil {
+		userID = user.ID
+	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, false),
+		commonTemplateData: getCommonTemplateData(r, false, userID),
 	}
 
 	if err := t.Execute(w, data); err != nil {

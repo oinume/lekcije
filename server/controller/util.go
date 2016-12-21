@@ -17,13 +17,14 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/google_analytics/measurement"
 	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stvp/rollbar"
 	"github.com/uber-go/zap"
 )
 
 const (
-	APITokenCookieName = "apiToken"
+	APITokenCookieName   = "apiToken"
 	TrackingIDCookieName = "trackingId"
 )
 
@@ -93,6 +94,8 @@ type commonTemplateData struct {
 	GoogleAnalyticsID string
 	CurrentURL        string
 	CanonicalURL      string
+	TrackingID        string
+	UserID            string
 	NavigationItems   []navigationItem
 	FlashMessage      *flash_message.FlashMessage
 }
@@ -112,7 +115,7 @@ var loggedOutNavigationItems = []navigationItem{
 	{"ホーム", "/"},
 }
 
-func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData {
+func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) commonTemplateData {
 	canonicalURL := fmt.Sprintf("%s://%s%s", config.WebURLScheme(req), req.Host, req.RequestURI)
 	canonicalURL = (strings.SplitN(canonicalURL, "?", 2))[0] // TODO: use url.Parse
 	data := commonTemplateData{
@@ -130,7 +133,10 @@ func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData 
 		flashMessage, _ := flash_message.MustStore(req.Context()).Load(flashMessageKey)
 		data.FlashMessage = flashMessage
 	}
-	// TODO: userID and trackingID
+	data.TrackingID = model.MustTrackingID(req.Context())
+	if userID != 0 {
+		data.UserID = fmt.Sprint(userID)
+	}
 
 	return data
 }

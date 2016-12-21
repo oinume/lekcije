@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 
 const (
 	contextKeyLoggedInUser = "loggedInUser"
+	contextKeyTrackingID   = "trackingID"
 )
 
 type User struct {
@@ -179,7 +181,7 @@ func FindLoggedInUserAndSetToContext(token string, ctx context.Context) (*User, 
 	return user, c, nil
 }
 
-// TODO: Move somewhere else model
+// TODO: Move somewhere else model (context_data)
 func GetLoggedInUser(ctx context.Context) (*User, error) {
 	value := ctx.Value(contextKeyLoggedInUser)
 	if user, ok := value.(*User); ok {
@@ -194,4 +196,17 @@ func MustLoggedInUser(ctx context.Context) *User {
 		panic(err)
 	}
 	return user
+}
+
+func SetTrackingIDToContext(ctx context.Context, trackingID string) context.Context {
+	return context.WithValue(ctx, contextKeyTrackingID, trackingID)
+}
+
+func MustTrackingID(ctx context.Context) string {
+	value := ctx.Value(contextKeyTrackingID)
+	if trackingID, ok := value.(string); ok {
+		return trackingID
+	} else {
+		panic(fmt.Sprintf("Failed to get %v from context", contextKeyTrackingID))
+	}
 }

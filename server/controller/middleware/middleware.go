@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/controller"
@@ -26,6 +27,7 @@ func PanicHandler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if r := recover(); r != nil {
+				fmt.Printf("r = %+v\n", r)
 				var err error
 				switch errorType := r.(type) {
 				case string:
@@ -35,6 +37,7 @@ func PanicHandler(h http.Handler) http.Handler {
 				default:
 					err = fmt.Errorf("Unknown error type: %v", errorType)
 				}
+				fmt.Printf("err = %v\n", err)
 				controller.InternalServerError(w, errors.InternalWrapf(err, "panic ocurred"))
 				return
 			}
@@ -154,21 +157,26 @@ func SetLoggedInUserToContext(h http.Handler) http.Handler {
 
 func SetTrackingID(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		_, err := r.Cookie(controller.TrackingIDCookieName)
-		if err != nil {
-			// Set cookie
-			c := http.Cookie{
-				Name: controller.TrackingIDCookieName,
-				Value: "", //UUID
-				Path: "/",
-				Domain: "lekcije.com", // config?
-				Expires: time.Now().UTC().Add(time.Hour * 24 * 365 * 3),
+		cookie, err := r.Cookie(controller.TrackingIDCookieName)
+		var trackingID string
+		if err == nil {
+			trackingID = cookie.Value
+		} else {
+			trackingID = uuid.New().String()
+			c := &http.Cookie{
+				Name:     controller.TrackingIDCookieName,
+				Value:    trackingID,
+				Path:     "/",
+				Domain:   strings.Replace(r.Host, "www.", "", 1),
+				Expires:  time.Now().UTC().Add(time.Hour * 24 * 365 * 2),
 				HttpOnly: true,
 			}
 			http.SetCookie(w, c)
 		}
-		h.ServeHTTP(w, r)
+		c := model.SetTrackingIDToContext(r.Context(), trackingID)
+		h.ServeHTTP(w, r.WithContext(c))
 	}
+	return http.HandlerFunc(fn)
 }
 
 func LoginRequiredFilter(h http.Handler) http.Handler {
