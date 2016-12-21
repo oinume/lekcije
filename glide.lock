@@ -1,5 +1,5 @@
-hash: e39e24727a532abfc5bbf17c1a1586e0a1eb7d42a3485fae199b84c2f0d1572c
-updated: 2016-12-10T21:49:46.518140199+09:00
+hash: 2410919dc3e1ef1f911e0ed0a4c5741ce3ce380dd13232b865822257117575be
+updated: 2016-12-22T00:19:54.454369685+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -22,6 +22,8 @@ imports:
   version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
   subpackages:
   - proto
+- name: github.com/google/uuid
+  version: 064e2069ce9c359c118179501254f67d7d37ba24
 - name: github.com/jinzhu/gorm
   version: 446ce99a42ffe050b77bdd761271f97dd1e2b554
   subpackages:
@@ -61,7 +63,7 @@ imports:
 - name: github.com/rs/xhandler
   version: ed27b6fd65218132ee50cd95f38474a3d8a2cd12
 - name: github.com/sclevine/agouti
-  version: 1d217930b95113e88565b177e12192b75aa74fd1
+  version: da6ce95d89acab048b648c71fb45b57622d3457e
   subpackages:
   - api
   - api/internal/bus
