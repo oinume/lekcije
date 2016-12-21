@@ -152,6 +152,25 @@ func SetLoggedInUserToContext(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
+func SetTrackingID(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		_, err := r.Cookie(controller.TrackingIDCookieName)
+		if err != nil {
+			// Set cookie
+			c := http.Cookie{
+				Name: controller.TrackingIDCookieName,
+				Value: "", //UUID
+				Path: "/",
+				Domain: "lekcije.com", // config?
+				Expires: time.Now().UTC().Add(time.Hour * 24 * 365 * 3),
+				HttpOnly: true,
+			}
+			http.SetCookie(w, c)
+		}
+		h.ServeHTTP(w, r)
+	}
+}
+
 func LoginRequiredFilter(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

@@ -22,7 +22,10 @@ import (
 	"github.com/uber-go/zap"
 )
 
-const APITokenCookieName = "apiToken"
+const (
+	APITokenCookieName = "apiToken"
+	TrackingIDCookieName = "trackingId"
+)
 
 func TemplateDir() string {
 	if util.IsProductionEnv() {
@@ -127,6 +130,7 @@ func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData 
 		flashMessage, _ := flash_message.MustStore(req.Context()).Load(flashMessageKey)
 		data.FlashMessage = flashMessage
 	}
+	// TODO: userID and trackingID
 
 	return data
 }
