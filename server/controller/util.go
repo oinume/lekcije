@@ -13,11 +13,11 @@ import (
 
 	"github.com/jpillora/go-ogle-analytics"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/google_analytics/measurement"
 	"github.com/oinume/lekcije/server/logger"
-	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stvp/rollbar"
 	"github.com/uber-go/zap"
@@ -133,7 +133,7 @@ func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) comm
 		flashMessage, _ := flash_message.MustStore(req.Context()).Load(flashMessageKey)
 		data.FlashMessage = flashMessage
 	}
-	data.TrackingID = model.MustTrackingID(req.Context())
+	data.TrackingID = context_data.MustTrackingID(req.Context())
 	if userID != 0 {
 		data.UserID = fmt.Sprint(userID)
 	}
@@ -163,7 +163,7 @@ func sendMeasurementEvent2(req *http.Request, category, action, label string, va
 	gaClient.HttpClient = gaHTTPClient
 	gaClient.UserAgentOverride(req.UserAgent())
 
-	gaClient.ClientID(model.MustTrackingID(req.Context()))
+	gaClient.ClientID(context_data.MustTrackingID(req.Context()))
 	gaClient.DocumentHostName(req.Host)
 	gaClient.DocumentPath(req.URL.Path)
 	gaClient.DocumentTitle(req.URL.Path)

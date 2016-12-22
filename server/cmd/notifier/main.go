@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"os"
@@ -38,13 +37,12 @@ func run() error {
 		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	db, _, err := model.OpenDBAndSetToContext(
-		context.Background(), bootstrap.CLIEnvVars.DBURL,
-		1, !config.IsProductionEnv(),
-	)
+	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL, 1, !config.IsProductionEnv())
 	if err != nil {
 		return err
 	}
+	defer db.Close()
+	//context_data.SetDB(context.Background(), db) // TODO: delete
 
 	var users []*model.User
 	userSql := `SELECT * FROM user WHERE email_verified = 1`

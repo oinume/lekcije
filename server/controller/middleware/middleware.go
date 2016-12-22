@@ -9,7 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/newrelic/go-agent"
+	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
@@ -27,7 +29,6 @@ func PanicHandler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if r := recover(); r != nil {
-				fmt.Printf("r = %+v\n", r)
 				var err error
 				switch errorType := r.(type) {
 				case string:
@@ -37,7 +38,6 @@ func PanicHandler(h http.Handler) http.Handler {
 				default:
 					err = fmt.Errorf("Unknown error type: %v", errorType)
 				}
-				fmt.Printf("err = %v\n", err)
 				controller.InternalServerError(w, errors.InternalWrapf(err, "panic ocurred"))
 				return
 			}
@@ -71,7 +71,7 @@ func AccessLogger(h http.Handler) http.Handler {
 				zap.String("userAgent", r.Header.Get("User-Agent")),
 				zap.String("referer", r.Referer()),
 				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
-				zap.String("trackingID", model.MustTrackingID(r.Context())),
+				zap.String("trackingID", context_data.MustTrackingID(r.Context())),
 			)
 		}()
 	}
@@ -109,22 +109,24 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 			fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 		}
 
-		db, c, err := model.OpenDBAndSetToContext(
-			ctx, os.Getenv("DB_URL"), maxDBConnections, !config.IsProductionEnv(),
+		db, err := model.OpenDB(
+			bootstrap.ServerEnvVars.DBURL,
+			maxDBConnections,
+			!config.IsProductionEnv(),
 		)
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
 		}
 		defer db.Close()
+		ctx = context_data.SetDB(ctx, db)
 
-		redisClient, c, err := model.OpenRedisAndSetToContext(c, os.Getenv("REDIS_URL"))
+		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, os.Getenv("REDIS_URL"))
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
 		}
 		defer redisClient.Close()
-
 		_, c = flash_message.NewStoreRedisAndSetToContext(c, redisClient)
 
 		h.ServeHTTP(w, r.WithContext(c))
@@ -145,12 +147,13 @@ func SetLoggedInUser(h http.Handler) http.Handler {
 			return
 		}
 
-		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
+		userService := model.NewUserService(context_data.MustDB(ctx))
+		user, err := userService.FindLoggedInUser(cookie.Value)
 		if err != nil {
-			fmt.Printf("loggedInUser = %+v\n", user)
 			h.ServeHTTP(w, r)
 			return
 		}
+		c := context_data.SetLoggedInUser(ctx, user)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
@@ -176,7 +179,7 @@ func SetTrackingID(h http.Handler) http.Handler {
 			}
 			http.SetCookie(w, c)
 		}
-		c := model.SetTrackingIDToContext(r.Context(), trackingID)
+		c := context_data.SetTrackingID(r.Context(), trackingID)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
@@ -196,7 +199,9 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 			return
 		}
 
-		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
+		// TODO: Use context_data.MustLoggedInUser(ctx)
+		userService := model.NewUserService(context_data.MustDB(ctx))
+		user, err := userService.FindLoggedInUser(cookie.Value)
 		if err != nil {
 			switch err.(type) {
 			case *errors.NotFound:
@@ -209,6 +214,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 			}
 		}
 		logger.App.Debug("Logged in user", zap.Object("user", user))
+		c := context_data.SetLoggedInUser(ctx, user)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)

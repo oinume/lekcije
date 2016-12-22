@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/model"
 )
 
 var _ = fmt.Print
@@ -17,7 +17,7 @@ func Static(w http.ResponseWriter, r *http.Request) {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	if _, err := model.GetLoggedInUser(r.Context()); err == nil {
+	if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
 		http.Redirect(w, r, "/me", http.StatusFound)
 	} else {
 		indexLogout(w, r)
@@ -75,7 +75,7 @@ func Terms(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := uint32(0)
-	if user, err := model.GetLoggedInUser(r.Context()); err == nil {
+	if user, err := context_data.GetLoggedInUser(r.Context()); err == nil {
 		userID = user.ID
 	}
 	data := &Data{
