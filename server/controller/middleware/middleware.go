@@ -163,11 +163,13 @@ func SetTrackingID(h http.Handler) http.Handler {
 			trackingID = cookie.Value
 		} else {
 			trackingID = uuid.New().String()
+			domain := strings.Replace(r.Host, "www.", "", 1)
+			domain = strings.Replace(domain, ":4000", "", 1) // TODO: local only
 			c := &http.Cookie{
 				Name:     controller.TrackingIDCookieName,
 				Value:    trackingID,
 				Path:     "/",
-				Domain:   strings.Replace(r.Host, "www.", "", 1),
+				Domain:   domain,
 				Expires:  time.Now().UTC().Add(time.Hour * 24 * 365 * 2),
 				HttpOnly: true,
 			}
