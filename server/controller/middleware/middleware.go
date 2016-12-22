@@ -97,7 +97,7 @@ func NewRelic(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetDBAndRedisToContext(h http.Handler) http.Handler {
+func SetDBAndRedis(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
@@ -131,7 +131,7 @@ func SetDBAndRedisToContext(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetLoggedInUserToContext(h http.Handler) http.Handler {
+func SetLoggedInUser(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
