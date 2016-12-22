@@ -163,16 +163,7 @@ func sendMeasurementEvent2(req *http.Request, category, action, label string, va
 	gaClient.HttpClient = gaHTTPClient
 	gaClient.UserAgentOverride(req.UserAgent())
 
-	var clientID string
-	if cookie, err := req.Cookie("_ga"); err == nil {
-		clientID, err = measurement.GetClientID(cookie)
-		if err != nil {
-			logger.App.Warn("measurement.GetClientID() failed", zap.Error(err))
-		}
-	} else {
-		clientID = GetRemoteAddress(req)
-	}
-	gaClient.ClientID(clientID)
+	gaClient.ClientID(model.MustTrackingID(req.Context()))
 	gaClient.DocumentHostName(req.Host)
 	gaClient.DocumentPath(req.URL.Path)
 	gaClient.DocumentTitle(req.URL.Path)
