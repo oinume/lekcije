@@ -1,7 +1,7 @@
 E2E_TEST_ARGS=-v
 GO_TEST_ARGS=-v
 GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
-#DB_URL=lekcije:lekcije@tcp(192.168.99.100:13306)/lekcije
+DB_HOST=192.168.99.100
 
 all: install
 
@@ -30,6 +30,6 @@ minify_static:
 	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build
 
 reset_db:
-	mysql -h 192.168.99.100 -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
-	mysql -h 192.168.99.100 -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
-	mysql -h 192.168.99.100 -P 13306 -uroot -proot < db/create_database.sql
+	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
+	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
+	mysql -h $(DB_HOST) -P 13306 -uroot -proot < db/create_database.sql
