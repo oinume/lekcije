@@ -1,8 +1,6 @@
 package context_data
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
@@ -57,11 +55,18 @@ func SetTrackingID(ctx context.Context, trackingID string) context.Context {
 	return context.WithValue(ctx, trackingIDKey{}, trackingID)
 }
 
-func MustTrackingID(ctx context.Context) string {
+func GetTrackingID(ctx context.Context) (string, error) {
 	value := ctx.Value(trackingIDKey{})
 	if trackingID, ok := value.(string); ok {
-		return trackingID
-	} else {
-		panic(fmt.Sprintf("Failed to get trackingID from context"))
+		return trackingID, nil
 	}
+	return "", errors.NotFoundf("Failed to get trackingID from context")
+}
+
+func MustTrackingID(ctx context.Context) string {
+	trackingID, err := GetTrackingID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return trackingID
 }

@@ -58,6 +58,10 @@ func AccessLogger(h http.Handler) http.Handler {
 			if status == 0 {
 				status = http.StatusOK
 			}
+			trackingID := ""
+			if v, err := context_data.GetTrackingID(r.Context()); err == nil {
+				trackingID = v
+			}
 
 			// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
 			logger.Access.Info(
@@ -71,7 +75,7 @@ func AccessLogger(h http.Handler) http.Handler {
 				zap.String("userAgent", r.Header.Get("User-Agent")),
 				zap.String("referer", r.Referer()),
 				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
-				zap.String("trackingID", context_data.MustTrackingID(r.Context())),
+				zap.String("trackingID", trackingID),
 			)
 		}()
 	}
@@ -161,6 +165,11 @@ func SetLoggedInUser(h http.Handler) http.Handler {
 
 func SetTrackingID(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		if r.RequestURI == "/api/status" {
+			h.ServeHTTP(w, r)
+			return
+		}
+
 		cookie, err := r.Cookie(controller.TrackingIDCookieName)
 		var trackingID string
 		if err == nil {
