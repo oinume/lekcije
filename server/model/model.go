@@ -42,26 +42,6 @@ func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	return gormDB, nil
 }
 
-func OpenDBAndSetToContext(
-	ctx context.Context, dbURL string, maxConnections int, logging bool,
-) (*gorm.DB, context.Context, error) {
-	db, err := OpenDB(dbURL, maxConnections, logging)
-	if err != nil {
-		return nil, nil, err
-	}
-	c := context.WithValue(ctx, contextKeyDB{}, db)
-	return db, c, nil
-}
-
-func MustDB(ctx context.Context) *gorm.DB {
-	value := ctx.Value(contextKeyDB{})
-	if db, ok := value.(*gorm.DB); ok {
-		return db
-	} else {
-		panic("Failed to get *gorm.DB from context")
-	}
-}
-
 func OpenRedis(redisURL string) (*redis.Client, error) {
 	u, err := url.Parse(redisURL)
 	if err != nil {

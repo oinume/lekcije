@@ -10,6 +10,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
@@ -83,7 +84,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db := model.MustDB(ctx)
+	db := context_data.MustDB(ctx)
 	userService := model.NewUserService(db)
 	user, err := userService.FindByGoogleID(googleID)
 	if err == nil {
@@ -106,7 +107,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		go sendMeasurementEvent2(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
 	}
 
-	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
+	userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))
 	userAPIToken, err := userAPITokenService.Create(user.ID)
 	if err != nil {
 		InternalServerError(w, err)

@@ -36,6 +36,16 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	link := page.FindByXPath("//div[@class='starter-template']/a")
 	u, err := link.Attribute("href")
 	a.Nil(err)
+
+	// Check trackingId is set
+	cookies, err := page.GetCookies()
+	a.Nil(err)
+	trackingIDCookie, err := getCookie(cookies, controller.TrackingIDCookieName)
+	fmt.Printf("trackingId = %v\n", trackingIDCookie.Value)
+	a.Nil(err)
+	a.NotEmpty(trackingIDCookie.Value)
+
+
 	fmt.Printf("u = %v, err = %v\n", u, err)
 	link.Click()
 	//time.Sleep(10 * time.Second)
@@ -58,7 +68,7 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	//time.Sleep(time.Second * 10)
 	// TODO: Check HTML content
 
-	cookies, err := page.GetCookies()
+	cookies, err = page.GetCookies()
 	a.Nil(err)
 	apiToken := getAPIToken(cookies)
 	a.NotEmpty(apiToken)

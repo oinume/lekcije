@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
@@ -22,4 +23,13 @@ func createUserAndLogin(name, email, googleID string) (*model.User, string, erro
 
 func randomEmail(prefix string) string {
 	return fmt.Sprintf("%s-%s@gmail.com", prefix, util.RandomString(8))
+}
+
+func getCookie(cookies []*http.Cookie, name string) (*http.Cookie, error) {
+	for _, c := range cookies {
+		if c.Name == name {
+			return c, nil
+		}
+	}
+	return nil, http.ErrNoCookie
 }

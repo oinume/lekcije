@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
@@ -27,7 +28,7 @@ var _ = fmt.Printf
 
 func GetMe(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := model.MustLoggedInUser(ctx)
+	user := context_data.MustLoggedInUser(ctx)
 	t := ParseHTMLTemplates(TemplatePath("me/index.html"))
 	type Data struct {
 		commonTemplateData
@@ -36,11 +37,11 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 		Plan         *model.Plan
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true),
+		commonTemplateData: getCommonTemplateData(r, true, user.ID),
 	}
 	data.ShowTutorial = !user.FollowedTeacherAt.Valid
 
-	db := model.MustDB(ctx)
+	db := context_data.MustDB(ctx)
 	planService := model.NewPlanService(db)
 	plan, err := planService.FindByPK(user.PlanID)
 	if err != nil {
@@ -65,7 +66,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 
 func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := model.MustLoggedInUser(ctx)
+	user := context_data.MustLoggedInUser(ctx)
 	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
 	if teacherIDsOrUrl == "" {
 		e := flash_message.New(flash_message.KindWarning, emptyTeacherURLMessage)
@@ -88,7 +89,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db := model.MustDB(ctx)
+	db := context_data.MustDB(ctx)
 	followingTeacherService := model.NewFollowingTeacherService(db)
 	count, err := followingTeacherService.CountFollowingTeachersByUserID(user.ID)
 	if err != nil {
@@ -150,7 +151,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := model.MustLoggedInUser(ctx)
+	user := context_data.MustLoggedInUser(ctx)
 	if err := r.ParseForm(); err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -161,7 +162,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	followingTeacherService := model.NewFollowingTeacherService(model.MustDB(ctx))
+	followingTeacherService := model.NewFollowingTeacherService(context_data.MustDB(ctx))
 	_, err := followingTeacherService.DeleteTeachersByUserIDAndTeacherIDs(
 		user.ID,
 		util.StringToUint32Slice(teacherIDs...),
@@ -183,14 +184,14 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := model.MustLoggedInUser(ctx)
+	user := context_data.MustLoggedInUser(ctx)
 	t := ParseHTMLTemplates(TemplatePath("me/setting.html"))
 	type Data struct {
 		commonTemplateData
 		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true),
+		commonTemplateData: getCommonTemplateData(r, true, user.ID),
 		Email:              user.Email.Raw(),
 	}
 
@@ -202,7 +203,7 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 
 func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := model.MustLoggedInUser(ctx)
+	user := context_data.MustLoggedInUser(ctx)
 	email := r.FormValue("email")
 	// TODO: better validation
 	if email == "" || !validateEmail(email) {
@@ -210,7 +211,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	service := model.NewUserService(model.MustDB(ctx))
+	service := model.NewUserService(context_data.MustDB(ctx))
 	if err := service.UpdateEmail(user, email); err != nil {
 		InternalServerError(w, err)
 		return
@@ -228,7 +229,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 
 func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := model.GetLoggedInUser(ctx)
+	user, err := context_data.GetLoggedInUser(ctx)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -248,7 +249,7 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	userAPITokenService := model.NewUserAPITokenService(model.MustDB(ctx))
+	userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))
 	if err := userAPITokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
 		InternalServerError(w, err)
 		return

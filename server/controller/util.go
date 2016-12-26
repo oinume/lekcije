@@ -13,6 +13,7 @@ import (
 
 	"github.com/jpillora/go-ogle-analytics"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/google_analytics/measurement"
@@ -22,7 +23,10 @@ import (
 	"github.com/uber-go/zap"
 )
 
-const APITokenCookieName = "apiToken"
+const (
+	APITokenCookieName   = "apiToken"
+	TrackingIDCookieName = "trackingId"
+)
 
 func TemplateDir() string {
 	if util.IsProductionEnv() {
@@ -90,6 +94,8 @@ type commonTemplateData struct {
 	GoogleAnalyticsID string
 	CurrentURL        string
 	CanonicalURL      string
+	TrackingID        string
+	UserID            string
 	NavigationItems   []navigationItem
 	FlashMessage      *flash_message.FlashMessage
 }
@@ -109,7 +115,7 @@ var loggedOutNavigationItems = []navigationItem{
 	{"ホーム", "/"},
 }
 
-func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData {
+func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) commonTemplateData {
 	canonicalURL := fmt.Sprintf("%s://%s%s", config.WebURLScheme(req), req.Host, req.RequestURI)
 	canonicalURL = (strings.SplitN(canonicalURL, "?", 2))[0] // TODO: use url.Parse
 	data := commonTemplateData{
@@ -126,6 +132,10 @@ func getCommonTemplateData(req *http.Request, loggedIn bool) commonTemplateData 
 	if flashMessageKey := req.FormValue("flashMessageKey"); flashMessageKey != "" {
 		flashMessage, _ := flash_message.MustStore(req.Context()).Load(flashMessageKey)
 		data.FlashMessage = flashMessage
+	}
+	data.TrackingID = context_data.MustTrackingID(req.Context())
+	if userID != 0 {
+		data.UserID = fmt.Sprint(userID)
 	}
 
 	return data
@@ -153,16 +163,7 @@ func sendMeasurementEvent2(req *http.Request, category, action, label string, va
 	gaClient.HttpClient = gaHTTPClient
 	gaClient.UserAgentOverride(req.UserAgent())
 
-	var clientID string
-	if cookie, err := req.Cookie("_ga"); err == nil {
-		clientID, err = measurement.GetClientID(cookie)
-		if err != nil {
-			logger.App.Warn("measurement.GetClientID() failed", zap.Error(err))
-		}
-	} else {
-		clientID = GetRemoteAddress(req)
-	}
-	gaClient.ClientID(clientID)
+	gaClient.ClientID(context_data.MustTrackingID(req.Context()))
 	gaClient.DocumentHostName(req.Host)
 	gaClient.DocumentPath(req.URL.Path)
 	gaClient.DocumentTitle(req.URL.Path)
