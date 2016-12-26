@@ -19,7 +19,6 @@ func SetDB(ctx context.Context, db *gorm.DB) context.Context {
 
 func GetDB(ctx context.Context) (*gorm.DB, error) {
 	value := ctx.Value(dbKey{})
-	fmt.Printf("value = %+v, ctx = %+v\n", value, ctx)
 	if db, ok := value.(*gorm.DB); ok {
 		return db, nil
 	}
