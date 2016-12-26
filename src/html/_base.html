@@ -90,7 +90,13 @@ var WebFontConfig = {
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-  ga('create', '{{ .GoogleAnalyticsID }}', 'auto');
+  var clientIdStorage = {'storage': 'none', 'clientId': '{{ .TrackingID }}'};
+  var userId = '{{ .UserID }}';
+  if (userId) {
+    ga('create', '{{ .GoogleAnalyticsID }}', clientIdStorage, {'userId': userId});
+  } else {
+    ga('create', '{{ .GoogleAnalyticsID }}', clientIdStorage);
+  }
   ga('send', 'pageview');
 </script>
 {{ end -}}

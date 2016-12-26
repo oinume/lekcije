@@ -7,8 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/newrelic/go-agent"
+	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
@@ -57,8 +60,8 @@ func AccessLogger(h http.Handler) http.Handler {
 			}
 
 			// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
-			logger.AccessLogger.Info(
-				"",
+			logger.Access.Info(
+				"access",
 				zap.String("date", start.Format(time.RFC3339)),
 				zap.String("method", r.Method),
 				zap.String("url", r.URL.String()),
@@ -68,6 +71,7 @@ func AccessLogger(h http.Handler) http.Handler {
 				zap.String("userAgent", r.Header.Get("User-Agent")),
 				zap.String("referer", r.Referer()),
 				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
+				zap.String("trackingID", context_data.MustTrackingID(r.Context())),
 			)
 		}()
 	}
@@ -83,7 +87,7 @@ func NewRelic(h http.Handler) http.Handler {
 	c := newrelic.NewConfig("lekcije", key)
 	app, err := newrelic.NewApplication(c)
 	if err != nil {
-		logger.AppLogger.Error("Failed to newrelic.NewApplication()", zap.Error(err))
+		logger.App.Error("Failed to newrelic.NewApplication()", zap.Error(err))
 		return h
 	}
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +98,7 @@ func NewRelic(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetDBAndRedisToContext(h http.Handler) http.Handler {
+func SetDBAndRedis(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
@@ -105,22 +109,24 @@ func SetDBAndRedisToContext(h http.Handler) http.Handler {
 			fmt.Printf("%s %s\n", r.Method, r.RequestURI)
 		}
 
-		db, c, err := model.OpenDBAndSetToContext(
-			ctx, os.Getenv("DB_URL"), maxDBConnections, !config.IsProductionEnv(),
+		db, err := model.OpenDB(
+			bootstrap.ServerEnvVars.DBURL,
+			maxDBConnections,
+			!config.IsProductionEnv(),
 		)
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
 		}
 		defer db.Close()
+		ctx = context_data.SetDB(ctx, db)
 
-		redisClient, c, err := model.OpenRedisAndSetToContext(c, os.Getenv("REDIS_URL"))
+		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, os.Getenv("REDIS_URL"))
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
 		}
 		defer redisClient.Close()
-
 		_, c = flash_message.NewStoreRedisAndSetToContext(c, redisClient)
 
 		h.ServeHTTP(w, r.WithContext(c))
@@ -128,7 +134,7 @@ func SetDBAndRedisToContext(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetLoggedInUserToContext(h http.Handler) http.Handler {
+func SetLoggedInUser(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if r.RequestURI == "/api/status" {
@@ -141,12 +147,39 @@ func SetLoggedInUserToContext(h http.Handler) http.Handler {
 			return
 		}
 
-		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
+		userService := model.NewUserService(context_data.MustDB(ctx))
+		user, err := userService.FindLoggedInUser(cookie.Value)
 		if err != nil {
-			fmt.Printf("loggedInUser = %+v\n", user)
 			h.ServeHTTP(w, r)
 			return
 		}
+		c := context_data.SetLoggedInUser(ctx, user)
+		h.ServeHTTP(w, r.WithContext(c))
+	}
+	return http.HandlerFunc(fn)
+}
+
+func SetTrackingID(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(controller.TrackingIDCookieName)
+		var trackingID string
+		if err == nil {
+			trackingID = cookie.Value
+		} else {
+			trackingID = uuid.New().String()
+			domain := strings.Replace(r.Host, "www.", "", 1)
+			domain = strings.Replace(domain, ":4000", "", 1) // TODO: local only
+			c := &http.Cookie{
+				Name:     controller.TrackingIDCookieName,
+				Value:    trackingID,
+				Path:     "/",
+				Domain:   domain,
+				Expires:  time.Now().UTC().Add(time.Hour * 24 * 365 * 2),
+				HttpOnly: true,
+			}
+			http.SetCookie(w, c)
+		}
+		c := context_data.SetTrackingID(r.Context(), trackingID)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
@@ -161,16 +194,18 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 		}
 		cookie, err := r.Cookie(controller.APITokenCookieName)
 		if err != nil {
-			logger.AppLogger.Debug("Not logged in")
+			logger.App.Debug("Not logged in")
 			http.Redirect(w, r, config.WebURL(), http.StatusFound)
 			return
 		}
 
-		user, c, err := model.FindLoggedInUserAndSetToContext(cookie.Value, ctx)
+		// TODO: Use context_data.MustLoggedInUser(ctx)
+		userService := model.NewUserService(context_data.MustDB(ctx))
+		user, err := userService.FindLoggedInUser(cookie.Value)
 		if err != nil {
 			switch err.(type) {
 			case *errors.NotFound:
-				logger.AppLogger.Debug("not logged in")
+				logger.App.Debug("not logged in")
 				http.Redirect(w, r, config.WebURL(), http.StatusFound)
 				return
 			default:
@@ -178,7 +213,8 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 				return
 			}
 		}
-		logger.AppLogger.Debug("Logged in user", zap.Object("user", user))
+		logger.App.Debug("Logged in user", zap.Object("user", user))
+		c := context_data.SetLoggedInUser(ctx, user)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)

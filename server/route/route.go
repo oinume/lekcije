@@ -9,12 +9,13 @@ import (
 
 func Create() *goji.Mux {
 	routes := goji.NewMux()
+	routes.Use(middleware.SetTrackingID)
 	routes.Use(middleware.AccessLogger)
 	routes.Use(middleware.Redirecter)
 	routes.Use(middleware.PanicHandler)
 	routes.Use(middleware.NewRelic)
-	routes.Use(middleware.SetDBAndRedisToContext)
-	routes.Use(middleware.SetLoggedInUserToContext)
+	routes.Use(middleware.SetDBAndRedis)
+	routes.Use(middleware.SetLoggedInUser)
 	routes.Use(middleware.LoginRequiredFilter)
 	routes.Use(middleware.CORS)
 

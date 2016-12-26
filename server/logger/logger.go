@@ -16,30 +16,30 @@ import (
 )
 
 var (
-	AccessLogger = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stdout))
-	AppLogger    = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stderr))
+	Access = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stdout))
+	App    = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stderr))
 )
 
 func init() {
 	if !config.IsProductionEnv() {
-		AppLogger.SetLevel(zap.DebugLevel)
+		App.SetLevel(zap.DebugLevel)
 	}
 }
 
 func InitializeAccessLogger(writer io.Writer) {
-	AccessLogger = zap.New(
+	Access = zap.New(
 		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
 		zap.Output(zap.AddSync(writer)),
 	)
 }
 
 func InitializeAppLogger(writer io.Writer) {
-	AppLogger = zap.New(
+	App = zap.New(
 		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
 		zap.Output(zap.AddSync(writer)),
 	)
 	if !config.IsProductionEnv() {
-		AppLogger.SetLevel(zap.DebugLevel)
+		App.SetLevel(zap.DebugLevel)
 	}
 }
 

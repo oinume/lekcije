@@ -7,11 +7,11 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
-	"golang.org/x/net/context"
 )
 
 const (
 	contextKeyLoggedInUser = "loggedInUser"
+	contextKeyTrackingID   = "trackingID"
 )
 
 type User struct {
@@ -160,38 +160,19 @@ func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
 	return nil
 }
 
-func FindLoggedInUserAndSetToContext(token string, ctx context.Context) (*User, context.Context, error) {
-	db := MustDB(ctx)
+func (s *UserService) FindLoggedInUser(token string) (*User, error) {
 	user := &User{}
 	sql := `
 		SELECT * FROM user AS u
 		INNER JOIN user_api_token AS uat ON u.id = uat.user_id
 		WHERE uat.token = ?
 		`
-	result := db.Model(&User{}).Raw(strings.TrimSpace(sql), token).Scan(user)
+	result := s.db.Model(&User{}).Raw(strings.TrimSpace(sql), token).Scan(user)
 	if result.Error != nil {
 		if result.RecordNotFound() {
-			return nil, nil, errors.NotFoundWrapf(result.Error, "Failed to find user: token=%s", token)
+			return nil, errors.NotFoundWrapf(result.Error, "Failed to find user: token=%s", token)
 		}
-		return nil, nil, errors.InternalWrapf(result.Error, "find user: token=%s", token)
+		return nil, errors.InternalWrapf(result.Error, "find user: token=%s", token)
 	}
-	c := context.WithValue(ctx, contextKeyLoggedInUser, user)
-	return user, c, nil
-}
-
-// TODO: Move somewhere else model
-func GetLoggedInUser(ctx context.Context) (*User, error) {
-	value := ctx.Value(contextKeyLoggedInUser)
-	if user, ok := value.(*User); ok {
-		return user, nil
-	}
-	return nil, errors.NotFoundf("Logged in user not found in context")
-}
-
-func MustLoggedInUser(ctx context.Context) *User {
-	user, err := GetLoggedInUser(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return user
+	return user, nil
 }
