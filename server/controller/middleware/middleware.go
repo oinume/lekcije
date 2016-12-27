@@ -165,9 +165,16 @@ func SetLoggedInUser(h http.Handler) http.Handler {
 
 func SetTrackingID(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		if r.RequestURI == "/api/status" {
-			h.ServeHTTP(w, r)
-			return
+		ignoreURLs := []string{
+			"/api/status",
+			"/robots.txt",
+			"/sitemap.xml",
+		}
+		for _, u := range ignoreURLs {
+			if r.RequestURI == u {
+				h.ServeHTTP(w, r)
+				return
+			}
 		}
 
 		cookie, err := r.Cookie(controller.TrackingIDCookieName)
