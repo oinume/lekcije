@@ -45,7 +45,6 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	a.Nil(err)
 	a.NotEmpty(trackingIDCookie.Value)
 
-
 	fmt.Printf("u = %v, err = %v\n", u, err)
 	link.Click()
 	//time.Sleep(10 * time.Second)

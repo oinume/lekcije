@@ -16,8 +16,9 @@ import (
 )
 
 var (
-	dryRun   = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
-	logLevel = flag.String("log-level", "info", "Log level")
+	dryRun      = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
+	concurrency = flag.Int("concurrency", 1, "concurrency of fetcher")
+	logLevel    = flag.String("log-level", "info", "Log level")
 )
 
 func main() {
@@ -42,7 +43,6 @@ func run() error {
 		return err
 	}
 	defer db.Close()
-	//context_data.SetDB(context.Background(), db) // TODO: delete
 
 	var users []*model.User
 	userSql := `SELECT * FROM user WHERE email_verified = 1`
@@ -51,7 +51,8 @@ func run() error {
 		return errors.InternalWrapf(result.Error, "")
 	}
 
-	notifier := notifier.NewNotifier(db, *dryRun)
+	notifier := notifier.NewNotifier(db, *concurrency, *dryRun)
+	defer notifier.Close()
 	for _, user := range users {
 		if err := notifier.SendNotification(user); err != nil {
 			return err

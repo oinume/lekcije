@@ -26,6 +26,9 @@ e2e_test:
 go_test:
 	go test -race $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
 
+goimports:
+	goimports -w ./server ./e2e
+
 minify_static:
 	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build
 

@@ -6,6 +6,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
 
@@ -20,22 +21,21 @@ import (
 	"github.com/uber-go/zap"
 )
 
-var lessonFetcher *fetcher.TeacherLessonFetcher
-
-func init() {
-	lessonFetcher = fetcher.NewTeacherLessonFetcher(nil, logger.App)
-}
-
 type Notifier struct {
 	db            *gorm.DB
+	fetcher       *fetcher.TeacherLessonFetcher
 	dryRun        bool
 	lessonService *model.LessonService
 	teachers      map[uint32]*model.Teacher
 }
 
-func NewNotifier(db *gorm.DB, dryRun bool) *Notifier {
+func NewNotifier(db *gorm.DB, concurrency int, dryRun bool) *Notifier {
+	if concurrency < 1 {
+		concurrency = 1
+	}
 	return &Notifier{
 		db:       db,
+		fetcher:  fetcher.NewTeacherLessonFetcher(nil, concurrency, logger.App),
 		dryRun:   dryRun,
 		teachers: make(map[uint32]*model.Teacher, 1000),
 	}
@@ -52,26 +52,36 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	allFetchedLessons := make([]*model.Lesson, 0, 5000)
+	wg := &sync.WaitGroup{}
 	for _, teacherID := range teacherIDs {
-		teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherID)
-		if err != nil {
-			switch err.(type) {
-			case *errors.NotFound:
-				// TODO: update teacher table flag
-				// TODO: Not need to log
-				logger.App.Warn("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)))
-				continue
-			default:
-				return err
+		wg.Add(1)
+		go func(teacherID uint32) {
+			defer wg.Done()
+			teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherID)
+			if err != nil {
+				switch err.(type) {
+				case *errors.NotFound:
+					// TODO: update teacher table flag
+					// TODO: Not need to log
+					logger.App.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
+				default:
+					logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
+				}
+				return
 			}
-		}
 
-		allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
-		n.teachers[teacherID] = teacher
-		if len(newAvailableLessons) > 0 {
-			availableLessonsPerTeacher[teacherID] = newAvailableLessons
+			allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
+			n.teachers[teacherID] = teacher
+			if len(newAvailableLessons) > 0 {
+				availableLessonsPerTeacher[teacherID] = newAvailableLessons
+			}
+		}(teacherID)
+
+		if err != nil {
+			return err
 		}
 	}
+	wg.Wait()
 
 	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
 		return err
@@ -90,7 +100,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	*model.Teacher, []*model.Lesson, []*model.Lesson, error,
 ) {
-	teacher, fetchedLessons, err := lessonFetcher.Fetch(teacherID)
+	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
 		logger.App.Error(
 			"TeacherLessonFetcher.Fetch",
@@ -215,6 +225,10 @@ Reserve here:
 {{ end }}
 Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of the teacher.
 	`)
+}
+
+func (n *Notifier) Close() {
+	n.fetcher.Close()
 }
 
 type NotificationSender interface {
