@@ -16,9 +16,9 @@ import (
 )
 
 var (
-	dryRun             = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
-	fetcherConcurrency = flag.Int("fetcher-concurrency", 1, "concurrency of fetcher")
-	logLevel           = flag.String("log-level", "info", "Log level")
+	dryRun      = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
+	concurrency = flag.Int("concurrency", 1, "concurrency of fetcher")
+	logLevel    = flag.String("log-level", "info", "Log level")
 )
 
 func main() {
@@ -51,7 +51,7 @@ func run() error {
 		return errors.InternalWrapf(result.Error, "")
 	}
 
-	notifier := notifier.NewNotifier(db, *fetcherConcurrency, *dryRun)
+	notifier := notifier.NewNotifier(db, *concurrency, *dryRun)
 	for _, user := range users {
 		if err := notifier.SendNotification(user); err != nil {
 			return err

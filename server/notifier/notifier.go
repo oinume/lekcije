@@ -29,13 +29,13 @@ type Notifier struct {
 	teachers      map[uint32]*model.Teacher
 }
 
-func NewNotifier(db *gorm.DB, fetcherConcurrency int, dryRun bool) *Notifier {
-	if fetcherConcurrency < 1 {
-		fetcherConcurrency = 1
+func NewNotifier(db *gorm.DB, concurrency int, dryRun bool) *Notifier {
+	if concurrency < 1 {
+		concurrency = 1
 	}
 	return &Notifier{
 		db:       db,
-		fetcher:  fetcher.NewTeacherLessonFetcher(nil, fetcherConcurrency, logger.App),
+		fetcher:  fetcher.NewTeacherLessonFetcher(nil, concurrency, logger.App),
 		dryRun:   dryRun,
 		teachers: make(map[uint32]*model.Teacher, 1000),
 	}
