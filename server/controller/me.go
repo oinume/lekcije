@@ -110,17 +110,20 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update user.followed_teacher_at when first time to follow teachers.
-	// user.followed_teacher_at is used for showing tutorial.
+	// the column is used for showing tutorial or not.
+	updateFollowedTeacherAt := false
 	if !user.FollowedTeacherAt.Valid {
 		userService := model.NewUserService(db)
 		if err := userService.UpdateFollowedTeacherAt(user); err != nil {
 			InternalServerError(w, err)
 			return
 		}
+		updateFollowedTeacherAt = true
 	}
 
 	fetcher := fetcher.NewTeacherLessonFetcher(nil, logger.App)
 	now := time.Now().UTC()
+	teacherIDs := make([]string, 0, len(teachers))
 	for _, t := range teachers {
 		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
@@ -138,6 +141,18 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
+		teacherIDs = append(teacherIDs, fmt.Sprint(t.ID))
+	}
+
+	go sendMeasurementEvent2(
+		r, eventCategoryFollowingTeacher, "follow",
+		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
+	)
+	if updateFollowedTeacherAt {
+		go sendMeasurementEvent2(
+			r, eventCategoryUser, "followFirstTime",
+			fmt.Sprint(user.ID), 0, user.ID,
+		)
 	}
 
 	successMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
@@ -172,6 +187,10 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, e)
 		return
 	}
+	go sendMeasurementEvent2(
+		r, eventCategoryFollowingTeacher, "unfollow",
+		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
+	)
 
 	successMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
 	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
@@ -216,13 +235,13 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
+	go sendMeasurementEvent2(r, eventCategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
 
 	successMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
 	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
 		InternalServerError(w, err)
 		return
 	}
-	go sendMeasurementEvent2(r, eventCategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
 
 	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLParam(), http.StatusFound)
 }
@@ -254,7 +273,6 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-
 	go sendMeasurementEvent2(r, eventCategoryUser, "logout", "", 0, user.ID)
 
 	http.Redirect(w, r, "/", http.StatusFound)

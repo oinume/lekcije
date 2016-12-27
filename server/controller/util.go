@@ -153,6 +153,7 @@ var gaHTTPClient *http.Client = &http.Client{
 
 const (
 	eventCategoryUser = "user"
+	eventCategoryFollowingTeacher = "followingTeacher"
 )
 
 func sendMeasurementEvent2(req *http.Request, category, action, label string, value int64, userID uint32) {
