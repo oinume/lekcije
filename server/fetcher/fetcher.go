@@ -189,6 +189,10 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	return teacher, lessons, nil
 }
 
+func (fetcher *TeacherLessonFetcher) Close() {
+	close(fetcher.semaphore)
+}
+
 func MustInt(s string) int {
 	i, err := strconv.ParseInt(s, 10, 32)
 	if err != nil {

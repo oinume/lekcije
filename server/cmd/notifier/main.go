@@ -52,6 +52,7 @@ func run() error {
 	}
 
 	notifier := notifier.NewNotifier(db, *concurrency, *dryRun)
+	defer notifier.Close()
 	for _, user := range users {
 		if err := notifier.SendNotification(user); err != nil {
 			return err

@@ -64,11 +64,10 @@ func (n *Notifier) SendNotification(user *model.User) error {
 					// TODO: update teacher table flag
 					// TODO: Not need to log
 					logger.App.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
-					//return nil
 				default:
-					//return err
 					logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				}
+				return
 			}
 
 			allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
@@ -226,6 +225,10 @@ Reserve here:
 {{ end }}
 Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of the teacher.
 	`)
+}
+
+func (n *Notifier) Close() {
+	n.fetcher.Close()
 }
 
 type NotificationSender interface {
