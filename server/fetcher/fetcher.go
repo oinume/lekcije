@@ -39,23 +39,34 @@ var (
 
 type TeacherLessonFetcher struct {
 	httpClient *http.Client
+	semaphore  chan struct{}
 	log        zap.Logger
 }
 
-func NewTeacherLessonFetcher(httpClient *http.Client, log zap.Logger) *TeacherLessonFetcher {
+func NewTeacherLessonFetcher(httpClient *http.Client, concurrency int, log zap.Logger) *TeacherLessonFetcher {
 	if httpClient == nil {
 		httpClient = fetcherHTTPClient
+	}
+	if concurrency < 1 {
+		concurrency = 1
 	}
 	if log == nil {
 		log = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")))
 	}
+	semaphore := make(chan struct{}, concurrency)
 	return &TeacherLessonFetcher{
 		httpClient: httpClient,
+		semaphore:  semaphore,
 		log:        log,
 	}
 }
 
 func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
+	fetcher.semaphore <- struct{}{}
+	defer func() {
+		<-fetcher.semaphore
+	}()
+
 	teacher := model.NewTeacher(teacherID)
 	var content string
 	err := retry.Retry(2, 300*time.Millisecond, func() error {
