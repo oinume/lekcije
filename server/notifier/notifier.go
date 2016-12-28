@@ -192,6 +192,12 @@ func (n *Notifier) sendNotificationToUser(
 
 func getEmailTemplateJP() string {
 	return strings.TrimSpace(`
+----- 不具合のお知らせ -----
+2017年のレッスンがある講師をフォローしている場合、
+通知のメールが10分ごとに必ず送られてしまうという不具合があります。
+ご迷惑をおかけして申し訳ありません。現在対応中ですのでお待ち下さい。
+{{ $a := "" }}
+
 {{- range $teacherID := .TeacherIDs }}
 {{- $teacher := index $.Teachers $teacherID -}}
 --- {{ $teacher.Name }} ---
