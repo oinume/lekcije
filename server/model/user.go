@@ -120,7 +120,9 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 	}
 	if result := s.db.Create(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
-			result.Error, "Failed to create User: email=%v", email,
+			result.Error,
+			"Failed to create User: email=%v, googleID=%v",
+			email, googleID,
 		)
 	}
 
