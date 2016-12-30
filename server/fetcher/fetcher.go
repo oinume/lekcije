@@ -127,6 +127,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
 	lessons := make([]*model.Lesson, 0, 1000)
+	now := time.Now()
 	originalDate := time.Now().Truncate(24 * time.Hour)
 	date := originalDate
 	// lessons
@@ -147,8 +148,12 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 			group := dateRegexp.FindStringSubmatch(text)
 			if len(group) > 0 {
 				month, day := MustInt(group[1]), MustInt(group[2])
+				year := date.Year()
+				if now.Month() == time.December && month == 1 {
+					year = now.Year() + 1
+				}
 				originalDate = time.Date(
-					date.Year(), time.Month(month), int(day),
+					year, time.Month(month), int(day),
 					0, 0, 0, 0,
 					config.LocalTimezone(),
 				)

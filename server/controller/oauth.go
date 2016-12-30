@@ -221,7 +221,10 @@ func checkState(r *http.Request) error {
 	state := r.FormValue("state")
 	oauthState, err := r.Cookie("oauthState")
 	if err != nil {
-		return errors.InternalWrapf(err, "Failed to get cookie oauthState")
+		return errors.InternalWrapf(
+			err, "Failed to get cookie oauthState: userAgent=%v, remoteAddr=%v",
+			r.UserAgent(), GetRemoteAddress(r),
+		)
 	}
 	if state != oauthState.Value {
 		return errors.InternalWrapf(err, "state mismatch")
