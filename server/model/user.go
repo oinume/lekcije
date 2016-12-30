@@ -49,6 +49,28 @@ func (s *UserService) FindByPk(id uint32) (*User, error) {
 	return user, nil
 }
 
+func (s *UserService) FindByFacebookID(facebookID string) (*User, error) {
+	user := &User{}
+	sql := `
+	SELECT u.* FROM user AS u
+	INNER JOIN user_facebook AS ug ON u.id = ug.user_id
+	WHERE ug.facebook_id = ?
+	LIMIT 1
+	`
+	if result := s.db.Raw(sql, facebookID).Scan(user); result.Error != nil {
+		if result.RecordNotFound() {
+			return nil, errors.NotFoundWrapf(
+				result.Error, "UserFacebook not found: faebookID=%v", facebookID,
+			)
+		} else {
+			return nil, errors.InternalWrapf(
+				result.Error, "facebookID=%v", facebookID,
+			)
+		}
+	}
+	return user, nil
+}
+
 func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
 	user := &User{}
 	sql := `
@@ -106,6 +128,41 @@ func (s *UserService) Create(name, email string) (*User, error) {
 	return user, nil
 }
 
+func (s *UserService) CreateWithFacebook(name, email, facebookID string) (*User, *UserFacebook, error) {
+	e, err := NewEmailFromRaw(email)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// TODO: same code in CreateWithGoogle
+	user := &User{
+		Name:          name,
+		Email:         e,
+		EmailVerified: true, // TODO: set false after implement email verification
+		PlanID:        DefaultPlanID,
+	}
+	if result := s.db.Where(&User{Email: e}).FirstOrCreate(user); result.Error != nil {
+		return nil, nil, errors.InternalWrapf(
+			result.Error,
+			"Failed to create User: email=%v, facebookID=%v",
+			email, facebookID,
+		)
+	}
+
+	userFacebook := &UserFacebook{
+		FacebookID: facebookID,
+		UserID:     user.ID,
+	}
+	if result := s.db.Create(userFacebook); result.Error != nil {
+		return nil, nil, errors.InternalWrapf(
+			result.Error, "Failed to create UserFacebook: email=%v, facebookID=%v",
+			email, facebookID,
+		)
+	}
+
+	return user, userFacebook, nil
+}
+
 func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
 	e, err := NewEmailFromRaw(email)
 	if err != nil {
@@ -118,7 +175,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 		EmailVerified: true, // TODO: set false after implement email verification
 		PlanID:        DefaultPlanID,
 	}
-	if result := s.db.Create(user); result.Error != nil {
+	if result := s.db.Where(&User{Email: e}).FirstOrCreate(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
 			result.Error,
 			"Failed to create User: email=%v, googleID=%v",
@@ -132,7 +189,8 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 	}
 	if result := s.db.Create(userGoogle); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
-			result.Error, "Failed to create UserGoogle: email=%v", email,
+			result.Error, "Failed to create UserGoogle: email=%v, googleID=%v",
+			email, googleID,
 		)
 	}
 

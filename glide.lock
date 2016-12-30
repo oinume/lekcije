@@ -1,5 +1,5 @@
-hash: 2410919dc3e1ef1f911e0ed0a4c5741ce3ce380dd13232b865822257117575be
-updated: 2016-12-22T00:19:54.454369685+09:00
+hash: a656fd6295e695573dc5d01a9c622e571d6855750ebbe93397e0b926542a34b1
+updated: 2016-12-30T12:02:54.79792451+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -24,6 +24,8 @@ imports:
   - proto
 - name: github.com/google/uuid
   version: 064e2069ce9c359c118179501254f67d7d37ba24
+- name: github.com/huandu/facebook
+  version: 24ce8d1913aaad265ff4cb4af6a1d1b1801d3021
 - name: github.com/jinzhu/gorm
   version: 446ce99a42ffe050b77bdd761271f97dd1e2b554
   subpackages:
@@ -109,6 +111,7 @@ imports:
 - name: golang.org/x/oauth2
   version: 3c3a985cb79f52a3190fbc056984415ca6763d01
   subpackages:
+  - facebook
   - google
   - internal
   - jws

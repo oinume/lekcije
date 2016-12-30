@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	facebook_api "github.com/huandu/facebook"
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
@@ -152,7 +153,7 @@ func OAuthFacebook(w http.ResponseWriter, r *http.Request) {
 }
 
 func OAuthFacebookCallback(w http.ResponseWriter, r *http.Request) {
-	//ctx := r.Context()
+	ctx := r.Context()
 	if err := checkState(r); err != nil {
 		InternalServerError(w, err)
 		return
@@ -167,54 +168,57 @@ func OAuthFacebookCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, _, _, err = getFacebookUserInfo(token)
-	/*
-		googleID, name, email, err := getGoogleUserInfo(token, idToken)
-		if err != nil {
+	facebookID, name, email, err := getFacebookUserInfo(token)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+
+	db := context_data.MustDB(ctx)
+	userService := model.NewUserService(db)
+	user, err := userService.FindByFacebookID(facebookID)
+	if err == nil {
+		go sendMeasurementEvent2(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
+	} else {
+		if _, notFound := err.(*errors.NotFound); !notFound {
 			InternalServerError(w, err)
 			return
 		}
-
-		db := context_data.MustDB(ctx)
-		userService := model.NewUserService(db)
-		user, err := userService.FindByGoogleID(googleID)
-		if err == nil {
-			go sendMeasurementEvent2(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
-		} else {
-			if _, notFound := err.(*errors.NotFound); !notFound {
-				InternalServerError(w, err)
-				return
-			}
-			// Couldn't find user for the googleID, so create a new user
-			errTx := model.GORMTransaction(db, "OAuthGoogleCallback", func(tx *gorm.DB) error {
-				var errCreate error
-				user, _, errCreate = userService.CreateWithGoogle(name, email, googleID)
-				return errCreate
-			})
-			if errTx != nil {
-				InternalServerError(w, errTx)
-				return
-			}
-			go sendMeasurementEvent2(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
-		}
-
-		userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))
-		userAPIToken, err := userAPITokenService.Create(user.ID)
-		if err != nil {
-			InternalServerError(w, err)
+		// Couldn't find user for the facebookID, so create a new user
+		errTx := model.GORMTransaction(db, "OAuthFacebookCallback", func(tx *gorm.DB) error {
+			var errCreate error
+			user, _, errCreate = userService.CreateWithFacebook(name, email, facebookID)
+			return errCreate
+		})
+		if errTx != nil {
+			InternalServerError(w, errTx)
 			return
 		}
+		go sendMeasurementEvent2(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
+	}
 
-		cookie := &http.Cookie{
-			Name:     APITokenCookieName,
-			Value:    userAPIToken.Token,
-			Path:     "/",
-			Expires:  time.Now().Add(model.UserAPITokenExpiration),
-			HttpOnly: false,
-		}
-		http.SetCookie(w, cookie)
-		http.Redirect(w, r, "/me", http.StatusFound)
-	*/
+	cookie, err := createUserAPIToken(context_data.MustDB(ctx), user.ID)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/me", http.StatusFound)
+}
+
+func createUserAPIToken(db *gorm.DB, userID uint32) (*http.Cookie, error) {
+	userAPITokenService := model.NewUserAPITokenService(db)
+	userAPIToken, err := userAPITokenService.Create(userID)
+	if err != nil {
+		return nil, err
+	}
+	return &http.Cookie{
+		Name:     APITokenCookieName,
+		Value:    userAPIToken.Token,
+		Path:     "/",
+		Expires:  time.Now().Add(model.UserAPITokenExpiration),
+		HttpOnly: false,
+	}, nil
 }
 
 func checkState(r *http.Request) error {
@@ -298,29 +302,30 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 	return tokeninfo.UserId, userinfo.Name, tokeninfo.Email, nil
 }
 
+// TODO: return model.User
 func getFacebookUserInfo(token *oauth2.Token) (string, string, string, error) {
-	/*
-		oauth2Client := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(token))
-		oauth2Client.Timeout = 5 * time.Second
-		service, err := google_auth2.New(oauth2Client)
-		if err != nil {
-			// TODO: quit using errors.Wrap
-			return "", "", "", errors.InternalWrapf(err, "Failed to create oauth2.Client")
-		}
+	oauth2Client := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(token))
+	oauth2Client.Timeout = 5 * time.Second
+	fb := facebook_api.New(os.Getenv("FACEBOOK_CLIENT_ID"), os.Getenv("FACEBOOK_CLIENT_SECRET"))
+	session := fb.Session(token.AccessToken)
+	session.HttpClient = oauth2Client
 
-		userinfo, err := service.Userinfo.V2.Me.Get().Do()
-		if err != nil {
-			return "", "", "", errors.InternalWrapf(err, "Failed to get userinfo")
-		}
+	result, err := session.Get("/me", facebook_api.Params{
+		"fields": "id,email,name",
+	})
+	if err != nil {
+		return "", "", "", errors.InternalWrapf(err, "Failed to call Facebook API /me")
+	}
+	user := struct {
+		ID    string
+		Name  string
+		Email string
+	}{}
+	if err := result.Decode(&user); err != nil {
+		return "", "", "", errors.InternalWrapf(err, "Failed to decode result of /me")
+	}
 
-		tokeninfo, err := service.Tokeninfo().IdToken(idToken).Do()
-		if err != nil {
-			return "", "", "", errors.InternalWrapf(err, "Failed to get tokeninfo")
-		}
-
-		return tokeninfo.UserId, userinfo.Name, tokeninfo.Email, nil
-	*/
-	return "", "", "", nil
+	return user.ID, user.Name, user.Email, nil
 }
 
 func getGoogleOAuthConfig(r *http.Request) oauth2.Config {

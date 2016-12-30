@@ -53,3 +53,5 @@ import:
   - package: github.com/jpillora/go-ogle-analytics
     version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
   - package: github.com/google/uuid
+  - package: github.com/huandu/facebook
+    version: v1.7.1
