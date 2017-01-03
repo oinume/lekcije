@@ -2,7 +2,7 @@ machine:
   environment:
     GOPATH: "${HOME}/.go_workspace"
     GOROOT: "${HOME}/go"
-    GO_VERSION: "1.7.3"
+    GO_VERSION: "1.7.4"
     PATH: "${GOPATH}/bin:${HOME}/go/bin:${PATH}"
     GOPATH_PROJECT: "${GOPATH}/src/github.com/oinume/lekcije"
     DB_URL: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
