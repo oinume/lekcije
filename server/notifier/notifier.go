@@ -54,7 +54,6 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
-	allFetchedLessons := make([]*model.Lesson, 0, 5000)
 	wg := &sync.WaitGroup{}
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
@@ -95,10 +94,6 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
 		return err
 	}
-
-	//if !n.dryRun {
-	//	n.lessonService.UpdateLessons(allFetchedLessons)
-	//}
 
 	time.Sleep(500 * time.Millisecond)
 
