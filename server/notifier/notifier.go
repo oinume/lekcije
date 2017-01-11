@@ -75,11 +75,10 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			n.Lock()
 			defer n.Unlock()
 			n.teachers[teacherID] = teacher
-			if _, ok := n.fetchedLessons[teacherID]; ok {
-				n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetchedLessons...)
-			} else {
+			if _, ok := n.fetchedLessons[teacherID]; !ok {
 				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 5000)
 			}
+			n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetchedLessons...)
 			if len(newAvailableLessons) > 0 {
 				availableLessonsPerTeacher[teacherID] = newAvailableLessons
 			}
