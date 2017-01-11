@@ -32,6 +32,9 @@ func main() {
 func run() error {
 	bootstrap.CheckCLIEnvVars()
 	startedAt := time.Now().UTC()
+	if *logLevel != "" {
+		logger.App.SetLevel(logger.NewLevel(*logLevel))
+	}
 	logger.App.Info("notifier started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond

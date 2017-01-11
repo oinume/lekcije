@@ -27,6 +27,8 @@ type Notifier struct {
 	dryRun        bool
 	lessonService *model.LessonService
 	teachers      map[uint32]*model.Teacher
+	fetchedLessons map[uint32][]*model.Lesson
+	sync.Mutex
 }
 
 func NewNotifier(db *gorm.DB, concurrency int, dryRun bool) *Notifier {
@@ -38,6 +40,7 @@ func NewNotifier(db *gorm.DB, concurrency int, dryRun bool) *Notifier {
 		fetcher:  fetcher.NewTeacherLessonFetcher(nil, concurrency, logger.App),
 		dryRun:   dryRun,
 		teachers: make(map[uint32]*model.Teacher, 1000),
+		fetchedLessons: make(map[uint32][]*model.Lesson, 1000),
 	}
 }
 
@@ -51,7 +54,6 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
-	allFetchedLessons := make([]*model.Lesson, 0, 5000)
 	wg := &sync.WaitGroup{}
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
@@ -70,8 +72,13 @@ func (n *Notifier) SendNotification(user *model.User) error {
 				return
 			}
 
-			allFetchedLessons = append(allFetchedLessons, fetchedLessons...)
+			n.Lock()
+			defer n.Unlock()
 			n.teachers[teacherID] = teacher
+			if _, ok := n.fetchedLessons[teacherID]; !ok {
+				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 5000)
+			}
+			n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetchedLessons...)
 			if len(newAvailableLessons) > 0 {
 				availableLessonsPerTeacher[teacherID] = newAvailableLessons
 			}
@@ -85,10 +92,6 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
 		return err
-	}
-
-	if !n.dryRun {
-		n.lessonService.UpdateLessons(allFetchedLessons)
 	}
 
 	time.Sleep(500 * time.Millisecond)
@@ -184,6 +187,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	//fmt.Printf("--- mail ---\n%s", body.String())
 
+	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email.Raw()))
 	//subject := "Schedule of teacher " + strings.Join(teacherNames, ", ")
 	subject := strings.Join(teacherNames, ", ") + "の空きレッスンがあります"
 	sender := &EmailNotificationSender{}
@@ -228,7 +232,20 @@ Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of th
 }
 
 func (n *Notifier) Close() {
-	n.fetcher.Close()
+	defer n.fetcher.Close()
+	defer func() {
+		if n.dryRun {
+			return
+		}
+		for teacherID, lessons := range n.fetchedLessons {
+			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
+				logger.App.Error(
+					"An error ocurred in Notifier.Close",
+					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
+				)
+			}
+		}
+	}()
 }
 
 type NotificationSender interface {
