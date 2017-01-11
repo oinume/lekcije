@@ -190,6 +190,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	//fmt.Printf("--- mail ---\n%s", body.String())
 
+	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email.Raw()))
 	//subject := "Schedule of teacher " + strings.Join(teacherNames, ", ")
 	subject := strings.Join(teacherNames, ", ") + "の空きレッスンがあります"
 	sender := &EmailNotificationSender{}
