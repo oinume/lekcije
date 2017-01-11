@@ -43,6 +43,27 @@ func InitializeAppLogger(writer io.Writer) {
 	}
 }
 
+func NewLevel(level string) zap.Level {
+	var l zap.Level
+	switch strings.ToLower(level) {
+	case "debug":
+		l = zap.DebugLevel
+	case "info":
+		l = zap.InfoLevel
+	case "warn":
+		l = zap.WarnLevel
+	case "error":
+		l = zap.ErrorLevel
+	case "panic":
+		l = zap.PanicLevel
+	case "fatal":
+		l = zap.FatalLevel
+	default:
+		l = zap.InfoLevel
+	}
+	return l
+}
+
 type LoggingHTTPTransport struct {
 	DumpHeaderBody bool
 }
