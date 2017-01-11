@@ -28,6 +28,7 @@ type Notifier struct {
 	lessonService *model.LessonService
 	teachers      map[uint32]*model.Teacher
 	fetchedLessons map[uint32][]*model.Lesson
+	sync.Mutex
 }
 
 func NewNotifier(db *gorm.DB, concurrency int, dryRun bool) *Notifier {
@@ -72,8 +73,8 @@ func (n *Notifier) SendNotification(user *model.User) error {
 				return
 			}
 
-			allFetchedLessons = append(allFetchedLessons, fetchedLessons...) // TODO: delete
-			// TODO: lock
+			n.Lock()
+			defer n.Unlock()
 			n.teachers[teacherID] = teacher
 			if _, ok := n.fetchedLessons[teacherID]; ok {
 				n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetchedLessons...)
