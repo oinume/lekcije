@@ -18,10 +18,14 @@ var (
 )
 
 type Teacher struct {
-	ID        uint32
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID                uint32
+	Name              string
+	Nationality       string
+	Gender            string
+	YearsOfExperience string
+	Birthday          time.Time
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 func (*Teacher) TableName() string {

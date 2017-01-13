@@ -32,9 +32,10 @@ var (
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
 	}
-	titleXPath     = xmlpath.MustCompile(`//title`)
-	lessonXPath    = xmlpath.MustCompile("//ul[@class='oneday']//li")
-	classAttrXPath = xmlpath.MustCompile("@class")
+	titleXPath      = xmlpath.MustCompile(`//title`)
+	attributesXPath = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
+	lessonXPath     = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
+	classAttrXPath  = xmlpath.MustCompile(`@class`)
 )
 
 type TeacherLessonFetcher struct {
@@ -125,6 +126,19 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.URL)
 	}
 
+	nameXPath := xmlpath.MustCompile(`./dt`)
+	valueXPath := xmlpath.MustCompile(`./dd`)
+	for iter := attributesXPath.Iter(root); iter.Next(); {
+		node := iter.Node()
+		if name, ok := nameXPath.String(node); ok {
+			if value, ok := valueXPath.String(node); ok {
+				fetcher.setAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value))
+				//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
+			}
+		}
+	}
+	//fmt.Printf("teacher = %+v\n", teacher)
+
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
 	lessons := make([]*model.Lesson, 0, 1000)
 	now := time.Now()
@@ -192,6 +206,24 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	}
 
 	return teacher, lessons, nil
+}
+
+func (fetcher *TeacherLessonFetcher) setAttribute(teacher *model.Teacher, name string, value string) error {
+	switch name {
+	case "国籍":
+		teacher.Nationality = value
+	case "誕生日":
+		t, err := time.Parse("2006-01-02", value)
+		if err != nil {
+			return err
+		}
+		teacher.Birthday = t
+	case "性別":
+		teacher.Gender = value
+	case "経歴":
+		teacher.YearsOfExperience = value
+	}
+	return nil
 }
 
 func (fetcher *TeacherLessonFetcher) Close() {
