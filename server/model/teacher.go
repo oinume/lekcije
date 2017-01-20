@@ -20,7 +20,7 @@ var (
 type Teacher struct {
 	ID                uint32
 	Name              string
-	Nationality       string
+	CountryID         uint16
 	Gender            string
 	YearsOfExperience string
 	Birthday          time.Time
