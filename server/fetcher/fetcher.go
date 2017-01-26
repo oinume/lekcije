@@ -102,6 +102,7 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
 			url, resp.StatusCode,
 		)
 	}
+	// TODO: Don't use ioutil.ReadAll. Return resp.Body instead of string
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", errors.InternalWrapf(err, "Failed ioutil.ReadAll(): url=%v", url)
