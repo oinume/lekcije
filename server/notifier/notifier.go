@@ -31,13 +31,10 @@ type Notifier struct {
 	sync.Mutex
 }
 
-func NewNotifier(db *gorm.DB, concurrency int, dryRun bool) *Notifier {
-	if concurrency < 1 {
-		concurrency = 1
-	}
+func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool) *Notifier {
 	return &Notifier{
 		db:             db,
-		fetcher:        fetcher.NewTeacherLessonFetcher(nil, concurrency, logger.App),
+		fetcher:        fetcher,
 		dryRun:         dryRun,
 		teachers:       make(map[uint32]*model.Teacher, 1000),
 		fetchedLessons: make(map[uint32][]*model.Lesson, 1000),

@@ -41,7 +41,7 @@ func run() error {
 	logger.App.Info("fetcher started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
+		logger.App.Info("fetcher finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
 	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL, 1, !config.IsProductionEnv())
@@ -50,7 +50,13 @@ func run() error {
 	}
 	defer db.Close()
 
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, logger.App)
+	mCountryService := model.NewMCountryService(db)
+	mCountries, err := mCountryService.LoadAll()
+	if err != nil {
+		return err
+	}
+
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, mCountries, logger.App)
 	teacherIDs := make([]uint32, 0, 1000)
 	if *ids != "" {
 		for _, id := range strings.Split(*ids, ",") {
@@ -71,7 +77,7 @@ func run() error {
 				return err
 			}
 		}
-		fmt.Printf("Fetched: id=%v, name=%v\n", teacher.ID, teacher.Name)
+		fmt.Printf("Fetched: id=%v, name=%v, countryID=%v\n", teacher.ID, teacher.Name, teacher.CountryID)
 	}
 
 	return nil

@@ -41,10 +41,14 @@ var (
 type TeacherLessonFetcher struct {
 	httpClient *http.Client
 	semaphore  chan struct{}
-	log        zap.Logger
+	logger     zap.Logger
+	mCountries *model.MCountries
 }
 
-func NewTeacherLessonFetcher(httpClient *http.Client, concurrency int, log zap.Logger) *TeacherLessonFetcher {
+func NewTeacherLessonFetcher(
+	httpClient *http.Client, concurrency int,
+	mCountries *model.MCountries, log zap.Logger,
+) *TeacherLessonFetcher {
 	if httpClient == nil {
 		httpClient = fetcherHTTPClient
 	}
@@ -58,7 +62,8 @@ func NewTeacherLessonFetcher(httpClient *http.Client, concurrency int, log zap.L
 	return &TeacherLessonFetcher{
 		httpClient: httpClient,
 		semaphore:  semaphore,
-		log:        log,
+		logger:     log,
+		mCountries: mCountries,
 	}
 }
 
@@ -155,7 +160,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 		text := strings.Trim(node.String(), " ")
 
 		//fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
-		fetcher.log.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
+		fetcher.logger.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
 
 		// blank, available, reserved
 		if timeClass == "date" {
@@ -190,7 +195,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 				config.LocalTimezone(),
 			)
 			status := model.LessonStatuses.MustValueForAlias(text)
-			fetcher.log.Debug(
+			fetcher.logger.Debug(
 				"lesson",
 				zap.String("dt", dt.Format("2006-01-02 15:04")),
 				zap.String("status", model.LessonStatuses.MustName(status)),
@@ -211,7 +216,12 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 func (fetcher *TeacherLessonFetcher) setAttribute(teacher *model.Teacher, name string, value string) error {
 	switch name {
 	case "国籍":
-		teacher.Nationality = value
+		c, found := fetcher.mCountries.GetByNameJA(value)
+		if !found {
+			// Logging only?
+			return errors.Internalf("No MCountries for %v", value)
+		}
+		teacher.CountryID = c.ID
 	case "誕生日":
 		t, err := time.Parse("2006-01-02", value)
 		if err != nil {

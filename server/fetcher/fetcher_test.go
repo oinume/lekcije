@@ -89,7 +89,7 @@ func TestFetch(t *testing.T) {
 	a := assert.New(t)
 	transport := &errorTransport{okThreshold: 0}
 	client := &http.Client{Transport: transport}
-	fetcher := NewTeacherLessonFetcher(client, 1, nil)
+	fetcher := NewTeacherLessonFetcher(client, 1, nil, nil)
 	teacher, _, err := fetcher.Fetch(5982)
 	a.Nil(err)
 	a.Equal("Xai", teacher.Name)
@@ -132,7 +132,7 @@ func TestFetchConcurrency(t *testing.T) {
 	a := assert.New(t)
 	transport := &mockTransport{}
 	client := &http.Client{Transport: transport}
-	fetcher := NewTeacherLessonFetcher(client, *concurrency, nil)
+	fetcher := NewTeacherLessonFetcher(client, *concurrency, nil, nil)
 
 	const n = 1000
 	wg := &sync.WaitGroup{}
@@ -154,7 +154,7 @@ func TestFetchConcurrency(t *testing.T) {
 
 func TestParseHTML(t *testing.T) {
 	a := assert.New(t)
-	fetcher := NewTeacherLessonFetcher(http.DefaultClient, 1, nil)
+	fetcher := NewTeacherLessonFetcher(http.DefaultClient, 1, nil, nil)
 	file, err := os.Open("testdata/5982.html")
 	a.Nil(err)
 	defer file.Close()

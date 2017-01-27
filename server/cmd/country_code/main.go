@@ -45,7 +45,6 @@ func main() {
 			continue
 		}
 		// "アイスランド","Iceland","352","ISL","IS","北ヨーロッパ","ISO 3166-2:IS"
-		fmt.Printf("columns = %v\n", columns)
 		country := &model.MCountry{
 			NameJA: columns[0],
 			Name : columns[1],
