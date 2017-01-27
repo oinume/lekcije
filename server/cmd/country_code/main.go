@@ -3,13 +3,13 @@ package main
 import (
 	"encoding/csv"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"os"
-	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"strconv"
+
+	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/model"
 )
 
 var (
@@ -47,8 +47,8 @@ func main() {
 		// "アイスランド","Iceland","352","ISL","IS","北ヨーロッパ","ISO 3166-2:IS"
 		country := &model.MCountry{
 			NameJA: columns[0],
-			Name : columns[1],
-			ID: parseCountryID(columns[2]),
+			Name:   columns[1],
+			ID:     parseCountryID(columns[2]),
 		}
 		if err := db.FirstOrCreate(country).Error; err != nil {
 			log.Fatalf("%v", err)

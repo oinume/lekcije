@@ -231,7 +231,7 @@ func (fetcher *TeacherLessonFetcher) setAttribute(teacher *model.Teacher, name s
 	case "性別":
 		teacher.Gender = value
 	case "経歴":
-		teacher.YearsOfExperience = value
+		//teacher.YearsOfExperience = value
 	}
 	return nil
 }

@@ -22,7 +22,7 @@ type Teacher struct {
 	Name              string
 	CountryID         uint16
 	Gender            string
-	YearsOfExperience string
+	YearsOfExperience uint8
 	Birthday          time.Time
 	CreatedAt         time.Time
 	UpdatedAt         time.Time

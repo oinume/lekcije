@@ -11,13 +11,34 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
 )
 
-var _ = fmt.Print
-var concurrency = flag.Int("concurrency", 1, "concurrency")
+var (
+	_           = fmt.Print
+	concurrency = flag.Int("concurrency", 1, "concurrency")
+	mCountries  *model.MCountries
+)
+
+func TestMain(m *testing.M) {
+	bootstrap.CheckCLIEnvVars()
+	testDBURL := model.ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
+	var err error
+	db, err := model.OpenDB(testDBURL, 1, true) // TODO: env
+	if err != nil {
+		panic(err)
+	}
+
+	mCountries, err = model.NewMCountryService(db).LoadAll()
+	if err != nil {
+		panic(err)
+	}
+
+	os.Exit(m.Run())
+}
 
 type mockTransport struct {
 	sync.Mutex
@@ -89,7 +110,7 @@ func TestFetch(t *testing.T) {
 	a := assert.New(t)
 	transport := &errorTransport{okThreshold: 0}
 	client := &http.Client{Transport: transport}
-	fetcher := NewTeacherLessonFetcher(client, 1, nil, nil)
+	fetcher := NewTeacherLessonFetcher(client, 1, mCountries, nil)
 	teacher, _, err := fetcher.Fetch(5982)
 	a.Nil(err)
 	a.Equal("Xai", teacher.Name)
@@ -109,7 +130,7 @@ func TestFetchRetry(t *testing.T) {
 	a := assert.New(t)
 	transport := &errorTransport{okThreshold: 2}
 	client := &http.Client{Transport: transport}
-	fetcher := NewTeacherLessonFetcher(client, 1, nil)
+	fetcher := NewTeacherLessonFetcher(client, 1, mCountries, nil)
 	teacher, _, err := fetcher.Fetch(5982)
 	a.Nil(err)
 	a.Equal("Xai", teacher.Name)
@@ -122,7 +143,7 @@ func TestFetchRedirect(t *testing.T) {
 		Transport:     &redirectTransport{},
 		CheckRedirect: redirectErrorFunc,
 	}
-	fetcher := NewTeacherLessonFetcher(client, 1, nil)
+	fetcher := NewTeacherLessonFetcher(client, 1, mCountries, nil)
 	_, _, err := fetcher.Fetch(5982)
 	a.Error(err)
 	a.Equal(reflect.TypeOf(&errors.NotFound{}), reflect.TypeOf(err))
@@ -132,7 +153,7 @@ func TestFetchConcurrency(t *testing.T) {
 	a := assert.New(t)
 	transport := &mockTransport{}
 	client := &http.Client{Transport: transport}
-	fetcher := NewTeacherLessonFetcher(client, *concurrency, nil, nil)
+	fetcher := NewTeacherLessonFetcher(client, *concurrency, mCountries, nil)
 
 	const n = 1000
 	wg := &sync.WaitGroup{}
@@ -154,7 +175,7 @@ func TestFetchConcurrency(t *testing.T) {
 
 func TestParseHTML(t *testing.T) {
 	a := assert.New(t)
-	fetcher := NewTeacherLessonFetcher(http.DefaultClient, 1, nil, nil)
+	fetcher := NewTeacherLessonFetcher(http.DefaultClient, 1, mCountries, nil)
 	file, err := os.Open("testdata/5982.html")
 	a.Nil(err)
 	defer file.Close()
