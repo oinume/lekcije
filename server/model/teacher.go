@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
 )
 
@@ -22,8 +23,8 @@ type Teacher struct {
 	Name              string
 	CountryID         uint16
 	Gender            string
-	YearsOfExperience uint8
 	Birthday          time.Time
+	YearsOfExperience uint8
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }
@@ -57,4 +58,39 @@ func NewTeachersFromIDsOrURL(idsOrUrl string) ([]*Teacher, error) {
 
 func (t *Teacher) URL() string {
 	return fmt.Sprintf(teacherUrlBase, t.ID)
+}
+
+type TeacherService struct {
+	db *gorm.DB
+}
+
+func NewTeacherService(db *gorm.DB) *TeacherService {
+	return &TeacherService{db: db}
+}
+
+func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
+	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
+	sql += " ON DUPLICATE KEY UPDATE"
+	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?"
+	now := time.Now()
+	values := []interface{}{
+		t.ID,
+		t.Name,
+		t.CountryID,
+		t.Gender,
+		t.Birthday.Format("2006-01-02"),
+		t.YearsOfExperience,
+		now.Format("2006-01-02 15:04:05"),
+		now.Format("2006-01-02 15:04:05"),
+		// update
+		t.CountryID,
+		t.Gender,
+		t.YearsOfExperience,
+		t.Birthday.Format("2006-01-02"),
+	}
+
+	if err := s.db.Exec(sql, values...).Error; err != nil {
+		return errors.InternalWrapf(err, "Failed to INSERT or UPDATE teacher: id=%v", t.ID)
+	}
+	return nil
 }

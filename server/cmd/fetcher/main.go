@@ -68,6 +68,7 @@ func run() error {
 		}
 	}
 
+	teacherService := model.NewTeacherService(db)
 	for _, id := range teacherIDs {
 		teacher, _, err := fetcher.Fetch(id)
 		if err != nil {
@@ -78,7 +79,13 @@ func run() error {
 			}
 		}
 		fmt.Printf("Fetched: %+v\n", teacher)
-		// TODO: save to DB
+		if err := teacherService.CreateOrUpdate(teacher); err != nil {
+			if *continueFlag {
+				logger.App.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
+			} else {
+				return err
+			}
+		}
 	}
 
 	return nil
