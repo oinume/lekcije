@@ -15,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/uber-go/zap"
+	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 )
 
@@ -218,8 +219,7 @@ func (fetcher *TeacherLessonFetcher) setAttribute(teacher *model.Teacher, name s
 	case "国籍":
 		c, found := fetcher.mCountries.GetByNameJA(value)
 		if !found {
-			// Logging only?
-			return errors.Internalf("No MCountries for %v", value)
+			return errors.NotFoundf("No MCountries for %v", value)
 		}
 		teacher.CountryID = c.ID
 	case "誕生日":
@@ -229,9 +229,22 @@ func (fetcher *TeacherLessonFetcher) setAttribute(teacher *model.Teacher, name s
 		}
 		teacher.Birthday = t
 	case "性別":
-		teacher.Gender = value
+		switch value {
+		case "男性":
+			teacher.Gender = "male" // TODO: enum
+		case "女性":
+			teacher.Gender = "female"
+		default:
+			return errors.Internalf("Unknown gender for %v", value)
+		}
 	case "経歴":
-		//teacher.YearsOfExperience = value
+		value = strings.Replace(value, "年", "", -1)
+		value = strings.Replace(value, "以上", "", -1)
+		if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
+			teacher.YearsOfExperience = uint8(v)
+		} else {
+			return errors.InternalWrapf(err, "Failed to convert to number: %v", value)
+		}
 	}
 	return nil
 }

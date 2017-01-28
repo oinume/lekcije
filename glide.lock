@@ -1,5 +1,5 @@
-hash: 2410919dc3e1ef1f911e0ed0a4c5741ce3ce380dd13232b865822257117575be
-updated: 2016-12-22T00:19:54.454369685+09:00
+hash: 7fcdf431f51b25b150559a2ff92a2c7af8749cc24930905508354b5bfe3979f6
+updated: 2017-01-28T15:57:17.636094507+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -117,6 +117,12 @@ imports:
   version: ca83bd2cb9abb47839b50eb4da612f00158f5870
   subpackages:
   - unix
+- name: golang.org/x/text
+  version: ece019dcfd29abcf65d0d1dfe145e8faad097640
+  subpackages:
+  - transform
+  - unicode/norm
+  - width
 - name: google.golang.org/api
   version: 5d9c84e3b78a84b6ddc17f88164527f935501e94
   subpackages:

@@ -77,7 +77,8 @@ func run() error {
 				return err
 			}
 		}
-		fmt.Printf("Fetched: id=%v, name=%v, countryID=%v\n", teacher.ID, teacher.Name, teacher.CountryID)
+		fmt.Printf("Fetched: %+v\n", teacher)
+		// TODO: save to DB
 	}
 
 	return nil
