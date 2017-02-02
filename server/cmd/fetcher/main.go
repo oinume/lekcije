@@ -21,6 +21,7 @@ var (
 	concurrency  = flag.Int("concurrency", 1, "concurrency of fetcher. (default: 1)")
 	continueFlag = flag.Bool("continue", true, "Continue to fetch if any error occurred. (default: true)")
 	ids          = flag.String("ids", "", "Teacher IDs")
+	followed     = flag.Bool("followed", false, "Fetch followed teachers")
 	logLevel     = flag.String("log-level", "info", "Log level")
 )
 
@@ -34,6 +35,10 @@ func main() {
 
 func run() error {
 	bootstrap.CheckCLIEnvVars()
+	if *followed && *ids != "" {
+		return fmt.Errorf("Can't specify -followed and -ids flags both.")
+	}
+
 	startedAt := time.Now().UTC()
 	if *logLevel != "" {
 		logger.App.SetLevel(logger.NewLevel(*logLevel))
@@ -57,7 +62,7 @@ func run() error {
 	}
 
 	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, mCountries, logger.App)
-	teacherIDs := make([]uint32, 0, 1000)
+	teacherIDs := make([]uint32, 0, 5000)
 	if *ids != "" {
 		for _, id := range strings.Split(*ids, ",") {
 			i, err := strconv.ParseInt(id, 10, 32)
@@ -66,6 +71,14 @@ func run() error {
 			}
 			teacherIDs = append(teacherIDs, uint32(i))
 		}
+	}
+
+	if *followed {
+		ids, err := model.NewFollowingTeacherService(db).FindTeacherIDs()
+		if err != nil {
+			return err
+		}
+		teacherIDs = append(teacherIDs, ids...)
 	}
 
 	teacherService := model.NewTeacherService(db)
