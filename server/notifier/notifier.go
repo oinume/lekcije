@@ -103,13 +103,13 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
 		logger.App.Error(
-			"TeacherLessonFetcher.Fetch",
+			"fetcher.Fetch",
 			zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
 		)
 		return nil, nil, nil, err
 	}
 	logger.App.Info(
-		"TeacherLessonFetcher.Fetch",
+		"fetcher.Fetch",
 		zap.Uint("teacherID", uint(teacher.ID)),
 		zap.Int("lessons", len(fetchedLessons)),
 	)
