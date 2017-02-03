@@ -132,16 +132,34 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.URL)
 	}
 
+	// TODO: Wrap up as a method
 	nameXPath := xmlpath.MustCompile(`./dt`)
 	valueXPath := xmlpath.MustCompile(`./dd`)
 	for iter := attributesXPath.Iter(root); iter.Next(); {
 		node := iter.Node()
-		if name, ok := nameXPath.String(node); ok {
-			if value, ok := valueXPath.String(node); ok {
-				fetcher.setAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value))
-				//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
-			}
+		name, ok := nameXPath.String(node)
+		if !ok {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to parse teacher attribute: name=%v", name),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+			continue
 		}
+		value, ok := valueXPath.String(node)
+		if !ok {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to parse teacher attribute: name=%v, value=%v", name, value),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+			continue
+		}
+		if err := fetcher.setTeacherAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value)); err != nil {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to setTeacherAttribute: name=%v, value=%v", name, value),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+		}
+		//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
 	}
 	//fmt.Printf("teacher = %+v\n", teacher)
 
@@ -214,7 +232,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	return teacher, lessons, nil
 }
 
-func (fetcher *TeacherLessonFetcher) setAttribute(teacher *model.Teacher, name string, value string) error {
+func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
 	switch name {
 	case "国籍":
 		c, found := fetcher.mCountries.GetByNameJA(value)
