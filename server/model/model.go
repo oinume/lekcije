@@ -138,6 +138,9 @@ func TruncateAllTables(db *gorm.DB, dbName string) error {
 		if t == "plan" {
 			continue // TODO: rename to m_plan
 		}
+		if strings.HasPrefix(t, "m_") {
+			continue
+		}
 		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
 			return err
 		}

@@ -55,6 +55,22 @@ func (s *FollowingTeacherService) FindTeachersByUserID(userID uint32) ([]*Teache
 	return values, nil
 }
 
+func (s *FollowingTeacherService) FindTeacherIDs() ([]uint32, error) {
+	values := make([]*FollowingTeacher, 0, 5000)
+	sql := `SELECT teacher_id FROM following_teacher LIMIT 5000`
+	if result := s.db.Raw(sql).Scan(&values); result.Error != nil {
+		if result.RecordNotFound() {
+			return nil, nil
+		}
+		return nil, errors.InternalWrapf(result.Error, "")
+	}
+	ids := make([]uint32, len(values))
+	for i, t := range values {
+		ids[i] = t.TeacherID
+	}
+	return ids, nil
+}
+
 func (s *FollowingTeacherService) FindTeacherIDsByUserID(userID uint32) ([]uint32, error) {
 	values := make([]*FollowingTeacher, 0, 1000)
 	sql := `SELECT teacher_id FROM following_teacher WHERE user_id = ?`

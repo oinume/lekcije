@@ -22,24 +22,21 @@ import (
 )
 
 type Notifier struct {
-	db            *gorm.DB
-	fetcher       *fetcher.TeacherLessonFetcher
-	dryRun        bool
-	lessonService *model.LessonService
-	teachers      map[uint32]*model.Teacher
+	db             *gorm.DB
+	fetcher        *fetcher.TeacherLessonFetcher
+	dryRun         bool
+	lessonService  *model.LessonService
+	teachers       map[uint32]*model.Teacher
 	fetchedLessons map[uint32][]*model.Lesson
 	sync.Mutex
 }
 
-func NewNotifier(db *gorm.DB, concurrency int, dryRun bool) *Notifier {
-	if concurrency < 1 {
-		concurrency = 1
-	}
+func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool) *Notifier {
 	return &Notifier{
-		db:       db,
-		fetcher:  fetcher.NewTeacherLessonFetcher(nil, concurrency, logger.App),
-		dryRun:   dryRun,
-		teachers: make(map[uint32]*model.Teacher, 1000),
+		db:             db,
+		fetcher:        fetcher,
+		dryRun:         dryRun,
+		teachers:       make(map[uint32]*model.Teacher, 1000),
 		fetchedLessons: make(map[uint32][]*model.Lesson, 1000),
 	}
 }
