@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS m_country (
 ALTER TABLE teacher
   ADD COLUMN `country_id` SMALLINT NOT NULL DEFAULT 0 AFTER `name`,
   ADD COLUMN `gender` ENUM('female', 'male', 'other') NOT NULL DEFAULT 'other' AFTER `country_id`,
-  ADD COLUMN `birthday` DATETIME NOT NULL AFTER `gender`,
+  ADD COLUMN `birthday` DATE NOT NULL AFTER `gender`,
   ADD COLUMN `years_of_experience` TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER `birthday`;
 
 BEGIN;
