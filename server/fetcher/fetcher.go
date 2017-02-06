@@ -233,6 +233,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	return teacher, lessons, nil
 }
 
+// TODO: Move to model
 func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
 	switch name {
 	case "国籍":
@@ -257,13 +258,21 @@ func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher,
 			return errors.Internalf("Unknown gender for %v", value)
 		}
 	case "経歴":
-		value = strings.Replace(value, "年", "", -1)
-		value = strings.Replace(value, "以上", "", -1)
-		if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
-			teacher.YearsOfExperience = uint8(v)
-		} else {
-			return errors.InternalWrapf(err, "Failed to convert to number: %v", value)
+		yoe := -1
+		switch value {
+		case "1年未満":
+			yoe = 0
+		case "3年以上":
+			yoe = 4
+		default:
+			value = strings.Replace(value, "年", "", -1)
+			if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
+				yoe = int(v)
+			} else {
+				return errors.InternalWrapf(err, "Failed to convert to number: %v", value)
+			}
 		}
+		teacher.YearsOfExperience = uint8(yoe)
 	}
 	return nil
 }
