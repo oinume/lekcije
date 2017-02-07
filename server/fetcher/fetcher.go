@@ -243,11 +243,16 @@ func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher,
 		}
 		teacher.CountryID = c.ID
 	case "誕生日":
-		t, err := time.Parse("2006-01-02", value)
-		if err != nil {
-			return err
+		value = width.Narrow.String(value)
+		if strings.TrimSpace(value) == "" {
+			teacher.Birthday = time.Time{}
+		} else {
+			t, err := time.Parse("2006-01-02", value)
+			if err != nil {
+				return err
+			}
+			teacher.Birthday = t
 		}
-		teacher.Birthday = t
 	case "性別":
 		switch value {
 		case "男性":
