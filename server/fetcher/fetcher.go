@@ -233,6 +233,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	return teacher, lessons, nil
 }
 
+// TODO: Move to model
 func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
 	switch name {
 	case "国籍":
@@ -242,11 +243,16 @@ func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher,
 		}
 		teacher.CountryID = c.ID
 	case "誕生日":
-		t, err := time.Parse("2006-01-02", value)
-		if err != nil {
-			return err
+		value = width.Narrow.String(value)
+		if strings.TrimSpace(value) == "" {
+			teacher.Birthday = time.Time{}
+		} else {
+			t, err := time.Parse("2006-01-02", value)
+			if err != nil {
+				return err
+			}
+			teacher.Birthday = t
 		}
-		teacher.Birthday = t
 	case "性別":
 		switch value {
 		case "男性":
@@ -257,13 +263,21 @@ func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher,
 			return errors.Internalf("Unknown gender for %v", value)
 		}
 	case "経歴":
-		value = strings.Replace(value, "年", "", -1)
-		value = strings.Replace(value, "以上", "", -1)
-		if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
-			teacher.YearsOfExperience = uint8(v)
-		} else {
-			return errors.InternalWrapf(err, "Failed to convert to number: %v", value)
+		yoe := -1
+		switch value {
+		case "1年未満":
+			yoe = 0
+		case "3年以上":
+			yoe = 4
+		default:
+			value = strings.Replace(value, "年", "", -1)
+			if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
+				yoe = int(v)
+			} else {
+				return errors.InternalWrapf(err, "Failed to convert to number: %v", value)
+			}
 		}
+		teacher.YearsOfExperience = uint8(yoe)
 	}
 	return nil
 }
