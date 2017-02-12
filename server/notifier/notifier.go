@@ -19,6 +19,7 @@ import (
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"github.com/uber-go/zap"
+	"github.com/oinume/lekcije/server/util"
 )
 
 type Notifier struct {
@@ -49,6 +50,11 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
+	logger.App.Info(
+		"Target teachers",
+		zap.Uint("userID", uint(user.ID)),
+		zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
+	)
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	wg := &sync.WaitGroup{}
@@ -108,7 +114,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 		)
 		return nil, nil, nil, err
 	}
-	logger.App.Info(
+	logger.App.Debug(
 		"fetcher.Fetch",
 		zap.Uint("teacherID", uint(teacher.ID)),
 		zap.Int("lessons", len(fetchedLessons)),

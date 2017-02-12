@@ -60,6 +60,14 @@ func Uint32ToInterfaceSlice(from ...uint32) []interface{} {
 	return to
 }
 
+func Uint32ToStringSlice(from ...uint32) []string {
+	to := make([]string, len(from))
+	for i := range from {
+		to[i] = fmt.Sprint(from[i])
+	}
+	return to
+}
+
 func EncryptString(plainText string, encryptionKey string) (string, error) {
 	if encryptionKey == "" {
 		return "", fmt.Errorf("encryptionKey is empty.")
