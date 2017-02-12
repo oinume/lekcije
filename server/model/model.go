@@ -11,7 +11,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
-	"gopkg.in/redis.v4"
+	"github.com/go-redis/redis"
 )
 
 const (
@@ -137,6 +137,9 @@ func TruncateAllTables(db *gorm.DB, dbName string) error {
 	for _, t := range tables {
 		if t == "plan" {
 			continue // TODO: rename to m_plan
+		}
+		if strings.HasPrefix(t, "m_") {
+			continue
 		}
 		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
 			return err

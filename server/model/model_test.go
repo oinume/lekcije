@@ -16,10 +16,12 @@ var (
 	testDBURL               string
 	followingTeacherService *FollowingTeacherService
 	lessonService           *LessonService
+	mCountryService         *MCountryService
 	planService             *PlanService
 	userService             *UserService
 	userGoogleService       *UserGoogleService
 	userAPITokenService     *UserAPITokenService
+	mCountries              *MCountries
 )
 
 func TestMain(m *testing.M) {
@@ -33,10 +35,16 @@ func TestMain(m *testing.M) {
 
 	followingTeacherService = NewFollowingTeacherService(db)
 	lessonService = NewLessonService(db)
+	mCountryService = NewMCountryService(db)
 	planService = NewPlanService(db)
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
 	userAPITokenService = NewUserAPITokenService(db)
+
+	mCountries, err = mCountryService.LoadAll()
+	if err != nil {
+		panic(err)
+	}
 
 	if err := TruncateAllTables(db, GetDBName(testDBURL)); err != nil {
 		panic(err)

@@ -9,6 +9,7 @@ import (
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
@@ -32,6 +33,9 @@ func main() {
 func run() error {
 	bootstrap.CheckCLIEnvVars()
 	startedAt := time.Now().UTC()
+	if *logLevel != "" {
+		logger.App.SetLevel(logger.NewLevel(*logLevel))
+	}
 	logger.App.Info("notifier started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
@@ -44,14 +48,20 @@ func run() error {
 	}
 	defer db.Close()
 
+	// TODO: Define method in UserService
 	var users []*model.User
-	userSql := `SELECT * FROM user WHERE email_verified = 1`
-	result := db.Raw(userSql).Scan(&users)
+	userSQL := `SELECT * FROM user WHERE email_verified = 1`
+	result := db.Raw(userSQL).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
-		return errors.InternalWrapf(result.Error, "")
+		return errors.InternalWrapf(result.Error, "Failed to find Users")
 	}
 
-	notifier := notifier.NewNotifier(db, *concurrency, *dryRun)
+	mCountries, err := model.NewMCountryService(db).LoadAll()
+	if err != nil {
+		return errors.InternalWrapf(err, "Failed to load all MCountries")
+	}
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, mCountries, logger.App)
+	notifier := notifier.NewNotifier(db, fetcher, *dryRun)
 	defer notifier.Close()
 	for _, user := range users {
 		if err := notifier.SendNotification(user); err != nil {

@@ -1,12 +1,12 @@
-hash: a656fd6295e695573dc5d01a9c622e571d6855750ebbe93397e0b926542a34b1
-updated: 2016-12-30T12:02:54.79792451+09:00
+hash: 02faf062aa9821c72bb3e031378b70e86eeccfdbbac74f7ba3c2e6dd7d284f40
+updated: 2017-02-12T22:36:04.12478359+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
   subpackages:
   - cmd/goose
 - name: cloud.google.com/go
-  version: 8f813b332c515bb3de30ac88d3582c3c3a8f6ac5
+  version: a5e721bf760c8055ea3ae8b732da1dc6a10fc3f9
   subpackages:
   - compute/metadata
   - internal
@@ -16,22 +16,26 @@ imports:
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
   - spew
+- name: github.com/go-redis/redis
+  version: c938162545c57136fa59879746bc65d0f1db3d1e
 - name: github.com/go-sql-driver/mysql
-  version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
+  version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/golang/protobuf
-  version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
+  version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
   - proto
 - name: github.com/google/uuid
   version: 064e2069ce9c359c118179501254f67d7d37ba24
+- name: github.com/googleapis/gax-go
+  version: da06d194a00e19ce00d9011a13931c3f6f6887c7
 - name: github.com/huandu/facebook
   version: 24ce8d1913aaad265ff4cb4af6a1d1b1801d3021
 - name: github.com/jinzhu/gorm
-  version: 446ce99a42ffe050b77bdd761271f97dd1e2b554
+  version: 7fb9b62c17d90320e0582a4720db025c1652fd6a
   subpackages:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
-  version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
+  version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/jpillora/go-ogle-analytics
   version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
 - name: github.com/kballard/go-shellquote
@@ -59,7 +63,7 @@ imports:
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
-  version: 17b591df37844cde689f4d5813e5cea0927d8dd2
+  version: 248dadf4e9068a0b3e79f02ed0a610d935de5302
 - name: github.com/rs/cors
   version: a62a804a8a009876ca59105f7899938a1349f4b3
 - name: github.com/rs/xhandler
@@ -79,7 +83,7 @@ imports:
   subpackages:
   - helpers/mail
 - name: github.com/Songmu/retry
-  version: 8a08e074f774598e288a170169bb5a0aa46870e8
+  version: 3d913ef13826a2183b18cbfb88925a7735bf3635
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
   subpackages:
@@ -88,9 +92,9 @@ imports:
 - name: github.com/stvp/rollbar
   version: 3eb4713e2655cd1be805795be31b3f85b74b05fd
 - name: github.com/uber-go/atomic
-  version: 0c9e689d64f004564b79d9a663634756df322902
+  version: 3b8db5e93c4c02efbc313e17b2e796b0914a01fb
 - name: github.com/uber-go/zap
-  version: fc9fbdfe46f6dc6a78028f22a2fb086dd13182fd
+  version: a5783ee4b216a927da8f839c45cfbf9d694e1467
 - name: github.com/ziutek/mymysql
   version: 501176fc99be4b4fb0fd01ae8d6af5d8bb408e44
   subpackages:
@@ -102,14 +106,20 @@ imports:
   - pat
   - pattern
 - name: golang.org/x/net
-  version: 1358eff22f0dd0c54fc521042cc607f6ff4b531a
+  version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
   subpackages:
   - context
   - context/ctxhttp
   - html
   - html/atom
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
 - name: golang.org/x/oauth2
-  version: 3c3a985cb79f52a3190fbc056984415ca6763d01
+  version: 314dd2c0bf3ebd592ec0d20847d27e79d0dbe8dd
   subpackages:
   - facebook
   - google
@@ -117,18 +127,24 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: ca83bd2cb9abb47839b50eb4da612f00158f5870
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
   - unix
+- name: golang.org/x/text
+  version: 06d6eba81293389cafdff7fca90d75592194b2d9
+  subpackages:
+  - transform
+  - unicode/norm
+  - width
 - name: google.golang.org/api
-  version: 5d9c84e3b78a84b6ddc17f88164527f935501e94
+  version: 8840436417f044055c16fc7e4018f08484f52839
   subpackages:
   - gensupport
   - googleapi
   - googleapi/internal/uritemplates
   - oauth2/v2
 - name: google.golang.org/appengine
-  version: 4f7eeb5305a4ba1966344836ba4af9996b7b4e05
+  version: 9e2ad0873f358c54296ccdc5116b0652c98226d1
   subpackages:
   - internal
   - internal/app_identity
@@ -139,6 +155,19 @@ imports:
   - internal/remote_api
   - internal/urlfetch
   - urlfetch
+- name: google.golang.org/grpc
+  version: 50955793b0183f9de69bd78e2ec251cf20aab121
+  subpackages:
+  - codes
+  - credentials
+  - grpclog
+  - internal
+  - metadata
+  - naming
+  - peer
+  - stats
+  - tap
+  - transport
 - name: gopkg.in/bsm/ratelimit.v1
   version: db14e161995a5177acef654cb0dd785e8ee8bc22
 - name: gopkg.in/fsnotify.v1

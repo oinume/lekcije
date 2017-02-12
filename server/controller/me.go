@@ -121,7 +121,14 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		updateFollowedTeacherAt = true
 	}
 
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, 1, logger.App)
+	mCountryService := model.NewMCountryService(db)
+	// TODO: preload
+	mCountries, err := mCountryService.LoadAll()
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, 1, mCountries, logger.App)
 	now := time.Now().UTC()
 	teacherIDs := make([]string, 0, len(teachers))
 	for _, t := range teachers {

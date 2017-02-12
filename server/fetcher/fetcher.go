@@ -15,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/uber-go/zap"
+	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 )
 
@@ -32,18 +33,23 @@ var (
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
 	}
-	titleXPath     = xmlpath.MustCompile(`//title`)
-	lessonXPath    = xmlpath.MustCompile("//ul[@class='oneday']//li")
-	classAttrXPath = xmlpath.MustCompile("@class")
+	titleXPath      = xmlpath.MustCompile(`//title`)
+	attributesXPath = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
+	lessonXPath     = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
+	classAttrXPath  = xmlpath.MustCompile(`@class`)
 )
 
 type TeacherLessonFetcher struct {
 	httpClient *http.Client
 	semaphore  chan struct{}
-	log        zap.Logger
+	logger     zap.Logger
+	mCountries *model.MCountries
 }
 
-func NewTeacherLessonFetcher(httpClient *http.Client, concurrency int, log zap.Logger) *TeacherLessonFetcher {
+func NewTeacherLessonFetcher(
+	httpClient *http.Client, concurrency int,
+	mCountries *model.MCountries, log zap.Logger,
+) *TeacherLessonFetcher {
 	if httpClient == nil {
 		httpClient = fetcherHTTPClient
 	}
@@ -57,7 +63,8 @@ func NewTeacherLessonFetcher(httpClient *http.Client, concurrency int, log zap.L
 	return &TeacherLessonFetcher{
 		httpClient: httpClient,
 		semaphore:  semaphore,
-		log:        log,
+		logger:     log,
+		mCountries: mCountries,
 	}
 }
 
@@ -102,6 +109,7 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
 			url, resp.StatusCode,
 		)
 	}
+	// TODO: Don't use ioutil.ReadAll. Return resp.Body instead of string
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", errors.InternalWrapf(err, "Failed ioutil.ReadAll(): url=%v", url)
@@ -125,6 +133,37 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.URL)
 	}
 
+	// TODO: Wrap up as a method
+	nameXPath := xmlpath.MustCompile(`./dt`)
+	valueXPath := xmlpath.MustCompile(`./dd`)
+	for iter := attributesXPath.Iter(root); iter.Next(); {
+		node := iter.Node()
+		name, ok := nameXPath.String(node)
+		if !ok {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to parse teacher attribute: name=%v", name),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+			continue
+		}
+		value, ok := valueXPath.String(node)
+		if !ok {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to parse teacher attribute: name=%v, value=%v", name, value),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+			continue
+		}
+		if err := fetcher.setTeacherAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value)); err != nil {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to setTeacherAttribute: name=%v, value=%v", name, value),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+		}
+		//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
+	}
+	//fmt.Printf("teacher = %+v\n", teacher)
+
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
 	lessons := make([]*model.Lesson, 0, 1000)
 	now := time.Now()
@@ -141,7 +180,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 		text := strings.Trim(node.String(), " ")
 
 		//fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
-		fetcher.log.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
+		fetcher.logger.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
 
 		// blank, available, reserved
 		if timeClass == "date" {
@@ -176,7 +215,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 				config.LocalTimezone(),
 			)
 			status := model.LessonStatuses.MustValueForAlias(text)
-			fetcher.log.Debug(
+			fetcher.logger.Debug(
 				"lesson",
 				zap.String("dt", dt.Format("2006-01-02 15:04")),
 				zap.String("status", model.LessonStatuses.MustName(status)),
@@ -192,6 +231,55 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	}
 
 	return teacher, lessons, nil
+}
+
+// TODO: Move to model
+func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
+	switch name {
+	case "国籍":
+		c, found := fetcher.mCountries.GetByNameJA(value)
+		if !found {
+			return errors.NotFoundf("No MCountries for %v", value)
+		}
+		teacher.CountryID = c.ID
+	case "誕生日":
+		value = width.Narrow.String(value)
+		if strings.TrimSpace(value) == "" {
+			teacher.Birthday = time.Time{}
+		} else {
+			t, err := time.Parse("2006-01-02", value)
+			if err != nil {
+				return err
+			}
+			teacher.Birthday = t
+		}
+	case "性別":
+		switch value {
+		case "男性":
+			teacher.Gender = "male" // TODO: enum
+		case "女性":
+			teacher.Gender = "female"
+		default:
+			return errors.Internalf("Unknown gender for %v", value)
+		}
+	case "経歴":
+		yoe := -1
+		switch value {
+		case "1年未満":
+			yoe = 0
+		case "3年以上":
+			yoe = 4
+		default:
+			value = strings.Replace(value, "年", "", -1)
+			if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
+				yoe = int(v)
+			} else {
+				return errors.InternalWrapf(err, "Failed to convert to number: %v", value)
+			}
+		}
+		teacher.YearsOfExperience = uint8(yoe)
+	}
+	return nil
 }
 
 func (fetcher *TeacherLessonFetcher) Close() {
