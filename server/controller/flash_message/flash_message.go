@@ -8,7 +8,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
 	"golang.org/x/net/context"
-	"gopkg.in/redis.v4"
+	"github.com/go-redis/redis"
 )
 
 var _ = fmt.Print
