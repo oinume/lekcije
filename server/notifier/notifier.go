@@ -50,11 +50,13 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
-	logger.App.Info(
-		"Target teachers",
-		zap.Uint("userID", uint(user.ID)),
-		zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
-	)
+	if len(teacherIDs) != 0 {
+		logger.App.Info(
+			"Target teachers",
+			zap.Uint("userID", uint(user.ID)),
+			zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
+		)
+	}
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	wg := &sync.WaitGroup{}
