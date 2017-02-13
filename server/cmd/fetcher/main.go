@@ -87,11 +87,11 @@ func run() error {
 		if err != nil {
 			if *continueFlag {
 				logger.App.Error("Error during TeacherLessonFetcher.Fetch", zap.Error(err))
+				continue
 			} else {
 				return err
 			}
 		}
-		fmt.Printf("Fetched: %+v\n", teacher)
 		if err := teacherService.CreateOrUpdate(teacher); err != nil {
 			if *continueFlag {
 				logger.App.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
