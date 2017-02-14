@@ -14,6 +14,7 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
 	"github.com/uber-go/zap"
+	"github.com/pkg/profile"
 )
 
 var (
@@ -31,6 +32,7 @@ func main() {
 }
 
 func run() error {
+	defer profile.Start(profile.ProfilePath("."), profile.BlockProfile).Stop()
 	bootstrap.CheckCLIEnvVars()
 	startedAt := time.Now().UTC()
 	if *logLevel != "" {
