@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"net"
 
 	"github.com/Songmu/retry"
 	"github.com/oinume/lekcije/server/config"
@@ -32,6 +33,18 @@ var (
 	fetcherHTTPClient = &http.Client{
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
+		Transport: &http.Transport{
+			MaxIdleConns: 100,
+			MaxIdleConnsPerHost: 10, // TODO: use `concurrency`
+			Proxy: http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		},
 	}
 	titleXPath      = xmlpath.MustCompile(`//title`)
 	attributesXPath = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)

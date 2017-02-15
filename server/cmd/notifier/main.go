@@ -14,12 +14,14 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
 	"github.com/uber-go/zap"
+	"github.com/pkg/profile"
 )
 
 var (
 	dryRun      = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
 	concurrency = flag.Int("concurrency", 1, "concurrency of fetcher")
 	logLevel    = flag.String("log-level", "info", "Log level")
+	profileMode = flag.String("profile-mode", "", "block|cpu|mem|trace")
 )
 
 func main() {
@@ -31,6 +33,17 @@ func main() {
 }
 
 func run() error {
+	switch *profileMode {
+	case "block":
+		defer profile.Start(profile.ProfilePath("."), profile.BlockProfile).Stop()
+	case "cpu":
+		defer profile.Start(profile.ProfilePath("."), profile.CPUProfile).Stop()
+	case "mem":
+		defer profile.Start(profile.ProfilePath("."), profile.MemProfile).Stop()
+	case "trace":
+		defer profile.Start(profile.ProfilePath("."), profile.TraceProfile).Stop()
+	}
+
 	bootstrap.CheckCLIEnvVars()
 	startedAt := time.Now().UTC()
 	if *logLevel != "" {

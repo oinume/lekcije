@@ -1,5 +1,5 @@
-hash: 7fcdf431f51b25b150559a2ff92a2c7af8749cc24930905508354b5bfe3979f6
-updated: 2017-01-28T15:57:17.636094507+09:00
+hash: 4e48c8a5b04cdb9df44d9152efcd2fb692f809730cbddc48167d2e1d20e98693
+updated: 2017-02-14T17:43:05.855957508+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -58,6 +58,8 @@ imports:
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
   version: 17b591df37844cde689f4d5813e5cea0927d8dd2
+- name: github.com/pkg/profile
+  version: 1c16f117a3ab788fdf0e334e623b8bccf5679866
 - name: github.com/rs/cors
   version: a62a804a8a009876ca59105f7899938a1349f4b3
 - name: github.com/rs/xhandler
