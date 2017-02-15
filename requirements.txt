@@ -1,2 +1,2 @@
-APScheduler==3.3.0
+APScheduler==3.3.1
 awscli==1.11.48
