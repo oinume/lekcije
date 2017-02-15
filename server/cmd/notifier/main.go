@@ -21,7 +21,7 @@ var (
 	dryRun      = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
 	concurrency = flag.Int("concurrency", 1, "concurrency of fetcher")
 	logLevel    = flag.String("log-level", "info", "Log level")
-	profileMode = flag.String("profile-mode", "", "block or cpu or mem")
+	profileMode = flag.String("profile-mode", "", "block|cpu|mem|trace")
 )
 
 func main() {
@@ -40,6 +40,8 @@ func run() error {
 		defer profile.Start(profile.ProfilePath("."), profile.CPUProfile).Stop()
 	case "mem":
 		defer profile.Start(profile.ProfilePath("."), profile.MemProfile).Stop()
+	case "trace":
+		defer profile.Start(profile.ProfilePath("."), profile.TraceProfile).Stop()
 	}
 
 	bootstrap.CheckCLIEnvVars()
