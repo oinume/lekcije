@@ -16,6 +16,7 @@ dependencies:
   pre:
     - echo "" > ~/.gitconfig
     - git config --global url."https://github.com".insteadOf git://github.com
+    - git config --global http.https://gopkg.in.followRedirects true
     - cd $HOME && curl -O https://storage.googleapis.com/golang/go$GO_VERSION.linux-amd64.tar.gz
     - cd $HOME && tar xzf go$GO_VERSION.linux-amd64.tar.gz
     - go version
