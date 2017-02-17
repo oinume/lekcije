@@ -1,0 +1,9 @@
+#!/bin/bash
+
+CWD=`pwd`
+DIR=`dirname $0`
+MYSQLDUMP="$CWD/$DIR/mysqldump"
+echo $MYSQLDUMP
+
+TIMESTAMP=`date "+%Y%m%d_%H%M%S"`
+$MYSQLDUMP -u$MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT $MYSQL_DATABASE > $MYSQL_DATABASE_$TIMESTAMP.dump
