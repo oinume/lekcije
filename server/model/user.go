@@ -9,11 +9,6 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
-const (
-	contextKeyLoggedInUser = "loggedInUser"
-	contextKeyTrackingID   = "trackingID"
-)
-
 type User struct {
 	ID                uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name              string
