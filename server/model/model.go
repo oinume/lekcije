@@ -24,7 +24,7 @@ type contextKeyRedis struct{}
 func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	db, err := sql.Open(
 		"mysql",
-		dsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
+		dsn+"?charset=utf8mb4&parseTime=true&loc=UTC",
 	)
 	db.SetMaxOpenConns(maxConnections)
 	db.SetMaxIdleConns(maxConnections)
