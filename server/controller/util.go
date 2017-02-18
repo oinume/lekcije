@@ -16,7 +16,6 @@ import (
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/google_analytics/measurement"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stvp/rollbar"
@@ -148,11 +147,6 @@ func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) comm
 	return data
 }
 
-var measurementClient = measurement.NewClient(&http.Client{
-	//Transport: &logger.LoggingHTTPTransport{DumpHeaderBody: true},
-	Timeout: time.Second * 7,
-})
-
 var gaHTTPClient *http.Client = &http.Client{
 	Transport: &logger.LoggingHTTPTransport{DumpHeaderBody: true},
 	Timeout:   time.Second * 7,
@@ -200,44 +194,6 @@ func sendMeasurementEvent2(req *http.Request, category, action, label string, va
 		logger.App.Debug("sendMeasurementEvent() success", logFields...)
 	} else {
 		logger.App.Warn("gaClient.Send() failed", zap.Error(err))
-	}
-}
-
-func sendMeasurementEvent(req *http.Request, category, action, label string, value int64, userID uint32) {
-	trackingID := os.Getenv("GOOGLE_ANALYTICS_ID")
-	var clientID string
-	if cookie, err := req.Cookie("_ga"); err == nil {
-		clientID, err = measurement.GetClientID(cookie)
-		if err != nil {
-			logger.App.Warn("measurement.GetClientID() failed", zap.Error(err))
-		}
-	} else {
-		clientID = GetRemoteAddress(req)
-	}
-
-	params := measurement.NewEventParams(req.UserAgent(), trackingID, clientID, category, action)
-	params.DataSource = "server"
-	if label != "" {
-		params.EventLabel = label
-	}
-	if value != 0 {
-		params.EventValue = value
-	}
-	if userID != 0 {
-		params.UserID = fmt.Sprint(userID)
-	}
-
-	if err := measurementClient.Do(params); err == nil {
-		logger.App.Debug(
-			"sendMeasurementEvent() success",
-			zap.String("category", category),
-			zap.String("action", action),
-			zap.String("label", label),
-			zap.Int64("value", value),
-			zap.Uint("userID", uint(userID)),
-		)
-	} else {
-		logger.App.Warn("measurementClient.Do() failed", zap.Error(err))
 	}
 }
 
