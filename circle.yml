@@ -34,5 +34,4 @@ dependencies:
     - goose -env=circle_ci up
 test:
   override:
-    - make go_lint
-    - cd ${GOPATH_PROJECT} && make go_test && make e2e_test
+    - cd ${GOPATH_PROJECT} && make go_lint && make go_test && make e2e_test
