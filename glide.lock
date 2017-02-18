@@ -1,5 +1,5 @@
-hash: 4e48c8a5b04cdb9df44d9152efcd2fb692f809730cbddc48167d2e1d20e98693
-updated: 2017-02-14T17:43:05.855957508+09:00
+hash: a2b724fd45b8502a2e420d2ee5fab75a0f13cf04be259342d36d14b9a0708783
+updated: 2017-02-18T22:25:13.998205798+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -34,6 +34,8 @@ imports:
   version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
 - name: github.com/kballard/go-shellquote
   version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
+- name: github.com/kisielk/gotool
+  version: 0de1eaf82fa3f583ce21fde859f1e7e0c5e9b220
 - name: github.com/kr/pty
   version: ce7fa45920dc37a92de8377972e52bc55ffa8d57
 - name: github.com/kylelemons/go-gypsy
@@ -159,6 +161,10 @@ imports:
   - internal/proto
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
+- name: honnef.co/go/tools
+  version: 2a86a384566923fd1db3a0da04afd78a8282e90b
+  subpackages:
+  - cmd/staticcheck
 testImports:
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
