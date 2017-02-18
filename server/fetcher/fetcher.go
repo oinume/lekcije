@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"net"
 
 	"github.com/Songmu/retry"
 	"github.com/oinume/lekcije/server/config"
@@ -34,9 +34,9 @@ var (
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
 		Transport: &http.Transport{
-			MaxIdleConns: 100,
+			MaxIdleConns:        100,
 			MaxIdleConnsPerHost: 10, // TODO: use `concurrency`
-			Proxy: http.ProxyFromEnvironment,
+			Proxy:               http.ProxyFromEnvironment,
 			DialContext: (&net.Dialer{
 				Timeout:   30 * time.Second,
 				KeepAlive: 30 * time.Second,

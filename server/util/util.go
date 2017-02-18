@@ -6,11 +6,11 @@ import (
 	"encoding/hex"
 	"fmt"
 	mrand "math/rand"
+	"net/http"
 	"os"
 	"strconv"
-	"time"
-	"net/http"
 	"strings"
+	"time"
 
 	"github.com/oinume/lekcije/server/errors"
 )

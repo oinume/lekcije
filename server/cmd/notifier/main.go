@@ -13,8 +13,8 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
-	"github.com/uber-go/zap"
 	"github.com/pkg/profile"
+	"github.com/uber-go/zap"
 )
 
 var (
