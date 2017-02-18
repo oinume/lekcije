@@ -106,7 +106,7 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 		return errors.InternalWrapf(err2, "Failed to commit transaction: name=%v", name)
 	}
 	success = true
-	return nil
+	return err
 }
 
 func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {
