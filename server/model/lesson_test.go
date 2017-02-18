@@ -38,6 +38,7 @@ func TestUpdateLessonsOverwrite(t *testing.T) {
 	a.Nil(err)
 	a.Equal(int64(2), affected) // Why 2????
 	foundLessons, err := lessonService.FindLessons(1, datetime, datetime)
+	a.Nil(err)
 	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
 }
 

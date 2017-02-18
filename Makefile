@@ -33,7 +33,7 @@ goimports:
 
 go_lint:
 	go vet -v $(LINT_PACKAGES)
-#	staticcheck $(LINT_PACKAGES)
+	staticcheck $(LINT_PACKAGES)
 
 minify_static:
 	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build
