@@ -95,6 +95,9 @@ type commonTemplateData struct {
 	CurrentURL        string
 	CanonicalURL      string
 	TrackingID        string
+	IsUserAgentPC     bool
+	IsUserAgentSP     bool
+	IsUserAgentTablet bool
 	UserID            string
 	NavigationItems   []navigationItem
 	FlashMessage      *flash_message.FlashMessage
@@ -123,7 +126,11 @@ func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) comm
 		GoogleAnalyticsID: config.GoogleAnalyticsID(),
 		CurrentURL:        req.RequestURI,
 		CanonicalURL:      canonicalURL,
+		IsUserAgentPC:     util.IsUserAgentPC(req),
+		IsUserAgentSP:     util.IsUserAgentSP(req),
+		IsUserAgentTablet: util.IsUserAgentTablet(req),
 	}
+
 	if loggedIn {
 		data.NavigationItems = loggedInNavigationItems
 	} else {
@@ -152,7 +159,7 @@ var gaHTTPClient *http.Client = &http.Client{
 }
 
 const (
-	eventCategoryUser = "user"
+	eventCategoryUser             = "user"
 	eventCategoryFollowingTeacher = "followingTeacher"
 )
 

@@ -6,8 +6,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	mrand "math/rand"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
@@ -109,4 +111,18 @@ func DecryptString(cipherText string, encryptionKey string) (string, error) {
 
 	//plainBytes := cipherBytes
 	return string(plainBytes), nil
+}
+
+func IsUserAgentPC(req *http.Request) bool {
+	return !IsUserAgentSP(req) && !IsUserAgentTablet(req)
+}
+
+func IsUserAgentSP(req *http.Request) bool {
+	ua := strings.ToLower(req.UserAgent())
+	return strings.Contains(ua, "iphone") || strings.Contains(ua, "android") || strings.Contains(ua, "ipod")
+}
+
+func IsUserAgentTablet(req *http.Request) bool {
+	ua := strings.ToLower(req.UserAgent())
+	return strings.Contains(ua, "ipad")
 }
