@@ -95,9 +95,12 @@ type commonTemplateData struct {
 	CurrentURL        string
 	CanonicalURL      string
 	TrackingID        string
+	IsPCViewWidth     bool
+	IsSPViewWidth     bool
 	UserID            string
 	NavigationItems   []navigationItem
 	FlashMessage      *flash_message.FlashMessage
+
 }
 
 type navigationItem struct {
@@ -123,7 +126,10 @@ func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) comm
 		GoogleAnalyticsID: config.GoogleAnalyticsID(),
 		CurrentURL:        req.RequestURI,
 		CanonicalURL:      canonicalURL,
+		IsPCViewWidth: util.IsUserAgentPC(req) || util.IsUserAgentTablet(req),
+		IsSPViewWidth: util.IsUserAgentSP(req),
 	}
+
 	if loggedIn {
 		data.NavigationItems = loggedInNavigationItems
 	} else {
