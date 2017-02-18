@@ -11,6 +11,7 @@ import:
 - package: bitbucket.org/liamstask/goose
   subpackages:
   - cmd/goose
+  - lib/goose
 - package: github.com/kballard/go-shellquote
 - package: github.com/kr/pty
 - package: github.com/ogier/pflag
