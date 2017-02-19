@@ -64,15 +64,15 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 		return 0, nil
 	}
 
-	now := time.Now()
+	updatedAt := time.Now().UTC()
 	sql := fmt.Sprintf("INSERT INTO %s VALUES", s.TableName())
 	values := []interface{}{}
 	for _, l := range lessons {
 		sql += " (?, ?, ?, ?, ?),"
 		values = append(
 			values,
-			l.TeacherID, l.Datetime, strings.ToLower(l.Status), // TODO: enum?
-			now.Format(dbDatetimeFormat), now.Format(dbDatetimeFormat),
+			l.TeacherID, l.Datetime.Format(dbDatetimeFormat), strings.ToLower(l.Status), // TODO: enum?
+			updatedAt.Format(dbDatetimeFormat), updatedAt.Format(dbDatetimeFormat),
 		)
 	}
 	sql = strings.TrimSuffix(sql, ",")

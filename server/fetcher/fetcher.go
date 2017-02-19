@@ -179,8 +179,8 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
 	lessons := make([]*model.Lesson, 0, 1000)
-	now := time.Now()
-	originalDate := time.Now().Truncate(24 * time.Hour)
+	now := time.Now().In(config.LocalTimezone())
+	originalDate := time.Now().In(config.LocalTimezone()).Truncate(24 * time.Hour)
 	date := originalDate
 	// lessons
 	for iter := lessonXPath.Iter(root); iter.Next(); {
