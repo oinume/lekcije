@@ -181,7 +181,6 @@ func TestParseHTML(t *testing.T) {
 	defer file.Close()
 
 	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)
-	a.Nil(err)
 	a.Equal("Xai", teacher.Name)
 	a.True(len(lessons) > 0)
 	for _, lesson := range lessons {

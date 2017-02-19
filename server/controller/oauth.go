@@ -17,7 +17,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
-	"context"
 )
 
 var _ = fmt.Print
@@ -152,7 +151,7 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	}
 	code := r.FormValue("code")
 	c := getGoogleOAuthConfig(r)
-	token, err := c.Exchange(context.Background(), code)
+	token, err := c.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return nil, "", errors.InternalWrapf(err, "Failed to exchange")
 	}
@@ -165,7 +164,7 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 
 // Returns userId, name, email, error
 func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, string, error) {
-	oauth2Client := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
+	oauth2Client := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(token))
 	service, err := google_auth2.New(oauth2Client)
 	if err != nil {
 		// TODO: quit using errors.Wrap

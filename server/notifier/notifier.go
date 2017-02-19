@@ -217,23 +217,23 @@ func getEmailTemplateJP() string {
 	`)
 }
 
-//func getEmailTemplateEN() string {
-//	return strings.TrimSpace(`
-//{{- range $teacherID := .TeacherIDs }}
-//{{- $teacher := index $.Teachers $teacherID -}}
-//--- {{ $teacher.Name }} ---
-//  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
-//  {{- range $lesson := $lessons }}
-//{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
-//  {{- end }}
-//
-//Reserve here:
-//<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
-//<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
-//{{ end }}
-//Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of the teacher.
-//	`)
-//}
+func getEmailTemplateEN() string {
+	return strings.TrimSpace(`
+{{- range $teacherID := .TeacherIDs }}
+{{- $teacher := index $.Teachers $teacherID -}}
+--- {{ $teacher.Name }} ---
+  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
+  {{- range $lesson := $lessons }}
+{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
+  {{- end }}
+
+Reserve here:
+<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
+<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
+{{ end }}
+Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of the teacher.
+	`)
+}
 
 func (n *Notifier) Close() {
 	defer n.fetcher.Close()

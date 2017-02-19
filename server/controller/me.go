@@ -286,6 +286,8 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateEmail(email string) bool {
-	// TODO: better validation
-	return strings.Contains(email, "@")
+	if !strings.Contains(email, "@") {
+		return false
+	}
+	return true
 }
