@@ -18,7 +18,6 @@ const (
 	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
 
-type contextKeyDB struct{}
 type contextKeyRedis struct{}
 
 func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
@@ -59,6 +58,7 @@ func OpenRedis(redisURL string) (*redis.Client, error) {
 	return client, nil
 }
 
+// TODO: Remove this function and use context_data
 func OpenRedisAndSetToContext(ctx context.Context, redisURL string) (*redis.Client, context.Context, error) {
 	r, err := OpenRedis(redisURL)
 	if err != nil {
@@ -106,7 +106,7 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 		return errors.InternalWrapf(err2, "Failed to commit transaction: name=%v", name)
 	}
 	success = true
-	return nil
+	return err
 }
 
 func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {
