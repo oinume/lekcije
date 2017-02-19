@@ -16,6 +16,7 @@ setup:
 	go install ./vendor/github.com/cespare/reflex
 	go install ./vendor/honnef.co/go/tools/cmd/staticcheck
 	go install ./vendor/honnef.co/go/tools/cmd/gosimple
+	go install ./vendor/honnef.co/go/tools/cmd/unused
 
 serve:
 	go run server/cmd/lekcije/main.go
@@ -36,6 +37,7 @@ go_lint:
 	go vet -v $(LINT_PACKAGES)
 	staticcheck $(LINT_PACKAGES)
 	gosimple $(LINT_PACKAGES)
+
 
 minify_static:
 	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build

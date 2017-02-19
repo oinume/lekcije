@@ -72,4 +72,5 @@ import:
   subpackages:
   - cmd/staticcheck
   - cmd/gosimple
+  - cmd/unused
 - package: github.com/kisielk/gotool

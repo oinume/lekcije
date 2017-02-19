@@ -1,5 +1,5 @@
-hash: 0334acd5984c7931879d9b2c4cf763fa097572415f2d7941ce9e8054afcfcab5
-updated: 2017-02-19T18:37:49.784089288+09:00
+hash: dd1917fdc8f7d5737f50a86924125b691770dea76d8e8d4ffd49f8a8698bd24a
+updated: 2017-02-19T18:48:22.736324062+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -167,6 +167,7 @@ imports:
   subpackages:
   - cmd/gosimple
   - cmd/staticcheck
+  - cmd/unused
 testImports:
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
