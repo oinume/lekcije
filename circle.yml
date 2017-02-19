@@ -26,12 +26,9 @@ dependencies:
     - mkdir -p $(dirname ${GOPATH_PROJECT})
     - rm -rf ${GOPATH_PROJECT}
     - ln -s ~/lekcije ${GOPATH_PROJECT}
-    - go get github.com/Masterminds/glide
-    - go get golang.org/x/tools/cmd/goimports
-    - go get honnef.co/go/tools/cmd/staticcheck
-    - go get bitbucket.org/liamstask/goose/cmd/goose
+    - cd ${GOPATH_PROJECT} && make setup
     - cd ${GOPATH_PROJECT} && glide install
-    - goose -env=circle_ci up
+    - cd ${GOPATH_PROJECT} && goose -env=circle_ci up
 test:
   override:
     - cd ${GOPATH_PROJECT} && make go_lint && make go_test && make e2e_test
