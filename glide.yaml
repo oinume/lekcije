@@ -11,6 +11,7 @@ import:
 - package: bitbucket.org/liamstask/goose
   subpackages:
   - cmd/goose
+  - lib/goose
 - package: github.com/kballard/go-shellquote
 - package: github.com/kr/pty
 - package: github.com/ogier/pflag
@@ -67,3 +68,9 @@ import:
   - unicode/norm
 - package: github.com/pkg/profile
   version: 1.2.0
+- package: honnef.co/go/tools
+  subpackages:
+  - cmd/staticcheck
+  - cmd/gosimple
+  - cmd/unused
+- package: github.com/kisielk/gotool
