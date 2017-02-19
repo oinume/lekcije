@@ -71,4 +71,5 @@ import:
 - package: honnef.co/go/tools
   subpackages:
   - cmd/staticcheck
+  - cmd/gosimple
 - package: github.com/kisielk/gotool

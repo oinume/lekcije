@@ -1,10 +1,11 @@
-hash: a2b724fd45b8502a2e420d2ee5fab75a0f13cf04be259342d36d14b9a0708783
-updated: 2017-02-18T22:25:13.998205798+09:00
+hash: 0334acd5984c7931879d9b2c4cf763fa097572415f2d7941ce9e8054afcfcab5
+updated: 2017-02-19T18:37:49.784089288+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
   subpackages:
   - cmd/goose
+  - lib/goose
 - name: cloud.google.com/go
   version: 8f813b332c515bb3de30ac88d3582c3c3a8f6ac5
   subpackages:
@@ -164,6 +165,7 @@ imports:
 - name: honnef.co/go/tools
   version: 2a86a384566923fd1db3a0da04afd78a8282e90b
   subpackages:
+  - cmd/gosimple
   - cmd/staticcheck
 testImports:
 - name: github.com/pmezard/go-difflib
