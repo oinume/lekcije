@@ -71,7 +71,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 		sql += " (?, ?, ?, ?, ?),"
 		values = append(
 			values,
-			l.TeacherID, l.Datetime, strings.ToLower(l.Status), // TODO: enum?
+			l.TeacherID, l.Datetime.Format(dbDatetimeFormat), strings.ToLower(l.Status), // TODO: enum?
 			updatedAt.Format(dbDatetimeFormat), updatedAt.Format(dbDatetimeFormat),
 		)
 	}
