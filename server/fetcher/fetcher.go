@@ -123,7 +123,7 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (io.ReadCloser, er
 		return resp.Body, errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
 	default:
 		return resp.Body, errors.Internalf(
-			"fetchContent error: url=%v, status=%v",
+			"Unknown error in fetchContent: url=%v, status=%v",
 			url, resp.StatusCode,
 		)
 	}
