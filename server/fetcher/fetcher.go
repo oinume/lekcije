@@ -113,21 +113,22 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusMovedPermanently || resp.StatusCode == http.StatusFound {
+	switch resp.StatusCode {
+	case http.StatusOK:
+		// TODO: Don't use ioutil.ReadAll. Return resp.Body instead of string
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", errors.InternalWrapf(err, "Failed ioutil.ReadAll(): url=%v", url)
+		}
+		return string(b), nil
+	case http.StatusMovedPermanently, http.StatusFound:
 		return "", errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
-	}
-	if resp.StatusCode != http.StatusOK {
+	default:
 		return "", errors.Internalf(
 			"fetchContent error: url=%v, status=%v",
 			url, resp.StatusCode,
 		)
 	}
-	// TODO: Don't use ioutil.ReadAll. Return resp.Body instead of string
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.InternalWrapf(err, "Failed ioutil.ReadAll(): url=%v", url)
-	}
-	return string(b), nil
 }
 
 func (fetcher *TeacherLessonFetcher) parseHTML(
