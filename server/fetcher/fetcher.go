@@ -88,46 +88,43 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []
 	}()
 
 	teacher := model.NewTeacher(teacherID)
-	var content string
+	var content io.ReadCloser
 	err := retry.Retry(2, 300*time.Millisecond, func() error {
 		var err error
 		content, err = fetcher.fetchContent(teacher.URL())
 		return err
 	})
+	defer content.Close()
 	if err != nil {
 		return nil, nil, err
 	}
-	return fetcher.parseHTML(teacher, strings.NewReader(content))
+	return fetcher.parseHTML(teacher, content)
 }
 
-func (fetcher *TeacherLessonFetcher) fetchContent(url string) (string, error) {
+func (fetcher *TeacherLessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
+		return ioutil.NopCloser(strings.NewReader("")),
+			errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
 	}
-
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {
-		return "", errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
+		return ioutil.NopCloser(strings.NewReader("")),
+			errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusMovedPermanently || resp.StatusCode == http.StatusFound {
-		return "", errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return "", errors.Internalf(
-			"fetchContent error: url=%v, status=%v",
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return resp.Body, nil
+	case http.StatusMovedPermanently, http.StatusFound:
+		return resp.Body, errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
+	default:
+		return resp.Body, errors.Internalf(
+			"Unknown error in fetchContent: url=%v, status=%v",
 			url, resp.StatusCode,
 		)
 	}
-	// TODO: Don't use ioutil.ReadAll. Return resp.Body instead of string
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.InternalWrapf(err, "Failed ioutil.ReadAll(): url=%v", url)
-	}
-	return string(b), nil
 }
 
 func (fetcher *TeacherLessonFetcher) parseHTML(

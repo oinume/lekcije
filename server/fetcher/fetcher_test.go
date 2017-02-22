@@ -149,6 +149,38 @@ func TestFetchRedirect(t *testing.T) {
 	a.Equal(reflect.TypeOf(&errors.NotFound{}), reflect.TypeOf(err))
 }
 
+type responseTransport struct {
+	statusCode int
+	status string
+	content    string
+}
+
+func (t *responseTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp := &http.Response{
+		Header:     make(http.Header),
+		Request:    req,
+		StatusCode: t.statusCode,
+		Status:     t.status,
+		Body:       ioutil.NopCloser(strings.NewReader(t.content)),
+	}
+	return resp, nil
+}
+
+func TestFetchInternalServerError(t *testing.T) {
+	a := assert.New(t)
+	client := &http.Client{
+		Transport: &responseTransport{
+			statusCode: http.StatusInternalServerError,
+			content: "Internal Server Error",
+		},
+	}
+	fetcher := NewTeacherLessonFetcher(client, 1, mCountries, nil)
+	_, _, err := fetcher.Fetch(5982)
+	a.Error(err)
+	a.Contains(err.Error(), "Unknown error in fetchContent")
+	a.Contains(err.Error(), "status=500")
+}
+
 func TestFetchConcurrency(t *testing.T) {
 	a := assert.New(t)
 	transport := &mockTransport{}
