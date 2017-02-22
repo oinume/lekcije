@@ -107,14 +107,12 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (io.ReadCloser, er
 		return ioutil.NopCloser(strings.NewReader("")),
 			errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
 	}
-
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {
 		return ioutil.NopCloser(strings.NewReader("")),
 			errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
 	}
-	//defer resp.Body.Close()
 
 	switch resp.StatusCode {
 	case http.StatusOK:
