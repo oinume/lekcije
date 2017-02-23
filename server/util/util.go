@@ -6,8 +6,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	mrand "math/rand"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
@@ -60,6 +62,14 @@ func Uint32ToInterfaceSlice(from ...uint32) []interface{} {
 	return to
 }
 
+func Uint32ToStringSlice(from ...uint32) []string {
+	to := make([]string, len(from))
+	for i := range from {
+		to[i] = fmt.Sprint(from[i])
+	}
+	return to
+}
+
 func EncryptString(plainText string, encryptionKey string) (string, error) {
 	if encryptionKey == "" {
 		return "", fmt.Errorf("encryptionKey is empty.")
@@ -101,4 +111,18 @@ func DecryptString(cipherText string, encryptionKey string) (string, error) {
 
 	//plainBytes := cipherBytes
 	return string(plainBytes), nil
+}
+
+func IsUserAgentPC(req *http.Request) bool {
+	return !IsUserAgentSP(req) && !IsUserAgentTablet(req)
+}
+
+func IsUserAgentSP(req *http.Request) bool {
+	ua := strings.ToLower(req.UserAgent())
+	return strings.Contains(ua, "iphone") || strings.Contains(ua, "android") || strings.Contains(ua, "ipod")
+}
+
+func IsUserAgentTablet(req *http.Request) bool {
+	ua := strings.ToLower(req.UserAgent())
+	return strings.Contains(ua, "ipad")
 }

@@ -2,7 +2,8 @@ machine:
   environment:
     GOPATH: "${HOME}/.go_workspace"
     GOROOT: "${HOME}/go"
-    GO_VERSION: "1.7.4"
+    GOBIN: "${GOPATH}/bin"
+    GO_VERSION: "1.7.5"
     PATH: "${GOPATH}/bin:${HOME}/go/bin:${PATH}"
     GOPATH_PROJECT: "${GOPATH}/src/github.com/oinume/lekcije"
     DB_URL: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
@@ -16,6 +17,7 @@ dependencies:
   pre:
     - echo "" > ~/.gitconfig
     - git config --global url."https://github.com".insteadOf git://github.com
+    - git config --global http.https://gopkg.in.followRedirects true
     - cd $HOME && curl -O https://storage.googleapis.com/golang/go$GO_VERSION.linux-amd64.tar.gz
     - cd $HOME && tar xzf go$GO_VERSION.linux-amd64.tar.gz
     - go version
@@ -24,11 +26,9 @@ dependencies:
     - mkdir -p $(dirname ${GOPATH_PROJECT})
     - rm -rf ${GOPATH_PROJECT}
     - ln -s ~/lekcije ${GOPATH_PROJECT}
-    - go get github.com/Masterminds/glide
-    - go get golang.org/x/tools/cmd/goimports
-    - go get bitbucket.org/liamstask/goose/cmd/goose
+    - cd ${GOPATH_PROJECT} && make setup
     - cd ${GOPATH_PROJECT} && glide install
-    - goose -env=circle_ci up
+    - cd ${GOPATH_PROJECT} && goose -env=circle_ci up
 test:
   override:
-    - cd ${GOPATH_PROJECT} && make go_test && make e2e_test
+    - cd ${GOPATH_PROJECT} && make go_lint && make go_test && make e2e_test

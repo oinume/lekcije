@@ -6,7 +6,7 @@ import (
 
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
-	"github.com/go-redis/redis"
+	"gopkg.in/redis.v4"
 )
 
 var redisClient *redis.Client

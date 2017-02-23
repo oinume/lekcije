@@ -16,6 +16,7 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"github.com/uber-go/zap"
@@ -48,6 +49,13 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID)
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
+	}
+	if len(teacherIDs) != 0 {
+		logger.App.Info(
+			"Target teachers",
+			zap.Uint("userID", uint(user.ID)),
+			zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
+		)
 	}
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
@@ -108,7 +116,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 		)
 		return nil, nil, nil, err
 	}
-	logger.App.Info(
+	logger.App.Debug(
 		"fetcher.Fetch",
 		zap.Uint("teacherID", uint(teacher.ID)),
 		zap.Int("lessons", len(fetchedLessons)),
@@ -119,7 +127,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	now := time.Now()
+	now := time.Now().In(config.LocalTimezone())
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalTimezone())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
 	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.ID, fromDate, toDate)
@@ -209,23 +217,23 @@ func getEmailTemplateJP() string {
 	`)
 }
 
-func getEmailTemplateEN() string {
-	return strings.TrimSpace(`
-{{- range $teacherID := .TeacherIDs }}
-{{- $teacher := index $.Teachers $teacherID -}}
---- {{ $teacher.Name }} ---
-  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
-  {{- range $lesson := $lessons }}
-{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
-  {{- end }}
-
-Reserve here:
-<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
-<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
-{{ end }}
-Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of the teacher.
-	`)
-}
+//func getEmailTemplateEN() string {
+//	return strings.TrimSpace(`
+//{{- range $teacherID := .TeacherIDs }}
+//{{- $teacher := index $.Teachers $teacherID -}}
+//--- {{ $teacher.Name }} ---
+//  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
+//  {{- range $lesson := $lessons }}
+//{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
+//  {{- end }}
+//
+//Reserve here:
+//<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
+//<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
+//{{ end }}
+//Click <a href="{{ .WebURL }}/me">here</a> if you want to stop notification of the teacher.
+//	`)
+//}
 
 func (n *Notifier) Close() {
 	defer n.fetcher.Close()

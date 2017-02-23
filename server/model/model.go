@@ -11,20 +11,19 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/oinume/lekcije/server/errors"
 	"golang.org/x/net/context"
-	"github.com/go-redis/redis"
+	"gopkg.in/redis.v4"
 )
 
 const (
 	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
 
-type contextKeyDB struct{}
 type contextKeyRedis struct{}
 
 func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	db, err := sql.Open(
 		"mysql",
-		dsn+"?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
+		dsn+"?charset=utf8mb4&parseTime=true&loc=UTC",
 	)
 	db.SetMaxOpenConns(maxConnections)
 	db.SetMaxIdleConns(maxConnections)
@@ -59,6 +58,7 @@ func OpenRedis(redisURL string) (*redis.Client, error) {
 	return client, nil
 }
 
+// TODO: Remove this function and use context_data
 func OpenRedisAndSetToContext(ctx context.Context, redisURL string) (*redis.Client, context.Context, error) {
 	r, err := OpenRedis(redisURL)
 	if err != nil {
@@ -106,7 +106,7 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 		return errors.InternalWrapf(err2, "Failed to commit transaction: name=%v", name)
 	}
 	success = true
-	return nil
+	return err
 }
 
 func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {

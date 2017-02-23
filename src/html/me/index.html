@@ -20,7 +20,7 @@
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
         <p>
-          講師のURLまたはIDを入力して下さい  <a href="https://lekcije.amebaownd.com/posts/1577091" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a><br>
+          講師のURLまたはIDを入力して下さい  <a href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a><br>
           <small><a href="http://eikaiwa.dmm.com/" target="_blank">DMM英会話で講師を検索</a></small>
         </p>
         <input id="teacherIdsOrUrl"
@@ -36,9 +36,9 @@
   </div>
 
   {{ if .Plan.ShowAd -}}
-  <div id="showAd" style="margin: 20px">
+  <div id="showAd" style="margin:20px; text-align:center">
     <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <!-- lekcije -->
+    <!-- lekcije(レスポンシブ) -->
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="ca-pub-9196567892895746"

@@ -11,6 +11,7 @@ import:
 - package: bitbucket.org/liamstask/goose
   subpackages:
   - cmd/goose
+  - lib/goose
 - package: github.com/kballard/go-shellquote
 - package: github.com/kr/pty
 - package: github.com/ogier/pflag
@@ -45,10 +46,11 @@ import:
   subpackages:
   - spew
 - package: github.com/uber-go/zap
+  version: fc9fbdfe46f6dc6a78028f22a2fb086dd13182fd
 - package: github.com/uber-go/atomic
 - package: github.com/oinume/goenum
 - package: github.com/pkg/errors
-- package: github.com/go-redis/redis
+- package: gopkg.in/redis.v4
   version: v4.2.4
 - package: github.com/sclevine/agouti
 - package: github.com/rs/cors
@@ -66,6 +68,13 @@ import:
 - package: golang.org/x/text
   subpackages:
   - unicode/norm
+- package: github.com/pkg/profile
+  version: 1.2.0
+- package: honnef.co/go/tools
+  subpackages:
+  - cmd/staticcheck
+  - cmd/gosimple
+  - cmd/unused
+- package: github.com/kisielk/gotool
 - package: github.com/huandu/facebook
   version: v1.7.1
-
