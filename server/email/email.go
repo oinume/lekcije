@@ -29,12 +29,12 @@ func NewTemplate(name string, value string) *Template {
 		template: template.New(name),
 		value: value,
 	}
-	//t.template.Parse()
 	return t
 }
 
 func (t *Template) Parse() error {
-	return nil
+	_, err := t.template.Parse(t.value)
+	return err
 }
 
 type Email struct {
@@ -50,9 +50,9 @@ func NewEmail() *Email {
 
 func NewEmailFromTemplate(t *Template /* TODO: pass values */) (*Email, error) {
 	if err := t.Parse(); err != nil {
-		return fmt.Errorf("Parse error: %v", err)
+		return nil, fmt.Errorf("Parse error: %v", err)
 	}
 
 	e := &Email{} // TODO: Set fields
-	return e
+	return e, nil
 }
