@@ -1,33 +1,29 @@
 package emailer
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"net/mail"
+	"strings"
 	"text/template"
 )
-
-type Recipient struct {
-	Address string
-	Name string
-}
-
-func NewRecipient(address, name string) *Recipient {
-	return &Recipient{
-		Address: address,
-		Name: name,
-	}
-}
 
 type Template struct {
 	template *template.Template
 	value    string
-	from     *Recipient
-	to       *Recipient
+	from     *mail.Address
+	tos      []*mail.Address
+	subject  string
+	mimeType string
+	body     string
+	inBody   bool
 }
 
 func NewTemplate(name string, value string) *Template {
 	t := &Template{
 		template: template.New(name),
-		value: value,
+		value:    strings.Replace(value, "\r", "", -1),
 	}
 	return t
 }
@@ -37,9 +33,68 @@ func (t *Template) Parse() error {
 	return err
 }
 
+func (t *Template) Execute(data interface{}) error {
+	var b bytes.Buffer
+	if err := t.template.Execute(&b, data); err != nil {
+		return err
+	}
+
+	for lineNo := 1; ; lineNo++ {
+		line, err := b.ReadString([]byte("\n")[0])
+		if err != nil {
+			if err == io.EOF {
+				fmt.Printf("[%d] line = %q\n", lineNo, line)
+				break
+			} else {
+				return err
+			}
+		}
+
+		fmt.Printf("[%d] line = %q\n", lineNo, line)
+		if err := t.parseLine(line, lineNo); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (t *Template) parseLine(line string, lineNo int) error {
+	colonIndex := strings.Index(line, ":")
+	if colonIndex == -1 && !t.inBody {
+		return fmt.Errorf("Line:%v: Invalid email template", lineNo)
+	}
+
+	name := strings.ToLower(strings.TrimSpace(line[:colonIndex]))
+	value := strings.TrimSpace(line[colonIndex+1:])
+	fmt.Printf("name = %q, value = %q\n", name, value)
+	switch name {
+	case "from":
+		from, err := mail.ParseAddress(value)
+		if err != nil {
+			return fmt.Errorf("Line:%v: Parse from failed: %v", lineNo, err)
+		}
+		t.from = from
+	case "to":
+		tos, err := mail.ParseAddressList(value)
+		if err != nil {
+			return fmt.Errorf("Line:%v: Parse to failed: %v", lineNo, err)
+		}
+		t.tos = tos
+	case "subject":
+		t.subject = value
+	case "body":
+		t.inBody = true
+	default:
+		// TODO: accept as extra header
+		return fmt.Errorf("Line:%v: Unknown header %q", lineNo, name)
+	}
+	return nil
+}
+
 type Email struct {
-	From    *Recipient
-	To      *Recipient
+	From    *mail.Address
+	To      *mail.Address
 	Subject string
 	Body    string
 }
@@ -55,4 +110,9 @@ func NewEmailFromTemplate(t *Template /* TODO: pass values */) (*Email, error) {
 
 	e := &Email{} // TODO: Set fields
 	return e, nil
+}
+
+func NewEmailsFromTemplate(t *Template /* TODO: pass values */) ([]*Email, error) {
+
+	return nil, nil
 }
