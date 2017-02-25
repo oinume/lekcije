@@ -270,7 +270,7 @@ func exchangeFacebook(r *http.Request) (*oauth2.Token, string, error) {
 	}
 	code := r.FormValue("code")
 	c := getFacebookOAuthConfig(r)
-	token, err := c.Exchange(oauth2.NoContext, code)
+	token, err := c.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, "", errors.InternalWrapf(err, "Failed to exchange")
 	}
@@ -305,7 +305,7 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 
 // TODO: return model.User
 func getFacebookUserInfo(token *oauth2.Token) (string, string, string, error) {
-	oauth2Client := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(token))
+	oauth2Client := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
 	oauth2Client.Timeout = 5 * time.Second
 	fb := facebook_api.New(os.Getenv("FACEBOOK_CLIENT_ID"), os.Getenv("FACEBOOK_CLIENT_SECRET"))
 	session := fb.Session(token.AccessToken)
