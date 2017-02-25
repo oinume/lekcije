@@ -1,23 +1,22 @@
 package main
 
 import (
-	"os"
-	"log"
-	"time"
 	"flag"
+	"log"
+	"os"
+	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
-	"github.com/oinume/lekcije/server/logger"
-	"github.com/uber-go/zap"
-	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/config"
-	"github.com/motemen/go-quickfix/testdata/rangestmt"
-	"github.com/oinume/lekcije/server/email"
+	"github.com/oinume/lekcije/server/emailer"
+	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/model"
+	"github.com/uber-go/zap"
 )
 
 var (
-	dryRun      = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
-	logLevel    = flag.String("log-level", "info", "Log level")
+	dryRun   = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
+	logLevel = flag.String("log-level", "info", "Log level")
 )
 
 func main() {
@@ -51,52 +50,52 @@ func run() error {
 		return err
 	}
 
-	sender := email.NewSendGridSender()
+	sender := emailer.NewSendGridSender()
 	for _, user := range users {
-		t := email.NewTemplate("follow_reminder" + user.Name)
-		mail, err := email.NewEmailFromTemplate(t)
+		t := emailer.NewTemplate("follow_reminder", user.Name)
+		mail, err := emailer.NewEmailFromTemplate(t)
 		if err != nil {
 			return err
 		}
 		sender.Send(mail)
 	}
 	/*
-	// 単数を送る場合
-	t := email.Template()
-	mail := email.NewEmailFromTemplate(t, templateValues)
-	email.NewSender().Send(mail) // or mail.Send()
+			// 単数を送る場合
+			t := email.Template()
+			mail := email.NewEmailFromTemplate(t, templateValues)
+			email.NewSender().Send(mail) // or mail.Send()
 
-	// 複数送る場合
-	t := email.Template()
-	//mail := email.NewEmailFromTemplate(t, templateValues)
-	sender := email.NewSender()
-	mails := make([]a)
-	for _, user := range users {
-		mail := email.NewEmailFromTemplate(t, templateValues)
-		mails = append(mails, mail)
-	}
-	email.NewSender().SendMulti(mails)
+			// 複数送る場合
+			t := email.Template()
+			//mail := email.NewEmailFromTemplate(t, templateValues)
+			sender := email.NewSender()
+			mails := make([]a)
+			for _, user := range users {
+				mail := email.NewEmailFromTemplate(t, templateValues)
+				mails = append(mails, mail)
+			}
+			email.NewSender().SendMulti(mails)
 
-	return strings.TrimSpace(`
-From: hoge
-Subject: こんにちは
-Body:
-{{- range $teacherID := .TeacherIDs }}
-{{- $teacher := index $.Teachers $teacherID -}}
---- {{ $teacher.Name }} ---
-  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
-  {{- range $lesson := $lessons }}
-{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
-  {{- end }}
+			return strings.TrimSpace(`
+		From: hoge
+		Subject: こんにちは
+		Body:
+		{{- range $teacherID := .TeacherIDs }}
+		{{- $teacher := index $.Teachers $teacherID -}}
+		--- {{ $teacher.Name }} ---
+		  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
+		  {{- range $lesson := $lessons }}
+		{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
+		  {{- end }}
 
-レッスンの予約はこちらから:
-<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
-<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
+		レッスンの予約はこちらから:
+		<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
+		<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
 
-{{ end }}
-空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
-	`)
-	 */
+		{{ end }}
+		空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
+			`)
+	*/
 
 	return nil
 }
