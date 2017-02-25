@@ -27,7 +27,6 @@ dependencies:
     - rm -rf ${GOPATH_PROJECT}
     - ln -s ~/lekcije ${GOPATH_PROJECT}
     - cd ${GOPATH_PROJECT} && make setup
-    - cd ${GOPATH_PROJECT} && glide install
     - cd ${GOPATH_PROJECT} && goose -env=circle_ci up
 test:
   override:
