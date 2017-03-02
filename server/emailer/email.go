@@ -16,7 +16,7 @@ type Template struct {
 	tos      []*mail.Address
 	subject  string
 	mimeType string
-	body     string
+	body     io.Reader
 	inBody   bool
 }
 
@@ -24,6 +24,7 @@ func NewTemplate(name string, value string) *Template {
 	t := &Template{
 		template: template.New(name),
 		value:    strings.Replace(value, "\r", "", -1),
+		body:     &bytes.Buffer{},
 	}
 	return t
 }
@@ -40,10 +41,13 @@ func (t *Template) Execute(data interface{}) error {
 	}
 
 	for lineNo := 1; ; lineNo++ {
-		line, err := b.ReadString([]byte("\n")[0])
+		line, err := b.ReadString([]byte("\n")[0]) // TODO: bufio.Scanner?
 		if err != nil {
 			if err == io.EOF {
 				fmt.Printf("[%d] line = %q\n", lineNo, line)
+				if err := t.parseLine(line, lineNo); err != nil {
+					return err
+				}
 				break
 			} else {
 				return err
@@ -61,8 +65,13 @@ func (t *Template) Execute(data interface{}) error {
 
 func (t *Template) parseLine(line string, lineNo int) error {
 	colonIndex := strings.Index(line, ":")
-	if colonIndex == -1 && !t.inBody {
-		return fmt.Errorf("Line:%v: Invalid email template", lineNo)
+	if colonIndex == -1 {
+		if t.inBody {
+			fmt.Fprint(t.body.(*bytes.Buffer), line)
+			return nil
+		} else {
+			return fmt.Errorf("Line:%v: Invalid email template", lineNo)
+		}
 	}
 
 	name := strings.ToLower(strings.TrimSpace(line[:colonIndex]))
