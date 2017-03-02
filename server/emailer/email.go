@@ -72,18 +72,22 @@ func (t *Template) parseLine(line string, lineNo int) error {
 	case "from":
 		from, err := mail.ParseAddress(value)
 		if err != nil {
-			return fmt.Errorf("Line:%v: Parse from failed: %v", lineNo, err)
+			return fmt.Errorf("Line:%v: Parse 'from' failed: %v", lineNo, err)
 		}
 		t.from = from
 	case "to":
 		tos, err := mail.ParseAddressList(value)
 		if err != nil {
-			return fmt.Errorf("Line:%v: Parse to failed: %v", lineNo, err)
+			return fmt.Errorf("Line:%v: Parse 'to' failed: %v", lineNo, err)
 		}
 		t.tos = tos
 	case "subject":
 		t.subject = value
 	case "body":
+		if value != "text/plain" && value != "text/html" {
+			return fmt.Errorf("Line:%v: Invalid body mime type: %v", lineNo, value)
+		}
+		t.mimeType = value
 		t.inBody = true
 	default:
 		// TODO: accept as extra header

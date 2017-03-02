@@ -29,4 +29,5 @@ Body: text/html
 	a.Equal("oinume@gmail.com", template.from.Address)
 	a.Equal("lekcije@lekcije.com", template.tos[0].Address)
 	a.Equal("テスト", template.subject)
+	a.Equal("text/html", template.mimeType)
 }
