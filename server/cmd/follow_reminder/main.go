@@ -12,6 +12,8 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/uber-go/zap"
+	"net/http"
+	"strings"
 )
 
 var (
@@ -44,58 +46,53 @@ func run() error {
 	}
 	defer db.Close()
 
-	userService := model.NewUserService(db)
-	users, err := userService.FindAllFollowedTeacherAtIsNull()
+	users, err := model.NewUserService(db).FindAllFollowedTeacherAtIsNull()
 	if err != nil {
 		return err
 	}
 
-	sender := emailer.NewSendGridSender()
+	sender := emailer.NewSendGridSender(http.DefaultClient)
+	templateText := getEmailTemplate()
 	for _, user := range users {
-		t := emailer.NewTemplate("follow_reminder", user.Name)
-		mail, err := emailer.NewEmailFromTemplate(t)
+		t := emailer.NewTemplate("follow_reminder", templateText)
+		data := struct {
+			To string
+			Name string
+		}{
+			To: user.Email.Raw(),
+			Name: user.Name,
+		}
+		mail, err := emailer.NewEmailFromTemplate(t, data)
 		if err != nil {
 			return err
 		}
-		sender.Send(mail)
-	}
-	/*
-			// 単数を送る場合
-			t := email.Template()
-			mail := email.NewEmailFromTemplate(t, templateValues)
-			email.NewSender().Send(mail) // or mail.Send()
 
-			// 複数送る場合
-			t := email.Template()
-			//mail := email.NewEmailFromTemplate(t, templateValues)
-			sender := email.NewSender()
-			mails := make([]a)
-			for _, user := range users {
-				mail := email.NewEmailFromTemplate(t, templateValues)
-				mails = append(mails, mail)
+		if !*dryRun {
+			if err := sender.Send(mail); err != nil {
+				return err
 			}
-			email.NewSender().SendMulti(mails)
-
-			return strings.TrimSpace(`
-		From: hoge
-		Subject: こんにちは
-		Body:
-		{{- range $teacherID := .TeacherIDs }}
-		{{- $teacher := index $.Teachers $teacherID -}}
-		--- {{ $teacher.Name }} ---
-		  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
-		  {{- range $lesson := $lessons }}
-		{{ $lesson.Datetime.Format "2006-01-02 15:04" }}
-		  {{- end }}
-
-		レッスンの予約はこちらから:
-		<a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacherID }}/">PC</a>
-		<a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
-
-		{{ end }}
-		空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
-			`)
-	*/
+		}
+	}
 
 	return nil
+}
+
+func getEmailTemplate() string {
+	return strings.TrimSpace(`
+From: lekcije@lekcije.com
+To: {{ .To }}
+Subject: lekcijeでお気に入りの講師をフォローしましょう
+Body: text/html
+{{ .Name }} 様
+
+<a href="https://www.lekcije.com/">lekcije</a>をご利用いただきありがとうございます。
+lekcijeでお気入りのDMM英会話の講師をフォローしてみましょう。
+フォローすると、講師の空きレッスンが登録された時にメールでお知らせが届きます。
+
+フォローの仕方がわからない場合は下記をチェック！
+<a href="https://lekcije.amebaownd.com/posts/2044879">PC</a>
+<a href="https://lekcije.amebaownd.com/posts/1577091">Mobile</a>
+
+今後ともlekcijeをよろしくお願いいたします。
+	`)
 }
