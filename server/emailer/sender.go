@@ -2,9 +2,9 @@ package emailer
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
-	"net/http"
 
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"

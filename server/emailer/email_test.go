@@ -23,7 +23,7 @@ Body: text/html
 	`
 	template := NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
 	data := struct {
-		Name string
+		Name  string
 		Email string
 	}{
 		"oinume",
@@ -52,7 +52,7 @@ Body: text/html
 	`
 	template := NewTemplate("TestNewEmailsFromTemplate", strings.TrimSpace(s))
 	data := []struct {
-		Name string
+		Name  string
 		Email string
 	}{
 		{

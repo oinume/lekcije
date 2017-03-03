@@ -23,7 +23,7 @@ func NewTemplate(name string, value string) *Template {
 		template: template.New(name),
 		value:    strings.Replace(value, "\r", "", -1),
 		emails:   make([]*Email, 0, 10000),
-		current: 0,
+		current:  0,
 	}
 	return t
 }
@@ -71,14 +71,14 @@ func (t *Template) Execute(data interface{}) error {
 }
 
 func (t *Template) parseLine(line string, lineNo int, email *Email) error {
+	if t.inBody {
+		fmt.Fprint(email.Body.(*bytes.Buffer), line)
+		return nil
+	}
+
 	colonIndex := strings.Index(line, ":")
 	if colonIndex == -1 {
-		if t.inBody {
-			fmt.Fprint(email.Body.(*bytes.Buffer), line)
-			return nil
-		} else {
-			return fmt.Errorf("Line:%v: Invalid email template", lineNo)
-		}
+		return fmt.Errorf("Line:%v: Invalid email template", lineNo)
 	}
 
 	name := strings.ToLower(strings.TrimSpace(line[:colonIndex]))
@@ -118,6 +118,7 @@ type Email struct {
 	Subject      string
 	BodyMIMEType string
 	Body         io.Reader
+	bodyCache    string
 }
 
 func NewEmail() *Email {
@@ -150,9 +151,13 @@ func NewEmailsFromTemplate(t *Template, data []interface{}) ([]*Email, error) {
 }
 
 func (e *Email) BodyString() string {
+	if e.bodyCache != "" {
+		return e.bodyCache
+	}
 	b, err := ioutil.ReadAll(e.Body)
 	if err != nil {
 		return ""
 	}
-	return string(b)
+	e.bodyCache = string(b)
+	return e.bodyCache
 }
