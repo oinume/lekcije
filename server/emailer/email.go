@@ -51,6 +51,9 @@ func (t *Template) Execute(data interface{}) error {
 		line, err := b.ReadString([]byte("\n")[0]) // TODO: bufio.Scanner?
 		if err != nil {
 			if err == io.EOF {
+				defer func() {
+					t.inBody = false
+				}()
 				//fmt.Printf("[%d] line = %q\n", lineNo, line)
 				if err := t.parseLine(line, lineNo, email); err != nil {
 					return err
