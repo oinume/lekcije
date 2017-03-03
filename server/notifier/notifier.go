@@ -192,7 +192,7 @@ func (n *Notifier) sendNotificationToUser(
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to create emailer.Email from template")
 	}
-	fmt.Printf("--- mail ---\n%s", email.BodyString())
+	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email.Raw()))
 	return n.sender.Send(email)
