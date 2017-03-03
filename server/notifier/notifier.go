@@ -1,9 +1,7 @@
 package notifier
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -17,8 +15,6 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/sendgrid/sendgrid-go"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"github.com/uber-go/zap"
 )
 
@@ -254,43 +250,4 @@ func (n *Notifier) Close() {
 			}
 		}
 	}()
-}
-
-type NotificationSender interface {
-	Send(user *model.User, subject, body string) error
-}
-
-type EmailNotificationSender struct{}
-
-func (s *EmailNotificationSender) Send(user *model.User, subject, body string) error {
-	from := mail.NewEmail("lekcije", "lekcije@lekcije.com")
-	to := mail.NewEmail(user.Name, user.Email.Raw())
-	content := mail.NewContent("text/html", strings.Replace(body, "\n", "<br>", -1))
-	m := mail.NewV3MailInit(from, subject, to, content)
-
-	req := sendgrid.GetRequest(
-		os.Getenv("SENDGRID_API_KEY"),
-		"/v3/mail/send",
-		"https://api.sendgrid.com",
-	)
-	req.Method = "POST"
-	req.Body = mail.GetRequestBody(m)
-	resp, err := sendgrid.API(req)
-	if err != nil {
-		return errors.InternalWrapf(err, "Failed to send email by sendgrid")
-	}
-	if resp.StatusCode >= 300 {
-		message := fmt.Sprintf(
-			"Failed to send email by sendgrid: statusCode=%v, body=%v",
-			resp.StatusCode, strings.Replace(resp.Body, "\n", "\\n", -1),
-		)
-		logger.App.Error(message)
-		return errors.InternalWrapf(
-			err,
-			"Failed to send email by sendgrid: statusCode=%v",
-			resp.StatusCode,
-		)
-	}
-
-	return nil
 }
