@@ -51,7 +51,7 @@ func (t *Template) Execute(data interface{}) error {
 		line, err := b.ReadString([]byte("\n")[0]) // TODO: bufio.Scanner?
 		if err != nil {
 			if err == io.EOF {
-				fmt.Printf("[%d] line = %q\n", lineNo, line)
+				//fmt.Printf("[%d] line = %q\n", lineNo, line)
 				if err := t.parseLine(line, lineNo, email); err != nil {
 					return err
 				}
@@ -61,7 +61,7 @@ func (t *Template) Execute(data interface{}) error {
 			}
 		}
 
-		fmt.Printf("[%d] line = %q\n", lineNo, line)
+		//fmt.Printf("[%d] line = %q\n", lineNo, line)
 		if err := t.parseLine(line, lineNo, email); err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func (t *Template) parseLine(line string, lineNo int, email *Email) error {
 
 	name := strings.ToLower(strings.TrimSpace(line[:colonIndex]))
 	value := strings.TrimSpace(line[colonIndex+1:])
-	fmt.Printf("name = %q, value = %q\n", name, value)
+	//fmt.Printf("name = %q, value = %q\n", name, value)
 	switch name {
 	case "from":
 		from, err := mail.ParseAddress(value)

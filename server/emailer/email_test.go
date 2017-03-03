@@ -10,33 +10,72 @@ import (
 
 var _ = fmt.Print
 
-func TestTemplate_Execute(t *testing.T) {
+func TestNewEmailFromTemplate(t *testing.T) {
 	a := assert.New(t)
+
 	s := `
-From: Kazuhiro Oinuma <oinume@gmail.com>
-To: lekcije@lekcije.com
+From: lekcije@lekcije.com
+To: {{ .Name }} <{{ .Email }}>
 Subject: テスト
 Body: text/html
-oinume さん
+{{ .Name }} さん
 こんにちは
 	`
-	template := NewTemplate("TestTemplate_Execute", strings.TrimSpace(s))
-	err := template.Parse()
+	template := NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
+	data := struct {
+		Name string
+		Email string
+	}{
+		"oinume",
+		"oinume@gmail.com",
+	}
+	email, err := NewEmailFromTemplate(template, data)
 	a.Nil(err)
-	err = template.Execute(nil)
-	a.Nil(err)
-
-	email := template.emails[0]
-	a.Equal("Kazuhiro Oinuma", email.From.Name)
-	a.Equal("oinume@gmail.com", email.From.Address)
-	a.Equal("lekcije@lekcije.com", email.Tos[0].Address)
+	a.Equal("lekcije@lekcije.com", email.From.Address)
+	a.Equal("oinume@gmail.com", email.Tos[0].Address)
+	a.Equal("oinume", email.Tos[0].Name)
 	a.Equal("テスト", email.Subject)
 	a.Equal("text/html", email.BodyMIMEType)
 	a.Equal("oinume さん\nこんにちは", email.BodyString())
 }
 
-//func TestNewEmailFromTemplate(t *testing.T) {
-//	a := assert.New(t)
-//	template := NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
-//	NewEmailFromTemplate(template, )
-//}
+func TestNewEmailsFromTemplate(t *testing.T) {
+	a := assert.New(t)
+
+	s := `
+From: lekcije@lekcije.com
+To: {{ .Name }} <{{ .Email }}>
+Subject: テスト
+Body: text/html
+{{ .Name }} さん
+こんにちは
+	`
+	template := NewTemplate("TestNewEmailsFromTemplate", strings.TrimSpace(s))
+	data := []struct {
+		Name string
+		Email string
+	}{
+		{
+			"oinume",
+			"oinume@gmail.com",
+		},
+		{
+			"akuwano",
+			"akuwano@gmail.com",
+		},
+	}
+	tmp := make([]interface{}, len(data))
+	for i := range data {
+		tmp[i] = data[i]
+	}
+	emails, err := NewEmailsFromTemplate(template, tmp)
+	a.Nil(err)
+
+	a.Equal(2, len(emails))
+	a.Equal("lekcije@lekcije.com", emails[1].From.Address)
+	a.Equal("akuwano@gmail.com", emails[1].Tos[0].Address)
+	a.Equal("akuwano", emails[1].Tos[0].Name)
+	a.Equal("テスト", emails[1].Subject)
+	a.Equal("text/html", emails[1].BodyMIMEType)
+	a.Equal("akuwano さん\nこんにちは", emails[1].BodyString())
+}
