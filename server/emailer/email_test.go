@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"io/ioutil"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -21,19 +20,23 @@ Body: text/html
 oinume さん
 こんにちは
 	`
-	template := NewTemplate("parse", strings.TrimSpace(s))
+	template := NewTemplate("TestTemplate_Execute", strings.TrimSpace(s))
 	err := template.Parse()
 	a.Nil(err)
 	err = template.Execute(nil)
 	a.Nil(err)
 
-	a.Equal("Kazuhiro Oinuma", template.from.Name)
-	a.Equal("oinume@gmail.com", template.from.Address)
-	a.Equal("lekcije@lekcije.com", template.tos[0].Address)
-	a.Equal("テスト", template.subject)
-	a.Equal("text/html", template.mimeType)
-
-	body, err := ioutil.ReadAll(template.body)
-	a.Nil(err)
-	a.Equal("oinume さん\nこんにちは", string(body))
+	email := template.emails[0]
+	a.Equal("Kazuhiro Oinuma", email.From.Name)
+	a.Equal("oinume@gmail.com", email.From.Address)
+	a.Equal("lekcije@lekcije.com", email.Tos[0].Address)
+	a.Equal("テスト", email.Subject)
+	a.Equal("text/html", email.BodyMIMEType)
+	a.Equal("oinume さん\nこんにちは", email.BodyString())
 }
+
+//func TestNewEmailFromTemplate(t *testing.T) {
+//	a := assert.New(t)
+//	template := NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
+//	NewEmailFromTemplate(template, )
+//}

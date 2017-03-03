@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/mail"
 	"strings"
 	"text/template"
@@ -12,11 +13,8 @@ import (
 type Template struct {
 	template *template.Template
 	value    string
-	from     *mail.Address
-	tos      []*mail.Address
-	subject  string
-	mimeType string
-	body     io.Reader
+	emails   []*Email
+	current  int
 	inBody   bool
 }
 
@@ -24,7 +22,8 @@ func NewTemplate(name string, value string) *Template {
 	t := &Template{
 		template: template.New(name),
 		value:    strings.Replace(value, "\r", "", -1),
-		body:     &bytes.Buffer{},
+		emails:   make([]*Email, 0, 10000),
+		current: 0,
 	}
 	return t
 }
@@ -40,12 +39,20 @@ func (t *Template) Execute(data interface{}) error {
 		return err
 	}
 
+	email := &Email{
+		Body: &bytes.Buffer{},
+	}
+	t.emails = append(t.emails, email)
+	defer func() {
+		t.current++
+	}()
+
 	for lineNo := 1; ; lineNo++ {
 		line, err := b.ReadString([]byte("\n")[0]) // TODO: bufio.Scanner?
 		if err != nil {
 			if err == io.EOF {
 				fmt.Printf("[%d] line = %q\n", lineNo, line)
-				if err := t.parseLine(line, lineNo); err != nil {
+				if err := t.parseLine(line, lineNo, email); err != nil {
 					return err
 				}
 				break
@@ -55,7 +62,7 @@ func (t *Template) Execute(data interface{}) error {
 		}
 
 		fmt.Printf("[%d] line = %q\n", lineNo, line)
-		if err := t.parseLine(line, lineNo); err != nil {
+		if err := t.parseLine(line, lineNo, email); err != nil {
 			return err
 		}
 	}
@@ -63,11 +70,11 @@ func (t *Template) Execute(data interface{}) error {
 	return nil
 }
 
-func (t *Template) parseLine(line string, lineNo int) error {
+func (t *Template) parseLine(line string, lineNo int, email *Email) error {
 	colonIndex := strings.Index(line, ":")
 	if colonIndex == -1 {
 		if t.inBody {
-			fmt.Fprint(t.body.(*bytes.Buffer), line)
+			fmt.Fprint(email.Body.(*bytes.Buffer), line)
 			return nil
 		} else {
 			return fmt.Errorf("Line:%v: Invalid email template", lineNo)
@@ -83,21 +90,21 @@ func (t *Template) parseLine(line string, lineNo int) error {
 		if err != nil {
 			return fmt.Errorf("Line:%v: Parse 'from' failed: %v", lineNo, err)
 		}
-		t.from = from
+		email.From = from
 	case "to":
 		tos, err := mail.ParseAddressList(value)
 		if err != nil {
 			return fmt.Errorf("Line:%v: Parse 'to' failed: %v", lineNo, err)
 		}
-		t.tos = tos
+		email.Tos = tos
 	case "subject":
-		t.subject = value
+		email.Subject = value
 	case "body":
 		if value != "text/plain" && value != "text/html" {
 			return fmt.Errorf("Line:%v: Invalid body mime type: %v", lineNo, value)
 		}
-		t.mimeType = value
-		t.inBody = true
+		email.BodyMIMEType = value
+		t.inBody = true // TODO: goroutine safe
 	default:
 		// TODO: accept as extra header
 		return fmt.Errorf("Line:%v: Unknown header %q", lineNo, name)
@@ -106,26 +113,46 @@ func (t *Template) parseLine(line string, lineNo int) error {
 }
 
 type Email struct {
-	From    *mail.Address
-	To      *mail.Address
-	Subject string
-	Body    string
+	From         *mail.Address
+	Tos          []*mail.Address
+	Subject      string
+	BodyMIMEType string
+	Body         io.Reader
 }
 
 func NewEmail() *Email {
 	return &Email{}
 }
 
-func NewEmailFromTemplate(t *Template /* TODO: pass values */) (*Email, error) {
+// Create Email from Template with given data.
+// Return an error if
+// - Parsing template fails
+func NewEmailFromTemplate(t *Template, data interface{}) (*Email, error) {
 	if err := t.Parse(); err != nil {
 		return nil, fmt.Errorf("Parse error: %v", err)
 	}
-
-	e := &Email{} // TODO: Set fields
-	return e, nil
+	if err := t.Execute(data); err != nil {
+		return nil, err
+	}
+	return t.emails[0], nil
 }
 
-func NewEmailsFromTemplate(t *Template /* TODO: pass values */) ([]*Email, error) {
+func NewEmailsFromTemplate(t *Template, data []interface{}) ([]*Email, error) {
+	if err := t.Parse(); err != nil {
+		return nil, fmt.Errorf("Parse error: %v", err)
+	}
+	for _, d := range data {
+		if err := t.Execute(d); err != nil {
+			return nil, err
+		}
+	}
+	return t.emails, nil
+}
 
-	return nil, nil
+func (e *Email) BodyString() string {
+	b, err := ioutil.ReadAll(e.Body)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }

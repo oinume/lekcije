@@ -24,8 +24,8 @@ func NewSendGridSender() Sender {
 func (s *SendGridSender) Send(email *Email) error {
 	// TODO: Set HTTP Client
 	from := mail.NewEmail(email.From.Name, email.From.Address)
-	to := mail.NewEmail(email.To.Name, email.To.Address)
-	content := mail.NewContent("text/html", strings.Replace(email.Body, "\n", "<br>", -1))
+	to := mail.NewEmail(email.Tos[0].Name, email.Tos[0].Address) // TODO
+	content := mail.NewContent("text/html", strings.Replace(email.BodyString(), "\n", "<br>", -1))
 	m := mail.NewV3MailInit(from, email.Subject, to, content)
 
 	req := sendgrid.GetRequest(
