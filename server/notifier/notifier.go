@@ -196,7 +196,7 @@ func (n *Notifier) sendNotificationToUser(
 
 func getEmailTemplateJP() string {
 	return strings.TrimSpace(`
-From: lekcije@lekcije.com
+From: lekcije <lekcije@lekcije.com>
 To: {{ .To }}
 Subject: {{ .TeacherNames }}の空きレッスンがあります
 Body: text/html
