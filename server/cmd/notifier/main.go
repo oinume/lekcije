@@ -61,14 +61,10 @@ func run() error {
 	}
 	defer db.Close()
 
-	// TODO: Define method in UserService
-	var users []*model.User
-	userSQL := `SELECT * FROM user WHERE email_verified = 1`
-	result := db.Raw(userSQL).Scan(&users)
-	if result.Error != nil && !result.RecordNotFound() {
-		return errors.InternalWrapf(result.Error, "Failed to find Users")
+	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue()
+	if err != nil {
+		return err
 	}
-
 	mCountries, err := model.NewMCountryService(db).LoadAll()
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to load all MCountries")
