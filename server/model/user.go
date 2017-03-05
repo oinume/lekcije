@@ -96,10 +96,10 @@ func (s *UserService) FindAllEmailVerifiedIsTrue() ([]*User, error) {
 }
 
 // Returns an empty slice if no users found
-func (s *UserService) FindAllFollowedTeacherAtIsNull() ([]*User, error) {
+func (s *UserService) FindAllFollowedTeacherAtIsNull(createdAt time.Time) ([]*User, error) {
 	var users []*User
-	sql := `SELECT * FROM user WHERE followed_teacher_at IS NULL ORDER BY id`
-	result := s.db.Raw(sql).Scan(&users)
+	sql := `SELECT * FROM user WHERE followed_teacher_at IS NULL AND CAST(created_at AS DATE) = ? ORDER BY id`
+	result := s.db.Raw(sql, createdAt.Format(dbDateFormat)).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
 		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
 	}
