@@ -2,8 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
@@ -12,16 +15,16 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/uber-go/zap"
-	"net/http"
-	"strings"
 )
 
 var (
-	dryRun   = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
-	logLevel = flag.String("log-level", "info", "Log level")
+	dryRun     = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
+	logLevel   = flag.String("log-level", "info", "Log level")
+	targetDate = flag.String("target-date", "", "Specify registration date of users")
 )
 
 func main() {
+	flag.Parse()
 	if err := run(); err != nil {
 		log.Fatalf("err = %v", err) // TODO: Error handling
 	}
@@ -46,7 +49,16 @@ func run() error {
 	}
 	defer db.Close()
 
-	users, err := model.NewUserService(db).FindAllFollowedTeacherAtIsNull()
+	var date time.Time
+	if *targetDate == "" {
+		date = time.Now().UTC().Add(-1 * 24 * time.Hour)
+	} else {
+		date, err = time.Parse("2006-01-02", *targetDate)
+		if err != nil {
+			return fmt.Errorf("Failed to parse 'target-date': %v", *targetDate)
+		}
+	}
+	users, err := model.NewUserService(db).FindAllFollowedTeacherAtIsNull(date)
 	if err != nil {
 		return err
 	}
@@ -56,10 +68,10 @@ func run() error {
 	for _, user := range users {
 		t := emailer.NewTemplate("follow_reminder", templateText)
 		data := struct {
-			To string
+			To   string
 			Name string
 		}{
-			To: user.Email.Raw(),
+			To:   user.Email.Raw(),
 			Name: user.Name,
 		}
 		mail, err := emailer.NewEmailFromTemplate(t, data)
@@ -71,6 +83,7 @@ func run() error {
 			if err := sender.Send(mail); err != nil {
 				return err
 			}
+			logger.App.Info("followReminder", zap.String("email", user.Email.Raw()))
 		}
 	}
 
@@ -83,8 +96,6 @@ From: lekcije@lekcije.com
 To: {{ .To }}
 Subject: lekcijeでお気に入りの講師をフォローしましょう
 Body: text/html
-{{ .Name }} 様
-
 <a href="https://www.lekcije.com/">lekcije</a>をご利用いただきありがとうございます。
 lekcijeでお気入りのDMM英会話の講師をフォローしてみましょう。
 フォローすると、講師の空きレッスンが登録された時にメールでお知らせが届きます。
