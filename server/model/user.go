@@ -13,6 +13,7 @@ type User struct {
 	ID                uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name              string
 	Email             Email
+	RawEmail          string
 	EmailVerified     bool
 	PlanID            uint8
 	FollowedTeacherAt mysql.NullTime
@@ -114,6 +115,7 @@ func (s *UserService) Create(name, email string) (*User, error) {
 	user := &User{
 		Name:          name,
 		Email:         e,
+		RawEmail:      email,
 		EmailVerified: true,
 		PlanID:        DefaultPlanID,
 	}
