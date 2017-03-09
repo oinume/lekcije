@@ -134,6 +134,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 	user := &User{
 		Name:          name,
 		Email:         e,
+		RawEmail:      email,
 		EmailVerified: true, // TODO: set false after implement email verification
 		PlanID:        DefaultPlanID,
 	}
@@ -163,11 +164,11 @@ func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 	if err != nil {
 		return err
 	}
-	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.ID)
+	result := s.db.Exec("UPDATE user SET email = ?, raw_email = ? WHERE id = ?", email, newEmail, user.ID)
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,
-			"Failed to update email: id=%v, email=%v", user.ID, email,
+			"Failed to update email: id=%v, email=%v", user.ID, newEmail,
 		)
 	}
 	return nil

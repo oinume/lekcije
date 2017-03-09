@@ -11,6 +11,7 @@ import (
 
 var encryptionKey = os.Getenv("ENCRYPTION_KEY")
 
+// TODO: Remove after email migration
 type Email struct {
 	raw       string
 	encrypted string
