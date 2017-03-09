@@ -34,7 +34,6 @@ func NewSendGridSender(httpClient *http.Client) Sender {
 }
 
 func (s *SendGridSender) Send(email *Email) error {
-	// TODO: Set HTTP Client
 	from := mail.NewEmail(email.From.Name, email.From.Address)
 	content := mail.NewContent("text/html", strings.Replace(email.BodyString(), "\n", "<br>", -1))
 	tos := make([]*mail.Email, len(email.Tos))
