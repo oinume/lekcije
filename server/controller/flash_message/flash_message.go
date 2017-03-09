@@ -80,7 +80,7 @@ func (f *FlashMessage) Set() (string, error) {
 	return string(bytes), nil
 }
 
-func (f *FlashMessage) AsURLParam() string {
+func (f *FlashMessage) AsURLQueryString() string {
 	return "flashMessageKey=" + f.Key
 }
 
