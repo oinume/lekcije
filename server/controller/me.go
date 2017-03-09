@@ -91,12 +91,12 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 
 	db := context_data.MustDB(ctx)
 	followingTeacherService := model.NewFollowingTeacherService(db)
-	count, err := followingTeacherService.CountFollowingTeachersByUserID(user.ID)
+	reachesLimit, err := followingTeacherService.ReachesFollowingTeacherLimit(user.ID, len(teachers))
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
-	if count+len(teachers) > model.MaxFollowTeacherCount { // TODO: As plan
+	if reachesLimit {
 		e := flash_message.New(
 			flash_message.KindWarning,
 			fmt.Sprintf(reachedMaxFollowTeacherMessage, model.MaxFollowTeacherCount),
