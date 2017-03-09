@@ -74,7 +74,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
 		return
 	}
 
@@ -85,7 +85,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
 		return
 	}
 
@@ -105,7 +105,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
 		return
 	}
 
@@ -168,7 +168,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/me?"+successMessage.AsURLParam(), http.StatusFound)
+	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
@@ -205,7 +205,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/me?"+successMessage.AsURLParam(), http.StatusFound)
+	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
@@ -250,7 +250,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLParam(), http.StatusFound)
+	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
 func GetMeLogout(w http.ResponseWriter, r *http.Request) {
