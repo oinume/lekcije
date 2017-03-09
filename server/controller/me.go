@@ -151,12 +151,12 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		teacherIDs = append(teacherIDs, fmt.Sprint(t.ID))
 	}
 
-	go sendMeasurementEvent2(
+	go sendMeasurementEvent(
 		r, eventCategoryFollowingTeacher, "follow",
 		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
 	)
 	if updateFollowedTeacherAt {
-		go sendMeasurementEvent2(
+		go sendMeasurementEvent(
 			r, eventCategoryUser, "followFirstTime",
 			fmt.Sprint(user.ID), 0, user.ID,
 		)
@@ -194,7 +194,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, e)
 		return
 	}
-	go sendMeasurementEvent2(
+	go sendMeasurementEvent(
 		r, eventCategoryFollowingTeacher, "unfollow",
 		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
 	)
@@ -242,7 +242,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	go sendMeasurementEvent2(r, eventCategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
+	go sendMeasurementEvent(r, eventCategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
 
 	successMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
 	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
@@ -280,7 +280,7 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	go sendMeasurementEvent2(r, eventCategoryUser, "logout", "", 0, user.ID)
+	go sendMeasurementEvent(r, eventCategoryUser, "logout", "", 0, user.ID)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
