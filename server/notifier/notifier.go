@@ -168,6 +168,7 @@ func (n *Notifier) sendNotificationToUser(
 		teacherNames = append(teacherNames, n.teachers[uint32(id)].Name)
 	}
 
+	// TODO: getEmailTemplate as a static file
 	t := emailer.NewTemplate("notifier", getEmailTemplateJP())
 	data := struct {
 		To                string
@@ -214,6 +215,8 @@ Body: text/html
 
 {{ end }}
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
+
+<a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">お問い合わせ</a>
 	`)
 }
 
