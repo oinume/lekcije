@@ -21,3 +21,12 @@ body {
 .form-control {
     color: black;
 }
+
+.header-padding {
+    padding-top: 10px;
+}
+
+.logo-center {
+    text-align:center;
+    margin:0 auto 30px;
+}
