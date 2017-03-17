@@ -1,23 +1,27 @@
 {{ define "content" }}
 <div>
-  <div class="container">
+  <div class="container container-narrow">
+    <!--
     <p class="header-padding logo-center">
       <img src="{{ .StaticURL }}/image/logo.svg" witdth="160" height="160"/>
     </p>
-    <p class="lead">lekcijeは、DMM英会話の講師のレッスンに空きができた時にメールでお知らせするサービスです。</p>
+    -->
+    <p class="lead header-padding">DMM英会話の講師のレッスンに空きができた時にメールでお知らせ</p>
+    <h2 style="font-size: 1.5em"><span style="border-bottom:1px solid #007196;">lekcijeを使うメリット</span></h2>
+    <ul>
+      <li>DMM英会話のお気に入りの講師に空きレッスンがある場合にメールでお知らせ</li>
+      <li>キャンセルで空きレッスンができた場合にすぐ予約できる</li>
+      <li>講師がいつ頃空きレッスンを登録するかがわかる</li>
+      <li>料金は無料</li>
+    </ul>
+
     <div class="starter-template">
+      <p>
+        <a class="btn btn-primary btn-lg" href="#" role="button" style="width:200px">新規登録</a>
+      </p>
       <a href="/oauth/google"><img src="{{ .StaticURL }}/image/btn_google_signin_dark_normal_web@2x.png" width="191" height="46" alt="Sign in with Google" /></a>
     </div>
     <p style="text-align:center;font-size:small">ログインすることで<a href="/terms" target="_blank">利用規約</a>に同意されたとみなします。</p>
-    <div style="padding-top:10px;">
-      <h2 style="font-size: 1.5em"><span style="border-bottom:1px solid #007196;">lekcijeを使うメリット</span></h2>
-      <ul>
-        <li>DMM英会話のお気に入りの講師に空きレッスンがある場合にメールでお知らせ</li>
-        <li>キャンセルで空きレッスンができた場合にすぐ予約できる</li>
-        <li>講師がいつ頃空きレッスンを登録するかがわかる</li>
-        <li>料金は無料</li>
-      </ul>
-    </div>
   </div>
 </div>
 {{ end }}

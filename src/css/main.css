@@ -13,6 +13,14 @@ body {
     padding-top: 50px;
 }
 
+.container-narrow {
+    width: 800px;
+}
+
+.header-padding {
+    padding-top: 15px;
+}
+
 .starter-template {
     padding: 15px 15px;
     text-align: center;
@@ -20,10 +28,6 @@ body {
 
 .form-control {
     color: black;
-}
-
-.header-padding {
-    padding-top: 10px;
 }
 
 .logo-center {
