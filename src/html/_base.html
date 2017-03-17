@@ -53,6 +53,12 @@
           <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}><a href="{{ $item.URL }}">{{ $item.Text }}</a></li>
           {{ end }}
         </ul>
+        {{ if eq $currentURL "/" }}
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#login">ログイン</a></li>
+          <li><a href="#signup">新規登録</a></li>
+        </ul>
+        {{ end }}
       </div>
     </div>
   </nav>
