@@ -40,6 +40,11 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func Signup(w http.ResponseWriter, r *http.Request) {
+	if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
+		http.Redirect(w, r, "/me", http.StatusFound)
+		return
+	}
+
 	t := ParseHTMLTemplates(TemplatePath("signup.html"))
 	data := struct {
 		commonTemplateData
