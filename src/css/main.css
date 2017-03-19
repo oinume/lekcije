@@ -30,6 +30,10 @@ body {
     text-align: center;
 }
 
+.button-signup {
+    width: 200px;
+}
+
 .form-control {
     color: black;
 }
