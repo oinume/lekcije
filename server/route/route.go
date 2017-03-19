@@ -21,6 +21,7 @@ func Create() *goji.Mux {
 
 	routes.HandleFunc(pat.Get("/static/*"), controller.Static)
 	routes.HandleFunc(pat.Get("/"), controller.Index)
+	routes.HandleFunc(pat.Get("/signup"), controller.Signup)
 	routes.HandleFunc(pat.Get("/oauth/google"), controller.OAuthGoogle)
 	routes.HandleFunc(pat.Get("/oauth/google/callback"), controller.OAuthGoogleCallback)
 	routes.HandleFunc(pat.Get("/robots.txt"), controller.RobotsTxt)

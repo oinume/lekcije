@@ -24,7 +24,7 @@ serve:
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
-e2e_test:
+e2e_test: minify_static_development
 	go test $(E2E_TEST_ARGS) github.com/oinume/lekcije/e2e
 
 go_test:
@@ -38,6 +38,8 @@ go_lint:
 	staticcheck $(LINT_PACKAGES)
 	gosimple $(LINT_PACKAGES)
 
+minify_static_development:
+	MINIFY=true VERSION_HASH=_version_ npm run build
 
 minify_static:
 	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build

@@ -39,6 +39,24 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Signup(w http.ResponseWriter, r *http.Request) {
+	if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
+		http.Redirect(w, r, "/me", http.StatusFound)
+		return
+	}
+
+	t := ParseHTMLTemplates(TemplatePath("signup.html"))
+	data := struct {
+		commonTemplateData
+	}{
+		commonTemplateData: getCommonTemplateData(r, false, 0),
+	}
+	if err := t.Execute(w, &data); err != nil {
+		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		return
+	}
+}
+
 func RobotsTxt(w http.ResponseWriter, r *http.Request) {
 	content := fmt.Sprintf(`
 User-agent: *
