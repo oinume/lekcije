@@ -58,16 +58,16 @@ type teacherLessons struct {
 }
 
 type TeacherLessonFetcher struct {
-	httpClient    *http.Client
-	semaphore     chan struct{}
-	cache         map[uint32]*teacherLessons
-	cacheResponse bool
-	logger        zap.Logger
-	mCountries    *model.MCountries
+	httpClient *http.Client
+	semaphore  chan struct{}
+	cache      map[uint32]*teacherLessons
+	caching    bool
+	logger     zap.Logger
+	mCountries *model.MCountries
 }
 
 func NewTeacherLessonFetcher(
-	httpClient *http.Client, concurrency int, cacheResponse bool,
+	httpClient *http.Client, concurrency int, caching bool,
 	mCountries *model.MCountries, log zap.Logger,
 ) *TeacherLessonFetcher {
 	if httpClient == nil {
@@ -82,12 +82,12 @@ func NewTeacherLessonFetcher(
 	semaphore := make(chan struct{}, concurrency)
 	cache := make(map[uint32]*teacherLessons, 5000)
 	return &TeacherLessonFetcher{
-		httpClient:    httpClient,
-		semaphore:     semaphore,
-		cacheResponse: cacheResponse,
-		cache:         cache,
-		logger:        log,
-		mCountries:    mCountries,
+		httpClient: httpClient,
+		semaphore:  semaphore,
+		caching:    caching,
+		cache:      cache,
+		logger:     log,
+		mCountries: mCountries,
 	}
 }
 
@@ -256,7 +256,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	}
 
 	// Set teacher lesson data to cache
-	if fetcher.cache {
+	if fetcher.caching {
 		fetcher.cache[teacher.ID] = &teacherLessons{teacher: teacher, lessons: lessons}
 	}
 
