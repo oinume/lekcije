@@ -218,7 +218,7 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	}
 	data := &Data{
 		commonTemplateData: getCommonTemplateData(r, true, user.ID),
-		Email:              user.Email.Raw(),
+		Email:              user.Email,
 	}
 
 	if err := t.Execute(w, data); err != nil {

@@ -77,7 +77,7 @@ func TestOAuthGoogleLogin(t *testing.T) {
 
 	user, err := model.NewUserService(db).FindByUserAPIToken(apiToken)
 	require.Nil(err)
-	a.Equal(googleAccount, user.Email.Raw())
+	a.Equal(googleAccount, user.Email)
 }
 
 func TestOAuthGoogleLogout(t *testing.T) {

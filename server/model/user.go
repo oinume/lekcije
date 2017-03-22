@@ -12,7 +12,7 @@ import (
 type User struct {
 	ID                uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name              string
-	Email             Email
+	Email             string
 	RawEmail          string
 	EmailVerified     bool
 	PlanID            uint8
@@ -108,13 +108,9 @@ func (s *UserService) FindAllFollowedTeacherAtIsNull(createdAt time.Time) ([]*Us
 }
 
 func (s *UserService) Create(name, email string) (*User, error) {
-	e, err := NewEmailFromRaw(email)
-	if err != nil {
-		return nil, err
-	}
 	user := &User{
 		Name:          name,
-		Email:         e,
+		Email:         email,
 		RawEmail:      email,
 		EmailVerified: true,
 		PlanID:        DefaultPlanID,
@@ -126,14 +122,9 @@ func (s *UserService) Create(name, email string) (*User, error) {
 }
 
 func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
-	e, err := NewEmailFromRaw(email)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	user := &User{
 		Name:          name,
-		Email:         e,
+		Email:         email,
 		RawEmail:      email,
 		EmailVerified: true, // TODO: set false after implement email verification
 		PlanID:        DefaultPlanID,
@@ -160,11 +151,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 }
 
 func (s *UserService) UpdateEmail(user *User, newEmail string) error {
-	email, err := NewEmailFromRaw(newEmail)
-	if err != nil {
-		return err
-	}
-	result := s.db.Exec("UPDATE user SET email = ?, raw_email = ? WHERE id = ?", email, newEmail, user.ID)
+	result := s.db.Exec("UPDATE user SET email = ?, raw_email = ? WHERE id = ?", newEmail, newEmail, user.ID)
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,

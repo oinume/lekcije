@@ -71,7 +71,7 @@ func run() error {
 			To   string
 			Name string
 		}{
-			To:   user.Email.Raw(),
+			To:   user.Email,
 			Name: user.Name,
 		}
 		mail, err := emailer.NewEmailFromTemplate(t, data)
@@ -83,7 +83,7 @@ func run() error {
 			if err := sender.Send(mail); err != nil {
 				return err
 			}
-			logger.App.Info("followReminder", zap.Uint("userID", uint(user.ID)), zap.String("email", user.Email.Raw()))
+			logger.App.Info("followReminder", zap.Uint("userID", uint(user.ID)), zap.String("email", user.Email))
 		}
 	}
 
