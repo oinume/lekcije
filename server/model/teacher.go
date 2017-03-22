@@ -18,18 +18,6 @@ var (
 	teacherUrlRegexp = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
 )
 
-type TeacherLessons struct {
-	Teacher *Teacher
-	Lessons []*Lesson
-}
-
-func NewTeacherLessons(teacher *Teacher, lessons []*Lesson) *TeacherLessons {
-	return &TeacherLessons{
-		Teacher: teacher,
-		Lessons: lessons,
-	}
-}
-
 type Teacher struct {
 	ID                uint32
 	Name              string

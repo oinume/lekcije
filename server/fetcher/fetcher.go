@@ -52,10 +52,15 @@ var (
 	classAttrXPath  = xmlpath.MustCompile(`@class`)
 )
 
+type teacherLessons struct {
+	teacher *model.Teacher
+	lessons []*model.Lesson
+}
+
 type TeacherLessonFetcher struct {
 	httpClient    *http.Client
 	semaphore     chan struct{}
-	cache         map[uint32]*xmlpath.Node
+	cache         map[uint32]*teacherLessons
 	cacheResponse bool
 	logger        zap.Logger
 	mCountries    *model.MCountries
@@ -75,7 +80,7 @@ func NewTeacherLessonFetcher(
 		log = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")))
 	}
 	semaphore := make(chan struct{}, concurrency)
-	cache := make(map[uint32]*xmlpath.Node, 5000)
+	cache := make(map[uint32]*teacherLessons, 5000)
 	return &TeacherLessonFetcher{
 		httpClient:    httpClient,
 		semaphore:     semaphore,
@@ -136,6 +141,11 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	teacher *model.Teacher,
 	html io.Reader,
 ) (*model.Teacher, []*model.Lesson, error) {
+	// Check cache
+	if c, ok := fetcher.cache[teacher.ID]; ok {
+		return c.teacher, c.lessons, nil
+	}
+
 	root, err := xmlpath.ParseHTML(html)
 	if err != nil {
 		return nil, nil, err
@@ -243,6 +253,11 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 		} else {
 			// nop
 		}
+	}
+
+	// Set teacher lesson data to cache
+	if fetcher.cache {
+		fetcher.cache[teacher.ID] = &teacherLessons{teacher: teacher, lessons: lessons}
 	}
 
 	return teacher, lessons, nil
