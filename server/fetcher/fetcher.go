@@ -97,6 +97,11 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []
 		<-fetcher.semaphore
 	}()
 
+	// Check cache
+	if c, ok := fetcher.cache[teacherID]; ok {
+		return c.teacher, c.lessons, nil
+	}
+
 	teacher := model.NewTeacher(teacherID)
 	var content io.ReadCloser
 	err := retry.Retry(2, 300*time.Millisecond, func() error {
@@ -141,11 +146,6 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 	teacher *model.Teacher,
 	html io.Reader,
 ) (*model.Teacher, []*model.Lesson, error) {
-	// Check cache
-	if c, ok := fetcher.cache[teacher.ID]; ok {
-		return c.teacher, c.lessons, nil
-	}
-
 	root, err := xmlpath.ParseHTML(html)
 	if err != nil {
 		return nil, nil, err
