@@ -33,17 +33,19 @@ var (
 	fetcherHTTPClient = &http.Client{
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
-		Transport: &http.Transport{
-			MaxIdleConns:        100,
-			MaxIdleConnsPerHost: 10, // TODO: use `concurrency`
-			Proxy:               http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
+		Transport: &cacheTransport{
+			&http.Transport{
+				MaxIdleConns:        100,
+				MaxIdleConnsPerHost: 10, // TODO: use `concurrency`
+				Proxy:               http.ProxyFromEnvironment,
+				DialContext: (&net.Dialer{
+					Timeout:   30 * time.Second,
+					KeepAlive: 30 * time.Second,
+				}).DialContext,
+				IdleConnTimeout:       90 * time.Second,
+				TLSHandshakeTimeout:   10 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+			},
 		},
 	}
 	titleXPath      = xmlpath.MustCompile(`//title`)
@@ -52,15 +54,25 @@ var (
 	classAttrXPath  = xmlpath.MustCompile(`@class`)
 )
 
+type cacheTransport struct {
+	transport *http.Transport
+}
+
+func (t *cacheTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := t.transport.RoundTrip(req)
+	return resp, err
+}
+
 type TeacherLessonFetcher struct {
-	httpClient *http.Client
-	semaphore  chan struct{}
-	logger     zap.Logger
-	mCountries *model.MCountries
+	httpClient    *http.Client
+	semaphore     chan struct{}
+	cacheResponse bool
+	logger        zap.Logger
+	mCountries    *model.MCountries
 }
 
 func NewTeacherLessonFetcher(
-	httpClient *http.Client, concurrency int,
+	httpClient *http.Client, concurrency int, cacheResponse bool,
 	mCountries *model.MCountries, log zap.Logger,
 ) *TeacherLessonFetcher {
 	if httpClient == nil {
@@ -74,10 +86,11 @@ func NewTeacherLessonFetcher(
 	}
 	semaphore := make(chan struct{}, concurrency)
 	return &TeacherLessonFetcher{
-		httpClient: httpClient,
-		semaphore:  semaphore,
-		logger:     log,
-		mCountries: mCountries,
+		httpClient:    httpClient,
+		semaphore:     semaphore,
+		cacheResponse: cacheResponse,
+		logger:        log,
+		mCountries:    mCountries,
 	}
 }
 

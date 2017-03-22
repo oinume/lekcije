@@ -69,7 +69,7 @@ func run() error {
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to load all MCountries")
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, mCountries, logger.App)
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, false, mCountries, logger.App)
 	notifier := notifier.NewNotifier(db, fetcher, *dryRun)
 	defer notifier.Close()
 	for _, user := range users {
