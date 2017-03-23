@@ -57,8 +57,9 @@ func run() error {
 	}()
 
 	// TODO: Wrap up as function
-	var dbLogging bool
-	//dbLogging := !config.IsProductionEnv()
+	dbLogging := false
+	// TODO: something wrong with staticcheck? this value of dbLogging is never used (SA4006)
+	//dbLogging := !config.IsProductionEnv()x
 	if *logLevel == "debug" {
 		dbLogging = true
 	} else {
