@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
-	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -57,8 +56,9 @@ func run() error {
 		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	println(bootstrap.CLIEnvVars.DBURL)
-	dbLogging := !config.IsProductionEnv()
+	// TODO: Wrap up as function
+	var dbLogging bool
+	//dbLogging := !config.IsProductionEnv()
 	if *logLevel == "debug" {
 		dbLogging = true
 	} else {
