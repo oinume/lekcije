@@ -252,6 +252,8 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 			})
 		} else {
 			// nop
+			// TODO: panic?
+			fmt.Printf("panic?\n")
 		}
 	}
 
