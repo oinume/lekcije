@@ -250,11 +250,8 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 				Datetime:  dt,
 				Status:    model.LessonStatuses.MustName(status),
 			})
-		} else {
-			// nop
-			// TODO: panic?
-			fmt.Printf("panic?\n")
 		}
+		// TODO: else
 	}
 
 	// Set teacher lesson data to cache
