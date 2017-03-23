@@ -179,7 +179,7 @@ func OAuthFacebookCallback(w http.ResponseWriter, r *http.Request) {
 	userService := model.NewUserService(db)
 	user, err := userService.FindByFacebookID(facebookID)
 	if err == nil {
-		go sendMeasurementEvent2(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
+		go sendMeasurementEvent(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
 	} else {
 		if _, notFound := err.(*errors.NotFound); !notFound {
 			InternalServerError(w, err)
@@ -195,7 +195,7 @@ func OAuthFacebookCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
-		go sendMeasurementEvent2(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
+		go sendMeasurementEvent(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
 	}
 
 	cookie, err := createUserAPIToken(context_data.MustDB(ctx), user.ID)
