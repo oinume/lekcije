@@ -3,7 +3,7 @@ machine:
     GOPATH: "${HOME}/.go_workspace"
     GOROOT: "${HOME}/go"
     GOBIN: "${GOPATH}/bin"
-    GO_VERSION: "1.7.5"
+    GO_VERSION: "1.8"
     PATH: "${GOPATH}/bin:${HOME}/go/bin:${PATH}"
     GOPATH_PROJECT: "${GOPATH}/src/github.com/oinume/lekcije"
     DB_URL: "lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test"
@@ -27,7 +27,6 @@ dependencies:
     - rm -rf ${GOPATH_PROJECT}
     - ln -s ~/lekcije ${GOPATH_PROJECT}
     - cd ${GOPATH_PROJECT} && make setup
-    - cd ${GOPATH_PROJECT} && glide install
     - cd ${GOPATH_PROJECT} && goose -env=circle_ci up
 test:
   override:

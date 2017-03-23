@@ -3,17 +3,17 @@ package e2e
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"testing"
 	"time"
-
-	"net/url"
 
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var _ = time.UTC
@@ -24,18 +24,16 @@ func TestOAuthGoogleLogin(t *testing.T) {
 		t.Skipf("Skip because it can't render Google login page.")
 	}
 	a := assert.New(t)
+	require := require.New(t)
 	driver := newWebDriver()
 	err := driver.Start()
 	a.Nil(err)
 	defer driver.Stop()
 
 	page, err := driver.NewPage()
-	a.Nil(err)
-	a.Nil(page.Navigate(server.URL))
+	require.Nil(err)
+	require.Nil(page.Navigate(server.URL))
 	//time.Sleep(10 * time.Second)
-	link := page.FindByXPath("//div[@class='starter-template']/a")
-	u, err := link.Attribute("href")
-	a.Nil(err)
 
 	// Check trackingId is set
 	cookies, err := page.GetCookies()
@@ -45,35 +43,40 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	a.Nil(err)
 	a.NotEmpty(trackingIDCookie.Value)
 
-	fmt.Printf("u = %v, err = %v\n", u, err)
-	link.Click()
+	signupButton := page.FindByXPath("//a[contains(@class, 'button-signup')]")
+	signupURL, err := signupButton.Attribute("href")
+	require.Nil(err)
+
+	require.Nil(page.Navigate(signupURL))
+	buttonGoogle := page.FindByXPath("//button[contains(@class, 'button-google')]")
+	require.Nil(buttonGoogle.Click())
 	//time.Sleep(10 * time.Second)
 
 	googleAccount := os.Getenv("E2E_GOOGLE_ACCOUNT")
 	err = page.Find("#Email").Fill(googleAccount)
-	a.Nil(err)
+	require.Nil(err)
 	page.Find("#gaia_loginform").Submit()
-	a.Nil(err)
+	require.Nil(err)
 
 	time.Sleep(time.Second * 1)
 	page.Find("#Passwd").Fill(os.Getenv("E2E_GOOGLE_PASSWORD"))
-	a.Nil(err)
+	require.Nil(err)
 	page.Find("#gaia_loginform").Submit()
-	a.Nil(err)
+	require.Nil(err)
 
 	time.Sleep(time.Second * 3)
 	err = page.Find("#submit_approve_access").Click()
-	a.Nil(err)
+	require.Nil(err)
 	//time.Sleep(time.Second * 10)
 	// TODO: Check HTML content
 
 	cookies, err = page.GetCookies()
-	a.Nil(err)
+	require.Nil(err)
 	apiToken := getAPIToken(cookies)
 	a.NotEmpty(apiToken)
 
 	user, err := model.NewUserService(db).FindByUserAPIToken(apiToken)
-	a.Nil(err)
+	require.Nil(err)
 	a.Equal(googleAccount, user.Email.Raw())
 }
 

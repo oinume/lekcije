@@ -74,7 +74,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
 		return
 	}
 
@@ -85,18 +85,18 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
 		return
 	}
 
 	db := context_data.MustDB(ctx)
 	followingTeacherService := model.NewFollowingTeacherService(db)
-	count, err := followingTeacherService.CountFollowingTeachersByUserID(user.ID)
+	reachesLimit, err := followingTeacherService.ReachesFollowingTeacherLimit(user.ID, len(teachers))
 	if err != nil {
 		InternalServerError(w, err)
 		return
 	}
-	if count+len(teachers) > model.MaxFollowTeacherCount { // TODO: As plan
+	if reachesLimit {
 		e := flash_message.New(
 			flash_message.KindWarning,
 			fmt.Sprintf(reachedMaxFollowTeacherMessage, model.MaxFollowTeacherCount),
@@ -105,7 +105,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
-		http.Redirect(w, r, "/me?"+e.AsURLParam(), http.StatusFound)
+		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
 		return
 	}
 
@@ -151,12 +151,12 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		teacherIDs = append(teacherIDs, fmt.Sprint(t.ID))
 	}
 
-	go sendMeasurementEvent2(
+	go sendMeasurementEvent(
 		r, eventCategoryFollowingTeacher, "follow",
 		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
 	)
 	if updateFollowedTeacherAt {
-		go sendMeasurementEvent2(
+		go sendMeasurementEvent(
 			r, eventCategoryUser, "followFirstTime",
 			fmt.Sprint(user.ID), 0, user.ID,
 		)
@@ -168,7 +168,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/me?"+successMessage.AsURLParam(), http.StatusFound)
+	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
 func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
@@ -194,7 +194,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, e)
 		return
 	}
-	go sendMeasurementEvent2(
+	go sendMeasurementEvent(
 		r, eventCategoryFollowingTeacher, "unfollow",
 		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
 	)
@@ -205,7 +205,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/me?"+successMessage.AsURLParam(), http.StatusFound)
+	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
 func GetMeSetting(w http.ResponseWriter, r *http.Request) {
@@ -242,7 +242,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	go sendMeasurementEvent2(r, eventCategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
+	go sendMeasurementEvent(r, eventCategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
 
 	successMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
 	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
@@ -250,7 +250,7 @@ func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLParam(), http.StatusFound)
+	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
 func GetMeLogout(w http.ResponseWriter, r *http.Request) {
@@ -280,7 +280,7 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	go sendMeasurementEvent2(r, eventCategoryUser, "logout", "", 0, user.ID)
+	go sendMeasurementEvent(r, eventCategoryUser, "logout", "", 0, user.ID)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }

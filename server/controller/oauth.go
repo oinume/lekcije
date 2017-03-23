@@ -3,6 +3,7 @@ package controller
 // TODO: Create package 'oauth'
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -19,7 +20,6 @@ import (
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
-	"context"
 )
 
 var _ = fmt.Print
@@ -102,7 +102,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	userService := model.NewUserService(db)
 	user, err := userService.FindByGoogleID(googleID)
 	if err == nil {
-		go sendMeasurementEvent2(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
+		go sendMeasurementEvent(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
 	} else {
 		if _, notFound := err.(*errors.NotFound); !notFound {
 			InternalServerError(w, err)
@@ -118,7 +118,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
-		go sendMeasurementEvent2(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
+		go sendMeasurementEvent(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
 	}
 
 	userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))

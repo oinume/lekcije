@@ -13,6 +13,7 @@ type User struct {
 	ID                uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name              string
 	Email             Email
+	RawEmail          string
 	EmailVerified     bool
 	PlanID            uint8
 	FollowedTeacherAt mysql.NullTime
@@ -106,6 +107,28 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 	return user, nil
 }
 
+// Returns an empty slice if no users found
+func (s *UserService) FindAllEmailVerifiedIsTrue() ([]*User, error) {
+	var users []*User
+	sql := `SELECT * FROM user WHERE email_verified = 1 ORDER BY id`
+	result := s.db.Raw(sql).Scan(&users)
+	if result.Error != nil && !result.RecordNotFound() {
+		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
+	}
+	return users, nil
+}
+
+// Returns an empty slice if no users found
+func (s *UserService) FindAllFollowedTeacherAtIsNull(createdAt time.Time) ([]*User, error) {
+	var users []*User
+	sql := `SELECT * FROM user WHERE followed_teacher_at IS NULL AND CAST(created_at AS DATE) = ? ORDER BY id`
+	result := s.db.Raw(sql, createdAt.Format(dbDateFormat)).Scan(&users)
+	if result.Error != nil && !result.RecordNotFound() {
+		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
+	}
+	return users, nil
+}
+
 func (s *UserService) Create(name, email string) (*User, error) {
 	e, err := NewEmailFromRaw(email)
 	if err != nil {
@@ -114,6 +137,7 @@ func (s *UserService) Create(name, email string) (*User, error) {
 	user := &User{
 		Name:          name,
 		Email:         e,
+		RawEmail:      email,
 		EmailVerified: true,
 		PlanID:        DefaultPlanID,
 	}
@@ -167,6 +191,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 	user := &User{
 		Name:          name,
 		Email:         e,
+		RawEmail:      email,
 		EmailVerified: true, // TODO: set false after implement email verification
 		PlanID:        DefaultPlanID,
 	}
@@ -197,11 +222,11 @@ func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 	if err != nil {
 		return err
 	}
-	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", email, user.ID)
+	result := s.db.Exec("UPDATE user SET email = ?, raw_email = ? WHERE id = ?", email, newEmail, user.ID)
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,
-			"Failed to update email: id=%v, email=%v", user.ID, email,
+			"Failed to update email: id=%v, email=%v", user.ID, newEmail,
 		)
 	}
 	return nil

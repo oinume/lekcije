@@ -98,6 +98,14 @@ func (s *FollowingTeacherService) CountFollowingTeachersByUserID(userID uint32) 
 	return count.Count, nil
 }
 
+func (s FollowingTeacherService) ReachesFollowingTeacherLimit(userID uint32, additionalTeachers int) (bool, error) {
+	count, err := s.CountFollowingTeachersByUserID(userID)
+	if err != nil {
+		return false, err
+	}
+	return count+additionalTeachers > MaxFollowTeacherCount, nil // TODO: Refer plan's limit
+}
+
 func (s *FollowingTeacherService) FollowTeacher(
 	userID uint32, teacher *Teacher, timestamp time.Time,
 ) error {

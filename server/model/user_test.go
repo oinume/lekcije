@@ -32,6 +32,7 @@ func TestCreateUser(t *testing.T) {
 	a.Nil(err)
 	a.True(user.ID > 0)
 	a.Equal(email, user.Email.Raw())
+	a.Equal(email, user.RawEmail)
 	a.Equal(DefaultPlanID, user.PlanID)
 }
 

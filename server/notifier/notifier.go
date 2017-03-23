@@ -1,24 +1,20 @@
 package notifier
 
 import (
-	"bytes"
-	"fmt"
-	"os"
+	"net/http"
 	"sort"
 	"strings"
 	"sync"
-	"text/template"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/sendgrid/sendgrid-go"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"github.com/uber-go/zap"
 )
 
@@ -29,6 +25,7 @@ type Notifier struct {
 	lessonService  *model.LessonService
 	teachers       map[uint32]*model.Teacher
 	fetchedLessons map[uint32][]*model.Lesson
+	sender         emailer.Sender
 	sync.Mutex
 }
 
@@ -39,6 +36,7 @@ func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool
 		dryRun:         dryRun,
 		teachers:       make(map[uint32]*model.Teacher, 1000),
 		fetchedLessons: make(map[uint32][]*model.Lesson, 1000),
+		sender:         emailer.NewSendGridSender(http.DefaultClient),
 	}
 }
 
@@ -170,37 +168,40 @@ func (n *Notifier) sendNotificationToUser(
 		teacherNames = append(teacherNames, n.teachers[uint32(id)].Name)
 	}
 
-	t := template.New("email")
-	t = template.Must(t.Parse(getEmailTemplateJP()))
-	type TemplateData struct {
+	// TODO: getEmailTemplate as a static file
+	t := emailer.NewTemplate("notifier", getEmailTemplateJP())
+	data := struct {
+		To                string
+		TeacherNames      string
 		TeacherIDs        []uint32
 		Teachers          map[uint32]*model.Teacher
 		LessonsPerTeacher map[uint32][]*model.Lesson
 		WebURL            string
-	}
-	data := &TemplateData{
+	}{
+		To:                user.Email.Raw(),
+		TeacherNames:      strings.Join(teacherNames, ", "),
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
 		LessonsPerTeacher: lessonsPerTeacher,
 		WebURL:            config.WebURL(),
 	}
-
-	var body bytes.Buffer
-	if err := t.Execute(&body, data); err != nil {
-		return errors.InternalWrapf(err, "Failed to execute template.")
+	email, err := emailer.NewEmailFromTemplate(t, data)
+	if err != nil {
+		return errors.InternalWrapf(err, "Failed to create emailer.Email from template")
 	}
-	//fmt.Printf("--- mail ---\n%s", body.String())
+	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email.Raw()))
-	//subject := "Schedule of teacher " + strings.Join(teacherNames, ", ")
-	subject := strings.Join(teacherNames, ", ") + "の空きレッスンがあります"
-	sender := &EmailNotificationSender{}
-	return sender.Send(user, subject, body.String())
+	return n.sender.Send(email)
 }
 
 func getEmailTemplateJP() string {
 	return strings.TrimSpace(`
-{{- range $teacherID := .TeacherIDs }}
+From: lekcije <lekcije@lekcije.com>
+To: {{ .To }}
+Subject: {{ .TeacherNames }}の空きレッスンがあります
+Body: text/html
+{{ range $teacherID := .TeacherIDs }}
 {{- $teacher := index $.Teachers $teacherID -}}
 --- {{ $teacher.Name }} ---
   {{- $lessons := index $.LessonsPerTeacher $teacherID }}
@@ -214,6 +215,8 @@ func getEmailTemplateJP() string {
 
 {{ end }}
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
+
+<a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">お問い合わせ</a>
 	`)
 }
 
@@ -250,43 +253,4 @@ func (n *Notifier) Close() {
 			}
 		}
 	}()
-}
-
-type NotificationSender interface {
-	Send(user *model.User, subject, body string) error
-}
-
-type EmailNotificationSender struct{}
-
-func (s *EmailNotificationSender) Send(user *model.User, subject, body string) error {
-	from := mail.NewEmail("lekcije", "lekcije@lekcije.com")
-	to := mail.NewEmail(user.Name, user.Email.Raw())
-	content := mail.NewContent("text/html", strings.Replace(body, "\n", "<br>", -1))
-	m := mail.NewV3MailInit(from, subject, to, content)
-
-	req := sendgrid.GetRequest(
-		os.Getenv("SENDGRID_API_KEY"),
-		"/v3/mail/send",
-		"https://api.sendgrid.com",
-	)
-	req.Method = "POST"
-	req.Body = mail.GetRequestBody(m)
-	resp, err := sendgrid.API(req)
-	if err != nil {
-		return errors.InternalWrapf(err, "Failed to send email by sendgrid")
-	}
-	if resp.StatusCode >= 300 {
-		message := fmt.Sprintf(
-			"Failed to send email by sendgrid: statusCode=%v, body=%v",
-			resp.StatusCode, strings.Replace(resp.Body, "\n", "\\n", -1),
-		)
-		logger.App.Error(message)
-		return errors.InternalWrapf(
-			err,
-			"Failed to send email by sendgrid: statusCode=%v",
-			resp.StatusCode,
-		)
-	}
-
-	return nil
 }

@@ -157,7 +157,7 @@ const (
 	eventCategoryFollowingTeacher = "followingTeacher"
 )
 
-func sendMeasurementEvent2(req *http.Request, category, action, label string, value int64, userID uint32) {
+func sendMeasurementEvent(req *http.Request, category, action, label string, value int64, userID uint32) {
 	gaClient, err := ga.NewClient(os.Getenv("GOOGLE_ANALYTICS_ID"))
 	if err != nil {
 		logger.App.Warn("ga.NewClient() failed", zap.Error(err))

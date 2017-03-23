@@ -151,7 +151,7 @@ func TestFetchRedirect(t *testing.T) {
 
 type responseTransport struct {
 	statusCode int
-	status string
+	status     string
 	content    string
 }
 
@@ -171,7 +171,7 @@ func TestFetchInternalServerError(t *testing.T) {
 	client := &http.Client{
 		Transport: &responseTransport{
 			statusCode: http.StatusInternalServerError,
-			content: "Internal Server Error",
+			content:    "Internal Server Error",
 		},
 	}
 	fetcher := NewTeacherLessonFetcher(client, 1, mCountries, nil)
