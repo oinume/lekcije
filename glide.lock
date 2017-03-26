@@ -1,5 +1,5 @@
-hash: 4be8f30d9656de2e98bb0415d9a019eb0e51401ee8c3e2be841f57e63ca9da35
-updated: 2017-02-23T22:42:14.448272178+09:00
+hash: 7f50a2013739840c3291a3cc829ef6bf0627730d00f0e93cac4bebc5508d0c36
+updated: 2017-03-26T22:38:09.186563615+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -92,6 +92,7 @@ imports:
   subpackages:
   - assert
   - mock
+  - require
 - name: github.com/stvp/rollbar
   version: 3eb4713e2655cd1be805795be31b3f85b74b05fd
 - name: github.com/uber-go/atomic
@@ -187,7 +188,7 @@ imports:
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 - name: honnef.co/go/tools
-  version: 0cd9a3997b51c13198691879e13c49da7ba0f8f9
+  version: 6c3814a19596cc3f3de23f0442023a5adbb28eb6
   subpackages:
   - cmd/gosimple
   - cmd/staticcheck

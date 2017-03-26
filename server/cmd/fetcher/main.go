@@ -61,7 +61,7 @@ func run() error {
 		return err
 	}
 
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, mCountries, logger.App)
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, false, mCountries, logger.App)
 	teacherIDs := make([]uint32, 0, 5000)
 	if *ids != "" {
 		for _, id := range strings.Split(*ids, ",") {

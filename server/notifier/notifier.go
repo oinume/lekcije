@@ -29,14 +29,20 @@ type Notifier struct {
 	sync.Mutex
 }
 
-func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool) *Notifier {
+func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool, sendEmail bool) *Notifier {
+	var sender emailer.Sender
+	if sendEmail {
+		sender = emailer.NewSendGridSender(http.DefaultClient)
+	} else {
+		sender = &emailer.NoSender{}
+	}
 	return &Notifier{
 		db:             db,
 		fetcher:        fetcher,
 		dryRun:         dryRun,
 		teachers:       make(map[uint32]*model.Teacher, 1000),
 		fetchedLessons: make(map[uint32][]*model.Lesson, 1000),
-		sender:         emailer.NewSendGridSender(http.DefaultClient),
+		sender:         sender,
 	}
 }
 
@@ -178,7 +184,7 @@ func (n *Notifier) sendNotificationToUser(
 		LessonsPerTeacher map[uint32][]*model.Lesson
 		WebURL            string
 	}{
-		To:                user.Email.Raw(),
+		To:                user.RawEmail,
 		TeacherNames:      strings.Join(teacherNames, ", "),
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
@@ -187,11 +193,11 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	email, err := emailer.NewEmailFromTemplate(t, data)
 	if err != nil {
-		return errors.InternalWrapf(err, "Failed to create emailer.Email from template")
+		return errors.InternalWrapf(err, "Failed to create emailer.Email from template: to=%v", user.Email)
 	}
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
-	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email.Raw()))
+	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))
 	return n.sender.Send(email)
 }
 
