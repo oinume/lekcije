@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
-	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -18,10 +17,12 @@ import (
 )
 
 var (
-	dryRun      = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
-	concurrency = flag.Int("concurrency", 1, "concurrency of fetcher")
-	logLevel    = flag.String("log-level", "info", "Log level")
-	profileMode = flag.String("profile-mode", "", "block|cpu|mem|trace")
+	dryRun       = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
+	sendEmail    = flag.Bool("send-email", true, "flag to send email")
+	concurrency  = flag.Int("concurrency", 1, "concurrency of fetcher")
+	fetcherCache = flag.Bool("fetcher-cache", false, "Cache teacher and lesson data in Fetcher")
+	logLevel     = flag.String("log-level", "info", "Log level")
+	profileMode  = flag.String("profile-mode", "", "block|cpu|mem|trace")
 )
 
 func main() {
@@ -55,7 +56,16 @@ func run() error {
 		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL, 1, !config.IsProductionEnv())
+	// TODO: Wrap up as function
+	dbLogging := false
+	// TODO: something wrong with staticcheck? this value of dbLogging is never used (SA4006)
+	//dbLogging := !config.IsProductionEnv()x
+	if *logLevel == "debug" {
+		dbLogging = true
+	} else {
+		dbLogging = false
+	}
+	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL, 1, dbLogging)
 	if err != nil {
 		return err
 	}
@@ -69,8 +79,8 @@ func run() error {
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to load all MCountries")
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, mCountries, logger.App)
-	notifier := notifier.NewNotifier(db, fetcher, *dryRun)
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, *fetcherCache, mCountries, logger.App)
+	notifier := notifier.NewNotifier(db, fetcher, *dryRun, *sendEmail)
 	defer notifier.Close()
 	for _, user := range users {
 		if err := notifier.SendNotification(user); err != nil {

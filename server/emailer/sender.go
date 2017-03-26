@@ -70,8 +70,8 @@ func (s *SendGridSender) Send(email *Email) error {
 	return nil
 }
 
-//type NullSender struct {}
-//
-//func (s *NullSender) Send(email *Email) error {
-//	return nil
-//}
+type NoSender struct{}
+
+func (s *NoSender) Send(email *Email) error {
+	return nil
+}

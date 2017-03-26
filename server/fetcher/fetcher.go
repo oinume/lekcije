@@ -52,15 +52,22 @@ var (
 	classAttrXPath  = xmlpath.MustCompile(`@class`)
 )
 
+type teacherLessons struct {
+	teacher *model.Teacher
+	lessons []*model.Lesson
+}
+
 type TeacherLessonFetcher struct {
 	httpClient *http.Client
 	semaphore  chan struct{}
+	cache      map[uint32]*teacherLessons
+	caching    bool
 	logger     zap.Logger
 	mCountries *model.MCountries
 }
 
 func NewTeacherLessonFetcher(
-	httpClient *http.Client, concurrency int,
+	httpClient *http.Client, concurrency int, caching bool,
 	mCountries *model.MCountries, log zap.Logger,
 ) *TeacherLessonFetcher {
 	if httpClient == nil {
@@ -73,9 +80,12 @@ func NewTeacherLessonFetcher(
 		log = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")))
 	}
 	semaphore := make(chan struct{}, concurrency)
+	cache := make(map[uint32]*teacherLessons, 5000)
 	return &TeacherLessonFetcher{
 		httpClient: httpClient,
 		semaphore:  semaphore,
+		caching:    caching,
+		cache:      cache,
 		logger:     log,
 		mCountries: mCountries,
 	}
@@ -86,6 +96,11 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []
 	defer func() {
 		<-fetcher.semaphore
 	}()
+
+	// Check cache
+	if c, ok := fetcher.cache[teacherID]; ok {
+		return c.teacher, c.lessons, nil
+	}
 
 	teacher := model.NewTeacher(teacherID)
 	var content io.ReadCloser
@@ -235,9 +250,13 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 				Datetime:  dt,
 				Status:    model.LessonStatuses.MustName(status),
 			})
-		} else {
-			// nop
 		}
+		// TODO: else
+	}
+
+	// Set teacher lesson data to cache
+	if fetcher.caching {
+		fetcher.cache[teacher.ID] = &teacherLessons{teacher: teacher, lessons: lessons}
 	}
 
 	return teacher, lessons, nil

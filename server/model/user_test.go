@@ -19,7 +19,7 @@ func TestUserService_FindByGoogleID(t *testing.T) {
 	userActual, err := userService.FindByGoogleID(userGoogle.GoogleID)
 	a.Nil(err)
 	a.Equal(user.ID, userActual.ID)
-	a.Equal(user.Email.Raw(), userActual.Email.Raw())
+	a.Equal(user.Email, userActual.Email)
 }
 
 func TestCreateUser(t *testing.T) {
@@ -31,7 +31,7 @@ func TestCreateUser(t *testing.T) {
 	}
 	a.Nil(err)
 	a.True(user.ID > 0)
-	a.Equal(email, user.Email.Raw())
+	a.Equal(email, user.Email)
 	a.Equal(email, user.RawEmail)
 	a.Equal(DefaultPlanID, user.PlanID)
 }
@@ -48,8 +48,8 @@ func TestUpdateEmail(t *testing.T) {
 
 	actual, err := userService.FindByPk(user.ID)
 	a.Nil(err)
-	a.NotEqual(user.Email.Raw(), actual.Email.Raw())
-	a.Equal(email, actual.Email.Raw())
+	a.NotEqual(user.Email, actual.Email)
+	a.Equal(email, actual.Email)
 }
 
 func randomEmail() string {

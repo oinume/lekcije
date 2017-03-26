@@ -1,5 +1,5 @@
-hash: dd1917fdc8f7d5737f50a86924125b691770dea76d8e8d4ffd49f8a8698bd24a
-updated: 2017-02-19T18:48:22.736324062+09:00
+hash: ee8098314d43239fd11b6d7d76b72edcac9161fb82f084debd874e1663b4097e
+updated: 2017-03-23T10:54:40.888119561+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -7,7 +7,7 @@ imports:
   - cmd/goose
   - lib/goose
 - name: cloud.google.com/go
-  version: 8f813b332c515bb3de30ac88d3582c3c3a8f6ac5
+  version: 3258e6905e9694db9bcd41910c65ecc30ae6dbbe
   subpackages:
   - compute/metadata
   - internal
@@ -18,19 +18,21 @@ imports:
   subpackages:
   - spew
 - name: github.com/go-sql-driver/mysql
-  version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
+  version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/golang/protobuf
-  version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
+  version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
   - proto
 - name: github.com/google/uuid
   version: 064e2069ce9c359c118179501254f67d7d37ba24
+- name: github.com/googleapis/gax-go
+  version: da06d194a00e19ce00d9011a13931c3f6f6887c7
 - name: github.com/jinzhu/gorm
-  version: 446ce99a42ffe050b77bdd761271f97dd1e2b554
+  version: 23abd03a95a16de0ef2d559979ead26b2a3cce66
   subpackages:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
-  version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
+  version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/jpillora/go-ogle-analytics
   version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
 - name: github.com/kballard/go-shellquote
@@ -60,7 +62,7 @@ imports:
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
-  version: 17b591df37844cde689f4d5813e5cea0927d8dd2
+  version: 248dadf4e9068a0b3e79f02ed0a610d935de5302
 - name: github.com/pkg/profile
   version: 1c16f117a3ab788fdf0e334e623b8bccf5679866
 - name: github.com/rs/cors
@@ -82,16 +84,17 @@ imports:
   subpackages:
   - helpers/mail
 - name: github.com/Songmu/retry
-  version: 8a08e074f774598e288a170169bb5a0aa46870e8
+  version: 3d913ef13826a2183b18cbfb88925a7735bf3635
 - name: github.com/stretchr/testify
   version: d77da356e56a7428ad25149ca77381849a6a5232
   subpackages:
   - assert
   - mock
+  - require
 - name: github.com/stvp/rollbar
   version: 3eb4713e2655cd1be805795be31b3f85b74b05fd
 - name: github.com/uber-go/atomic
-  version: 0c9e689d64f004564b79d9a663634756df322902
+  version: 3b8db5e93c4c02efbc313e17b2e796b0914a01fb
 - name: github.com/uber-go/zap
   version: fc9fbdfe46f6dc6a78028f22a2fb086dd13182fd
 - name: github.com/ziutek/mymysql
@@ -105,21 +108,27 @@ imports:
   - pat
   - pattern
 - name: golang.org/x/net
-  version: 1358eff22f0dd0c54fc521042cc607f6ff4b531a
+  version: 007e530097ad7f954752df63046b4036f98ba6a6
   subpackages:
   - context
   - context/ctxhttp
   - html
   - html/atom
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
 - name: golang.org/x/oauth2
-  version: 3c3a985cb79f52a3190fbc056984415ca6763d01
+  version: 314dd2c0bf3ebd592ec0d20847d27e79d0dbe8dd
   subpackages:
   - google
   - internal
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: ca83bd2cb9abb47839b50eb4da612f00158f5870
+  version: 7a6e5648d140666db5d920909e082ca00a87ba2c
   subpackages:
   - unix
 - name: golang.org/x/text
@@ -129,14 +138,14 @@ imports:
   - unicode/norm
   - width
 - name: google.golang.org/api
-  version: 5d9c84e3b78a84b6ddc17f88164527f935501e94
+  version: c55f685368bb1cdfed2c20283e2878a83b929730
   subpackages:
   - gensupport
   - googleapi
   - googleapi/internal/uritemplates
   - oauth2/v2
 - name: google.golang.org/appengine
-  version: 4f7eeb5305a4ba1966344836ba4af9996b7b4e05
+  version: a2c54d2174c17540446e0ced57d9d459af61bc1c
   subpackages:
   - internal
   - internal/app_identity
@@ -147,12 +156,25 @@ imports:
   - internal/remote_api
   - internal/urlfetch
   - urlfetch
+- name: google.golang.org/grpc
+  version: 21f8ed309495401e6fd79b3a9fd549582aed1b4c
+  subpackages:
+  - codes
+  - credentials
+  - grpclog
+  - internal
+  - metadata
+  - naming
+  - peer
+  - stats
+  - tap
+  - transport
 - name: gopkg.in/bsm/ratelimit.v1
   version: db14e161995a5177acef654cb0dd785e8ee8bc22
 - name: gopkg.in/fsnotify.v1
   version: 629574ca2a5df945712d3079857300b5e4da0236
 - name: gopkg.in/redis.v4
-  version: 938235994ea88a05678f8060741d5f34ed6a5ff3
+  version: c938162545c57136fa59879746bc65d0f1db3d1e
   subpackages:
   - internal
   - internal/consistenthash
@@ -163,7 +185,7 @@ imports:
 - name: gopkg.in/xmlpath.v2
   version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
 - name: honnef.co/go/tools
-  version: 2a86a384566923fd1db3a0da04afd78a8282e90b
+  version: 6c3814a19596cc3f3de23f0442023a5adbb28eb6
   subpackages:
   - cmd/gosimple
   - cmd/staticcheck
