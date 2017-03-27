@@ -144,19 +144,15 @@ func (s *UserService) Create(name, email string) (*User, error) {
 }
 
 func (s *UserService) CreateWithFacebook(name, email, facebookID string) (*User, *UserFacebook, error) {
-	e, err := NewEmailFromRaw(email)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	// TODO: same code in CreateWithGoogle
 	user := &User{
 		Name:          name,
-		Email:         e,
+		Email:         email,
+		RawEmail:      email,
 		EmailVerified: true, // TODO: set false after implement email verification
 		PlanID:        DefaultPlanID,
 	}
-	if result := s.db.Where(&User{Email: e}).FirstOrCreate(user); result.Error != nil {
+	if result := s.db.Where(&User{Email: email}).FirstOrCreate(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
 			result.Error,
 			"Failed to create User: email=%v, facebookID=%v",
@@ -186,7 +182,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 		EmailVerified: true, // TODO: set false after implement email verification
 		PlanID:        DefaultPlanID,
 	}
-	if result := s.db.Where(&User{Email: e}).FirstOrCreate(user); result.Error != nil {
+	if result := s.db.Where(&User{Email: email}).FirstOrCreate(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
 			result.Error,
 			"Failed to create User: email=%v, googleID=%v",
