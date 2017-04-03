@@ -25,13 +25,16 @@ serve:
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
+.PHONY: test
+test: go_test e2e_test
+
 .PHONY: e2e_test
 e2e_test: minify_static_development
 	go test $(E2E_TEST_ARGS) github.com/oinume/lekcije/e2e
 
 .PHONY: go_test
 go_test:
-	go test -race $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
+	go test $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
 
 .PHONY: goimports
 goimports:
