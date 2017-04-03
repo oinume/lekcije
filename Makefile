@@ -41,9 +41,18 @@ goimports:
 	goimports -w ./server ./e2e
 
 .PHONY: go_lint
-go_lint:
+go_lint: go_vet go_staticcheck go_simple
+
+.PHONY: go_vet
+go_vet:
 	go vet -v $(LINT_PACKAGES)
+
+.PHONY: go_staticcheck
+go_staticcheck:
 	staticcheck $(LINT_PACKAGES)
+
+.PHONY: go_simple
+go_simple:
 	gosimple $(LINT_PACKAGES)
 
 .PHONY: minify_static_development
