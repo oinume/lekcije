@@ -37,7 +37,7 @@ func (s *UserService) TableName() string {
 	return (&User{}).TableName()
 }
 
-func (s *UserService) FindByPk(id uint32) (*User, error) {
+func (s *UserService) FindByPK(id uint32) (*User, error) {
 	user := &User{}
 	if err := s.db.First(user, &User{ID: id}).Error; err != nil {
 		return nil, err

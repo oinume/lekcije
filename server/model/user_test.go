@@ -46,7 +46,7 @@ func TestUpdateEmail(t *testing.T) {
 	}
 	a.Nil(err)
 
-	actual, err := userService.FindByPk(user.ID)
+	actual, err := userService.FindByPK(user.ID)
 	a.Nil(err)
 	a.NotEqual(user.Email, actual.Email)
 	a.Equal(email, actual.Email)
