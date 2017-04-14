@@ -50,7 +50,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	n.lessonService = model.NewLessonService(n.db)
 
-	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID)
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, false)
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
