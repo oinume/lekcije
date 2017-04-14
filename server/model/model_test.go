@@ -18,6 +18,7 @@ var (
 	lessonService           *LessonService
 	mCountryService         *MCountryService
 	planService             *PlanService
+	teacherService          *TeacherService
 	userService             *UserService
 	userGoogleService       *UserGoogleService
 	userAPITokenService     *UserAPITokenService
@@ -37,6 +38,7 @@ func TestMain(m *testing.M) {
 	lessonService = NewLessonService(db)
 	mCountryService = NewMCountryService(db)
 	planService = NewPlanService(db)
+	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
 	userAPITokenService = NewUserAPITokenService(db)

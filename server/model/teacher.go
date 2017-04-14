@@ -25,6 +25,7 @@ type Teacher struct {
 	Gender            string
 	Birthday          time.Time
 	YearsOfExperience uint8
+	FetchErrorCount   uint8
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }
@@ -69,7 +70,7 @@ func NewTeacherService(db *gorm.DB) *TeacherService {
 }
 
 func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
-	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
+	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
 	sql += " ON DUPLICATE KEY UPDATE"
 	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?"
 	now := time.Now()
@@ -80,6 +81,7 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 		t.Gender,
 		t.Birthday.Format("2006-01-02"),
 		t.YearsOfExperience,
+		t.FetchErrorCount,
 		now.Format("2006-01-02 15:04:05"),
 		now.Format("2006-01-02 15:04:05"),
 		// update
@@ -93,6 +95,14 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 		return errors.InternalWrapf(err, "Failed to INSERT or UPDATE teacher: id=%v", t.ID)
 	}
 	return nil
+}
+
+func (s *TeacherService) FindByPK(id uint32) (*Teacher, error) {
+	teacher := &Teacher{}
+	if err := s.db.First(teacher, &Teacher{ID: id}).Error; err != nil {
+		return nil, err
+	}
+	return teacher, nil
 }
 
 func (s *TeacherService) IncrementFetchErrorCount(id uint32, value int) error {
