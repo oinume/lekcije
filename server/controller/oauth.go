@@ -3,11 +3,11 @@ package controller
 // TODO: Create package 'oauth'
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
-	"context"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
