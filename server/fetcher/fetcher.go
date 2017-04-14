@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Songmu/retry"
@@ -60,8 +61,9 @@ type teacherLessons struct {
 type TeacherLessonFetcher struct {
 	httpClient *http.Client
 	semaphore  chan struct{}
-	cache      map[uint32]*teacherLessons
 	caching    bool
+	cache      map[uint32]*teacherLessons
+	cacheLock  *sync.RWMutex
 	logger     zap.Logger
 	mCountries *model.MCountries
 }
@@ -86,6 +88,7 @@ func NewTeacherLessonFetcher(
 		semaphore:  semaphore,
 		caching:    caching,
 		cache:      cache,
+		cacheLock:  &sync.RWMutex{},
 		logger:     log,
 		mCountries: mCountries,
 	}
@@ -98,8 +101,13 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []
 	}()
 
 	// Check cache
-	if c, ok := fetcher.cache[teacherID]; ok {
-		return c.teacher, c.lessons, nil
+	if fetcher.caching {
+		fetcher.cacheLock.RLock()
+		if c, ok := fetcher.cache[teacherID]; ok {
+			fetcher.cacheLock.RUnlock()
+			return c.teacher, c.lessons, nil
+		}
+		fetcher.cacheLock.RUnlock()
 	}
 
 	teacher := model.NewTeacher(teacherID)
@@ -256,7 +264,9 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 
 	// Set teacher lesson data to cache
 	if fetcher.caching {
+		fetcher.cacheLock.Lock()
 		fetcher.cache[teacher.ID] = &teacherLessons{teacher: teacher, lessons: lessons}
+		fetcher.cacheLock.Unlock()
 	}
 
 	return teacher, lessons, nil
