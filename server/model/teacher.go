@@ -94,3 +94,14 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 	}
 	return nil
 }
+
+func (s *TeacherService) IncrementFetchErrorCount(id uint32, value int) error {
+	sql := fmt.Sprintf(
+		`UPDATE %s SET fetch_error_count = fetch_error_count + ? WHERE id = ?`,
+		new(Teacher).TableName(),
+	)
+	if err := s.db.Exec(sql, value, id).Error; err != nil {
+		return errors.InternalWrapf(err, "Failed to UPDATE teacher: id=%v", id)
+	}
+	return nil
+}

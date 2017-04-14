@@ -71,20 +71,15 @@ func (s *FollowingTeacherService) FindTeacherIDs() ([]uint32, error) {
 	return ids, nil
 }
 
-func (s *FollowingTeacherService) FindTeacherIDsByUserID(userID uint32, all bool) ([]uint32, error) {
+func (s *FollowingTeacherService) FindTeacherIDsByUserID(userID uint32, fetchErrorCount int) ([]uint32, error) {
 	values := make([]*FollowingTeacher, 0, 1000)
-	var sql string
-	if all {
-		sql = `SELECT teacher_id FROM following_teacher WHERE user_id = ?`
-	} else {
-		sql = `
-		SELECT ft.teacher_id FROM following_teacher AS ft
-		INNER JOIN teacher AS t ON ft.teacher_id = t.id
-		WHERE user_id = ? AND t.fetch_error_count = 0
-		`
-	}
+	sql := `
+	SELECT ft.teacher_id FROM following_teacher AS ft
+	INNER JOIN teacher AS t ON ft.teacher_id = t.id
+	WHERE user_id = ? AND t.fetch_error_count <= ?
+	`
 	sql = strings.TrimSpace(sql)
-	if result := s.db.Raw(sql, userID).Scan(&values); result.Error != nil {
+	if result := s.db.Raw(sql, userID, fetchErrorCount).Scan(&values); result.Error != nil {
 		if result.RecordNotFound() {
 			return nil, nil
 		}
