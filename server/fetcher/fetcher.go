@@ -31,7 +31,7 @@ var redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
 
 var (
 	_                 = fmt.Print
-	fetcherHTTPClient = &http.Client{
+	defaultHTTPClient = &http.Client{
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
 		Transport: &http.Transport{
@@ -73,7 +73,7 @@ func NewTeacherLessonFetcher(
 	mCountries *model.MCountries, log zap.Logger,
 ) *TeacherLessonFetcher {
 	if httpClient == nil {
-		httpClient = fetcherHTTPClient
+		httpClient = defaultHTTPClient
 	}
 	if concurrency < 1 {
 		concurrency = 1
