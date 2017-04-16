@@ -38,3 +38,24 @@ func TestFollowingTeacherService_CountFollowingTeachersByUserID(t *testing.T) {
 	a.Nil(err)
 	a.Equal(0, count)
 }
+
+func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
+	a := assert.New(t)
+	r := assert.New(t)
+
+	user := createTestUser()
+	teacher := createTestTeacher(1, "hoge")
+	now := time.Now()
+	err := followingTeacherService.FollowTeacher(user.ID, teacher, now)
+	r.Nil(err)
+
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
+	r.Nil(err)
+	a.Equal(1, len(teacherIDs))
+
+	err = teacherService.IncrementFetchErrorCount(teacher.ID, 6)
+	r.Nil(err)
+	teacherIDs, err = followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
+	r.Nil(err)
+	a.Equal(0, len(teacherIDs))
+}

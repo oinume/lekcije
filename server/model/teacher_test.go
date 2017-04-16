@@ -41,3 +41,21 @@ func TestTeacherService_IncrementFetchErrorCount(t *testing.T) {
 	r.Nil(err)
 	a.Equal(uint8(1), teacher2.FetchErrorCount)
 }
+
+func createTestTeacher(id uint32, name string) *Teacher {
+	teacher := &Teacher{
+		ID:   1,
+		Name: "test",
+	}
+	if id != 0 {
+		teacher.ID = id
+	}
+	if name != "" {
+		teacher.Name = name
+	}
+	teacher.Gender = "female"
+	if err := teacherService.CreateOrUpdate(teacher); err != nil {
+		panic(err)
+	}
+	return teacher
+}
