@@ -43,8 +43,9 @@ func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 	a := assert.New(t)
 	r := assert.New(t)
 
-	user := createTestUser()
-	teacher := createTestTeacher(1, "hoge")
+	helper := NewTestHelper(t)
+	user := helper.CreateRandomUser()
+	teacher := helper.CreateTeacher(1, "hoge")
 	now := time.Now()
 	err := followingTeacherService.FollowTeacher(user.ID, teacher, now)
 	r.Nil(err)
