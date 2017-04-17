@@ -120,3 +120,7 @@ func (h *TestHelper) CreateTeacher(id uint32, name string) *Teacher {
 	}
 	return teacher
 }
+
+func (h *TestHelper) CreateRandomTeacher() *Teacher {
+	return h.CreateTeacher(uint32(util.RandomInt(99999)), util.RandomString(6))
+}

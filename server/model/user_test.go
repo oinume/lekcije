@@ -13,8 +13,9 @@ var _ = fmt.Print
 
 func TestUserService_FindByGoogleID(t *testing.T) {
 	a := assert.New(t)
+	helper := NewTestHelper(t)
 
-	user := createTestUser()
+	user := helper.CreateRandomUser()
 	userGoogle := createTestUserGoogle("1", user.ID)
 	userActual, err := userService.FindByGoogleID(userGoogle.GoogleID)
 	a.Nil(err)
@@ -38,7 +39,9 @@ func TestCreateUser(t *testing.T) {
 
 func TestUpdateEmail(t *testing.T) {
 	a := assert.New(t)
-	user := createTestUser()
+	helper := NewTestHelper(t)
+
+	user := helper.CreateRandomUser()
 	email := randomEmail()
 	err := userService.UpdateEmail(user, email)
 	if e, ok := err.(*errors.Internal); ok {
