@@ -59,16 +59,6 @@ func randomEmail() string {
 	return util.RandomString(16) + "@example.com"
 }
 
-func createTestUser() *User {
-	name := util.RandomString(16)
-	email := name + "@example.com"
-	user, err := userService.Create(name, email)
-	if err != nil {
-		panic(err)
-	}
-	return user
-}
-
 func createTestUserGoogle(googleID string, userID uint32) *UserGoogle {
 	userGoogle := &UserGoogle{
 		GoogleID: googleID,
