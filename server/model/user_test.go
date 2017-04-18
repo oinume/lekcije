@@ -7,18 +7,20 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var _ = fmt.Print
 
 func TestUserService_FindByGoogleID(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 	helper := NewTestHelper(t)
 
 	user := helper.CreateRandomUser()
-	userGoogle := createTestUserGoogle("1", user.ID)
+	userGoogle := helper.CreateUserGoogle("1", user.ID)
 	userActual, err := userService.FindByGoogleID(userGoogle.GoogleID)
-	a.Nil(err)
+	r.Nil(err)
 	a.Equal(user.ID, userActual.ID)
 	a.Equal(user.Email, userActual.Email)
 }
@@ -57,15 +59,4 @@ func TestUpdateEmail(t *testing.T) {
 
 func randomEmail() string {
 	return util.RandomString(16) + "@example.com"
-}
-
-func createTestUserGoogle(googleID string, userID uint32) *UserGoogle {
-	userGoogle := &UserGoogle{
-		GoogleID: googleID,
-		UserID:   userID,
-	}
-	if err := db.Create(userGoogle).Error; err != nil {
-		panic(err)
-	}
-	return userGoogle
 }

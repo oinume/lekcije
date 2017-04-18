@@ -108,6 +108,17 @@ func (h *TestHelper) CreateRandomUser() *User {
 	return h.CreateUser(name, name+"@example.com")
 }
 
+func (h *TestHelper) CreateUserGoogle(googleID string, userID uint32) *UserGoogle {
+	userGoogle := &UserGoogle{
+		GoogleID: googleID,
+		UserID:   userID,
+	}
+	if err := h.DB().Create(userGoogle).Error; err != nil {
+		h.t.Fatalf("Failed to CreateUserGoogle()", err)
+	}
+	return userGoogle
+}
+
 func (h *TestHelper) CreateTeacher(id uint32, name string) *Teacher {
 	db := h.DB()
 	teacher := &Teacher{
