@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"fmt"
 	"net/http"
 	"sort"
 	"strings"
@@ -196,6 +197,8 @@ func (n *Notifier) sendNotificationToUser(
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to create emailer.Email from template: to=%v", user.Email)
 	}
+	email.SetCustomArg("userId", fmt.Sprint(user.ID))
+	email.SetCustomArg("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))
