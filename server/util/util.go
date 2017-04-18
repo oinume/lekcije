@@ -26,6 +26,10 @@ func IsProductionEnv() bool {
 	return lekcijeEnv == "production"
 }
 
+func RandomInt(n int) int {
+	return random.Intn(n)
+}
+
 func RandomString(length int) string {
 	b := make([]rune, length)
 	for i := range b {

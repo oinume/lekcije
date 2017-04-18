@@ -10,8 +10,10 @@ import (
 
 func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 	a := assert.New(t)
+	helper := NewTestHelper(t)
 
-	user := createTestUser()
+	user := helper.CreateRandomUser()
+	// TODO: Use helper.CreateTeacher
 	c, _ := mCountries.GetByNameJA("セルビア")
 	teacher := &Teacher{
 		ID:                1,
@@ -32,9 +34,31 @@ func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 
 func TestFollowingTeacherService_CountFollowingTeachersByUserID(t *testing.T) {
 	a := assert.New(t)
-
-	user := createTestUser()
+	helper := NewTestHelper(t)
+	user := helper.CreateRandomUser()
 	count, err := followingTeacherService.CountFollowingTeachersByUserID(user.ID)
 	a.Nil(err)
 	a.Equal(0, count)
+}
+
+func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
+	a := assert.New(t)
+	r := assert.New(t)
+	helper := NewTestHelper(t)
+
+	user := helper.CreateRandomUser()
+	teacher := helper.CreateRandomTeacher()
+	now := time.Now()
+	err := followingTeacherService.FollowTeacher(user.ID, teacher, now)
+	r.Nil(err)
+
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
+	r.Nil(err)
+	a.Equal(1, len(teacherIDs))
+
+	err = teacherService.IncrementFetchErrorCount(teacher.ID, 6)
+	r.Nil(err)
+	teacherIDs, err = followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
+	r.Nil(err)
+	a.Equal(0, len(teacherIDs))
 }

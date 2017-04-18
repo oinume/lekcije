@@ -49,8 +49,8 @@ func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool
 func (n *Notifier) SendNotification(user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	n.lessonService = model.NewLessonService(n.db)
-
-	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID)
+	const maxFetchErrorCount = 5
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, maxFetchErrorCount)
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
@@ -72,9 +72,14 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			if err != nil {
 				switch err.(type) {
 				case *errors.NotFound:
-					// TODO: update teacher table flag
-					// TODO: Not need to log
+					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
+						logger.App.Error(
+							"IncrementFetchErrorCount failed",
+							zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
+						)
+					}
 					logger.App.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
+				// TODO: Handle a case eikaiwa.dmm.com is down
 				default:
 					logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				}
@@ -114,10 +119,6 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 ) {
 	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
-		logger.App.Error(
-			"fetcher.Fetch",
-			zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
-		)
 		return nil, nil, nil, err
 	}
 	logger.App.Debug(
