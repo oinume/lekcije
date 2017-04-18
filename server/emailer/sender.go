@@ -42,6 +42,9 @@ func (s *SendGridSender) Send(email *Email) error {
 	}
 	m := mail.NewV3MailInit(from, email.Subject, tos[0], content)
 	m.Personalizations[0].AddTos(tos[1:]...)
+	for k, v := range email.customArgs {
+		m.SetCustomArg(k, v)
+	}
 
 	req := sendgrid.GetRequest(
 		os.Getenv("SENDGRID_API_KEY"),

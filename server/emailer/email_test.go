@@ -6,12 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var _ = fmt.Print
 
 func TestNewEmailFromTemplate(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 
 	s := `
 From: lekcije@lekcije.com
@@ -30,7 +32,7 @@ Body: text/html
 		"oinume@gmail.com",
 	}
 	email, err := NewEmailFromTemplate(template, data)
-	a.Nil(err)
+	r.Nil(err)
 	a.Equal("lekcije@lekcije.com", email.From.Address)
 	a.Equal("oinume@gmail.com", email.Tos[0].Address)
 	a.Equal("oinume", email.Tos[0].Name)
@@ -41,6 +43,7 @@ Body: text/html
 
 func TestNewEmailsFromTemplate(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 
 	s := `
 From: lekcije@lekcije.com
@@ -69,7 +72,7 @@ Body: text/html
 		tmp[i] = data[i]
 	}
 	emails, err := NewEmailsFromTemplate(template, tmp)
-	a.Nil(err)
+	r.Nil(err)
 
 	a.Equal(2, len(emails))
 	a.Equal("lekcije@lekcije.com", emails[1].From.Address)

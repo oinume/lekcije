@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type transport struct {
@@ -27,6 +28,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 func TestSendGridSender_Send(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 
 	s := `
 From: lekcije@lekcije.com
@@ -45,10 +47,12 @@ oinume さん
 		"oinume@gmail.com",
 	}
 	email, err := NewEmailFromTemplate(template, data)
-	a.Nil(err)
+	r.Nil(err)
 
+	email.SetCustomArg("userId", "1")
+	email.SetCustomArg("teacherIds", "1,2,3")
 	tr := &transport{}
 	err = NewSendGridSender(&http.Client{Transport: tr}).Send(email)
-	a.Nil(err)
+	r.Nil(err)
 	a.True(tr.called)
 }
