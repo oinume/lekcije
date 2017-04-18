@@ -114,7 +114,7 @@ func (h *TestHelper) CreateUserGoogle(googleID string, userID uint32) *UserGoogl
 		UserID:   userID,
 	}
 	if err := h.DB().Create(userGoogle).Error; err != nil {
-		h.t.Fatalf("Failed to CreateUserGoogle()", err)
+		h.t.Fatalf("Failed to CreateUserGoogle(): %v", err)
 	}
 	return userGoogle
 }
