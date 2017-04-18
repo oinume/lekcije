@@ -39,9 +39,7 @@ func (t *Template) Execute(data interface{}) error {
 		return err
 	}
 
-	email := &Email{
-		Body: &bytes.Buffer{},
-	}
+	email := NewEmail()
 	t.emails = append(t.emails, email)
 	defer func() {
 		t.current++
@@ -122,10 +120,14 @@ type Email struct {
 	BodyMIMEType string
 	Body         io.Reader
 	bodyCache    string
+	customArgs   map[string]string
 }
 
 func NewEmail() *Email {
-	return &Email{}
+	return &Email{
+		Body:       &bytes.Buffer{},
+		customArgs: make(map[string]string),
+	}
 }
 
 // Create Email from Template with given data.
@@ -163,4 +165,8 @@ func (e *Email) BodyString() string {
 	}
 	e.bodyCache = string(b)
 	return e.bodyCache
+}
+
+func (e *Email) SetCustomArg(key, value string) {
+	e.customArgs[key] = value
 }
