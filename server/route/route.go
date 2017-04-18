@@ -37,6 +37,7 @@ func Create() *goji.Mux {
 	routes.HandleFunc(pat.Get("/api/me/followingTeachers"), controller.GetAPIMeFollowingTeachers)
 	routes.HandleFunc(pat.Get("/api/debug/envVar"), controller.GetAPIDebugEnvVar)
 	routes.HandleFunc(pat.Get("/api/debug/httpHeader"), controller.GetAPIDebugHTTPHeader)
+	routes.HandleFunc(pat.Post("/api/webhook/sendGrid"), controller.PostAPIWebhookSendGrid)
 
 	return routes
 }
