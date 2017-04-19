@@ -3,6 +3,7 @@ GO_TEST_ARGS=-v
 GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
 DB_HOST=192.168.99.100
 LINT_PACKAGES=$(shell glide novendor)
+VERSION_HASH=$(shell git rev-parse HEAD | cut -c-7)
 
 all: install
 
@@ -61,7 +62,11 @@ minify_static_development:
 
 .PHONY: minify_static
 minify_static:
-	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build
+	MINIFY=true VERSION_HASH=$(VERSION_HASH) npm run build
+
+.PHONY: print_version_hash
+print_version_hash:
+	@echo $(VERSION_HASH)
 
 .PHONY: reset_db
 reset_db:
