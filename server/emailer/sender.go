@@ -13,6 +13,11 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
+const (
+	sendGridAPIHost = "https://api.sendgrid.com"
+	sendGridAPIPath = "/v3/mail/send"
+)
+
 type Sender interface {
 	Send(email *Email) error
 }
@@ -48,8 +53,8 @@ func (s *SendGridSender) Send(email *Email) error {
 
 	req := sendgrid.GetRequest(
 		os.Getenv("SENDGRID_API_KEY"),
-		"/v3/mail/send",
-		"https://api.sendgrid.com",
+		sendGridAPIPath,
+		sendGridAPIHost,
 	)
 	req.Method = "POST"
 	req.Body = mail.GetRequestBody(m)
