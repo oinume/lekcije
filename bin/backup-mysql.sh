@@ -16,6 +16,7 @@ if [ ! -d ./google-cloud-sdk ]; then
 fi
 
 echo $GCLOUD_SERVICE_KEY | base64 --decode > ./gcloud-service-key.json
+./google-cloud-sdk/bin/gcloud components update -q
 ./google-cloud-sdk/bin/gcloud \
   auth activate-service-account \
   --key-file ./gcloud-service-key.json
