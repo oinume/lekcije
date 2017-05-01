@@ -28,7 +28,7 @@ var (
 
 func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
-	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
+	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
 	var err error
 	db, err = OpenDB(testDBURL, 1, true) // TODO: env
 	if err != nil {
@@ -85,7 +85,7 @@ func (h *TestHelper) DB() *gorm.DB {
 		return h.db
 	}
 	bootstrap.CheckCLIEnvVars()
-	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL)
+	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
 	db, err := OpenDB(testDBURL, 1, true) // TODO: env
 	if err != nil {
 		h.t.Fatalf("Failed to OpenDB(): err=%v", err)

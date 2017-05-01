@@ -49,7 +49,7 @@ func run() error {
 		logger.App.Info("fetcher finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL, 1, !config.IsProductionEnv())
+	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, !config.IsProductionEnv())
 	if err != nil {
 		return err
 	}
