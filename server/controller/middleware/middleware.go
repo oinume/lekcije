@@ -114,7 +114,7 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 		}
 
 		db, err := model.OpenDB(
-			bootstrap.ServerEnvVars.DBURL,
+			bootstrap.ServerEnvVars.DBURL(),
 			maxDBConnections,
 			!config.IsProductionEnv(),
 		)

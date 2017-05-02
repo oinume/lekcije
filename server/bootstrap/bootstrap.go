@@ -20,20 +20,44 @@ import (
 //	RedisURL string `env:"REDIS_URL"`
 //}
 
+//$MYSQLDUMP -u$MYSQL_USER -p$MYSQL_PASSWORD -h$MYSQL_HOST $MYSQL_DATABASE | bzip2 -9 > lekcije_$DATE.dump.bz2
+
 type CLIEnvVarsType struct {
-	DBURL         string `env:"DB_URL"`
+	MySQLUser     string `env:"MYSQL_USER"`
+	MySQLPassword string `env:"MYSQL_PASSWORD"`
+	MySQLHost     string `env:"MYSQL_HOST"`
+	MySQLPort     string `env:"MYSQL_PORT"`
+	MySQLDatabase string `env:"MYSQL_DATABASE"`
 	EncryptionKey string `env:"ENCRYPTION_KEY"`
 	NodeEnv       string `env:"NODE_ENV"`
 	RedisURL      string `env:"REDIS_URL"`
 }
 
+func (t CLIEnvVarsType) DBURL() string {
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s",
+		t.MySQLUser, t.MySQLPassword, t.MySQLHost, t.MySQLPort, t.MySQLDatabase,
+	)
+}
+
 type HTTPServerEnvVarsType struct {
-	DBURL              string `env:"DB_URL"`
+	MySQLUser          string `env:"MYSQL_USER"`
+	MySQLPassword      string `env:"MYSQL_PASSWORD"`
+	MySQLHost          string `env:"MYSQL_HOST"`
+	MySQLPort          string `env:"MYSQL_PORT"`
+	MySQLDatabase      string `env:"MYSQL_DATABASE"`
 	EncryptionKey      string `env:"ENCRYPTION_KEY"`
 	NodeEnv            string `env:"NODE_ENV"`
 	RedisURL           string `env:"REDIS_URL"`
 	GoogleClientID     string `env:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
+}
+
+func (t HTTPServerEnvVarsType) DBURL() string {
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s",
+		t.MySQLUser, t.MySQLPassword, t.MySQLHost, t.MySQLPort, t.MySQLDatabase,
+	)
 }
 
 var _ = fmt.Print

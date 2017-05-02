@@ -28,7 +28,7 @@ func main() {
 	}
 
 	bootstrap.CheckCLIEnvVars()
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL, 1, true)
+	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, true)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -25,8 +25,9 @@ var client = http.DefaultClient
 var db *gorm.DB
 
 func TestMain(m *testing.M) {
-	dbURL := model.ReplaceToTestDBURL(os.Getenv("DB_URL"))
-	if err := os.Setenv("DB_URL", dbURL); err != nil {
+	bootstrap.CheckCLIEnvVars()
+	dbURL := model.ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
+	if err := os.Setenv("MYSQL_DATABASE", "lekcije_test"); err != nil {
 		// TODO: Not use panic
 		panic(err)
 	}
