@@ -13,7 +13,6 @@ type User struct {
 	ID                uint32 `gorm:"primary_key;AUTO_INCREMENT"`
 	Name              string
 	Email             string
-	RawEmail          string
 	EmailVerified     bool
 	PlanID            uint8
 	FollowedTeacherAt mysql.NullTime
@@ -149,7 +148,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 }
 
 func (s *UserService) UpdateEmail(user *User, newEmail string) error {
-	result := s.db.Exec("UPDATE user SET email = ?, raw_email = ? WHERE id = ?", newEmail, newEmail, user.ID)
+	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", newEmail, user.ID)
 	if result.Error != nil {
 		return errors.InternalWrapf(
 			result.Error,
