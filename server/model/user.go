@@ -111,7 +111,6 @@ func (s *UserService) Create(name, email string) (*User, error) {
 	user := &User{
 		Name:          name,
 		Email:         email,
-		RawEmail:      email,
 		EmailVerified: true,
 		PlanID:        DefaultPlanID,
 	}
@@ -125,7 +124,6 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 	user := &User{
 		Name:          name,
 		Email:         email,
-		RawEmail:      email,
 		EmailVerified: true, // TODO: set false after implement email verification
 		PlanID:        DefaultPlanID,
 	}

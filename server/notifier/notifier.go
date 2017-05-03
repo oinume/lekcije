@@ -186,7 +186,7 @@ func (n *Notifier) sendNotificationToUser(
 		LessonsPerTeacher map[uint32][]*model.Lesson
 		WebURL            string
 	}{
-		To:                user.RawEmail,
+		To:                user.Email,
 		TeacherNames:      strings.Join(teacherNames, ", "),
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
