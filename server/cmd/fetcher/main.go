@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/crawler"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
@@ -22,6 +21,8 @@ var (
 	continueFlag = flag.Bool("continue", true, "Continue to fetch if any error occurred. (default: true)")
 	ids          = flag.String("ids", "", "Teacher IDs")
 	followed     = flag.Bool("followed", false, "Fetch followed teachers")
+	allTeachers  = flag.Bool("all", false, "Fetch all teachers ordered by evaluation")
+	newTeachers  = flag.Bool("new", false, "Fetch all teachers ordered by new")
 	logLevel     = flag.String("log-level", "info", "Log level")
 )
 
@@ -61,26 +62,21 @@ func run() error {
 		return err
 	}
 
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, false, mCountries, logger.App)
-	teacherIDs := make([]uint32, 0, 5000)
+	// TODO: Loader must implement pagination
+	var loader crawler.TeacherIDLoader
 	if *ids != "" {
-		for _, id := range strings.Split(*ids, ",") {
-			i, err := strconv.ParseInt(id, 10, 32)
-			if err != nil {
-				continue
-			}
-			teacherIDs = append(teacherIDs, uint32(i))
-		}
+		loader = &crawler.SpecificTeacherIDLoader{IDString: *ids}
+	} else if *followed {
+		loader = &crawler.FollowedTeacherIDLoader{DB: db}
+	} else if *allTeachers {
+		loader = &crawler.ScrapingTeacherIDLoader{}
+	}
+	teacherIDs, err := loader.Load()
+	if err != nil {
+		return err
 	}
 
-	if *followed {
-		ids, err := model.NewFollowingTeacherService(db).FindTeacherIDs()
-		if err != nil {
-			return err
-		}
-		teacherIDs = append(teacherIDs, ids...)
-	}
-
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, *concurrency, false, mCountries, logger.App)
 	teacherService := model.NewTeacherService(db)
 	for _, id := range teacherIDs {
 		teacher, _, err := fetcher.Fetch(id)
