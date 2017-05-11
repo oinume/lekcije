@@ -13,6 +13,7 @@ import (
 
 type teacherIDLoader interface {
 	Load(cursor string) ([]uint32, string, error)
+	// TODO: getInitialCursor() string
 }
 
 type specificTeacherIDLoader struct {
@@ -59,6 +60,7 @@ type scrapingTeacherIDLoader struct {
 	order scrapingOrder
 }
 
+// http://eikaiwa.dmm.com/list/?<cursor>
 func (l *scrapingTeacherIDLoader) Load(cursor string) ([]uint32, string, error) {
 	u := "http://eikaiwa.dmm.com"
 	u += "/list/?data%5Btab2%5D%5Bgender%5D=0&data%5Btab2%5D%5Bage%5D=%E5%B9%B4%E9%BD%A2&data%5Btab2%5D%5Bfree_word%5D=&tab=1&sort=4"
