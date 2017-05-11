@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/fetcher"
@@ -32,7 +33,7 @@ func (m *Main) Run() error {
 	if *m.LogLevel != "" {
 		logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
 	}
-	logger.App.Info("fetcher started")
+	logger.App.Info("crawler started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
 		logger.App.Info("fetcher finished", zap.Int("elapsed", int(elapsed)))
@@ -50,7 +51,41 @@ func (m *Main) Run() error {
 		return err
 	}
 
-	// TODO: Loader must implement pagination
+	loader := m.createLoader(db)
+	fetcher := fetcher.NewTeacherLessonFetcher(nil, *m.Concurrency, false, mCountries, logger.App)
+	teacherService := model.NewTeacherService(db)
+	for cursor := "a"; cursor != ""; {
+		var teacherIDs []uint32
+		var err error
+		teacherIDs, cursor, err = loader.Load(cursor)
+		if err != nil {
+			return err
+		}
+
+		for _, id := range teacherIDs {
+			teacher, _, err := fetcher.Fetch(id)
+			if err != nil {
+				if *m.ContinueOnError {
+					logger.App.Error("Error during TeacherLessonFetcher.Fetch", zap.Error(err))
+					continue
+				} else {
+					return err
+				}
+			}
+			if err := teacherService.CreateOrUpdate(teacher); err != nil {
+				if *m.ContinueOnError {
+					logger.App.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
+				} else {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *Main) createLoader(db *gorm.DB) teacherIDLoader {
 	var loader teacherIDLoader
 	if *m.SpecifiedIDs != "" {
 		loader = &specificTeacherIDLoader{idString: *m.SpecifiedIDs}
@@ -61,33 +96,7 @@ func (m *Main) Run() error {
 	} else if *m.New {
 		loader = &scrapingTeacherIDLoader{order: byNew}
 	} else {
-		return fmt.Errorf("Unknown")
+		loader = &scrapingTeacherIDLoader{order: byRating}
 	}
-	teacherIDs, err := loader.Load()
-	if err != nil {
-		return err
-	}
-
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *m.Concurrency, false, mCountries, logger.App)
-	teacherService := model.NewTeacherService(db)
-	for _, id := range teacherIDs {
-		teacher, _, err := fetcher.Fetch(id)
-		if err != nil {
-			if *m.ContinueOnError {
-				logger.App.Error("Error during TeacherLessonFetcher.Fetch", zap.Error(err))
-				continue
-			} else {
-				return err
-			}
-		}
-		if err := teacherService.CreateOrUpdate(teacher); err != nil {
-			if *m.ContinueOnError {
-				logger.App.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
-			} else {
-				return err
-			}
-		}
-	}
-
-	return nil
+	return loader
 }
