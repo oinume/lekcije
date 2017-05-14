@@ -63,6 +63,7 @@ func (m *Main) Run() error {
 		}
 
 		for _, id := range teacherIDs {
+			// TODO: goroutine
 			teacher, _, err := fetcher.Fetch(id)
 			if err != nil {
 				if *m.ContinueOnError {
@@ -79,6 +80,7 @@ func (m *Main) Run() error {
 					return err
 				}
 			}
+			// TODO: sleep
 		}
 	}
 

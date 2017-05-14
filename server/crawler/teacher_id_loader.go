@@ -65,7 +65,14 @@ const (
 	scrapingURLPrefix = "http://eikaiwa.dmm.com/list/?"
 )
 
-var defaultScrapingHTTPClient = &http.Client{}
+var (
+	defaultScrapingHTTPClient = &http.Client{}
+	profileXPath              = xmlpath.MustCompile(`//li[@class='profile']`)
+	idXPath                   = xmlpath.MustCompile(`@id`)
+	paginationXPath           = xmlpath.MustCompile(`//div[@class='list-boxpagenation']/ul/li`)
+	hrefXPath                 = xmlpath.MustCompile(`a/@href`)
+	currentPageXpath          = xmlpath.MustCompile(`span`)
+)
 
 func newScrapingTeacherIDLoader(order scrapingOrder, httpClient *http.Client) *scrapingTeacherIDLoader {
 	if httpClient == nil {
@@ -110,9 +117,6 @@ func (l *scrapingTeacherIDLoader) Load(cursor string) ([]uint32, string, error) 
 		return nil, "", errors.Internalf("Failed to parse HTML: url=%v", url)
 	}
 
-	profileXPath := xmlpath.MustCompile(`//li[@class='profile']`)
-	idXPath := xmlpath.MustCompile(`@id`)
-
 	ids := make([]uint32, 0, 100)
 	for iter := profileXPath.Iter(root); iter.Next(); {
 		node := iter.Node()
@@ -127,7 +131,37 @@ func (l *scrapingTeacherIDLoader) Load(cursor string) ([]uint32, string, error) 
 		ids = append(ids, uint32(v))
 	}
 
-	// TODO: scrape next page cursor
+	cursor = l.getNextCursor(root)
+	return ids, cursor, nil
+}
 
-	return ids, "", nil
+func (l *scrapingTeacherIDLoader) getNextCursor(root *xmlpath.Node) string {
+	/*
+		<div>
+		<ul>
+		  <li><a href="...">1</a></li>
+		  <li><a href="...">2</a></li>
+		  <li><p class="dot">...</p></li>
+		  <li><span>4<span></li>           <-- current page
+		  <li><a href="...">5</ap></li>    <-- want to get this a.href!
+		</ul>
+	*/
+	currentPagePassed := false
+	for iter := paginationXPath.Iter(root); iter.Next(); {
+		node := iter.Node()
+		//fmt.Printf("node = %v\n", node.String())
+		if _, ok := currentPageXpath.String(node); ok {
+			//fmt.Printf("currentPage = %v\n", n)
+			currentPagePassed = true
+		}
+		if href, ok := hrefXPath.String(node); ok {
+			if !currentPagePassed {
+				continue
+			}
+			//fmt.Printf("href = %v\n", href)
+			return strings.Replace(href, "/list/?", "", -1)
+		}
+	}
+
+	return ""
 }
