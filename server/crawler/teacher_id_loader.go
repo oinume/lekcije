@@ -13,11 +13,15 @@ import (
 
 type teacherIDLoader interface {
 	Load(cursor string) ([]uint32, string, error)
-	// TODO: getInitialCursor() string
+	GetInitialCursor() string
 }
 
 type specificTeacherIDLoader struct {
 	idString string
+}
+
+func (l *specificTeacherIDLoader) GetInitialCursor() string {
+	return "dummy"
 }
 
 func (l *specificTeacherIDLoader) Load(cursor string) ([]uint32, string, error) {
@@ -37,6 +41,10 @@ type followedTeacherIDLoader struct {
 	db *gorm.DB
 }
 
+func (l *followedTeacherIDLoader) GetInitialCursor() string {
+	return "dummy"
+}
+
 func (l *followedTeacherIDLoader) Load(cursor string) ([]uint32, string, error) {
 	ids, err := model.NewFollowingTeacherService(l.db).FindTeacherIDs()
 	if err != nil {
@@ -53,37 +61,53 @@ const (
 )
 
 const (
-	userAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html"
+	userAgent         = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html"
+	scrapingURLPrefix = "http://eikaiwa.dmm.com/list/?"
 )
 
+var defaultScrapingHTTPClient = &http.Client{}
+
+func newScrapingTeacherIDLoader(order scrapingOrder, httpClient *http.Client) *scrapingTeacherIDLoader {
+	if httpClient == nil {
+		httpClient = defaultScrapingHTTPClient
+	}
+	return &scrapingTeacherIDLoader{
+		order:      order,
+		httpClient: httpClient,
+	}
+}
+
 type scrapingTeacherIDLoader struct {
-	order scrapingOrder
+	order      scrapingOrder
+	httpClient *http.Client
+}
+
+func (l *scrapingTeacherIDLoader) GetInitialCursor() string {
+	return "data%5Btab2%5D%5Bgender%5D=0&data%5Btab2%5D%5Bage%5D=%E5%B9%B4%E9%BD%A2&data%5Btab2%5D%5Bfree_word%5D=&tab=1&sort=4"
 }
 
 // http://eikaiwa.dmm.com/list/?<cursor>
 func (l *scrapingTeacherIDLoader) Load(cursor string) ([]uint32, string, error) {
-	u := "http://eikaiwa.dmm.com"
-	u += "/list/?data%5Btab2%5D%5Bgender%5D=0&data%5Btab2%5D%5Bage%5D=%E5%B9%B4%E9%BD%A2&data%5Btab2%5D%5Bfree_word%5D=&tab=1&sort=4"
-	req, err := http.NewRequest("GET", u, nil)
+	url := scrapingURLPrefix + cursor
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, "", errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", u)
+		return nil, "", errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
 	}
 	req.Header.Set("User-Agent", userAgent)
 
-	httpClient := &http.Client{}
-	resp, err := httpClient.Do(req)
+	resp, err := l.httpClient.Do(req)
 	if err != nil {
-		return nil, "", errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", u)
+		return nil, "", errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, "", errors.Internalf("Unknown error in fetchContent: url=%v, status=%v", u, resp.StatusCode)
+		return nil, "", errors.Internalf("Unknown error in fetchContent: url=%v, status=%v", url, resp.StatusCode)
 	}
 	defer resp.Body.Close()
 
 	root, err := xmlpath.ParseHTML(resp.Body)
 	if err != nil {
-		return nil, "", errors.Internalf("Failed to parse HTML: url=%v", u)
+		return nil, "", errors.Internalf("Failed to parse HTML: url=%v", url)
 	}
 
 	profileXPath := xmlpath.MustCompile(`//li[@class='profile']`)

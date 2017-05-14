@@ -54,7 +54,7 @@ func (m *Main) Run() error {
 	loader := m.createLoader(db)
 	fetcher := fetcher.NewTeacherLessonFetcher(nil, *m.Concurrency, false, mCountries, logger.App)
 	teacherService := model.NewTeacherService(db)
-	for cursor := "a"; cursor != ""; {
+	for cursor := loader.GetInitialCursor(); cursor != ""; {
 		var teacherIDs []uint32
 		var err error
 		teacherIDs, cursor, err = loader.Load(cursor)
@@ -92,11 +92,11 @@ func (m *Main) createLoader(db *gorm.DB) teacherIDLoader {
 	} else if *m.Followed {
 		loader = &followedTeacherIDLoader{db: db}
 	} else if *m.All {
-		loader = &scrapingTeacherIDLoader{order: byRating}
+		loader = newScrapingTeacherIDLoader(byRating, nil)
 	} else if *m.New {
-		loader = &scrapingTeacherIDLoader{order: byNew}
+		loader = newScrapingTeacherIDLoader(byNew, nil)
 	} else {
-		loader = &scrapingTeacherIDLoader{order: byRating}
+		loader = newScrapingTeacherIDLoader(byRating, nil)
 	}
 	return loader
 }
