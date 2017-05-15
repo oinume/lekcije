@@ -11,6 +11,7 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/uber-go/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 type Main struct {
@@ -62,26 +63,37 @@ func (m *Main) Run() error {
 			return err
 		}
 
+		var g errgroup.Group
 		for _, id := range teacherIDs {
-			// TODO: goroutine
-			teacher, _, err := fetcher.Fetch(id)
-			if err != nil {
-				if *m.ContinueOnError {
-					logger.App.Error("Error during TeacherLessonFetcher.Fetch", zap.Error(err))
-					continue
-				} else {
-					return err
+			id := id
+			g.Go(func() error {
+				teacher, _, err := fetcher.Fetch(id)
+				if err != nil {
+					if *m.ContinueOnError {
+						logger.App.Error("Error during TeacherLessonFetcher.Fetch", zap.Error(err))
+						return nil
+					} else {
+						return err
+					}
 				}
-			}
-			if err := teacherService.CreateOrUpdate(teacher); err != nil {
-				if *m.ContinueOnError {
-					logger.App.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
-				} else {
-					return err
+				if err := teacherService.CreateOrUpdate(teacher); err != nil {
+					if *m.ContinueOnError {
+						logger.App.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
+						return nil
+					} else {
+						return err
+					}
 				}
-			}
-			// TODO: sleep
+
+				return nil
+			})
 		}
+
+		if err := g.Wait(); err != nil {
+			return err
+		}
+
+		time.Sleep(1 * time.Second) // TODO: -interval flag
 	}
 
 	return nil
