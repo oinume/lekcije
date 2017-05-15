@@ -1,5 +1,5 @@
-hash: ee8098314d43239fd11b6d7d76b72edcac9161fb82f084debd874e1663b4097e
-updated: 2017-03-23T10:54:40.888119561+09:00
+hash: f4e9822d85d80cb58229617e611c2eca35144fd0716deddd914fe1f33c937abe
+updated: 2017-05-15T23:21:22.571974061+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -127,6 +127,10 @@ imports:
   - internal
   - jws
   - jwt
+- name: golang.org/x/sync
+  version: 450f422ab23cf9881c94e2db30cac0eb1b7cf80c
+  subpackages:
+  - errgroup
 - name: golang.org/x/sys
   version: 7a6e5648d140666db5d920909e082ca00a87ba2c
   subpackages:
