@@ -13,6 +13,11 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
+const (
+	sendGridAPIHost = "https://api.sendgrid.com"
+	sendGridAPIPath = "/v3/mail/send"
+)
+
 type Sender interface {
 	Send(email *Email) error
 }
@@ -42,11 +47,14 @@ func (s *SendGridSender) Send(email *Email) error {
 	}
 	m := mail.NewV3MailInit(from, email.Subject, tos[0], content)
 	m.Personalizations[0].AddTos(tos[1:]...)
+	for k, v := range email.customArgs {
+		m.SetCustomArg(k, v)
+	}
 
 	req := sendgrid.GetRequest(
 		os.Getenv("SENDGRID_API_KEY"),
-		"/v3/mail/send",
-		"https://api.sendgrid.com",
+		sendGridAPIPath,
+		sendGridAPIHost,
 	)
 	req.Method = "POST"
 	req.Body = mail.GetRequestBody(m)

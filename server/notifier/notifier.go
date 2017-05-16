@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"fmt"
 	"net/http"
 	"sort"
 	"strings"
@@ -185,7 +186,7 @@ func (n *Notifier) sendNotificationToUser(
 		LessonsPerTeacher map[uint32][]*model.Lesson
 		WebURL            string
 	}{
-		To:                user.RawEmail,
+		To:                user.Email,
 		TeacherNames:      strings.Join(teacherNames, ", "),
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
@@ -196,6 +197,8 @@ func (n *Notifier) sendNotificationToUser(
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to create emailer.Email from template: to=%v", user.Email)
 	}
+	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
+	email.SetCustomArg("teacher_ids", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))

@@ -61,7 +61,11 @@ minify_static_development:
 
 .PHONY: minify_static
 minify_static:
-	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build
+	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD | cut -c-7) npm run build
+
+.PHONY: print_version_hash
+print_version_hash:
+	@echo $(VERSION_HASH)
 
 .PHONY: reset_db
 reset_db:

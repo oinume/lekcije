@@ -65,7 +65,7 @@ func run() error {
 	} else {
 		dbLogging = false
 	}
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL, 1, dbLogging)
+	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
 	if err != nil {
 		return err
 	}
