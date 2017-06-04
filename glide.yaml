@@ -75,3 +75,6 @@ import:
   - cmd/gosimple
   - cmd/unused
 - package: github.com/kisielk/gotool
+- package: golang.org/x/sync
+  subpackages:
+  - errgroup
