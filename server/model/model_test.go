@@ -18,7 +18,7 @@ var (
 	followingTeacherService *FollowingTeacherService
 	lessonService           *LessonService
 	mCountryService         *MCountryService
-	planService             *PlanService
+	mPlanService            *MPlanService
 	teacherService          *TeacherService
 	userService             *UserService
 	userGoogleService       *UserGoogleService
@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 	followingTeacherService = NewFollowingTeacherService(db)
 	lessonService = NewLessonService(db)
 	mCountryService = NewMCountryService(db)
-	planService = NewPlanService(db)
+	mPlanService = NewMPlanService(db)
 	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
