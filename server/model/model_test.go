@@ -18,7 +18,7 @@ var (
 	followingTeacherService *FollowingTeacherService
 	lessonService           *LessonService
 	mCountryService         *MCountryService
-	planService             *PlanService
+	planService             *MPlanService
 	teacherService          *TeacherService
 	userService             *UserService
 	userGoogleService       *UserGoogleService

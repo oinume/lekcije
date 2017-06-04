@@ -34,7 +34,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData
 		ShowTutorial bool
 		Teachers     []*model.Teacher
-		Plan         *model.Plan
+		MPlan        *model.MPlan
 	}
 	data := &Data{
 		commonTemplateData: getCommonTemplateData(r, true, user.ID),
@@ -48,7 +48,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, err)
 		return
 	}
-	data.Plan = plan
+	data.MPlan = plan
 
 	followingTeacherService := model.NewFollowingTeacherService(db)
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
