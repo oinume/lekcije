@@ -26,3 +26,4 @@ volume/nginx/var/log
 deploy.sh
 
 .venv
+.ipynb_checkpoints
