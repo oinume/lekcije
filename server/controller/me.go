@@ -42,8 +42,8 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	data.ShowTutorial = !user.FollowedTeacherAt.Valid
 
 	db := context_data.MustDB(ctx)
-	planService := model.NewPlanService(db)
-	plan, err := planService.FindByPK(user.PlanID)
+	mPlanService := model.NewMPlanService(db)
+	plan, err := mPlanService.FindByPK(user.PlanID)
 	if err != nil {
 		InternalServerError(w, err)
 		return

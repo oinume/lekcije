@@ -35,7 +35,7 @@ func TestCreateUser(t *testing.T) {
 	a.Nil(err)
 	a.True(user.ID > 0)
 	a.Equal(email, user.Email)
-	a.Equal(DefaultPlanID, user.PlanID)
+	a.Equal(DefaultMPlanID, user.PlanID)
 }
 
 func TestUpdateEmail(t *testing.T) {

@@ -111,7 +111,7 @@ func (s *UserService) Create(name, email string) (*User, error) {
 		Name:          name,
 		Email:         email,
 		EmailVerified: true,
-		PlanID:        DefaultPlanID,
+		PlanID:        DefaultMPlanID,
 	}
 	if result := s.db.Create(user); result.Error != nil {
 		return nil, errors.InternalWrapf(result.Error, "")
@@ -124,7 +124,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 		Name:          name,
 		Email:         email,
 		EmailVerified: true, // TODO: set false after implement email verification
-		PlanID:        DefaultPlanID,
+		PlanID:        DefaultMPlanID,
 	}
 	if result := s.db.Create(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(

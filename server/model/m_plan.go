@@ -7,7 +7,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
-const DefaultPlanID = uint8(4)
+const DefaultMPlanID = uint8(4)
 
 type MPlan struct {
 	ID                   uint8 `gorm:"primary_key"`
@@ -28,7 +28,7 @@ type MPlanService struct {
 	db *gorm.DB
 }
 
-func NewPlanService(db *gorm.DB) *MPlanService {
+func NewMPlanService(db *gorm.DB) *MPlanService {
 	return &MPlanService{db: db}
 }
 
