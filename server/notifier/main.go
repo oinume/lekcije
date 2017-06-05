@@ -38,7 +38,7 @@ func (m *Main) Run() error {
 	if *m.LogLevel != "" {
 		logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
 	}
-	logger.App.Info("n started")
+	logger.App.Info("notifier started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
 		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
