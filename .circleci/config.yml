@@ -58,7 +58,6 @@ jobs:
       - save_cache:
           key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
           paths:
-            - "/go/pkg/dep"
             - "/go/src/github.com/oinume/lekcije/vendor"
       - run:
           name: "Apply database migrations"
