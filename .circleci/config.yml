@@ -14,18 +14,19 @@ jobs:
           REDIS_URL: "redis://h:@127.0.0.1:6379"
           E2E_WEB_DRIVER: "PhantomJS"
           VERSION_HASH: "_version_"
+          NODE_ENV: "test"
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true
       - image: redis:3.2-alpine
     steps:
+      - checkout
       - run:
           name: "Set .gitconfig"
           command: |
             echo "" > ~/.gitconfig
             git config --global url."https://github.com".insteadOf git://github.com
             git config --global http.https://gopkg.in.followRedirects true
-      - checkout
       - run:
           name: "Install packages"
           command: |
@@ -49,15 +50,16 @@ jobs:
           command: |
             cp glide.lock glide.fix
       - restore_cache:
-          key: lekcije-go-dep-{{ checksum "glide.fix" }}
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
       - run:
           name: "Install dependencies"
           command: |
             make setup
       - save_cache:
-          key: lekcije-go-dep-{{ checksum "glide.fix" }}
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
           paths:
             - "/go/pkg/dep"
+            - "/go/src/github.com/oinume/lekcije/vendor"
       - run:
           name: "Apply database migrations"
           command: |
