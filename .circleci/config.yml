@@ -42,10 +42,21 @@ jobs:
             set -eu
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
+      # Make glide.fix checksum since this file will be updated after `glide install`
+      - run:
+          name: "Make glide.fix file"
+          command: |
+            cp glide.lock glide.fix
+      - restore_cache:
+          key: lekcije-go-dep-{{ checksum "glide.fix" }}
       - run:
           name: "Install dependencies"
           command: |
             make setup
+      - save_cache:
+          key: lekcije-go-dep-{{ checksum "glide.fix" }}
+          paths:
+            - "/go/pkg/dep"
       - run:
           name: "Apply database migrations"
           command: |
