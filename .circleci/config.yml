@@ -7,7 +7,7 @@ jobs:
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_USER: "root"
-          MySQL_PASSWORD: "lekcije"
+          MYSQL_PASSWORD: "lekcije"
           MYSQL_HOST: "127.0.0.1"
           MYSQL_PORT: "3306"
           MYSQL_DATABASE: "lekcije_test"
