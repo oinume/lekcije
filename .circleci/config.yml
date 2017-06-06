@@ -17,6 +17,7 @@ jobs:
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - image: redis:3.2-alpine
     steps:
       - run:
           name: "Set .gitconfig"
