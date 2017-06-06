@@ -6,12 +6,14 @@ jobs:
       - image: golang:1.8-wheezy
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_USER: lekcije
-          MYSQL_PASSWORD: lekcije
-          MYSQL_DATABASE: lekcije_test
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_PWD: lekcije
-          MYSQL_ROOT_HOST: '%'
+          MYSQL_USER: "root"
+          MySQL_PASSWORD: "lekcije"
+          MYSQL_HOST: "127.0.0.1"
+          MYSQL_PORT: "3306"
+          MYSQL_DATABASE: "lekcije_test"
+          REDIS_URL: "redis://h:@127.0.0.1:6379"
+          E2E_WEB_DRIVER: "PhantomJS"
+          VERSION_HASH: "_version_"
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true
