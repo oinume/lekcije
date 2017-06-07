@@ -44,18 +44,13 @@ jobs:
             set -eu
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
-      # Make glide.fix checksum since this file will be updated after `glide install`
-      - run:
-          name: "Make glide.fix file"
-          command: |
-            cp glide.lock glide.fix
       # TODO: Skip this task
       - run:
           name: "Install glide"
           command: |
             make install-glide
       - restore_cache:
-          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.lock" }}
       - run:
           name: "Install dependencies"
           command: |
@@ -63,11 +58,11 @@ jobs:
               make install-dep
             fi
       - save_cache:
-          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.lock" }}
           paths:
             - "/go/src/github.com/oinume/lekcije/vendor"
       - restore_cache:
-          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.fix" }}
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.lock" }}
       - run:
           name: "Install commands"
           command: |
@@ -75,7 +70,7 @@ jobs:
               make install-commands
             fi
       - save_cache:
-          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.fix" }}
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.lock" }}
           paths:
             - "/go/bin"
       - run:
