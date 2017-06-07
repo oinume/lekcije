@@ -7,10 +7,19 @@ LINT_PACKAGES=$(shell glide novendor)
 all: install
 
 .PHONY: setup
-setup:
+setup: install-glide install-dep install-command
+
+.PHONY: install-glide
+install-glide:
 	go get github.com/Masterminds/glide
 	go get golang.org/x/tools/cmd/goimports
+
+.PHONY: install-dep
+install-dep:
 	glide install
+
+.PHONY: install-command
+install-command:
 	go install ./vendor/bitbucket.org/liamstask/goose/cmd/goose
 	go install ./vendor/github.com/cespare/reflex
 	go install ./vendor/honnef.co/go/tools/cmd/staticcheck
