@@ -1,0 +1,88 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/oinume/lekcije
+    docker:
+      - image: golang:1.8-wheezy
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_USER: "root"
+          MYSQL_PASSWORD: "lekcije"
+          MYSQL_HOST: "127.0.0.1"
+          MYSQL_PORT: "3306"
+          MYSQL_DATABASE: "lekcije_test"
+          REDIS_URL: "redis://h:@127.0.0.1:6379"
+          E2E_WEB_DRIVER: "PhantomJS"
+          VERSION_HASH: "_version_"
+          NODE_ENV: "test"
+      - image: circleci/mysql:5.7
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - image: redis:3.2-alpine
+    steps:
+      - checkout
+      - run:
+          name: "Set .gitconfig"
+          command: |
+            echo "" > ~/.gitconfig
+            git config --global url."https://github.com".insteadOf git://github.com
+            git config --global http.https://gopkg.in.followRedirects true
+      - run:
+          name: "Install packages"
+          command: |
+            set -eu
+            apt-get update -qq
+            apt-get install -y mysql-client net-tools
+      - run:
+          name: "Wait MySQL is up"
+          command: |
+            set -u
+            timeout 5 bash -c "while ! mysqladmin ping -u ${MYSQL_USER} -h ${MYSQL_HOST} --silent; do sleep 0.5; done"
+      - run:
+          name: "Setup database"
+          command: |
+            set -eu
+            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
+            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
+      # TODO: Skip this task
+      - run:
+          name: "Install glide"
+          command: |
+            make install-glide
+      - restore_cache:
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.lock" }}
+      - run:
+          name: "Install dependencies"
+          command: |
+            if [ ! -e "/go/src/github.com/oinume/lekcije/vendor" ]; then
+              make install-dep
+            fi
+      - save_cache:
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.lock" }}
+          paths:
+            - "/go/src/github.com/oinume/lekcije/vendor"
+      - restore_cache:
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.lock" }}
+      - run:
+          name: "Install commands"
+          command: |
+            if [ ! -e "/go/bin/unused" ]; then
+              make install-commands
+            fi
+      - save_cache:
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.lock" }}
+          paths:
+            - "/go/bin"
+      - run:
+          name: "Apply database migrations"
+          command: |
+            goose -env=circle_ci up
+      - run:
+          name: "Run go-lint"
+          command: make go-lint
+      - run:
+          name: "Run go-test"
+          command: |
+            export MYSQL_USER=lekcije
+            make go-test
+# TODO: Run e2e-test
