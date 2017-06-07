@@ -49,13 +49,13 @@ jobs:
           name: "Make glide.fix file"
           command: |
             cp glide.lock glide.fix
-      - restore_cache:
-          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
-      # TODO: Skip make setup
+      # TODO: Skip this task
       - run:
           name: "Install glide"
           command: |
             make install-glide
+      - restore_cache:
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
       - run:
           name: "Install dependencies"
           command: |
@@ -66,12 +66,18 @@ jobs:
           key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
           paths:
             - "/go/src/github.com/oinume/lekcije/vendor"
+      - restore_cache:
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "/go/bin/unused" }}
       - run:
           name: "Install commands"
           command: |
-            make install-commands
-#      - save_cache:
-#        key: lekcije-commands-{{ .Branch }}-{{ checksum "" }}
+            if [ ! -e "/go/bin/unused" ]; then
+              make install-commands
+            fi
+      - save_cache:
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "/go/bin/unused" }}
+          paths:
+            - "/go/bin"
       - run:
           name: "Apply database migrations"
           command: |
