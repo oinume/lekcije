@@ -19,6 +19,7 @@ jobs:
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true
       - image: redis:3.2-alpine
+      - image: node:6.10-alpine
     steps:
       - checkout
       - run:
