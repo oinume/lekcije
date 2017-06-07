@@ -90,3 +90,4 @@ jobs:
           command: |
             export MYSQL_USER=lekcije
             make go-test
+# TODO: Run e2e-test
