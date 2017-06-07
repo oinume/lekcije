@@ -52,6 +52,7 @@ jobs:
             cp glide.lock glide.fix
       - restore_cache:
           key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
+      # TODO: Skip make setup
       - run:
           name: "Install dependencies"
           command: |
@@ -71,4 +72,4 @@ jobs:
           name: "Run test"
           command: |
             export MYSQL_USER=lekcije
-            make test
+            make go_test
