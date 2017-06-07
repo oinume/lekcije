@@ -53,13 +53,25 @@ jobs:
           key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
       # TODO: Skip make setup
       - run:
+          name: "Install glide"
+          command: |
+            make install-glide
+      - run:
           name: "Install dependencies"
           command: |
-            make setup
+            if [ ! -e "/go/src/github.com/oinume/lekcije/vendor" ]; then
+              make install-dep
+            fi
       - save_cache:
           key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.fix" }}
           paths:
             - "/go/src/github.com/oinume/lekcije/vendor"
+      - run:
+          name: "Install commands"
+          command: |
+            make install-commands
+#      - save_cache:
+#        key: lekcije-commands-{{ .Branch }}-{{ checksum "" }}
       - run:
           name: "Apply database migrations"
           command: |
