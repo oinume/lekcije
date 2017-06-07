@@ -35,33 +35,33 @@ install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
 .PHONY: test
-test: go_test e2e_test
+test: go-test e2e_test
 
 .PHONY: e2e_test
 e2e_test: minify_static_development
 	go test $(E2E_TEST_ARGS) github.com/oinume/lekcije/e2e
 
-.PHONY: go_test
-go_test:
+.PHONY: go-test
+go-test:
 	go test $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
 
 .PHONY: goimports
 goimports:
 	goimports -w ./server ./e2e
 
-.PHONY: go_lint
-go_lint: go_vet go_staticcheck go_simple
+.PHONY: go-lint
+go-lint: go-vet go-staticcheck go-simple
 
-.PHONY: go_vet
-go_vet:
+.PHONY: go-vet
+go-vet:
 	go vet -v $(LINT_PACKAGES)
 
-.PHONY: go_staticcheck
-go_staticcheck:
+.PHONY: go-staticcheck
+go-staticcheck:
 	staticcheck $(LINT_PACKAGES)
 
-.PHONY: go_simple
-go_simple:
+.PHONY: go-simple
+go-simple:
 	gosimple $(LINT_PACKAGES)
 
 .PHONY: minify_static_development

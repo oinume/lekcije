@@ -83,10 +83,10 @@ jobs:
           command: |
             goose -env=circle_ci up
       - run:
-          name: "Run lint"
-          command: make go_lint
+          name: "Run go-lint"
+          command: make go-lint
       - run:
-          name: "Run test"
+          name: "Run go-test"
           command: |
             export MYSQL_USER=lekcije
-            make go_test
+            make go-test
