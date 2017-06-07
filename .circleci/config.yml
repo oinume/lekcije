@@ -67,7 +67,7 @@ jobs:
           paths:
             - "/go/src/github.com/oinume/lekcije/vendor"
       - restore_cache:
-          key: lekcije-commands-{{ .Branch }}-{{ checksum "/go/bin/unused" }}
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.fix" }}
       - run:
           name: "Install commands"
           command: |
@@ -75,7 +75,7 @@ jobs:
               make install-commands
             fi
       - save_cache:
-          key: lekcije-commands-{{ .Branch }}-{{ checksum "/go/bin/unused" }}
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.fix" }}
           paths:
             - "/go/bin"
       - run:
