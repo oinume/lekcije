@@ -35,10 +35,10 @@ install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
 .PHONY: test
-test: go-test e2e_test
+test: go-test e2e-test
 
-.PHONY: e2e_test
-e2e_test: minify_static_development
+.PHONY: e2e-test
+e2e-test: minify-static-development
 	go test $(E2E_TEST_ARGS) github.com/oinume/lekcije/e2e
 
 .PHONY: go-test
@@ -64,20 +64,20 @@ go-staticcheck:
 go-simple:
 	gosimple $(LINT_PACKAGES)
 
-.PHONY: minify_static_development
-minify_static_development:
+.PHONY: minify-static-development
+minify-static-development:
 	MINIFY=true VERSION_HASH=_version_ npm run build
 
-.PHONY: minify_static
-minify_static:
+.PHONY: minify-static
+minify-static:
 	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD | cut -c-7) npm run build
 
-.PHONY: print_version_hash
-print_version_hash:
+.PHONY: print-version-hash
+print-version-hash:
 	@echo $(VERSION_HASH)
 
-.PHONY: reset_db
-reset_db:
+.PHONY: reset-db
+reset-db:
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot < db/create_database.sql
