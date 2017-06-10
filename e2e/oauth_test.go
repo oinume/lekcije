@@ -33,7 +33,7 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	page, err := driver.NewPage()
 	require.Nil(err)
 	require.Nil(page.Navigate(server.URL))
-	//time.Sleep(10 * time.Second)
+	//time.Sleep(15 * time.Second)
 
 	// Check trackingId is set
 	cookies, err := page.GetCookies()
@@ -50,25 +50,22 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	require.Nil(page.Navigate(signupURL))
 	buttonGoogle := page.FindByXPath("//button[contains(@class, 'button-google')]")
 	require.Nil(buttonGoogle.Click())
-	//time.Sleep(10 * time.Second)
+	//time.Sleep(15 * time.Second)
 
+	time.Sleep(time.Second * 1)
 	googleAccount := os.Getenv("E2E_GOOGLE_ACCOUNT")
-	err = page.Find("#Email").Fill(googleAccount)
+	err = page.FindByXPath("//input[@name='identifier']").Fill(googleAccount)
 	require.Nil(err)
-	page.Find("#gaia_loginform").Submit()
+	err = page.FindByXPath("//div[@id='identifierNext']/content/span").Click()
 	require.Nil(err)
 
 	time.Sleep(time.Second * 1)
-	page.Find("#Passwd").Fill(os.Getenv("E2E_GOOGLE_PASSWORD"))
+	err = page.FindByXPath("//input[@name='password']").Fill(os.Getenv("E2E_GOOGLE_PASSWORD"))
 	require.Nil(err)
-	page.Find("#gaia_loginform").Submit()
+	err = page.FindByXPath("//div[@id='passwordNext']/content/span").Click()
 	require.Nil(err)
 
 	time.Sleep(time.Second * 3)
-	err = page.Find("#submit_approve_access").Click()
-	require.Nil(err)
-	//time.Sleep(time.Second * 10)
-	// TODO: Check HTML content
 
 	cookies, err = page.GetCookies()
 	require.Nil(err)
@@ -78,6 +75,8 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	user, err := model.NewUserService(db).FindByUserAPIToken(apiToken)
 	require.Nil(err)
 	a.Equal(googleAccount, user.Email)
+
+	// TODO: Check HTML content
 }
 
 func TestOAuthGoogleLogout(t *testing.T) {
