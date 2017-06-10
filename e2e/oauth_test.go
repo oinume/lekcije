@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -100,7 +101,7 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	a.Nil(err)
 	cookie := &http.Cookie{
 		Name:     controller.APITokenCookieName,
-		Domain:   u.Host,
+		Domain:   strings.Split(u.Host, ":")[0], // Remove port
 		Value:    apiToken,
 		Path:     "/",
 		Expires:  time.Now().Add(model.UserAPITokenExpiration),
@@ -108,6 +109,7 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	}
 	a.Nil(page.SetCookie(cookie))
 	a.Nil(page.Navigate(server.URL + "/me"))
+	//time.Sleep(time.Second * 5)
 
 	a.Nil(page.Navigate(server.URL + "/me/logout"))
 	userAPITokenService := model.NewUserAPITokenService(db)
