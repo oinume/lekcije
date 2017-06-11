@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
@@ -13,12 +14,13 @@ import (
 )
 
 type Main struct {
-	Concurrency  *int
-	DryRun       *bool
-	SendEmail    *bool
-	FetcherCache *bool
-	LogLevel     *string
-	ProfileMode  *string
+	Concurrency          *int
+	DryRun               *bool
+	NotificationInterval *int
+	SendEmail            *bool
+	FetcherCache         *bool
+	LogLevel             *string
+	ProfileMode          *string
 }
 
 func (m *Main) Run() error {
@@ -59,7 +61,10 @@ func (m *Main) Run() error {
 	}
 	defer db.Close()
 
-	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue()
+	if *m.NotificationInterval == 0 {
+		return fmt.Errorf("-notification-interval is required")
+	}
+	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue(*m.NotificationInterval)
 	if err != nil {
 		return err
 	}
