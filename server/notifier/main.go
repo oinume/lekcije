@@ -46,15 +46,7 @@ func (m *Main) Run() error {
 		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	// TODO: Wrap up as function
-	dbLogging := false
-	// TODO: something wrong with staticcheck? this value of dbLogging is never used (SA4006)
-	//dbLogging := !config.IsProductionEnv()x
-	if *m.LogLevel == "debug" {
-		dbLogging = true
-	} else {
-		dbLogging = false
-	}
+	dbLogging := *m.LogLevel == "debug"
 	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
 	if err != nil {
 		return err

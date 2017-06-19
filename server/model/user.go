@@ -87,15 +87,14 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 // Returns an empty slice if no users found
 func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*User, error) {
 	var users []*User
-	//sql := `SELECT * FROM user WHERE email_verified = 1 ORDER BY id`
 	sql := `
-	SELECT * FROM user AS u
+	SELECT u.* FROM user AS u
 	INNER JOIN m_plan AS mp ON u.plan_id = mp.id
 	WHERE
 	  u.email_verified = 1
 	  AND mp.notification_interval = ?
 	`
-	result := s.db.Raw(strings.TrimSpace(sql)).Scan(&users)
+	result := s.db.Raw(sql, notificationInterval).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
 		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
 	}
