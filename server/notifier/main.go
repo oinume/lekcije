@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
@@ -13,12 +14,13 @@ import (
 )
 
 type Main struct {
-	Concurrency  *int
-	DryRun       *bool
-	SendEmail    *bool
-	FetcherCache *bool
-	LogLevel     *string
-	ProfileMode  *string
+	Concurrency          *int
+	DryRun               *bool
+	NotificationInterval *int
+	SendEmail            *bool
+	FetcherCache         *bool
+	LogLevel             *string
+	ProfileMode          *string
 }
 
 func (m *Main) Run() error {
@@ -44,22 +46,17 @@ func (m *Main) Run() error {
 		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	// TODO: Wrap up as function
-	dbLogging := false
-	// TODO: something wrong with staticcheck? this value of dbLogging is never used (SA4006)
-	//dbLogging := !config.IsProductionEnv()x
-	if *m.LogLevel == "debug" {
-		dbLogging = true
-	} else {
-		dbLogging = false
-	}
+	dbLogging := *m.LogLevel == "debug"
 	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue()
+	if *m.NotificationInterval == 0 {
+		return fmt.Errorf("-notification-interval is required")
+	}
+	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue(*m.NotificationInterval)
 	if err != nil {
 		return err
 	}
