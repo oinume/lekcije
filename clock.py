@@ -1,7 +1,9 @@
 from __future__ import print_function
 from apscheduler.schedulers.blocking import BlockingScheduler
+import logging
 import subprocess
 
+logging.basicConfig()
 scheduler = BlockingScheduler()
 
 
