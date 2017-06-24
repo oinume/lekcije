@@ -10,10 +10,9 @@ scheduler = BlockingScheduler()
 @scheduler.scheduled_job('interval', minutes=1)
 def timed_job_min1():
     print("Run notifier")
-    subprocess.run(
+    subprocess.check_call(
         "notifier -concurrency=5 -fetcher-cache=true -notification-interval=1 && curl -sS https://nosnch.in/c411a3a685",
-        shell=True,
-        check=True)
+        shell=True)
 
 
 # @scheduler.scheduled_job('interval', minutes=10)
