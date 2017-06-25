@@ -9,8 +9,9 @@ import (
 )
 
 type TestHelper struct {
-	t  *testing.T
-	db *gorm.DB
+	t               *testing.T
+	db              *gorm.DB
+	mCountryService *MCountryService
 }
 
 func NewTestHelper(t *testing.T) *TestHelper {
@@ -73,4 +74,14 @@ func (h *TestHelper) CreateTeacher(id uint32, name string) *Teacher {
 
 func (h *TestHelper) CreateRandomTeacher() *Teacher {
 	return h.CreateTeacher(uint32(util.RandomInt(99999)), util.RandomString(6))
+}
+
+func (h *TestHelper) LoadMCountries() *MCountries {
+	db := h.DB()
+	// TODO: cache
+	mCountries, err := NewMCountryService(db).LoadAll()
+	if err != nil {
+		h.t.Fatalf("Failed to MCountryService.LoadAll(): err=%v", err)
+	}
+	return mCountries
 }
