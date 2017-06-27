@@ -61,6 +61,7 @@ func TestSendNotification(t *testing.T) {
 	n := NewNotifier(db, fetcher, true, false)
 
 	user := helper.CreateUser("oinume", "oinume@gmail.com")
+	// TODO: follow teacher
 	err := n.SendNotification(user)
 	a.Nil(err)
 }
