@@ -1,7 +1,8 @@
 package model
 
 import (
-	"testing"
+	"fmt"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
@@ -9,15 +10,13 @@ import (
 )
 
 type TestHelper struct {
-	t               *testing.T
+	dbURL           string
 	db              *gorm.DB
 	mCountryService *MCountryService
 }
 
-func NewTestHelper(t *testing.T) *TestHelper {
-	return &TestHelper{
-		t: t,
-	}
+func NewTestHelper() *TestHelper {
+	return &TestHelper{}
 }
 
 func (h *TestHelper) DB() *gorm.DB {
@@ -25,20 +24,59 @@ func (h *TestHelper) DB() *gorm.DB {
 		return h.db
 	}
 	bootstrap.CheckCLIEnvVars()
-	testDBURL := ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
-	db, err := OpenDB(testDBURL, 1, true) // TODO: env
+	h.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
+	db, err := OpenDB(h.dbURL, 1, true /* TODO: env */)
 	if err != nil {
-		h.t.Fatalf("Failed to OpenDB(): err=%v", err)
+		panic(fmt.Sprintf("Failed to OpenDB(): err=%v", err))
 	}
 	h.db = db
 	return db
+}
+
+func (h *TestHelper) getDBName(dbURL string) string {
+	if index := strings.LastIndex(dbURL, "/"); index != -1 {
+		return dbURL[index+1:]
+	}
+	return ""
+}
+
+func (h *TestHelper) LoadAllTables(db *gorm.DB) []string {
+	type Table struct {
+		Name string `gorm:"column:table_name"`
+	}
+	tables := []Table{}
+	sql := "SELECT table_name FROM information_schema.tables WHERE table_schema = ?"
+	if err := db.Raw(sql, h.getDBName(h.dbURL)).Scan(&tables).Error; err != nil {
+		panic(fmt.Sprintf("Failed to select table names: err=%v", err))
+	}
+
+	tableNames := []string{}
+	for _, t := range tables {
+		if t.Name == "goose_db_version" {
+			continue
+		}
+		tableNames = append(tableNames, t.Name)
+	}
+	return tableNames
+}
+
+func (h *TestHelper) TruncateAllTables(db *gorm.DB) {
+	tables := h.LoadAllTables(db)
+	for _, t := range tables {
+		if strings.HasPrefix(t, "m_") {
+			continue
+		}
+		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
+			panic(fmt.Sprintf("Failed to truncate table: table=%v, err=%v", t, err))
+		}
+	}
 }
 
 func (h *TestHelper) CreateUser(name, email string) *User {
 	db := h.DB()
 	user, err := NewUserService(db).Create(name, email)
 	if err != nil {
-		h.t.Fatalf("Failed to CreateUser(): err=%v", err)
+		panic(fmt.Sprintf("Failed to CreateUser(): err=%v", err))
 	}
 	return user
 }
@@ -54,7 +92,7 @@ func (h *TestHelper) CreateUserGoogle(googleID string, userID uint32) *UserGoogl
 		UserID:   userID,
 	}
 	if err := h.DB().Create(userGoogle).Error; err != nil {
-		h.t.Fatalf("Failed to CreateUserGoogle(): %v", err)
+		panic(fmt.Sprintf("Failed to CreateUserGoogle(): %v", err))
 	}
 	return userGoogle
 }
@@ -67,7 +105,7 @@ func (h *TestHelper) CreateTeacher(id uint32, name string) *Teacher {
 		Gender: "female",
 	}
 	if err := NewTeacherService(db).CreateOrUpdate(teacher); err != nil {
-		h.t.Fatalf("Failed to CreateTeacher(): err=%v", err)
+		panic(fmt.Sprintf("Failed to CreateTeacher(): err=%v", err))
 	}
 	return teacher
 }
@@ -81,7 +119,7 @@ func (h *TestHelper) LoadMCountries() *MCountries {
 	// TODO: cache
 	mCountries, err := NewMCountryService(db).LoadAll()
 	if err != nil {
-		h.t.Fatalf("Failed to MCountryService.LoadAll(): err=%v", err)
+		panic(fmt.Sprintf("Failed to MCountryService.LoadAll(): err=%v", err))
 	}
 	return mCountries
 }
