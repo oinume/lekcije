@@ -10,7 +10,6 @@ import (
 
 func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 	a := assert.New(t)
-	helper := NewTestHelper(t)
 
 	user := helper.CreateRandomUser()
 	// TODO: Use helper.CreateTeacher
@@ -34,7 +33,6 @@ func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 
 func TestFollowingTeacherService_CountFollowingTeachersByUserID(t *testing.T) {
 	a := assert.New(t)
-	helper := NewTestHelper(t)
 	user := helper.CreateRandomUser()
 	count, err := followingTeacherService.CountFollowingTeachersByUserID(user.ID)
 	a.Nil(err)
@@ -44,7 +42,6 @@ func TestFollowingTeacherService_CountFollowingTeachersByUserID(t *testing.T) {
 func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 	a := assert.New(t)
 	r := assert.New(t)
-	helper := NewTestHelper(t)
 
 	user := helper.CreateRandomUser()
 	teacher := helper.CreateRandomTeacher()

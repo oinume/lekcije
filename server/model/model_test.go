@@ -12,6 +12,7 @@ import (
 
 var (
 	_                       = fmt.Print
+	helper                  = NewTestHelper()
 	db                      *gorm.DB
 	testDBURL               string
 	followingTeacherService *FollowingTeacherService
@@ -27,12 +28,8 @@ var (
 
 func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
-	testDBURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
-	var err error
-	db, err = OpenDB(testDBURL, 1, true) // TODO: env
-	if err != nil {
-		panic(err)
-	}
+	helper.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
+	db := helper.DB()
 
 	followingTeacherService = NewFollowingTeacherService(db)
 	lessonService = NewLessonService(db)
@@ -42,16 +39,9 @@ func TestMain(m *testing.M) {
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
 	userAPITokenService = NewUserAPITokenService(db)
+	mCountries = helper.LoadMCountries()
 
-	mCountries, err = mCountryService.LoadAll()
-	if err != nil {
-		panic(err)
-	}
-
-	if err := TruncateAllTables(db, GetDBName(testDBURL)); err != nil {
-		panic(err)
-	}
-
+	helper.TruncateAllTables(db)
 	os.Exit(m.Run())
 }
 
