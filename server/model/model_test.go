@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +12,6 @@ import (
 var (
 	_                       = fmt.Print
 	helper                  = NewTestHelper()
-	db                      *gorm.DB
 	testDBURL               string
 	followingTeacherService *FollowingTeacherService
 	lessonService           *LessonService
@@ -30,6 +28,7 @@ func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
 	helper.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
 	db := helper.DB()
+	defer db.Close()
 
 	followingTeacherService = NewFollowingTeacherService(db)
 	lessonService = NewLessonService(db)
