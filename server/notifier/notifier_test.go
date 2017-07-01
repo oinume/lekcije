@@ -64,14 +64,13 @@ func TestSendNotification(t *testing.T) {
 	}
 	fetcher := fetcher.NewTeacherLessonFetcher(client, 1, false, helper.LoadMCountries(), nil)
 
-	//sender := emailer.NewSendGridSender(http.DefaultClient)
-	sender := &emailer.NoSender{}
-	n := NewNotifier(db, fetcher, true, sender)
-
 	user := helper.CreateUser("oinume", "oinume@gmail.com")
 	teacher := helper.CreateRandomTeacher()
 	helper.CreateFollowingTeacher(user.ID, teacher)
 
+	//sender := emailer.NewSendGridSender(http.DefaultClient)
+	sender := &emailer.NoSender{}
+	n := NewNotifier(db, fetcher, true, sender)
 	err := n.SendNotification(user)
 	r.Nil(err)
 }

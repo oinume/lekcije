@@ -58,10 +58,12 @@ func (s *SendGridSender) Send(email *Email) error {
 	)
 	req.Method = "POST"
 	req.Body = mail.GetRequestBody(m)
+	//fmt.Printf("--- request ---\n%s\n", string(req.Body))
 	resp, err := s.client.API(req)
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to send email by sendgrid")
 	}
+	//fmt.Printf("--- response ---\nstatus=%d\n%s\n", resp.StatusCode, resp.Body)
 	// No need to resp.Body.Close(). It's a string
 	if resp.StatusCode >= 300 {
 		message := fmt.Sprintf(
