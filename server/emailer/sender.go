@@ -62,6 +62,7 @@ func (s *SendGridSender) Send(email *Email) error {
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to send email by sendgrid")
 	}
+	// No need to resp.Body.Close(). It's a string
 	if resp.StatusCode >= 300 {
 		message := fmt.Sprintf(
 			"Failed to send email by sendgrid: statusCode=%v, body=%v",
