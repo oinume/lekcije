@@ -22,7 +22,7 @@ func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 		YearsOfExperience: uint8(3),
 		Birthday:          time.Date(1999, 12, 31, 0, 0, 0, 0, time.UTC),
 	}
-	err := followingTeacherService.FollowTeacher(user.ID, teacher, time.Now().UTC())
+	_, err := followingTeacherService.FollowTeacher(user.ID, teacher, time.Now().UTC())
 	a.Nil(err)
 
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
@@ -46,7 +46,7 @@ func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 	user := helper.CreateRandomUser()
 	teacher := helper.CreateRandomTeacher()
 	now := time.Now()
-	err := followingTeacherService.FollowTeacher(user.ID, teacher, now)
+	_, err := followingTeacherService.FollowTeacher(user.ID, teacher, now)
 	r.Nil(err)
 
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)

@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
@@ -122,4 +123,13 @@ func (h *TestHelper) LoadMCountries() *MCountries {
 		panic(fmt.Sprintf("Failed to MCountryService.LoadAll(): err=%v", err))
 	}
 	return mCountries
+}
+
+func (h *TestHelper) CreateFollowingTeacher(userID uint32, teacher *Teacher) *FollowingTeacher {
+	now := time.Now()
+	ft, err := NewFollowingTeacherService(h.DB()).FollowTeacher(userID, teacher, now)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to FollowTeacher(): err=%v", err))
+	}
+	return ft
 }

@@ -144,7 +144,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		if err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
+		if _, err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
 			InternalServerError(w, err)
 			return
 		}
