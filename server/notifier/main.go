@@ -2,9 +2,11 @@ package notifier
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -65,7 +67,15 @@ func (m *Main) Run() error {
 		return errors.InternalWrapf(err, "Failed to load all MCountries")
 	}
 	fetcher := fetcher.NewTeacherLessonFetcher(nil, *m.Concurrency, *m.FetcherCache, mCountries, logger.App)
-	n := NewNotifier(db, fetcher, *m.DryRun, *m.SendEmail)
+
+	var sender emailer.Sender
+	if *m.SendEmail {
+		sender = emailer.NewSendGridSender(http.DefaultClient)
+	} else {
+		sender = &emailer.NoSender{}
+	}
+
+	n := NewNotifier(db, fetcher, *m.DryRun, sender)
 	defer n.Close()
 	for _, user := range users {
 		if err := n.SendNotification(user); err != nil {

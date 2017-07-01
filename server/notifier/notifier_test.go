@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
@@ -62,11 +63,15 @@ func TestSendNotification(t *testing.T) {
 		Timeout:   5 * time.Second,
 	}
 	fetcher := fetcher.NewTeacherLessonFetcher(client, 1, false, helper.LoadMCountries(), nil)
-	n := NewNotifier(db, fetcher, true, false)
+
+	//sender := emailer.NewSendGridSender(http.DefaultClient)
+	sender := &emailer.NoSender{}
+	n := NewNotifier(db, fetcher, true, sender)
 
 	user := helper.CreateUser("oinume", "oinume@gmail.com")
 	teacher := helper.CreateRandomTeacher()
 	helper.CreateFollowingTeacher(user.ID, teacher)
+
 	err := n.SendNotification(user)
 	r.Nil(err)
 }
