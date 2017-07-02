@@ -2,8 +2,10 @@ package notifier
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -18,12 +20,12 @@ import (
 var helper = model.NewTestHelper()
 var _ = fmt.Print
 
-type mockTransport struct {
+type mockFetcherTransport struct {
 	sync.Mutex
 	called int
 }
 
-func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *mockFetcherTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	t.Lock()
 	t.called++
 	t.Unlock()
@@ -41,7 +43,26 @@ func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 	resp.Body = file // Close() will be called by client
-	fmt.Printf("RoundTrip()\n")
+	return resp, nil
+}
+
+type mockSenderTransport struct {
+	sync.Mutex
+	called int
+}
+
+func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	t.Lock()
+	t.called++
+	t.Unlock()
+	resp := &http.Response{
+		Header:     make(http.Header),
+		Request:    req,
+		StatusCode: http.StatusAccepted,
+		Status:     "202 Accepted",
+	}
+	//resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+	resp.Body = ioutil.NopCloser(strings.NewReader(""))
 	return resp, nil
 }
 
@@ -58,18 +79,22 @@ func TestSendNotification(t *testing.T) {
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout)
 
-	client := &http.Client{
-		Transport: &mockTransport{},
+	fetcherHTTPClient := &http.Client{
+		Transport: &mockFetcherTransport{},
 		Timeout:   5 * time.Second,
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(client, 1, false, helper.LoadMCountries(), nil)
+	fetcher := fetcher.NewTeacherLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
 
 	user := helper.CreateUser("oinume", "oinume@gmail.com")
 	teacher := helper.CreateRandomTeacher()
 	helper.CreateFollowingTeacher(user.ID, teacher)
 
-	//sender := emailer.NewSendGridSender(http.DefaultClient)
-	sender := &emailer.NoSender{}
+	senderHTTPClient := &http.Client{
+		Transport: &mockSenderTransport{},
+		Timeout:   5 * time.Second,
+	}
+	sender := emailer.NewSendGridSender(senderHTTPClient)
+	//sender := &emailer.NoSender{}
 	n := NewNotifier(db, fetcher, true, sender)
 	err := n.SendNotification(user)
 	r.Nil(err)
