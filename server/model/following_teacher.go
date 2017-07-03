@@ -113,11 +113,11 @@ func (s FollowingTeacherService) ReachesFollowingTeacherLimit(userID uint32, add
 
 func (s *FollowingTeacherService) FollowTeacher(
 	userID uint32, teacher *Teacher, timestamp time.Time,
-) error {
+) (*FollowingTeacher, error) {
 	teacher.CreatedAt = timestamp
 	teacher.UpdatedAt = timestamp
 	if err := s.db.FirstOrCreate(teacher).Error; err != nil {
-		return errors.InternalWrapf(err, "Failed to create Teacher: teacherID=%d", teacher.ID)
+		return nil, errors.InternalWrapf(err, "Failed to create Teacher: teacherID=%d", teacher.ID)
 	}
 
 	ft := &FollowingTeacher{
@@ -127,13 +127,13 @@ func (s *FollowingTeacherService) FollowTeacher(
 		UpdatedAt: timestamp,
 	}
 	if err := s.db.FirstOrCreate(ft).Error; err != nil {
-		return errors.InternalWrapf(
+		return nil, errors.InternalWrapf(
 			err,
 			"Failed to create FollowingTeacher: userID=%d, teacherID=%d",
 			userID, teacher.ID,
 		)
 	}
-	return nil
+	return ft, nil
 }
 
 func (s *FollowingTeacherService) DeleteTeachersByUserIDAndTeacherIDs(

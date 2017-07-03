@@ -2,7 +2,6 @@ package notifier
 
 import (
 	"fmt"
-	"net/http"
 	"sort"
 	"strings"
 	"sync"
@@ -30,13 +29,7 @@ type Notifier struct {
 	sync.Mutex
 }
 
-func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool, sendEmail bool) *Notifier {
-	var sender emailer.Sender
-	if sendEmail {
-		sender = emailer.NewSendGridSender(http.DefaultClient)
-	} else {
-		sender = &emailer.NoSender{}
-	}
+func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool, sender emailer.Sender) *Notifier {
 	return &Notifier{
 		db:             db,
 		fetcher:        fetcher,

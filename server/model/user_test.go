@@ -15,7 +15,6 @@ var _ = fmt.Print
 func TestUserService_FindByGoogleID(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
-	helper := NewTestHelper(t)
 
 	user := helper.CreateRandomUser()
 	userGoogle := helper.CreateUserGoogle("1", user.ID)
@@ -40,7 +39,6 @@ func TestCreateUser(t *testing.T) {
 
 func TestUpdateEmail(t *testing.T) {
 	a := assert.New(t)
-	helper := NewTestHelper(t)
 
 	user := helper.CreateRandomUser()
 	email := randomEmail()
