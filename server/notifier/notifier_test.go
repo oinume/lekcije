@@ -86,17 +86,10 @@ func TestSendNotification(t *testing.T) {
 	}
 	fetcher := fetcher.NewTeacherLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
 
-	usersData := []struct {
-		name  string
-		email string
-	}{
-		{"oinume", "oinume@gmail.com"},
-		{"oinume2", "oinume+2@gmail.com"},
-		{"oinume3", "oinume+3@gmail.com"},
-	}
 	var users []*model.User
-	for _, u := range usersData {
-		user := helper.CreateUser(u.name, u.email)
+	for i := 0; i < 10; i++ {
+		name := fmt.Sprintf("oinume+%02d", i)
+		user := helper.CreateUser(name, name+"@gmail.com")
 		teacher := helper.CreateRandomTeacher()
 		helper.CreateFollowingTeacher(user.ID, teacher)
 		users = append(users, user)
@@ -107,7 +100,6 @@ func TestSendNotification(t *testing.T) {
 		Timeout:   5 * time.Second,
 	}
 	sender := emailer.NewSendGridSender(senderHTTPClient)
-	//sender := &emailer.NoSender{}
 	n := NewNotifier(db, fetcher, true, sender)
 
 	for _, user := range users {

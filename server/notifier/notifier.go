@@ -19,24 +19,26 @@ import (
 )
 
 type Notifier struct {
-	db             *gorm.DB
-	fetcher        *fetcher.TeacherLessonFetcher
-	dryRun         bool
-	lessonService  *model.LessonService
-	teachers       map[uint32]*model.Teacher
-	fetchedLessons map[uint32][]*model.Lesson
-	sender         emailer.Sender
+	db              *gorm.DB
+	fetcher         *fetcher.TeacherLessonFetcher
+	dryRun          bool
+	lessonService   *model.LessonService
+	teachers        map[uint32]*model.Teacher
+	fetchedLessons  map[uint32][]*model.Lesson
+	sender          emailer.Sender
+	senderWaitGroup *sync.WaitGroup
 	sync.Mutex
 }
 
 func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool, sender emailer.Sender) *Notifier {
 	return &Notifier{
-		db:             db,
-		fetcher:        fetcher,
-		dryRun:         dryRun,
-		teachers:       make(map[uint32]*model.Teacher, 1000),
-		fetchedLessons: make(map[uint32][]*model.Lesson, 1000),
-		sender:         sender,
+		db:              db,
+		fetcher:         fetcher,
+		dryRun:          dryRun,
+		teachers:        make(map[uint32]*model.Teacher, 1000),
+		fetchedLessons:  make(map[uint32][]*model.Lesson, 1000),
+		sender:          sender,
+		senderWaitGroup: &sync.WaitGroup{},
 	}
 }
 
@@ -195,7 +197,20 @@ func (n *Notifier) sendNotificationToUser(
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))
-	return n.sender.Send(email)
+
+	n.senderWaitGroup.Add(1)
+	go func(email *emailer.Email) {
+		defer n.senderWaitGroup.Done()
+		if err := n.sender.Send(email); err != nil {
+			logger.App.Error(
+				"Failed to sendNotificationToUser",
+				zap.String("email", user.Email), zap.Error(err),
+			)
+		}
+	}(email)
+
+	return nil
+	//	return n.sender.Send(email)
 }
 
 func getEmailTemplateJP() string {
@@ -242,6 +257,7 @@ Body: text/html
 //}
 
 func (n *Notifier) Close() {
+	n.senderWaitGroup.Wait()
 	defer n.fetcher.Close()
 	defer func() {
 		if n.dryRun {
