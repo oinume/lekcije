@@ -55,6 +55,7 @@ func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, erro
 	t.Lock()
 	t.called++
 	t.Unlock()
+	time.Sleep(time.Millisecond * 500)
 	resp := &http.Response{
 		Header:     make(http.Header),
 		Request:    req,
@@ -85,9 +86,21 @@ func TestSendNotification(t *testing.T) {
 	}
 	fetcher := fetcher.NewTeacherLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
 
-	user := helper.CreateUser("oinume", "oinume@gmail.com")
-	teacher := helper.CreateRandomTeacher()
-	helper.CreateFollowingTeacher(user.ID, teacher)
+	usersData := []struct {
+		name  string
+		email string
+	}{
+		{"oinume", "oinume@gmail.com"},
+		{"oinume2", "oinume+2@gmail.com"},
+		{"oinume3", "oinume+3@gmail.com"},
+	}
+	var users []*model.User
+	for _, u := range usersData {
+		user := helper.CreateUser(u.name, u.email)
+		teacher := helper.CreateRandomTeacher()
+		helper.CreateFollowingTeacher(user.ID, teacher)
+		users = append(users, user)
+	}
 
 	senderHTTPClient := &http.Client{
 		Transport: &mockSenderTransport{},
@@ -96,6 +109,9 @@ func TestSendNotification(t *testing.T) {
 	sender := emailer.NewSendGridSender(senderHTTPClient)
 	//sender := &emailer.NoSender{}
 	n := NewNotifier(db, fetcher, true, sender)
-	err := n.SendNotification(user)
-	r.Nil(err)
+
+	for _, user := range users {
+		err := n.SendNotification(user)
+		r.Nil(err)
+	}
 }
