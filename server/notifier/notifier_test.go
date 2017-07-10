@@ -101,6 +101,7 @@ func TestSendNotification(t *testing.T) {
 	}
 	sender := emailer.NewSendGridSender(senderHTTPClient)
 	n := NewNotifier(db, fetcher, true, sender)
+	defer n.Close()
 
 	for _, user := range users {
 		err := n.SendNotification(user)

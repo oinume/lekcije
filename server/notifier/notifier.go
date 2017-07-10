@@ -14,6 +14,7 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/uber-go/zap"
 )
@@ -27,6 +28,7 @@ type Notifier struct {
 	fetchedLessons  map[uint32][]*model.Lesson
 	sender          emailer.Sender
 	senderWaitGroup *sync.WaitGroup
+	stopwatch       stopwatch.Stopwatch
 	sync.Mutex
 }
 
@@ -39,6 +41,7 @@ func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool
 		fetchedLessons:  make(map[uint32][]*model.Lesson, 1000),
 		sender:          sender,
 		senderWaitGroup: &sync.WaitGroup{},
+		stopwatch:       stopwatch.NewSync().Start(),
 	}
 }
 
@@ -50,6 +53,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
+	n.stopwatch.Mark("FindTeacherIDsByUserID")
 	if len(teacherIDs) != 0 {
 		logger.App.Info(
 			"Target teachers",
@@ -63,6 +67,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
 		go func(teacherID uint32) {
+			defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
 			defer wg.Done()
 			teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 			if err != nil {
@@ -195,11 +200,13 @@ func (n *Notifier) sendNotificationToUser(
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 	email.SetCustomArg("teacher_ids", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
+	n.stopwatch.Mark("emailer.NewEmailFromTemplate")
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))
 
 	n.senderWaitGroup.Add(1)
 	go func(email *emailer.Email) {
+		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
 		defer n.senderWaitGroup.Done()
 		if err := n.sender.Send(email); err != nil {
 			logger.App.Error(
@@ -271,5 +278,11 @@ func (n *Notifier) Close() {
 				)
 			}
 		}
+	}()
+	defer func() {
+		n.stopwatch.Stop()
+		//logger.App.Info("Stopwatch report", zap.String("report", watch.Report()))
+		fmt.Println("--- stopwatch ---")
+		fmt.Println(n.stopwatch.Report())
 	}()
 }
