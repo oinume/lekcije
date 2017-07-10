@@ -53,7 +53,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
-	n.stopwatch.Mark("FindTeacherIDsByUserID")
+	n.stopwatch.Mark(fmt.Sprintf("FindTeacherIDsByUserID:%d", user.ID))
 	if len(teacherIDs) != 0 {
 		logger.App.Info(
 			"Target teachers",
@@ -110,6 +110,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 
 	time.Sleep(500 * time.Millisecond)
+	n.stopwatch.Mark("sleep")
 
 	return nil
 }
