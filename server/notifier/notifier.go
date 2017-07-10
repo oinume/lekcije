@@ -206,7 +206,7 @@ func (n *Notifier) sendNotificationToUser(
 
 	n.senderWaitGroup.Add(1)
 	go func(email *emailer.Email) {
-		defer n.stopwatch.Mark("sender.Send")
+		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
 		defer n.senderWaitGroup.Done()
 		if err := n.sender.Send(email); err != nil {
 			logger.App.Error(
