@@ -61,7 +61,6 @@ func (s *SyncStopwatch) GetTotalTime() time.Duration {
 
 func (s *SyncStopwatch) Report() string {
 	s.Stop()
-	s.Mark("__stop__")
 	s.marks = append(s.marks, &mark{
 		name: "__stop__",
 		at:   s.stoppedAt,
@@ -75,12 +74,12 @@ func (s *SyncStopwatch) Report() string {
 	for _, mark := range s.marks {
 		duration := mark.at.Sub(previousTime)
 		cumulative := mark.at.Sub(s.startedAt)
-		percentage := (duration / totalTime) * 100
+		percentage := float64(duration) / float64(totalTime) * 100
 		fmt.Fprintf(
 			&b, " %-41.40s %-11d %-15d %.2f%%\n",
 			mark.name, duration/time.Millisecond,
 			cumulative/time.Millisecond,
-			percentage,
+			float64(percentage),
 		)
 
 		previousTime = mark.at
