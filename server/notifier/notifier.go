@@ -285,7 +285,7 @@ func (n *Notifier) Close() {
 	defer func() {
 		n.stopwatch.Stop()
 		//logger.App.Info("Stopwatch report", zap.String("report", watch.Report()))
-		fmt.Println("--- stopwatch ---")
-		fmt.Println(n.stopwatch.Report())
+		//fmt.Println("--- stopwatch ---")
+		//fmt.Println(n.stopwatch.Report())
 	}()
 }
