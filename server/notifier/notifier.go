@@ -105,12 +105,14 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 	wg.Wait()
 
-	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
-		return err
-	}
+	if len(teacherIDs) != 0 {
+		if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
+			return err
+		}
 
-	time.Sleep(200 * time.Millisecond)
-	n.stopwatch.Mark("sleep")
+		time.Sleep(200 * time.Millisecond)
+		n.stopwatch.Mark("sleep")
+	}
 
 	return nil
 }
