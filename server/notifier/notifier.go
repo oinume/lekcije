@@ -54,13 +54,16 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
 	n.stopwatch.Mark(fmt.Sprintf("FindTeacherIDsByUserID:%d", user.ID))
-	if len(teacherIDs) != 0 {
-		logger.App.Info(
-			"Target teachers",
-			zap.Uint("userID", uint(user.ID)),
-			zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
-		)
+
+	if len(teacherIDs) == 0 {
+		return nil
 	}
+
+	logger.App.Info(
+		"Target teachers",
+		zap.Uint("userID", uint(user.ID)),
+		zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
+	)
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	wg := &sync.WaitGroup{}
@@ -105,14 +108,12 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 	wg.Wait()
 
-	if len(teacherIDs) != 0 {
-		if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
-			return err
-		}
-
-		time.Sleep(200 * time.Millisecond)
-		n.stopwatch.Mark("sleep")
+	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
+		return err
 	}
+
+	time.Sleep(200 * time.Millisecond)
+	n.stopwatch.Mark("sleep")
 
 	return nil
 }
