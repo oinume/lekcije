@@ -112,7 +112,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		return err
 	}
 
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(150 * time.Millisecond)
 	n.stopwatch.Mark("sleep")
 
 	return nil
