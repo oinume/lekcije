@@ -69,7 +69,7 @@ func PostAPISendGridEventWebhook(w http.ResponseWriter, r *http.Request) {
 			fields = append(fields, zap.String("url", p.URL))
 		}
 
-		logger.Access.Info("event", fields...)
+		logger.Access.Info("sendGridEventWebhook", fields...)
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
