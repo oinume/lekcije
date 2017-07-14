@@ -1,6 +1,7 @@
 package route
 
 import (
+	"github.com/fukata/golang-stats-api-handler"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/middleware"
 	"goji.io"
@@ -39,6 +40,7 @@ func Create() *goji.Mux {
 	routes.HandleFunc(pat.Get("/api/debug/httpHeader"), controller.GetAPIDebugHTTPHeader)
 	routes.HandleFunc(pat.Post("/api/webhook/sendGrid"), controller.PostAPISendGridEventWebhook)
 	routes.HandleFunc(pat.Post("/api/sendGrid/eventWebhook"), controller.PostAPISendGridEventWebhook)
+	routes.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
 
 	return routes
 }
