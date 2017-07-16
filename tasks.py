@@ -29,19 +29,3 @@ def backup_mysql(ctx):
     delete_blob = bucket.get_blob(delete_blob_name)
     if delete_blob:
         delete_blob.delete()
-
-
-# MYSQLDUMP="$CWD/$DIR/mysqldump"
-# #echo $MYSQLDUMP
-# DATE=`date "+%Y%m%d"`
-# $MYSQLDUMP -u$MYSQL_USER -p$MYSQL_PASSWORD -h$MYSQL_HOST $MYSQL_DATABASE | bzip2 -9 > lekcije_$DATE.dump.bz2
-# echo $GCLOUD_SERVICE_KEY | base64 --decode > ./gcloud-service-key.json
-# ./google-cloud-sdk/bin/gcloud components update -q
-# ./google-cloud-sdk/bin/gcloud \
-#     auth activate-service-account \
-#          --key-file ./gcloud-service-key.json
-#
-# DELETE_DATE=`date "+%Y%m%d" --date "7 days ago"`
-#
-# ./google-cloud-sdk/bin/gsutil cp lekcije_$DATE.dump.bz2 gs://lekcije/backup/
-# ./google-cloud-sdk/bin/gsutil ls gs://lekcije/backup/lekcije_$DELETE_DATE.dump.bz2 && ./google-cloud-sdk/bin/gsutil rm gs://lekcije/backup/lekcije_$DELETE_DATE.dump.bz2
