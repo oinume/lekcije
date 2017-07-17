@@ -19,6 +19,7 @@ const (
 	CategoryFollowingTeacher = "followingTeacher"
 )
 
+// TODO: Optimize http.Client
 var gaHTTPClient *http.Client = &http.Client{
 	Transport: &logger.LoggingHTTPTransport{DumpHeaderBody: true},
 	Timeout:   time.Second * 7,
