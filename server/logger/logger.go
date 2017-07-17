@@ -64,13 +64,6 @@ func NewLevel(level string) zap.Level {
 	return l
 }
 
-func EventLog(eventType string, fields ...zap.Field) {
-	f := make([]zap.Field, 0, len(fields)+1)
-	f = append(f, zap.String("type", eventType))
-	f = append(f, fields...)
-	Access.Info("eventLog", f...)
-}
-
 type LoggingHTTPTransport struct {
 	DumpHeaderBody bool
 }
