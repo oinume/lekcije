@@ -24,7 +24,7 @@ var gaHTTPClient *http.Client = &http.Client{
 	Timeout:   time.Second * 7,
 }
 
-func EventLog(userID uint32, category string, action string, fields ...zap.Field) {
+func Log(userID uint32, category string, action string, fields ...zap.Field) {
 	f := make([]zap.Field, 0, len(fields)+1)
 	f = append(
 		f,
@@ -70,7 +70,7 @@ func SendGAMeasurementEvent(req *http.Request, category, action, label string, v
 	}
 	if err := gaClient.Send(event); err == nil {
 		logger.App.Debug("SendGAMeasurementEvent() success", logFields...)
-		EventLog(userID, category, action, zap.String("label", label), zap.Int64("value", value))
+		Log(userID, category, action, zap.String("label", label), zap.Int64("value", value))
 	} else {
 		logger.App.Warn("SendGAMeasurementEvent() failed", zap.Error(err))
 	}
