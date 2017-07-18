@@ -1,7 +1,6 @@
 package route
 
 import (
-	"github.com/fukata/golang-stats-api-handler"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/middleware"
 	"goji.io"
