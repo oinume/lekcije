@@ -1,10 +1,10 @@
-from __future__ import print_function
 import datetime
 from google.cloud import storage
 from invoke import task
 import os
 
 BUCKET_NAME = 'lekcije'
+
 
 @task
 def backup_mysql(ctx):
