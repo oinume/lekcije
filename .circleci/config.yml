@@ -37,7 +37,7 @@ jobs:
           name: "Wait MySQL is up"
           command: |
             set -u
-            timeout 5 bash -c "while ! mysqladmin ping -u ${MYSQL_USER} -h ${MYSQL_HOST} --silent; do sleep 0.5; done"
+            timeout 10 bash -c "while ! mysqladmin ping -u ${MYSQL_USER} -h ${MYSQL_HOST} --silent; do sleep 0.5; done"
       - run:
           name: "Setup database"
           command: |
