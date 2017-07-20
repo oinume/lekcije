@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/uber-go/zap"
 )
 
@@ -50,13 +50,13 @@ func PostAPISendGridEventWebhook(w http.ResponseWriter, r *http.Request) {
 	for _, p := range params {
 		fields := []zap.Field{
 			zap.Time("timestamp", time.Unix(p.Timestamp, 0)),
-			zap.String("event", p.Event),
 			zap.String("sgEventID", p.SGEventID),
 			zap.String("email", p.Email),
 		}
 
-		if userID, err := strconv.ParseUint(p.UserID, 10, 32); err == nil {
-			fields = append(fields, zap.Uint("userID", uint(userID)))
+		var userID uint32
+		if id, err := strconv.ParseUint(p.UserID, 10, 32); err == nil {
+			userID = uint32(id)
 		}
 		if p.TeacherIDs != "" {
 			fields = append(fields, zap.String("teacherIDs", p.TeacherIDs))
@@ -69,7 +69,7 @@ func PostAPISendGridEventWebhook(w http.ResponseWriter, r *http.Request) {
 			fields = append(fields, zap.String("url", p.URL))
 		}
 
-		logger.Access.Info("sendGridEventWebhook", fields...)
+		event_logger.Log(userID, event_logger.CategoryEmail, p.Event, fields...)
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")

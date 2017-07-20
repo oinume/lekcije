@@ -1,6 +1,6 @@
 package controller
 
-// TODO: Create package 'oauth'
+// TOOD: Create package 'oauth'
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
 	"golang.org/x/oauth2"
@@ -89,7 +90,10 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	userService := model.NewUserService(db)
 	user, err := userService.FindByGoogleID(googleID)
 	if err == nil {
-		go sendMeasurementEvent(r, eventCategoryUser, "login", fmt.Sprint(user.ID), 0, user.ID)
+		go event_logger.SendGAMeasurementEvent(
+			r, event_logger.CategoryUser, "login",
+			fmt.Sprint(user.ID), 0, user.ID,
+		)
 	} else {
 		if _, notFound := err.(*errors.NotFound); !notFound {
 			InternalServerError(w, err)
@@ -105,7 +109,10 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
-		go sendMeasurementEvent(r, eventCategoryUser, "create", fmt.Sprint(user.ID), 0, user.ID)
+		go event_logger.SendGAMeasurementEvent(
+			r, event_logger.CategoryUser, "create",
+			fmt.Sprint(user.ID), 0, user.ID,
+		)
 	}
 
 	userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))
