@@ -83,8 +83,8 @@ func run() error {
 			if err := sender.Send(mail); err != nil {
 				return err
 			}
-			logger.App.Info("followReminder", zap.Uint("userID", uint(user.ID)), zap.String("email", user.Email))
 		}
+		logger.App.Info("followReminder", zap.Uint("userID", uint(user.ID)), zap.String("email", user.Email))
 	}
 
 	return nil
