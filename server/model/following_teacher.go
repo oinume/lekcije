@@ -10,7 +10,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
-const MaxFollowTeacherCount = 30
+const MaxFollowTeacherCount = 20
 
 type FollowingTeacher struct {
 	UserID    uint32 `gorm:"primary_key"`
