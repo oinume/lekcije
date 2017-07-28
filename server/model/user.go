@@ -152,9 +152,8 @@ func (s *UserService) CreateWithFacebook(name, email, facebookID string) (*User,
 	user := &User{
 		Name:          name,
 		Email:         email,
-		RawEmail:      email,
 		EmailVerified: true, // TODO: set false after implement email verification
-		PlanID:        DefaultPlanID,
+		PlanID:        DefaultMPlanID,
 	}
 	if result := s.db.Where(&User{Email: email}).FirstOrCreate(user); result.Error != nil {
 		return nil, nil, errors.InternalWrapf(
