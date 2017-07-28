@@ -79,3 +79,8 @@ import:
 - package: github.com/kisielk/gotool
 - package: github.com/huandu/facebook
   version: v1.7.1
+- package: golang.org/x/sync
+  subpackages:
+  - errgroup
+- package: github.com/fukata/golang-stats-api-handler
+  version: v1.0.0

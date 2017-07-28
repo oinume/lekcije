@@ -82,7 +82,7 @@ func (t *LoggingHTTPTransport) RoundTrip(req *http.Request) (*http.Response, err
 				fmt.Fprintf(&reqDump, "Transfer-Encoding: %s\r\n", strings.Join(req.TransferEncoding, ","))
 			}
 			if req.Close {
-				fmt.Fprintf(&reqDump, "Connection: close\r\n")
+				fmt.Fprint(&reqDump, "Connection: close\r\n")
 			}
 		}
 		if req.Body != nil {
@@ -116,6 +116,8 @@ func (t *LoggingHTTPTransport) RoundTrip(req *http.Request) (*http.Response, err
 		}
 		save := resp.Body
 		savecl := resp.ContentLength
+		respBody := resp.Body
+		defer respBody.Close()
 		if resp.Body != nil {
 			save, resp.Body, _ = drainBody(resp.Body)
 			fmt.Fprintln(&respDump, "--- Response Body ---")

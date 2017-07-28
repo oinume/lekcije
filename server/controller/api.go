@@ -18,7 +18,7 @@ func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 		"redis": true,
 	}
 
-	db, err := model.OpenDB(bootstrap.ServerEnvVars.DBURL, 1, !config.IsProductionEnv())
+	db, err := model.OpenDB(bootstrap.ServerEnvVars.DBURL(), 1, !config.IsProductionEnv())
 	if err == nil {
 		defer db.Close()
 		if err := db.DB().Ping(); err != nil {

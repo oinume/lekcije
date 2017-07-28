@@ -1,7 +1,7 @@
 package notifier
 
 import (
-	"net/http"
+	"fmt"
 	"sort"
 	"strings"
 	"sync"
@@ -14,67 +14,76 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/uber-go/zap"
 )
 
 type Notifier struct {
-	db             *gorm.DB
-	fetcher        *fetcher.TeacherLessonFetcher
-	dryRun         bool
-	lessonService  *model.LessonService
-	teachers       map[uint32]*model.Teacher
-	fetchedLessons map[uint32][]*model.Lesson
-	sender         emailer.Sender
+	db              *gorm.DB
+	fetcher         *fetcher.TeacherLessonFetcher
+	dryRun          bool
+	lessonService   *model.LessonService
+	teachers        map[uint32]*model.Teacher
+	fetchedLessons  map[uint32][]*model.Lesson
+	sender          emailer.Sender
+	senderWaitGroup *sync.WaitGroup
+	stopwatch       stopwatch.Stopwatch
 	sync.Mutex
 }
 
-func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool, sendEmail bool) *Notifier {
-	var sender emailer.Sender
-	if sendEmail {
-		sender = emailer.NewSendGridSender(http.DefaultClient)
-	} else {
-		sender = &emailer.NoSender{}
-	}
+func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool, sender emailer.Sender) *Notifier {
 	return &Notifier{
-		db:             db,
-		fetcher:        fetcher,
-		dryRun:         dryRun,
-		teachers:       make(map[uint32]*model.Teacher, 1000),
-		fetchedLessons: make(map[uint32][]*model.Lesson, 1000),
-		sender:         sender,
+		db:              db,
+		fetcher:         fetcher,
+		dryRun:          dryRun,
+		teachers:        make(map[uint32]*model.Teacher, 1000),
+		fetchedLessons:  make(map[uint32][]*model.Lesson, 1000),
+		sender:          sender,
+		senderWaitGroup: &sync.WaitGroup{},
+		stopwatch:       stopwatch.NewSync().Start(),
 	}
 }
 
 func (n *Notifier) SendNotification(user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	n.lessonService = model.NewLessonService(n.db)
-
-	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID)
+	const maxFetchErrorCount = 5
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, maxFetchErrorCount)
 	if err != nil {
 		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
 	}
-	if len(teacherIDs) != 0 {
-		logger.App.Info(
-			"Target teachers",
-			zap.Uint("userID", uint(user.ID)),
-			zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
-		)
+	n.stopwatch.Mark(fmt.Sprintf("FindTeacherIDsByUserID:%d", user.ID))
+
+	if len(teacherIDs) == 0 {
+		return nil
 	}
+
+	logger.App.Info(
+		"Target teachers",
+		zap.Uint("userID", uint(user.ID)),
+		zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
+	)
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	wg := &sync.WaitGroup{}
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
 		go func(teacherID uint32) {
+			defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
 			defer wg.Done()
 			teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 			if err != nil {
 				switch err.(type) {
 				case *errors.NotFound:
-					// TODO: update teacher table flag
-					// TODO: Not need to log
+					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
+						logger.App.Error(
+							"IncrementFetchErrorCount failed",
+							zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
+						)
+					}
 					logger.App.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
+				// TODO: Handle a case eikaiwa.dmm.com is down
 				default:
 					logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				}
@@ -103,7 +112,8 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		return err
 	}
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(150 * time.Millisecond)
+	n.stopwatch.Mark("sleep")
 
 	return nil
 }
@@ -114,10 +124,6 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 ) {
 	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
-		logger.App.Error(
-			"fetcher.Fetch",
-			zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
-		)
 		return nil, nil, nil, err
 	}
 	logger.App.Debug(
@@ -184,7 +190,7 @@ func (n *Notifier) sendNotificationToUser(
 		LessonsPerTeacher map[uint32][]*model.Lesson
 		WebURL            string
 	}{
-		To:                user.RawEmail,
+		To:                user.Email,
 		TeacherNames:      strings.Join(teacherNames, ", "),
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
@@ -195,10 +201,27 @@ func (n *Notifier) sendNotificationToUser(
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to create emailer.Email from template: to=%v", user.Email)
 	}
+	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
+	email.SetCustomArg("teacher_ids", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
+	n.stopwatch.Mark("emailer.NewEmailFromTemplate")
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))
-	return n.sender.Send(email)
+
+	n.senderWaitGroup.Add(1)
+	go func(email *emailer.Email) {
+		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
+		defer n.senderWaitGroup.Done()
+		if err := n.sender.Send(email); err != nil {
+			logger.App.Error(
+				"Failed to sendNotificationToUser",
+				zap.String("email", user.Email), zap.Error(err),
+			)
+		}
+	}(email)
+
+	return nil
+	//	return n.sender.Send(email)
 }
 
 func getEmailTemplateJP() string {
@@ -245,6 +268,7 @@ Body: text/html
 //}
 
 func (n *Notifier) Close() {
+	n.senderWaitGroup.Wait()
 	defer n.fetcher.Close()
 	defer func() {
 		if n.dryRun {
@@ -258,5 +282,11 @@ func (n *Notifier) Close() {
 				)
 			}
 		}
+	}()
+	defer func() {
+		n.stopwatch.Stop()
+		//logger.App.Info("Stopwatch report", zap.String("report", watch.Report()))
+		//fmt.Println("--- stopwatch ---")
+		//fmt.Println(n.stopwatch.Report())
 	}()
 }

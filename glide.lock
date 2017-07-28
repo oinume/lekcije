@@ -1,5 +1,5 @@
-hash: 7f50a2013739840c3291a3cc829ef6bf0627730d00f0e93cac4bebc5508d0c36
-updated: 2017-03-26T22:38:09.186563615+09:00
+hash: ebaf13a62acb93a0f0dfadda865e39738bc060da5887baa30b077d501a2d7258
+updated: 2017-07-28T21:08:33.884756165+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -17,6 +17,8 @@ imports:
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
   - spew
+- name: github.com/fukata/golang-stats-api-handler
+  version: 90f0b59102629831cc109845475a8d77043412ec
 - name: github.com/go-sql-driver/mysql
   version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/golang/protobuf
@@ -130,6 +132,10 @@ imports:
   - internal
   - jws
   - jwt
+- name: golang.org/x/sync
+  version: 450f422ab23cf9881c94e2db30cac0eb1b7cf80c
+  subpackages:
+  - errgroup
 - name: golang.org/x/sys
   version: 7a6e5648d140666db5d920909e082ca00a87ba2c
   subpackages:

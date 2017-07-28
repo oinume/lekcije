@@ -7,10 +7,19 @@ LINT_PACKAGES=$(shell glide novendor)
 all: install
 
 .PHONY: setup
-setup:
+setup: install-glide install-dep install-commands
+
+.PHONY: install-glide
+install-glide:
 	go get github.com/Masterminds/glide
 	go get golang.org/x/tools/cmd/goimports
+
+.PHONY: install-dep
+install-dep:
 	glide install
+
+.PHONY: install-commands
+install-commands:
 	go install ./vendor/bitbucket.org/liamstask/goose/cmd/goose
 	go install ./vendor/github.com/cespare/reflex
 	go install ./vendor/honnef.co/go/tools/cmd/staticcheck
@@ -25,34 +34,50 @@ serve:
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
-.PHONY: e2e_test
-e2e_test: minify_static_development
+.PHONY: test
+test: go-test e2e-test
+
+.PHONY: e2e-test
+e2e-test: minify-static-development
 	go test $(E2E_TEST_ARGS) github.com/oinume/lekcije/e2e
 
-.PHONY: go_test
-go_test:
-	go test -race $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
+.PHONY: go-test
+go-test:
+	go test $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
 
 .PHONY: goimports
 goimports:
 	goimports -w ./server ./e2e
 
-.PHONY: go_lint
-go_lint:
+.PHONY: go-lint
+go-lint: go-vet go-staticcheck go-simple
+
+.PHONY: go-vet
+go-vet:
 	go vet -v $(LINT_PACKAGES)
+
+.PHONY: go-staticcheck
+go-staticcheck:
 	staticcheck $(LINT_PACKAGES)
+
+.PHONY: go-simple
+go-simple:
 	gosimple $(LINT_PACKAGES)
 
-.PHONY: minify_static_development
-minify_static_development:
+.PHONY: minify-static-development
+minify-static-development:
 	MINIFY=true VERSION_HASH=_version_ npm run build
 
-.PHONY: minify_static
-minify_static:
-	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD) npm run build
+.PHONY: minify-static
+minify-static:
+	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD | cut -c-7) npm run build
 
-.PHONY: reset_db
-reset_db:
+.PHONY: print-version-hash
+print-version-hash:
+	@echo $(VERSION_HASH)
+
+.PHONY: reset-db
+reset-db:
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot < db/create_database.sql
