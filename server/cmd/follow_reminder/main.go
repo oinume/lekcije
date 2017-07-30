@@ -78,6 +78,8 @@ func run() error {
 		if err != nil {
 			return err
 		}
+		mail.SetCustomArg("email_type", model.EmailTypeFollowReminder)
+		mail.SetCustomArg("user_id", fmt.Sprint(user.ID))
 
 		if !*dryRun {
 			if err := sender.Send(mail); err != nil {

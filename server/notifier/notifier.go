@@ -201,6 +201,7 @@ func (n *Notifier) sendNotificationToUser(
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to create emailer.Email from template: to=%v", user.Email)
 	}
+	email.SetCustomArg("email_type", model.EmailTypeNewLessonNotifier)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 	email.SetCustomArg("teacher_ids", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
