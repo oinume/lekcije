@@ -6,17 +6,11 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-/*
-  datetime DATETIME NOT NULL,
-  event ENUM('click', 'delivered', 'open', 'deferred', 'drop', 'bounce', 'block') NOT NULL,
-  email_type ENUM('new_lesson') NOT NULL,
-  user_id int(10) unsigned NOT NULL,
-  user_agent VARCHAR(255) DEFAULT NULL,
-  teacher_ids TEXT DEFAULT NULL,
-  url VARCHAR(255) DEFAULT NULL,
-  KEY (`datetime`, `event`),
-  KEY (`user_id`)
-*/
+// TODO: Custom type
+const (
+	EmailTypeNewLessonNotifier = "new_lesson_notifier"
+	EmailTypeFollowReminder    = "follow_reminder"
+)
 
 type EventLogEmail struct {
 	Datetime   time.Time

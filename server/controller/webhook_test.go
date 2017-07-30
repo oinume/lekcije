@@ -32,6 +32,7 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 [
   {
     "email": "oinume@gmail.com",
+    "email_type": "new_lesson_notifier",
     "timestamp": 1492528264,
     "teacher_ids": "16944",
     "ip": "10.43.18.4",

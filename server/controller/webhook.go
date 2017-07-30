@@ -14,22 +14,6 @@ import (
 	"github.com/uber-go/zap"
 )
 
-/*
-[
-  {
-    "email": "oinume@gmail.com",
-    "timestamp": 1492528264,
-    "teacher_ids": "16944",
-    "ip": "10.43.18.4",
-    "sg_event_id": "MzJiZWY5YjYtZjQ5Mi00OWM1LTliYWItNzE2ZTZhZDAxYWFm",
-    "user_id": "1",
-    "sg_message_id": "UjFrt84CTBGkXCjrVwTULw.filter0041p1las1-28480-58F62C73-2B.0",
-    "useragent": "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
-    "event": "open"
-  }
-]
-*/
-
 type SendGridEventValues struct {
 	Timestamp int64  `json:"timestamp"`
 	Event     string `json:"event"`
@@ -38,6 +22,7 @@ type SendGridEventValues struct {
 	UserAgent string `json:"useragent"`
 	URL       string `json:"url"` // Only when event=click
 	// Custom args
+	EmailType  string `json:"email_type"`
 	UserID     string `json:"user_id"`
 	TeacherIDs string `json:"teacher_ids"`
 }
@@ -78,11 +63,14 @@ func (v *SendGridEventValues) LogToDB(db *gorm.DB) error {
 	eventLogEmail := &model.EventLogEmail{
 		Datetime:   time.Unix(v.Timestamp, 0),
 		Event:      v.Event,
-		EmailType:  "new_lesson",
+		EmailType:  v.EmailType,
 		UserID:     v.GetUserID(),
 		UserAgent:  v.UserAgent,
 		TeacherIDs: v.TeacherIDs,
 		URL:        v.URL,
+	}
+	if v.EmailType == "" {
+		eventLogEmail.EmailType = model.EmailTypeNewLessonNotifier
 	}
 	return model.NewEventLogEmailService(db).Create(eventLogEmail)
 }
