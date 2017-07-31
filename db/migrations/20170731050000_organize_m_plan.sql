@@ -9,6 +9,8 @@ UPDATE m_plan SET name='プロ', internal_name='Pro', price=900, notification_in
 UPDATE m_plan SET name='プラス', internal_name='Plus Beta', price=0, updated_at='2017-07-30 13:43:31' WHERE id = 5;
 COMMIT;
 
+UPDATE user SET plan_id=1 WHERE plan_id = 4;
+
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
