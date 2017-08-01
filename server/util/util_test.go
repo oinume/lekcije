@@ -1,10 +1,12 @@
 package util
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,4 +39,14 @@ func TestEncryptString(t *testing.T) {
 		a.Nil(err)
 		a.Equal(encrypted, encrypted2)
 	}
+}
+
+func TestWriteError(t *testing.T) {
+	a := assert.New(t)
+
+	var out bytes.Buffer
+	WriteError(&out, errors.Internalf("error message"))
+	a.Contains(out.String(), "error message")
+	a.Contains(out.String(), "github.com/oinume/lekcije/server/util.TestWriteError")
+	fmt.Printf("%v\n", out.String())
 }

@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"encoding/hex"
 	"fmt"
+	"io"
 	mrand "math/rand"
 	"net/http"
 	"os"
@@ -129,4 +130,16 @@ func IsUserAgentSP(req *http.Request) bool {
 func IsUserAgentTablet(req *http.Request) bool {
 	ua := strings.ToLower(req.UserAgent())
 	return strings.Contains(ua, "ipad")
+}
+
+func WriteError(w io.Writer, err error) {
+	fmt.Fprintf(w, "%v", err.Error())
+	fmt.Fprint(w, "\n--- stacktrace ---")
+	switch err.(type) {
+	case *errors.Internal:
+		e := err.(*errors.Internal)
+		fmt.Fprintf(w, "%+v\n", e.StackTrace())
+	default:
+		fmt.Fprintf(w, "%+v", err)
+	}
 }
