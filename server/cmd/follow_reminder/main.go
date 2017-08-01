@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
 	"github.com/uber-go/zap"
 )
 
@@ -26,7 +26,8 @@ var (
 func main() {
 	flag.Parse()
 	if err := run(); err != nil {
-		log.Fatalf("err = %v", err) // TODO: Error handling
+		util.WriteError(os.Stderr, err)
+		os.Exit(1)
 	}
 	os.Exit(0)
 }

@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"log"
 	"os"
 
 	"github.com/oinume/lekcije/server/notifier"
+	"github.com/oinume/lekcije/server/util"
 )
 
 func main() {
@@ -20,7 +20,8 @@ func main() {
 
 	flag.Parse()
 	if err := m.Run(); err != nil {
-		log.Fatalf("err = %v", err) // TODO: Error handling
+		util.WriteError(os.Stderr, err)
+		os.Exit(1)
 	}
 	os.Exit(0)
 }
