@@ -7,7 +7,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
-const DefaultMPlanID = uint8(4)
+const DefaultMPlanID = uint8(1)
 
 type MPlan struct {
 	ID                   uint8 `gorm:"primary_key"`
