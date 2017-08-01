@@ -62,7 +62,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	logger.App.Info(
 		"Target teachers",
 		zap.Uint("userID", uint(user.ID)),
-		zap.String("teacherIDs", strings.Join(util.Uint32ToStringSlice(teacherIDs...), ",")),
+		zap.Int("teachers", len(teacherIDs)),
 	)
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
