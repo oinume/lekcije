@@ -17,21 +17,20 @@
     "test-watch": "karma start --auto-watch --no-single-run"
   },
   "devDependencies": {
-    "webpack": "^1.13.2"
+    "webpack": "^3.4.1"
   },
   "dependencies": {
     "autoprefixer": "^6.3.7",
     "babel-core": "^6.10.4",
     "babel-eslint": "^6.1.0",
     "babel-loader": "^6.2.4",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-es2015-webpack": "^6.4.1",
+    "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.11.1",
     "bootstrap": "^3.3.7",
     "bootstrap-loader": "^1.0.10",
     "bootstrap-sass": "^3.3.7",
     "bootswatch": "^3.3.7",
-    "copy-webpack-plugin": "^3.0.1",
+    "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.23.1",
     "eslint": "^3.0.0",
     "eslint-plugin-react": "^5.2.2",
