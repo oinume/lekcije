@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "engines": {
-    "node": "6.8.1",
-    "npm": "3.10.8"
+    "node": "6.11.2",
+    "npm": "3.10.10"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js --progress --colors",
