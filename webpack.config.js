@@ -10,7 +10,7 @@ const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server 
 
 var devtool = 'source-map'; // Render source-map file for final build
 var plugins = [
-  new webpack.NoErrorsPlugin(),
+  new webpack.NoEmitOnErrorsPlugin(),
   new CopyWebpackPlugin([
     { context: 'src', from: '**/*.css' },
     { context: 'src', from: '**/*.html' },
@@ -55,10 +55,9 @@ const config = {
   entry: path.join(__dirname, '/src/js/main.js'),
   resolve: {
     //When require, do not have to add these extensions to file's name
-    extensions: ["", ".js"],
+    extensions: ['.js', '.jsx', '.json', '.css'],
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },
-  devtool: devtool,
   //output config
   output: {
     path: path.join(buildPath, process.env.VERSION_HASH),
@@ -67,11 +66,11 @@ const config = {
   },
   plugins: plugins,
   module: {
-    loaders: [
+    rules: [
       {
         //React-hot loader and
         test: /\.jsx?$/,  //All .js files
-        loaders: ['react-hot', 'babel-loader'], //react-hot is like browser sync and babel loads jsx and es6-7
+        loaders: ['react-hot-loader', 'babel-loader'], //react-hot-loader is like browser sync and babel loads jsx and es6-7
         // query: {
         //   presets: ['react', 'es2015']
         // },
@@ -115,14 +114,9 @@ const config = {
       }
     ],
   },
-  // Eslint config
-  eslint: {
-    configFile: '.eslintrc', //Rules for eslint
-  },
   // Dev server Configuration options
   devServer: {
     contentBase: 'src',  // Relative directory for base of server
-    devtool: 'eval',
     hot: true,        // Live-reload
     inline: true,
     port: 4000,
