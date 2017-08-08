@@ -12,11 +12,11 @@ var devtool = 'source-map'; // Render source-map file for final build
 var plugins = [
   new webpack.NoEmitOnErrorsPlugin(),
   new CopyWebpackPlugin([
-    { context: 'src', from: '**/*.css' },
-    { context: 'src', from: '**/*.html' },
-    { context: 'src', from: '**/*.png' },
-    { context: 'src', from: '**/*.jpg' },
-    { context: 'src', from: '**/*.svg' },
+    { context: 'frontend', from: '**/*.css' },
+    { context: 'frontend', from: '**/*.html' },
+    { context: 'frontend', from: '**/*.png' },
+    { context: 'frontend', from: '**/*.jpg' },
+    { context: 'frontend', from: '**/*.svg' },
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
@@ -47,12 +47,12 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
       {from: nodeModulesPath + "/jquery", to: 'lib'},
-    ], path.resolve(__dirname, "src"))
+    ], path.resolve(__dirname, "frontend"))
   );
 }
 
 const config = {
-  entry: path.join(__dirname, '/src/js/main.js'),
+  entry: path.join(__dirname, '/frontend/js/main.js'),
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ['.js', '.jsx', '.json', '.css'],
@@ -116,7 +116,7 @@ const config = {
   },
   // Dev server Configuration options
   devServer: {
-    contentBase: 'src',  // Relative directory for base of server
+    contentBase: 'frontend',  // Relative directory for base of server
     hot: true,        // Live-reload
     inline: true,
     port: 4000,
