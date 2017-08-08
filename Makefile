@@ -31,6 +31,10 @@ install-commands:
 serve:
 	go run server/cmd/lekcije/main.go
 
+.PHONY: reflex
+reflex:
+	reflex -R node_modules -R vendor -R .venv -r '\.go$$' -s make serve
+
 .PHONY: install
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
