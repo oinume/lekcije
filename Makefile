@@ -35,6 +35,10 @@ serve:
 reflex:
 	reflex -R node_modules -R vendor -R .venv -r '\.go$$' -s make serve
 
+.PHONY: ngrok
+ngrok:
+	ngrok http -subdomain=lekcije -host-header=localhost 4000
+
 .PHONY: install
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
