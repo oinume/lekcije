@@ -20,6 +20,8 @@ var plugins = [
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'react/dist/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'react-dom/dist/**', to: 'lib' },
   ])
 ];
 
@@ -47,6 +49,8 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
       {from: nodeModulesPath + "/jquery", to: 'lib'},
+      {from: nodeModulesPath + "/react", to: 'lib'},
+      {from: nodeModulesPath + "/react-dom", to: 'lib'},
     ], path.resolve(__dirname, "frontend"))
   );
 }
@@ -63,6 +67,11 @@ const config = {
     path: path.join(buildPath, process.env.VERSION_HASH),
     publicPath: "/static/" + process.env.VERSION_HASH,
     filename: 'js/main.js',  // Name of output file
+  },
+  externals: {
+    jquery: 'jQuery',
+    react: 'react',
+    bootstrap: 'bootstrap',
   },
   plugins: plugins,
   module: {
