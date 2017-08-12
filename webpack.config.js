@@ -10,16 +10,22 @@ const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server 
 
 var devtool = 'source-map'; // Render source-map file for final build
 var plugins = [
-  new webpack.NoEmitOnErrorsPlugin(),
+  //new webpack.NoEmitOnErrorsPlugin(),
+  new webpack.optimize.CommonsChunkPlugin({
+    filename: "js/common.js",
+    name: "common"
+  }),
   new CopyWebpackPlugin([
-    { context: 'src', from: '**/*.css' },
-    { context: 'src', from: '**/*.html' },
-    { context: 'src', from: '**/*.png' },
-    { context: 'src', from: '**/*.jpg' },
-    { context: 'src', from: '**/*.svg' },
+    { context: 'frontend', from: '**/*.css' },
+    { context: 'frontend', from: '**/*.html' },
+    { context: 'frontend', from: '**/*.png' },
+    { context: 'frontend', from: '**/*.jpg' },
+    { context: 'frontend', from: '**/*.svg' },
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'react/dist/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'react-dom/dist/**', to: 'lib' },
   ])
 ];
 
@@ -29,7 +35,7 @@ if (process.env.MINIFY === 'true') {
     // Minify the bundle
     new webpack.optimize.UglifyJsPlugin({
       compress: {
-        //supresses warnings, usually from module minification
+        //suppress warnings, usually from module minification
         warnings: false,
       }
     })
@@ -47,22 +53,32 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
       {from: nodeModulesPath + "/jquery", to: 'lib'},
-    ], path.resolve(__dirname, "src"))
+      {from: nodeModulesPath + "/react", to: 'lib'},
+      {from: nodeModulesPath + "/react-dom", to: 'lib'},
+    ], path.resolve(__dirname, "frontend"))
   );
 }
 
 const config = {
-  entry: path.join(__dirname, '/src/js/main.js'),
+  entry: {
+    main: './frontend/js/main.js',
+    setting: './frontend/js/setting.js',
+  },
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ['.js', '.jsx', '.json', '.css'],
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },
-  //output config
   output: {
     path: path.join(buildPath, process.env.VERSION_HASH),
-    publicPath: "/static/" + process.env.VERSION_HASH,
-    filename: 'js/main.js',  // Name of output file
+    publicPath: path.join('/static', process.env.VERSION_HASH),
+    filename: "js/[name].bundle.js",
+    chunkFilename: "js/[id].chunk.js"
+  },
+  externals: {
+    jquery: 'jQuery',
+    react: 'react',
+    bootstrap: 'bootstrap',
   },
   plugins: plugins,
   module: {
@@ -116,7 +132,7 @@ const config = {
   },
   // Dev server Configuration options
   devServer: {
-    contentBase: 'src',  // Relative directory for base of server
+    contentBase: 'frontend',  // Relative directory for base of server
     hot: true,        // Live-reload
     inline: true,
     port: 4000,

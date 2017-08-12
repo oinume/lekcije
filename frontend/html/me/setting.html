@@ -1,4 +1,9 @@
 {{ define "title" }}設定 | lekcije{{ end }}
+{{- define "extraJs" }}
+<script src="{{ .StaticURL }}/lib/react/dist/react.min.js"></script>
+<script src="{{ .StaticURL }}/lib/react-dom/dist/react-dom.min.js"></script>
+<script src="{{ .StaticURL }}/js/setting.bundle.js"></script>
+{{- end }}
 {{ define "content" }}
 <div class="container">
   <form method="POST" action="/me/setting/update">

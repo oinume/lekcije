@@ -3,7 +3,7 @@ GO_TEST_ARGS=-v
 GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
 DB_HOST=192.168.99.100
 LINT_PACKAGES=$(shell glide novendor)
-VERSION_HASH=$(shell git rev-parse HEAD | cut -c-7)
+VERSION_HASH_VALUE=$(shell git rev-parse HEAD | cut -c-7)
 
 all: install
 
@@ -30,6 +30,14 @@ install-commands:
 .PHONY: serve
 serve:
 	go run server/cmd/lekcije/main.go
+
+.PHONY: reflex
+reflex:
+	reflex -R node_modules -R vendor -R .venv -r '\.go$$' -s make serve
+
+.PHONY: ngrok
+ngrok:
+	ngrok http -subdomain=lekcije -host-header=localhost 4000
 
 .PHONY: install
 install:
@@ -71,7 +79,7 @@ minify-static-development:
 
 .PHONY: minify-static
 minify-static:
-	MINIFY=true VERSION_HASH=$(shell git rev-parse HEAD | cut -c-7) npm run build
+	MINIFY=true VERSION_HASH=$(VERSION_HASH_VALUE) npm run build
 
 .PHONY: print-version-hash
 print-version-hash:
