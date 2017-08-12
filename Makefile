@@ -83,7 +83,7 @@ minify-static:
 
 .PHONY: print-version-hash
 print-version-hash:
-	@echo $(VERSION_HASH)
+	@echo $(VERSION_HASH_VALUE)
 
 .PHONY: reset-db
 reset-db:
