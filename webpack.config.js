@@ -10,7 +10,11 @@ const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server 
 
 var devtool = 'source-map'; // Render source-map file for final build
 var plugins = [
-  new webpack.NoEmitOnErrorsPlugin(),
+  //new webpack.NoEmitOnErrorsPlugin(),
+  new webpack.optimize.CommonsChunkPlugin({
+    filename: "js/common.js",
+    name: "common"
+  }),
   new CopyWebpackPlugin([
     { context: 'frontend', from: '**/*.css' },
     { context: 'frontend', from: '**/*.html' },
@@ -31,7 +35,7 @@ if (process.env.MINIFY === 'true') {
     // Minify the bundle
     new webpack.optimize.UglifyJsPlugin({
       compress: {
-        //supresses warnings, usually from module minification
+        //suppress warnings, usually from module minification
         warnings: false,
       }
     })
@@ -56,17 +60,20 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
 }
 
 const config = {
-  entry: path.join(__dirname, '/frontend/js/main.js'),
+  entry: {
+    main: './frontend/js/main.js',
+    setting: './frontend/js/setting.js',
+  },
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ['.js', '.jsx', '.json', '.css'],
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },
-  //output config
   output: {
     path: path.join(buildPath, process.env.VERSION_HASH),
-    publicPath: "/static/" + process.env.VERSION_HASH,
-    filename: 'js/main.js',  // Name of output file
+    publicPath: path.join('/static', process.env.VERSION_HASH),
+    filename: "js/[name].bundle.js",
+    chunkFilename: "js/[id].chunk.js"
   },
   externals: {
     jquery: 'jQuery',
