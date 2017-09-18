@@ -1,11 +1,8 @@
-VENDOR_DIR=vendor
-PROTO_GEN_DIR=proto-gen
-GRPC_GATEWAY_REPO=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
 E2E_TEST_ARGS=-v
 GO_TEST_ARGS=-v
 GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
 DB_HOST=192.168.99.100
-LINT_PACKAGES=$(shell glide novendor | grep -v proto | grep -v proto-gen)
+LINT_PACKAGES=$(shell glide novendor)
 VERSION_HASH_VALUE=$(shell git rev-parse HEAD | cut -c-7)
 
 all: install
@@ -26,23 +23,9 @@ install-dep:
 install-commands:
 	go install ./vendor/bitbucket.org/liamstask/goose/cmd/goose
 	go install ./vendor/github.com/cespare/reflex
-	go install ./vendor/github.com/golang/protobuf/protoc-gen-go
-	go install ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go install ./vendor/honnef.co/go/tools/cmd/staticcheck
 	go install ./vendor/honnef.co/go/tools/cmd/gosimple
 	go install ./vendor/honnef.co/go/tools/cmd/unused
-
-.PHONY: proto/go
-proto/go:
-	rm -rf $(PROTO_GEN_DIR)/go && mkdir -p $(PROTO_GEN_DIR)/go
-	protoc -I/usr/local/include -I. \
-  		-I$(GOPATH)/src \
-  		-I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
-  		--go_out=plugins=grpc:$(PROTO_GEN_DIR)/go \
-  		proto/echo/v1/echo.proto
-	protoc -I/usr/local/include -I. -I$(GOPATH)/src -I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
-		--grpc-gateway_out=logtostderr=true:$(PROTO_GEN_DIR)/go \
-		proto/echo/v1/echo.proto
 
 .PHONY: serve
 serve:

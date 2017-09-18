@@ -2,14 +2,13 @@ package route
 
 import (
 	"github.com/fukata/golang-stats-api-handler"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/middleware"
 	"goji.io"
 	"goji.io/pat"
 )
 
-func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
+func Create() *goji.Mux {
 	routes := goji.NewMux()
 	routes.Use(middleware.SetTrackingID)
 	routes.Use(middleware.AccessLogger)
@@ -42,12 +41,6 @@ func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
 	routes.HandleFunc(pat.Post("/api/webhook/sendGrid"), controller.PostAPISendGridEventWebhook)
 	routes.HandleFunc(pat.Post("/api/sendGrid/eventWebhook"), controller.PostAPISendGridEventWebhook)
 	routes.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
-
-	if gatewayMux != nil {
-		// This path and path in the proto must be the same
-		routes.Handle(pat.Post("/api/v1/echo"), gatewayMux)
-		routes.Handle(pat.Post("/api/v2/echo"), gatewayMux)
-	}
 
 	return routes
 }

@@ -1,5 +1,5 @@
-hash: 0d2857cb2bb75cb14f13bb8d8d1ce5c5222b942ee128d5f1966ddb54a6dca073
-updated: 2017-09-18T15:11:46.126114994+09:00
+hash: 43260bb6ae4a010e6996f6ea56efc1b88fa6ffa3201c399b904600a3dfda8766
+updated: 2017-07-14T21:57:03.030804756+09:00
 imports:
 - name: bitbucket.org/liamstask/goose
   version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
@@ -21,26 +21,14 @@ imports:
   version: 90f0b59102629831cc109845475a8d77043412ec
 - name: github.com/go-sql-driver/mysql
   version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
-- name: github.com/golang/glog
-  version: 23def4e6c14b4da8ac2ed8007337bc5eb5007998
 - name: github.com/golang/protobuf
   version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
   - proto
-  - protoc-gen-go
-  - ptypes
-  - ptypes/any
-  - ptypes/duration
-  - ptypes/timestamp
 - name: github.com/google/uuid
   version: 064e2069ce9c359c118179501254f67d7d37ba24
 - name: github.com/googleapis/gax-go
   version: da06d194a00e19ce00d9011a13931c3f6f6887c7
-- name: github.com/grpc-ecosystem/grpc-gateway
-  version: 589b126116b5fc961939b3e156c29e4d9d58222f
-  subpackages:
-  - protoc-gen-grpc-gateway
-  - protoc-gen-swagger
 - name: github.com/jinzhu/gorm
   version: 23abd03a95a16de0ef2d559979ead26b2a3cce66
   subpackages:
@@ -122,7 +110,7 @@ imports:
   - pat
   - pattern
 - name: golang.org/x/net
-  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  version: 007e530097ad7f954752df63046b4036f98ba6a6
   subpackages:
   - context
   - context/ctxhttp
@@ -152,9 +140,7 @@ imports:
 - name: golang.org/x/text
   version: ece019dcfd29abcf65d0d1dfe145e8faad097640
   subpackages:
-  - secure/bidirule
   - transform
-  - unicode/bidi
   - unicode/norm
   - width
 - name: google.golang.org/api
@@ -176,30 +162,17 @@ imports:
   - internal/remote_api
   - internal/urlfetch
   - urlfetch
-- name: google.golang.org/genproto
-  version: ee236bd376b077c7a89f260c026c4735b195e459
-  subpackages:
-  - googleapis/api/annotations
-  - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 3214f767e5a22021f792f7c4625a6380ce1eb2b2
+  version: 21f8ed309495401e6fd79b3a9fd549582aed1b4c
   subpackages:
-  - balancer
   - codes
-  - connectivity
   - credentials
-  - grpclb/grpc_lb_v1/messages
   - grpclog
   - internal
-  - keepalive
   - metadata
   - naming
   - peer
-  - reflection
-  - reflection/grpc_reflection_v1alpha
-  - resolver
   - stats
-  - status
   - tap
   - transport
 - name: gopkg.in/bsm/ratelimit.v1
