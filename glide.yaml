@@ -26,9 +26,6 @@ import:
   - pat
   - internal
   - pattern
-- package: golang.org/x/net
-  subpackages:
-  - context
 - package: golang.org/x/oauth2
   subpackages:
   - google
@@ -80,3 +77,47 @@ import:
   - errgroup
 - package: github.com/fukata/golang-stats-api-handler
   version: v1.0.0
+# gRPC staff
+- package: golang.org/x/net
+  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  subpackages:
+  - context
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- package: google.golang.org/grpc
+  version: 3214f767e5a22021f792f7c4625a6380ce1eb2b2
+  subpackages:
+  - balancer
+  - codes
+  - connectivity
+  - credentials
+  - grpclb/grpc_lb_v1/messages
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - reflection
+  - reflection/grpc_reflection_v1alpha
+  - resolver
+  - stats
+  - status
+  - tap
+  - transport
+- package: github.com/grpc-ecosystem/grpc-gateway
+  version: 1.2.2
+  subpackages:
+  - protoc-gen-grpc-gateway
+  - protoc-gen-swagger
+- package: github.com/golang/protobuf
+  subpackages:
+  - protoc-gen-go
+- package: github.com/golang/glog
+- package: google.golang.org/genproto
+  subpackages:
+  - googleapis/api/annotations
