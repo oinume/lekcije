@@ -27,3 +27,5 @@ deploy.sh
 
 .venv
 .ipynb_checkpoints
+
+proto-gen

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package echo;
+
+import "google/api/annotations.proto";
+
+message EchoRequest {
+    string message = 1;
+}
+
+message EchoResponse {
+    string message = 1;
+}
+
+service Echo {
+    rpc Echo(EchoRequest) returns (EchoResponse) {
+        option (google.api.http) = {
+          post: "/v1/echo"
+          body: "*"
+       };
+    }
+}
