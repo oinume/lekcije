@@ -51,6 +51,7 @@ type HTTPServerEnvVarsType struct {
 	RedisURL           string `env:"REDIS_URL"`
 	GoogleClientID     string `env:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
+	GRPCPort           string `env:"GRPC_PORT"`
 }
 
 func (t HTTPServerEnvVarsType) DBURL() string {

@@ -75,6 +75,18 @@ func ListenPort() int {
 	return int(p)
 }
 
+func GRPCListenPort() int {
+	port := os.Getenv("GPRC_PORT")
+	if port == "" {
+		port = "4002"
+	}
+	p, err := strconv.ParseInt(port, 10, 32)
+	if err != nil {
+		return -1
+	}
+	return int(p)
+}
+
 func LocalTimezone() *time.Location {
 	return jst
 }
