@@ -22,6 +22,10 @@ func (s *server) Echo(ctx context.Context, in *echo.EchoRequest) (*echo.EchoResp
 	return &echo.EchoResponse{Message: "Echo:" + in.Message}, nil
 }
 
+func (s *server) EchoV2(ctx context.Context, in *echo.EchoRequest) (*echo.EchoResponse, error) {
+	return &echo.EchoResponse{Message: "Echo:" + in.Message}, nil
+}
+
 const (
 	defaultGRPCPort    = "50051"
 	defaultGatewayPort = "50052"

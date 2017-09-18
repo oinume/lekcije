@@ -5,7 +5,7 @@ E2E_TEST_ARGS=-v
 GO_TEST_ARGS=-v
 GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
 DB_HOST=192.168.99.100
-LINT_PACKAGES=$(shell glide novendor)
+LINT_PACKAGES=$(shell glide novendor | grep -v proto | grep -v proto-gen)
 VERSION_HASH_VALUE=$(shell git rev-parse HEAD | cut -c-7)
 
 all: install

@@ -1,16 +1,15 @@
 package grpc_server
 
 import (
-	"context"
-
 	"github.com/oinume/lekcije/proto-gen/go/proto/echo/v1"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
 type echoServer struct{}
 
 func RegisterEchoServer(server *grpc.Server) {
-	echo.RegisterEchoServer(server, &echoServer{})
+	echo.RegisterEchoServer(server, new(echoServer))
 }
 
 func (s *echoServer) Echo(ctx context.Context, in *echo.EchoRequest) (*echo.EchoResponse, error) {
