@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 	}
 
 	port := config.ListenPort()
-	routes := route.Create(nil) // TODO: grpc-gateway
+	routes := route.Create()
 	port += 1
 	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
