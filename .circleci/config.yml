@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
-      - image: golang:1.8-wheezy
+      - image: golang:1.9-stretch
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_USER: "root"
