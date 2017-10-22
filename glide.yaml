@@ -12,14 +12,6 @@ import:
   subpackages:
   - cmd/goose
   - lib/goose
-- package: github.com/kballard/go-shellquote
-- package: github.com/kr/pty
-- package: github.com/ogier/pflag
-- package: gopkg.in/fsnotify.v1
-- package: golang.org/x/sys
-  subpackages:
-  - unix
-- package: github.com/cespare/reflex
 - package: gopkg.in/xmlpath.v2
 - package: goji.io
   subpackages:

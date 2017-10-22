@@ -1,3 +1,4 @@
+APP=lekcije
 VENDOR_DIR=vendor
 PROTO_GEN_DIR=proto-gen
 GRPC_GATEWAY_REPO=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
@@ -7,6 +8,7 @@ GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
 DB_HOST=192.168.99.100
 LINT_PACKAGES=$(shell glide novendor | grep -v proto | grep -v proto-gen)
 VERSION_HASH_VALUE=$(shell git rev-parse HEAD | cut -c-7)
+PID=$(APP).pid
 
 all: install
 
@@ -25,12 +27,21 @@ install-dep:
 .PHONY: install-commands
 install-commands:
 	go install ./vendor/bitbucket.org/liamstask/goose/cmd/goose
-	go install ./vendor/github.com/cespare/reflex
 	go install ./vendor/github.com/golang/protobuf/protoc-gen-go
 	go install ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go install ./vendor/honnef.co/go/tools/cmd/staticcheck
 	go install ./vendor/honnef.co/go/tools/cmd/gosimple
 	go install ./vendor/honnef.co/go/tools/cmd/unused
+
+.PHONY: install
+install:
+	go install github.com/oinume/lekcije/server/cmd/lekcije
+
+build:
+	go build -o bin/$(APP) github.com/oinume/lekcije/server/cmd/lekcije
+
+clean:
+	${RM} bin/$(APP)
 
 .PHONY: proto/go
 proto/go:
@@ -44,21 +55,9 @@ proto/go:
 		--grpc-gateway_out=logtostderr=true:$(PROTO_GEN_DIR)/go \
 		proto/echo/v1/echo.proto
 
-.PHONY: serve
-serve:
-	go run server/cmd/lekcije/main.go
-
-.PHONY: reflex
-reflex:
-	reflex -R node_modules -R vendor -R .venv -r '\.go$$' -s make serve
-
 .PHONY: ngrok
 ngrok:
 	ngrok http -subdomain=lekcije -host-header=localhost 4000
-
-.PHONY: install
-install:
-	go install github.com/oinume/lekcije/server/cmd/lekcije
 
 .PHONY: test
 test: go-test e2e-test
@@ -107,3 +106,12 @@ reset-db:
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot < db/create_database.sql
+
+kill:
+	kill `cat $(PID)` 2> /dev/null || true
+
+restart: kill clean build
+	bin/$(APP) & echo $$! > $(PID)
+
+watch: restart
+	fswatch -o -e ".*" -e vendor -e node_modules -e .venv -i "\\.go$$" . | xargs -n1 -I{} make restart || make kill

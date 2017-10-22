@@ -11,8 +11,6 @@ imports:
   subpackages:
   - compute/metadata
   - internal
-- name: github.com/cespare/reflex
-  version: d99c749bd424bf5fb5f63229f0cb4baffdc81f9d
 - name: github.com/davecgh/go-spew
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
@@ -49,12 +47,8 @@ imports:
   version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/jpillora/go-ogle-analytics
   version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
-- name: github.com/kballard/go-shellquote
-  version: d8ec1a69a250a17bb0e419c386eac1f3711dc142
 - name: github.com/kisielk/gotool
   version: 0de1eaf82fa3f583ce21fde859f1e7e0c5e9b220
-- name: github.com/kr/pty
-  version: ce7fa45920dc37a92de8377972e52bc55ffa8d57
 - name: github.com/kylelemons/go-gypsy
   version: 08cad365cd28a7fba23bb1e57aa43c5e18ad8bb8
   subpackages:
@@ -71,8 +65,6 @@ imports:
   - internal/logger
   - internal/sysinfo
   - internal/utilization
-- name: github.com/ogier/pflag
-  version: 45c278ab3607870051a2ea9040bb85fcb8557481
 - name: github.com/oinume/goenum
   version: 4c1a12f41a936d82ec76c27f109b742d2d0f08e9
 - name: github.com/pkg/errors
@@ -145,10 +137,6 @@ imports:
   version: 450f422ab23cf9881c94e2db30cac0eb1b7cf80c
   subpackages:
   - errgroup
-- name: golang.org/x/sys
-  version: 7a6e5648d140666db5d920909e082ca00a87ba2c
-  subpackages:
-  - unix
 - name: golang.org/x/text
   version: ece019dcfd29abcf65d0d1dfe145e8faad097640
   subpackages:
@@ -204,8 +192,6 @@ imports:
   - transport
 - name: gopkg.in/bsm/ratelimit.v1
   version: db14e161995a5177acef654cb0dd785e8ee8bc22
-- name: gopkg.in/fsnotify.v1
-  version: 629574ca2a5df945712d3079857300b5e4da0236
 - name: gopkg.in/redis.v4
   version: c938162545c57136fa59879746bc65d0f1db3d1e
   subpackages:
