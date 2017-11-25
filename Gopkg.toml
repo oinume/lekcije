@@ -85,7 +85,8 @@
   name = "github.com/stvp/rollbar"
 
 [[constraint]]
-  name = "github.com/uber-go/zap"
+  name = "go.uber.org/zap"
+  version = "v1.7.1"
 
 [[constraint]]
   name = "goji.io"
