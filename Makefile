@@ -6,7 +6,7 @@ E2E_TEST_ARGS=-v
 GO_TEST_ARGS=-v
 GO_TEST_PACKAGES=$(shell go list ./... | grep -v vendor | grep -v e2e)
 DB_HOST=192.168.99.100
-LINT_PACKAGES="./e2e/... ./server/..."
+LINT_PACKAGES=$(shell go list ./...)
 VERSION_HASH_VALUE=$(shell git rev-parse HEAD | cut -c-7)
 PID=$(APP).pid
 
@@ -70,7 +70,7 @@ goimports:
 	goimports -w ./server ./e2e
 
 .PHONY: go-lint
-go-lint: go-vet go-staticcheck go-simple
+go-lint: go-staticcheck go-simple
 
 .PHONY: go-vet
 go-vet:

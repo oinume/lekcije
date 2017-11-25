@@ -239,7 +239,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 func CORS(h http.Handler) http.Handler {
 	origins := []string{}
 	if strings.HasPrefix(config.StaticURL(), "http") {
-		origins = append(origins, strings.TrimRight(config.StaticURL(), "/static"))
+		origins = append(origins, strings.TrimSuffix(config.StaticURL(), "/static"))
 	}
 	c := cors.New(cors.Options{
 		AllowedOrigins: origins,
