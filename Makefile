@@ -4,34 +4,29 @@ PROTO_GEN_DIR=proto-gen
 GRPC_GATEWAY_REPO=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
 E2E_TEST_ARGS=-v
 GO_TEST_ARGS=-v
-GO_TEST_PACKAGES=$(shell glide novendor | grep -v e2e)
+GO_TEST_PACKAGES=$(shell go list ./... | grep -v vendor | grep -v e2e)
 DB_HOST=192.168.99.100
-LINT_PACKAGES=$(shell glide novendor | grep -v proto | grep -v proto-gen)
+LINT_PACKAGES=$(shell go list ./...)
 VERSION_HASH_VALUE=$(shell git rev-parse HEAD | cut -c-7)
 PID=$(APP).pid
 
 all: install
 
 .PHONY: setup
-setup: install-glide install-dep install-commands
-
-.PHONY: install-glide
-install-glide:
-	go get github.com/Masterminds/glide
-	go get golang.org/x/tools/cmd/goimports
+setup: install-dep install-commands
 
 .PHONY: install-dep
 install-dep:
-	glide install
+	dep ensure -v
 
 .PHONY: install-commands
 install-commands:
-	go install ./vendor/bitbucket.org/liamstask/goose/cmd/goose
-	go install ./vendor/github.com/golang/protobuf/protoc-gen-go
-	go install ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	go install ./vendor/honnef.co/go/tools/cmd/staticcheck
-	go install ./vendor/honnef.co/go/tools/cmd/gosimple
-	go install ./vendor/honnef.co/go/tools/cmd/unused
+	go get bitbucket.org/liamstask/goose/cmd/goose
+	go get github.com/golang/protobuf/protoc-gen-go
+	go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+	go get honnef.co/go/tools/cmd/staticcheck
+	go get honnef.co/go/tools/cmd/gosimple
+	go get honnef.co/go/tools/cmd/unused
 
 .PHONY: install
 install:
@@ -75,7 +70,7 @@ goimports:
 	goimports -w ./server ./e2e
 
 .PHONY: go-lint
-go-lint: go-vet go-staticcheck go-simple
+go-lint: go-staticcheck go-simple
 
 .PHONY: go-vet
 go-vet:
