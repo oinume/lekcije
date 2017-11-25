@@ -46,11 +46,11 @@ jobs:
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
       # TODO: Skip this task
       - run:
-          name: "Install glide"
+          name: "Install dep"
           command: |
-            make install-glide
+            go get github.com/golang/dep/cmd/dep
       - restore_cache:
-          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.lock" }}
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
       - run:
           name: "Install dependencies"
           command: |
@@ -58,11 +58,11 @@ jobs:
               make install-dep
             fi
       - save_cache:
-          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "glide.lock" }}
+          key: lekcije-go-dep-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
           paths:
             - "/go/src/github.com/oinume/lekcije/vendor"
       - restore_cache:
-          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.lock" }}
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
       - run:
           name: "Install commands"
           command: |
@@ -70,7 +70,7 @@ jobs:
               make install-commands
             fi
       - save_cache:
-          key: lekcije-commands-{{ .Branch }}-{{ checksum "glide.lock" }}
+          key: lekcije-commands-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
           paths:
             - "/go/bin"
       - run:
