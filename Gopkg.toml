@@ -20,6 +20,12 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+[metadata.heroku]
+  root-package = "github.com/oinume/lekcije"
+  go-version = "go1.9.2"
+  install = [ "./server/cmd/..." ]
+  ensure = "true"
+#  additional-tools = ["github.com/mattes/migrate"]
 
 [[constraint]]
   name = "github.com/Songmu/retry"
