@@ -1,0 +1,112 @@
+
+# Gopkg.toml example
+#
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#  name = "github.com/x/y"
+#  version = "2.4.0"
+
+
+[[constraint]]
+  name = "github.com/Songmu/retry"
+
+[[constraint]]
+  name = "github.com/fukata/golang-stats-api-handler"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/go-sql-driver/mysql"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+
+[[constraint]]
+  name = "github.com/google/uuid"
+
+[[constraint]]
+  name = "github.com/grpc-ecosystem/grpc-gateway"
+  version = "1.2.2"
+
+[[constraint]]
+  name = "github.com/jinzhu/gorm"
+
+[[constraint]]
+  name = "github.com/jpillora/go-ogle-analytics"
+
+[[constraint]]
+  name = "github.com/newrelic/go-agent"
+
+[[constraint]]
+  name = "github.com/oinume/goenum"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+
+[[constraint]]
+  name = "github.com/pkg/profile"
+  version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/rs/cors"
+
+[[constraint]]
+  name = "github.com/sclevine/agouti"
+
+[[constraint]]
+  name = "github.com/sendgrid/rest"
+
+[[constraint]]
+  name = "github.com/sendgrid/sendgrid-go"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+
+[[constraint]]
+  name = "github.com/stvp/rollbar"
+
+[[constraint]]
+  name = "github.com/uber-go/zap"
+
+[[constraint]]
+  name = "goji.io"
+
+[[constraint]]
+  name = "golang.org/x/net"
+
+[[constraint]]
+  name = "golang.org/x/oauth2"
+
+[[constraint]]
+  name = "golang.org/x/sync"
+
+[[constraint]]
+  name = "golang.org/x/text"
+
+[[constraint]]
+  name = "google.golang.org/api"
+
+[[constraint]]
+  name = "google.golang.org/genproto"
+
+[[constraint]]
+  name = "google.golang.org/grpc"
+
+[[constraint]]
+  name = "gopkg.in/redis.v4"
+
+[[constraint]]
+  name = "gopkg.in/xmlpath.v2"
