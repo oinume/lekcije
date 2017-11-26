@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"net/http"
@@ -9,8 +10,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"bytes"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
