@@ -15,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap/zapcore"
 )
 
 var helper = model.NewTestHelper()
@@ -78,7 +79,7 @@ func TestSendNotification(t *testing.T) {
 	//a := assert.New(t)
 	r := require.New(t)
 	db := helper.DB()
-	logger.InitializeAppLogger()
+	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
 	fetcherHTTPClient := &http.Client{
 		Transport: &mockFetcherTransport{},

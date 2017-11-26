@@ -1,7 +1,8 @@
 package logger
 
 import (
-	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -9,15 +10,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// TODO: consider to put them into context
 var (
-	Access = NewZapLogger(&zap.Config{
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-	})
-	App = NewZapLogger(&zap.Config{
-		OutputPaths:      []string{"stderr"},
-		ErrorOutputPaths: []string{"stderr"},
-	})
+	Access *zap.Logger
+	App    *zap.Logger
 )
 
 func init() {
@@ -27,29 +23,21 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	// TODO: level
-	//if !config.IsProductionEnv() {
-	//	App.SetLevel(zap.DebugLevel)
-	//}
+
+	InitializeAccessLogger(os.Stdout)
+	appLogLevel := zapcore.InfoLevel
+	if level := os.Getenv("LOG_LEVEL"); level != "" {
+		appLogLevel = NewLevel(level)
+	}
+	InitializeAppLogger(os.Stderr, appLogLevel)
 }
 
-func InitializeAccessLogger() {
-	// TODO: OutputPaths
-	Access = NewZapLogger(&zap.Config{
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-	})
+func InitializeAccessLogger(w io.Writer) {
+	Access = NewZapLogger(nil, []io.Writer{w}, zapcore.InfoLevel)
 }
 
-func InitializeAppLogger() {
-	App = NewZapLogger(&zap.Config{
-		OutputPaths:      []string{"stderr"},
-		ErrorOutputPaths: []string{"stderr"},
-	})
-	// TODO: level
-	//if !config.IsProductionEnv() {
-	//	App.SetLevel(zap.DebugLevel)
-	//}
+func InitializeAppLogger(w io.Writer, logLevel zapcore.Level) {
+	App = NewZapLogger(nil, []io.Writer{w}, logLevel)
 }
 
 func NewLevel(level string) zapcore.Level {
@@ -73,35 +61,25 @@ func NewLevel(level string) zapcore.Level {
 	return l
 }
 
-func NewZapLogger(config *zap.Config, opts ...zap.Option) *zap.Logger {
-	var c zap.Config
-	if _, ok := os.LookupEnv("ZAP_DEBUG"); ok {
-		c = zap.NewDevelopmentConfig()
-		c.Encoding = "debug"
-		c.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	} else {
-		c = zap.NewDevelopmentConfig()
+func NewZapLogger(
+	encoderConfig *zapcore.EncoderConfig, writers []io.Writer, logLevel zapcore.Level, options ...zap.Option,
+) *zap.Logger {
+	if encoderConfig == nil {
+		c := zap.NewProductionEncoderConfig()
+		c.EncodeTime = zapcore.ISO8601TimeEncoder
+		encoderConfig = &c
 	}
-
-	c.OutputPaths = config.OutputPaths
-	c.ErrorOutputPaths = config.ErrorOutputPaths
-	c.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	c.DisableStacktrace = true
-	c.Level.SetLevel(zapcore.DPanicLevel) // not show logs normally
-	if v := os.Getenv("ZAP_LEVEL"); v != "" {
-		var lv zapcore.Level
-		if err := lv.UnmarshalText([]byte(v)); err == nil {
-			c.Level.SetLevel(lv)
-		} else {
-			panic(fmt.Sprintf("Unknown zap log level: %v", v))
-		}
+	if len(writers) == 0 {
+		writers = append(writers, ioutil.Discard)
 	}
-
-	l, err := c.Build(opts...)
-	if err != nil {
-		panic(l)
+	enabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= logLevel
+	})
+	cores := make([]zapcore.Core, len(writers))
+	for i, w := range writers {
+		cores[i] = zapcore.NewCore(zapcore.NewJSONEncoder(*encoderConfig), zapcore.AddSync(w), enabler)
 	}
-	return l
+	return zap.New(zapcore.NewTee(cores...), options...)
 }
 
 type consoleEncoder struct {

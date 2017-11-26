@@ -12,12 +12,15 @@ import (
 	"sync"
 	"time"
 
+	"os"
+
 	"github.com/Songmu/retry"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 )
@@ -80,7 +83,7 @@ func NewTeacherLessonFetcher(
 		concurrency = 1
 	}
 	if log == nil {
-		log = logger.NewZapLogger(nil)
+		log = logger.NewZapLogger(nil, []io.Writer{os.Stderr}, zapcore.InfoLevel)
 	}
 	semaphore := make(chan struct{}, concurrency)
 	cache := make(map[uint32]*teacherLessons, 5000)
