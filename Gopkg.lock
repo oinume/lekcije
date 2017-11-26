@@ -145,6 +145,24 @@
   revision = "fc9fbdfe46f6dc6a78028f22a2fb086dd13182fd"
 
 [[projects]]
+  name = "go.uber.org/atomic"
+  packages = ["."]
+  revision = "8474b86a5a6f79c443ce4b2992817ff32cf208b8"
+  version = "v1.3.1"
+
+[[projects]]
+  name = "go.uber.org/multierr"
+  packages = ["."]
+  revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
+  version = "v1.1.0"
+
+[[projects]]
+  name = "go.uber.org/zap"
+  packages = [".","buffer","internal/bufferpool","internal/color","internal/exit","zapcore"]
+  revision = "35aad584952c3e7020db7b839f6b102de6271f89"
+  version = "v1.7.1"
+
+[[projects]]
   name = "goji.io"
   packages = [".","internal","pat","pattern"]
   revision = "bc2e9e7dc2769805d1b6ce4dc48ec23a03ae82ec"
@@ -211,6 +229,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2fa9fa324282e0267b64dca3f65521e204ab6cbd489670874a79ed498bd1f26b"
+  inputs-digest = "c3709dd18b13a795d5493942cf455e693366685b9b82b274a4da4043b9acc59b"
   solver-name = "gps-cdcl"
   solver-version = 1
