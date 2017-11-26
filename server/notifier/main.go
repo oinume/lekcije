@@ -12,7 +12,7 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/pkg/profile"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
 )
 
 type Main struct {
@@ -39,9 +39,9 @@ func (m *Main) Run() error {
 
 	bootstrap.CheckCLIEnvVars()
 	startedAt := time.Now().UTC()
-	if *m.LogLevel != "" {
-		logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
-	}
+	//if *m.LogLevel != "" {
+	//	//logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
+	//}
 	logger.App.Info("notifier started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond

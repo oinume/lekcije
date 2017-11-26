@@ -78,7 +78,7 @@ func TestSendNotification(t *testing.T) {
 	//a := assert.New(t)
 	r := require.New(t)
 	db := helper.DB()
-	logger.InitializeAppLogger(os.Stdout)
+	logger.InitializeAppLogger()
 
 	fetcherHTTPClient := &http.Client{
 		Transport: &mockFetcherTransport{},

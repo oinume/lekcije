@@ -10,7 +10,8 @@ import (
 	"github.com/jpillora/go-ogle-analytics"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/logger"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -25,8 +26,8 @@ var gaHTTPClient *http.Client = &http.Client{
 	Timeout:   time.Second * 7,
 }
 
-func Log(userID uint32, category string, action string, fields ...zap.Field) {
-	f := make([]zap.Field, 0, len(fields)+1)
+func Log(userID uint32, category string, action string, fields ...zapcore.Field) {
+	f := make([]zapcore.Field, 0, len(fields)+1)
 	f = append(
 		f,
 		zap.String("category", category),
@@ -52,7 +53,7 @@ func SendGAMeasurementEvent(req *http.Request, category, action, label string, v
 	gaClient.DocumentReferrer(req.Referer())
 	gaClient.IPOverride(getRemoteAddress(req))
 
-	logFields := []zap.Field{
+	logFields := []zapcore.Field{
 		zap.String("category", category),
 		zap.String("action", action),
 	}

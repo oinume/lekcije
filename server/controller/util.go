@@ -16,7 +16,8 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stvp/rollbar"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -52,7 +53,7 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	if rollbar.Token != "" {
 		rollbar.Error(rollbar.ERR, err)
 	}
-	fields := []zap.Field{
+	fields := []zapcore.Field{
 		zap.Error(err),
 	}
 	if e, ok := err.(errors.StackTracer); ok {

@@ -14,7 +14,7 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
 )
 
 var (
@@ -35,9 +35,9 @@ func main() {
 func run() error {
 	bootstrap.CheckCLIEnvVars()
 	startedAt := time.Now().UTC()
-	if *logLevel != "" {
-		logger.App.SetLevel(logger.NewLevel(*logLevel))
-	}
+	//if *logLevel != "" {
+	//	logger.App.SetLevel(logger.NewLevel(*logLevel))
+	//}
 	logger.App.Info("follow_reminder started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond

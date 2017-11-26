@@ -18,7 +18,7 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
 )
 
 var _ = fmt.Print
@@ -229,7 +229,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 				return
 			}
 		}
-		logger.App.Debug("Logged in user", zap.Object("user", user))
+		logger.App.Debug("Logged in user", zap.String("name", user.Name))
 		c := context_data.SetLoggedInUser(ctx, user)
 		h.ServeHTTP(w, r.WithContext(c))
 	}

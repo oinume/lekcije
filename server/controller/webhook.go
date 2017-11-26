@@ -11,7 +11,8 @@ import (
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type SendGridEventValues struct {
@@ -35,7 +36,7 @@ func (v *SendGridEventValues) GetUserID() uint32 {
 }
 
 func (v *SendGridEventValues) LogToFile() {
-	fields := []zap.Field{
+	fields := []zapcore.Field{
 		zap.Time("timestamp", time.Unix(v.Timestamp, 0)),
 		zap.String("sgEventID", v.SGEventID),
 		zap.String("email", v.Email),

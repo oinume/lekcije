@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"bytes"
 	"fmt"
 	"net"
 	"net/http"
@@ -33,9 +32,11 @@ func TestMain(m *testing.M) {
 	}
 	bootstrap.CheckServerEnvVars()
 
-	var accessLogBuffer, appLogBuffer bytes.Buffer
-	logger.InitializeAccessLogger(&accessLogBuffer)
-	logger.InitializeAppLogger(&appLogBuffer)
+	//var accessLogBuffer, appLogBuffer bytes.Buffer
+	//logger.InitializeAccessLogger(&accessLogBuffer)
+	//logger.InitializeAppLogger(&appLogBuffer)
+	logger.InitializeAccessLogger()
+	logger.InitializeAppLogger()
 
 	var err error
 	db, err = model.OpenDB(dbURL, 1, true) // TODO: env

@@ -15,8 +15,9 @@ import (
 	"github.com/Songmu/retry"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
 	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 )
@@ -64,13 +65,13 @@ type TeacherLessonFetcher struct {
 	caching    bool
 	cache      map[uint32]*teacherLessons
 	cacheLock  *sync.RWMutex
-	logger     zap.Logger
+	logger     *zap.Logger
 	mCountries *model.MCountries
 }
 
 func NewTeacherLessonFetcher(
 	httpClient *http.Client, concurrency int, caching bool,
-	mCountries *model.MCountries, log zap.Logger,
+	mCountries *model.MCountries, log *zap.Logger,
 ) *TeacherLessonFetcher {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
@@ -79,7 +80,7 @@ func NewTeacherLessonFetcher(
 		concurrency = 1
 	}
 	if log == nil {
-		log = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")))
+		log = logger.NewZapLogger(nil)
 	}
 	semaphore := make(chan struct{}, concurrency)
 	cache := make(map[uint32]*teacherLessons, 5000)

@@ -10,7 +10,7 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -27,13 +27,13 @@ type Main struct {
 func (m *Main) Run() error {
 	bootstrap.CheckCLIEnvVars()
 	if *m.Followed && *m.SpecifiedIDs != "" {
-		return fmt.Errorf("Can't specify -followed and -ids flags both.")
+		return fmt.Errorf("can't specify -followed and -ids flags both")
 	}
 
 	startedAt := time.Now().UTC()
-	if *m.LogLevel != "" {
-		logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
-	}
+	//if *m.LogLevel != "" {
+	//	//logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
+	//}
 	logger.App.Info("crawler started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
