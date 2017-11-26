@@ -1,50 +1,47 @@
 package logger
 
 import (
-	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
-	"net/http/httputil"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/oinume/lekcije/server/config"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
+// TODO: consider to put them into context
 var (
-	Access = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stdout))
-	App    = zap.New(zap.NewJSONEncoder(zap.RFC3339Formatter("ts")), zap.Output(os.Stderr))
+	Access *zap.Logger
+	App    *zap.Logger
 )
 
 func init() {
-	if !config.IsProductionEnv() {
-		App.SetLevel(zap.DebugLevel)
+	err := zap.RegisterEncoder("debug", func(encoderConfig zapcore.EncoderConfig) (zapcore.Encoder, error) {
+		return NewConsoleEncoder(encoderConfig), nil
+	})
+	if err != nil {
+		panic(err)
 	}
-}
 
-func InitializeAccessLogger(writer io.Writer) {
-	Access = zap.New(
-		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
-		zap.Output(zap.AddSync(writer)),
-	)
-}
-
-func InitializeAppLogger(writer io.Writer) {
-	App = zap.New(
-		zap.NewJSONEncoder(zap.RFC3339Formatter("ts")),
-		zap.Output(zap.AddSync(writer)),
-	)
-	if !config.IsProductionEnv() {
-		App.SetLevel(zap.DebugLevel)
+	InitializeAccessLogger(os.Stdout)
+	appLogLevel := zapcore.InfoLevel
+	if level := os.Getenv("LOG_LEVEL"); level != "" {
+		appLogLevel = NewLevel(level)
 	}
+	InitializeAppLogger(os.Stderr, appLogLevel)
 }
 
-func NewLevel(level string) zap.Level {
-	var l zap.Level
+func InitializeAccessLogger(w io.Writer) {
+	Access = NewZapLogger(nil, []io.Writer{w}, zapcore.InfoLevel)
+}
+
+func InitializeAppLogger(w io.Writer, logLevel zapcore.Level) {
+	App = NewZapLogger(nil, []io.Writer{w}, logLevel)
+}
+
+func NewLevel(level string) zapcore.Level {
+	var l zapcore.Level
 	switch strings.ToLower(level) {
 	case "debug":
 		l = zap.DebugLevel
@@ -64,124 +61,46 @@ func NewLevel(level string) zap.Level {
 	return l
 }
 
-type LoggingHTTPTransport struct {
-	DumpHeaderBody bool
+func NewZapLogger(
+	encoderConfig *zapcore.EncoderConfig, writers []io.Writer, logLevel zapcore.Level, options ...zap.Option,
+) *zap.Logger {
+	if encoderConfig == nil {
+		c := zap.NewProductionEncoderConfig()
+		c.EncodeTime = zapcore.ISO8601TimeEncoder
+		encoderConfig = &c
+	}
+	if len(writers) == 0 {
+		writers = append(writers, ioutil.Discard)
+	}
+	enabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= logLevel
+	})
+	cores := make([]zapcore.Core, len(writers))
+	for i, w := range writers {
+		cores[i] = zapcore.NewCore(zapcore.NewJSONEncoder(*encoderConfig), zapcore.AddSync(w), enabler)
+	}
+	return zap.New(zapcore.NewTee(cores...), options...)
 }
 
-func (t *LoggingHTTPTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	var reqDump bytes.Buffer
-	chunked := false
-	if t.DumpHeaderBody {
-		if len(req.Header) > 0 {
-			fmt.Fprintln(&reqDump, "--- Request Header ---")
-			for k, v := range req.Header {
-				fmt.Fprintf(&reqDump, "%s: %s\n", k, strings.Join(v, ","))
-			}
-			chunked = len(req.TransferEncoding) > 0 && req.TransferEncoding[0] == "chunked"
-			if len(req.TransferEncoding) > 0 {
-				fmt.Fprintf(&reqDump, "Transfer-Encoding: %s\r\n", strings.Join(req.TransferEncoding, ","))
-			}
-			if req.Close {
-				fmt.Fprint(&reqDump, "Connection: close\r\n")
-			}
-		}
-		if req.Body != nil {
-			fmt.Fprintln(&reqDump, "--- Request Body ---")
-			dump, _ := dumpRequestBody(req, chunked)
-			fmt.Fprint(&reqDump, string(dump))
-		}
-	}
-
-	start := time.Now()
-	resp, err := http.DefaultTransport.RoundTrip(req)
-	if err != nil {
-		return nil, err
-	}
-	end := time.Now()
-
-	var out bytes.Buffer
-	fmt.Fprintf(
-		&out, "%s %s %d %d\n",
-		req.Method, req.URL,
-		resp.StatusCode, time.Duration(end.Sub(start).Nanoseconds())/time.Millisecond,
-	)
-
-	var respDump bytes.Buffer
-	if t.DumpHeaderBody {
-		if len(resp.Header) > 0 {
-			fmt.Fprintln(&respDump, "--- Response Header ---")
-			for k, v := range resp.Header {
-				fmt.Fprintf(&respDump, "%s: %s\n", k, strings.Join(v, ","))
-			}
-		}
-		save := resp.Body
-		savecl := resp.ContentLength
-		respBody := resp.Body
-		defer respBody.Close()
-		if resp.Body != nil {
-			save, resp.Body, _ = drainBody(resp.Body)
-			fmt.Fprintln(&respDump, "--- Response Body ---")
-			_, _ = io.Copy(&respDump, resp.Body)
-		}
-		resp.Body = save
-		resp.ContentLength = savecl
-	}
-
-	if s := reqDump.String(); s != "" {
-		fmt.Fprintln(&out, s)
-	}
-	if s := respDump.String(); s != "" {
-		fmt.Fprintln(&out, s)
-	}
-
-	if !config.IsProductionEnv() {
-		fmt.Println(out.String())
-	}
-
-	return resp, err
+type consoleEncoder struct {
+	zapcore.Encoder
+	consoleEncoder zapcore.Encoder
 }
 
-func (t *LoggingHTTPTransport) CancelRequest(r *http.Request) {
-}
+func NewConsoleEncoder(cfg zapcore.EncoderConfig) zapcore.Encoder {
+	// TODO: import "github.com/fatih/color"
+	//color.NoColor = false // Force enabled
 
-func dumpRequestBody(req *http.Request, chunked bool) ([]byte, error) {
-	// https://github.com/golang/go/blob/master/src/net/http/httputil/dump.go#L187 のDumpRequestを参考にしている
-	if req.Body == nil {
-		return []byte{}, nil
+	cfg.StacktraceKey = ""
+	cfg2 := cfg
+	cfg2.NameKey = ""
+	cfg2.MessageKey = ""
+	cfg2.LevelKey = ""
+	cfg2.CallerKey = ""
+	cfg2.StacktraceKey = ""
+	cfg2.TimeKey = ""
+	return consoleEncoder{
+		consoleEncoder: zapcore.NewConsoleEncoder(cfg),
+		Encoder:        zapcore.NewJSONEncoder(cfg2),
 	}
-
-	var err error
-	var save io.ReadCloser
-	save, req.Body, err = drainBody(req.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var b bytes.Buffer
-	var dest io.Writer = &b
-	if chunked {
-		dest = httputil.NewChunkedWriter(dest)
-	}
-	_, err = io.Copy(dest, req.Body)
-	if chunked {
-		dest.(io.Closer).Close()
-		io.WriteString(&b, "\r\n")
-	}
-
-	req.Body = save
-	if err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
-}
-
-func drainBody(b io.ReadCloser) (r1, r2 io.ReadCloser, err error) {
-	var buf bytes.Buffer
-	if _, err = buf.ReadFrom(b); err != nil {
-		return nil, nil, err
-	}
-	if err = b.Close(); err != nil {
-		return nil, nil, err
-	}
-	return ioutil.NopCloser(&buf), ioutil.NopCloser(bytes.NewReader(buf.Bytes())), nil
 }

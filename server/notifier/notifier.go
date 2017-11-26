@@ -16,7 +16,7 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
 )
 
 type Notifier struct {

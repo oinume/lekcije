@@ -18,6 +18,7 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/route"
 	"github.com/sclevine/agouti"
+	"go.uber.org/zap/zapcore"
 )
 
 var server *httptest.Server
@@ -35,7 +36,11 @@ func TestMain(m *testing.M) {
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
 	logger.InitializeAccessLogger(&accessLogBuffer)
-	logger.InitializeAppLogger(&appLogBuffer)
+	appLogLevel := zapcore.InfoLevel
+	if level := os.Getenv("LOG_LEVEL"); level != "" {
+		appLogLevel = logger.NewLevel(level)
+	}
+	logger.InitializeAppLogger(&appLogBuffer, appLogLevel)
 
 	var err error
 	db, err = model.OpenDB(dbURL, 1, true) // TODO: env
