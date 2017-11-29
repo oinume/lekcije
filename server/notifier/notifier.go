@@ -59,7 +59,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		return nil
 	}
 
-	logger.App.Info("", zap.Uint("userID", uint(user.ID)), zap.Int("teachers", len(teacherIDs)))
+	logger.App.Info("n", zap.Uint("userID", uint(user.ID)), zap.Int("teachers", len(teacherIDs)))
 
 	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
 	wg := &sync.WaitGroup{}
