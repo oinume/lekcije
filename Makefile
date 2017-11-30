@@ -1,14 +1,14 @@
-APP=lekcije
-VENDOR_DIR=vendor
-PROTO_GEN_DIR=proto-gen
-GRPC_GATEWAY_REPO=github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
-E2E_TEST_ARGS=-v
-GO_TEST_ARGS=-v
-GO_TEST_PACKAGES=$(shell go list ./... | grep -v vendor | grep -v e2e)
-DB_HOST=192.168.99.100
-LINT_PACKAGES=$(shell go list ./...)
-VERSION_HASH_VALUE=$(shell git rev-parse HEAD | cut -c-7)
-PID=$(APP).pid
+APP = lekcije
+VENDOR_DIR = vendor
+PROTO_GEN_DIR = proto-gen
+GRPC_GATEWAY_REPO = github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
+GO_GET ?= go get
+GO_TEST ?= go test -v
+GO_TEST_PACKAGES = $(shell go list ./... | grep -v vendor | grep -v e2e)
+DB_HOST = 192.168.99.100
+LINT_PACKAGES = $(shell go list ./...)
+VERSION_HASH_VALUE = $(shell git rev-parse HEAD | cut -c-7)
+PID = $(APP).pid
 
 all: install
 
@@ -21,12 +21,12 @@ install-dep:
 
 .PHONY: install-commands
 install-commands:
-	go get bitbucket.org/liamstask/goose/cmd/goose
-	go get github.com/golang/protobuf/protoc-gen-go
-	go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	go get honnef.co/go/tools/cmd/staticcheck
-	go get honnef.co/go/tools/cmd/gosimple
-	go get honnef.co/go/tools/cmd/unused
+	$(GO_GET) bitbucket.org/liamstask/goose/cmd/goose
+	$(GO_GET) github.com/golang/protobuf/protoc-gen-go
+	$(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+	$(GO_GET) honnef.co/go/tools/cmd/staticcheck
+	$(GO_GET) honnef.co/go/tools/cmd/gosimple
+	$(GO_GET) honnef.co/go/tools/cmd/unused
 
 .PHONY: install
 install:
@@ -59,11 +59,11 @@ test: go-test e2e-test
 
 .PHONY: e2e-test
 e2e-test: minify-static-development
-	go test $(E2E_TEST_ARGS) github.com/oinume/lekcije/e2e
+	$(GO_TEST) github.com/oinume/lekcije/e2e
 
 .PHONY: go-test
 go-test:
-	go test $(GO_TEST_ARGS) $(GO_TEST_PACKAGES)
+	$(GO_TEST) $(GO_TEST_PACKAGES)
 
 .PHONY: goimports
 goimports:
