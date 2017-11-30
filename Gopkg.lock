@@ -47,8 +47,8 @@
 [[projects]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = ["runtime","runtime/internal","utilities"]
-  revision = "589b126116b5fc961939b3e156c29e4d9d58222f"
-  version = "v1.2.2"
+  revision = "8cc3a55af3bcf171a1c23a90c4df9cf591706104"
+  version = "v1.3.0"
 
 [[projects]]
   name = "github.com/jinzhu/gorm"
@@ -134,17 +134,6 @@
   revision = "3eb4713e2655cd1be805795be31b3f85b74b05fd"
 
 [[projects]]
-  name = "github.com/uber-go/atomic"
-  packages = ["."]
-  revision = "3b8db5e93c4c02efbc313e17b2e796b0914a01fb"
-  version = "v1.1.0"
-
-[[projects]]
-  name = "github.com/uber-go/zap"
-  packages = ["."]
-  revision = "fc9fbdfe46f6dc6a78028f22a2fb086dd13182fd"
-
-[[projects]]
   name = "go.uber.org/atomic"
   packages = ["."]
   revision = "8474b86a5a6f79c443ce4b2992817ff32cf208b8"
@@ -200,7 +189,7 @@
 
 [[projects]]
   name = "google.golang.org/genproto"
-  packages = ["googleapis/api/annotations","googleapis/rpc/status"]
+  packages = ["googleapis/rpc/status"]
   revision = "ee236bd376b077c7a89f260c026c4735b195e459"
 
 [[projects]]
@@ -229,6 +218,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c3709dd18b13a795d5493942cf455e693366685b9b82b274a4da4043b9acc59b"
+  inputs-digest = "29df1d385a14e65dd487fcdb5bd19ddba49fbbe87680bfb1de33aae84e553d6e"
   solver-name = "gps-cdcl"
   solver-version = 1
