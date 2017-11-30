@@ -15,15 +15,13 @@ message EchoResponse {
 service Echo {
     rpc Echo(EchoRequest) returns (EchoResponse) {
         option (google.api.http) = {
-          post: "/api/v1/echo"
-          body: "*"
+          get: "/api/v1/echo"
        };
     }
 
     rpc EchoV2(EchoRequest) returns (EchoResponse) {
         option (google.api.http) = {
-          post: "/api/v2/echo"
-          body: "*"
+          get: "/api/v2/echo"
        };
     }
 }
