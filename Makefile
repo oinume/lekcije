@@ -49,6 +49,14 @@ proto/go:
 	protoc -I/usr/local/include -I. -I$(GOPATH)/src -I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
 		--grpc-gateway_out=logtostderr=true:$(PROTO_GEN_DIR)/go \
 		proto/echo/v1/echo.proto
+	protoc -I/usr/local/include -I. \
+  		-I$(GOPATH)/src \
+  		-I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
+  		--go_out=plugins=grpc:$(PROTO_GEN_DIR)/go \
+  		proto/api/v1/*.proto
+	protoc -I/usr/local/include -I. -I$(GOPATH)/src -I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
+		--grpc-gateway_out=logtostderr=true:$(PROTO_GEN_DIR)/go \
+		proto/api/v1/*.proto
 
 .PHONY: ngrok
 ngrok:
