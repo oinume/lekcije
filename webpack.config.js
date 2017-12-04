@@ -77,7 +77,7 @@ const config = {
   },
   externals: {
     jquery: 'jQuery',
-    react: 'react',
+//    react: 'React',
     bootstrap: 'bootstrap',
   },
   plugins: plugins,
