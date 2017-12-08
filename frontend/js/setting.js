@@ -1,17 +1,35 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import MicroContainer from 'react-micro-container';
 
-class SettingView extends React.Component {
+class SettingView extends MicroContainer {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      email: 'oinume@gmail.com'
+      email: ''
     };
   }
 
   componentDidMount() {
+    this.subscribe({
+      fetch: this.handleFetch,
+      update: this.handleUpdate,
+    });
+
+    this.handleFetch();
+  }
+
+  render() {
+    return (
+      <div>
+        <EmailField value={this.state.email} />
+      </div>
+    );
+  }
+
+  handleFetch() {
     axios.get('/api/v1/setting/email')
       .then((response) => {
         this.setState({
@@ -24,12 +42,7 @@ class SettingView extends React.Component {
       });
   }
 
-  render() {
-    return (
-      <div>
-        <EmailField value={this.state.email} />
-      </div>
-    );
+  handleUpdate() {
   }
 }
 
