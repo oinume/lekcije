@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "google/api/annotations.proto";
+
+service API {
+    rpc GetMeEmail(GetMeEmailRequest) returns (GetMeEmailResponse) {
+        option (google.api.http) = {
+          get: "/api/v1/me/email"
+       };
+    }
+}
+
+message GetMeEmailRequest {}
+
+message GetMeEmailResponse {
+    string email = 1;
+}

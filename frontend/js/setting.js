@@ -30,7 +30,7 @@ class SettingView extends MicroContainer {
   }
 
   handleFetch() {
-    axios.get('/api/v1/setting/email')
+    axios.get('/api/v1/me/email')
       .then((response) => {
         this.setState({
           email: response.data['email'],

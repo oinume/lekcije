@@ -48,6 +48,7 @@ func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
 		routes.Handle(pat.Get("/api/v1/echo"), gatewayMux)
 		routes.Handle(pat.Get("/api/v2/echo"), gatewayMux)
 		routes.Handle(pat.Get("/api/v1/setting/email"), gatewayMux)
+		routes.Handle(pat.Get("/api/v1/me/email"), gatewayMux)
 	}
 
 	return routes

@@ -12,9 +12,9 @@ func RegisterAPIV1Server(server *grpc.Server) {
 	api_v1.RegisterAPIServer(server, &apiV1Server{})
 }
 
-func (s *apiV1Server) GetSettingEmail(
-	ctx context.Context, in *api_v1.GetSettingEmailRequest,
-) (*api_v1.GetSettingEmailResponse, error) {
+func (s *apiV1Server) GetMeEmail(
+	ctx context.Context, in *api_v1.GetMeEmailRequest,
+) (*api_v1.GetMeEmailResponse, error) {
 	// TODO: implement
-	return &api_v1.GetSettingEmailResponse{Email:"a@foo.com"}, nil
+	return &api_v1.GetMeEmailResponse{Email:"a@foo.com"}, nil
 }
