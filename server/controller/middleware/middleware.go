@@ -49,6 +49,9 @@ func PanicHandler(h http.Handler) http.Handler {
 
 func AccessLogger(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		for name, values := range r.Header {
+			logger.App.Info(fmt.Sprintf("%v: %v", name, values))
+		}
 		start := time.Now()
 		writerProxy := controller.WrapWriter(w)
 		h.ServeHTTP(writerProxy, r)

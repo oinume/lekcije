@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import MicroContainer from 'react-micro-container';
+import cookie from 'cookie';
 
 class SettingView extends MicroContainer {
 
@@ -30,7 +31,16 @@ class SettingView extends MicroContainer {
   }
 
   handleFetch() {
-    axios.get('/api/v1/me/email')
+    // TODO: move util
+    const cookies = cookie.parse(document.cookie);
+    const headers = {};
+    if (cookies['apiToken']) {
+      headers['Grpc-Metadata-Api-Token'] = cookies['apiToken'];
+      headers['X-Api-Token'] = cookies['apiToken'];
+    }
+    axios.get('/api/v1/me/email', {
+      'headers': headers
+    })
       .then((response) => {
         this.setState({
           email: response.data['email'],
