@@ -45,6 +45,12 @@
   revision = "da06d194a00e19ce00d9011a13931c3f6f6887c7"
 
 [[projects]]
+  branch = "better_docs"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = ["."]
+  revision = "63e69ea2fcaa6764e67826381756e528db9203ab"
+
+[[projects]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = ["runtime","runtime/internal","utilities"]
   revision = "8cc3a55af3bcf171a1c23a90c4df9cf591706104"
@@ -189,7 +195,7 @@
 
 [[projects]]
   name = "google.golang.org/genproto"
-  packages = ["googleapis/rpc/status"]
+  packages = ["googleapis/api/annotations","googleapis/rpc/status"]
   revision = "ee236bd376b077c7a89f260c026c4735b195e459"
 
 [[projects]]
@@ -218,6 +224,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "29df1d385a14e65dd487fcdb5bd19ddba49fbbe87680bfb1de33aae84e553d6e"
+  inputs-digest = "635a4dd7873eb2ee280d5f56e975339ff6f581c03344a5d55a9092fcdb2cf54a"
   solver-name = "gps-cdcl"
   solver-version = 1
