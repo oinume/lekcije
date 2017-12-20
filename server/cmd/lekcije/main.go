@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	"github.com/oinume/lekcije/server/grpc_server/interceptor"
 )
 
 func init() {
@@ -49,7 +50,9 @@ func startGRPCServer(port int) error {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	server := grpc.NewServer()
+	var opts []grpc.ServerOption
+	opts = append(opts, interceptor.WithUnaryServerInterceptors())
+	server := grpc.NewServer(opts...)
 	grpc_server.RegisterEchoServer(server)
 	grpc_server.RegisterAPIV1Server(server)
 	// Register reflection service on gRPC server.

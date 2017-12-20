@@ -1,14 +1,13 @@
 package grpc_server
 
 import (
-	"fmt"
-
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-	"github.com/oinume/lekcije/server/logger"
-	"go.uber.org/zap"
+	"github.com/oinume/lekcije/server/context_data"
+	"github.com/oinume/lekcije/server/model"
+	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
 )
 
 type apiV1Server struct{}
@@ -20,13 +19,23 @@ func RegisterAPIV1Server(server *grpc.Server) {
 func (s *apiV1Server) GetMeEmail(
 	ctx context.Context, in *api_v1.GetMeEmailRequest,
 ) (*api_v1.GetMeEmailResponse, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, fmt.Errorf("no metadata")
+	user, err := authorizeFromContext(ctx)
+	if err != nil {
+		return nil, err
 	}
-	if v, ok := md["api-token"]; ok {
-		logger.App.Info("api-token", zap.String("api-token", v[0]))
+	return &api_v1.GetMeEmailResponse{Email:user.Email}, nil
+}
+
+func authorizeFromContext(ctx context.Context) (*model.User, error) {
+	apiToken, err := context_data.GetAPIToken(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "No api token found")
 	}
-	// TODO: implement
-	return &api_v1.GetMeEmailResponse{Email:"a@foo.com"}, nil
+	// TODO: panic: errors.NotFound: Failed to get *gorm.DB from context
+	userService := model.NewUserService(context_data.MustDB(ctx))
+	user, err := userService.FindLoggedInUser(apiToken)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "No user found")
+	}
+	return user, nil
 }

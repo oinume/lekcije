@@ -1,15 +1,17 @@
 package context_data
 
 import (
+	"context"
+
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
-	"golang.org/x/net/context"
 )
 
 type dbKey struct{}
 type loggedInUserKey struct{}
 type trackingIDKey struct{}
+type apiTokenKey struct{}
 
 func SetDB(ctx context.Context, db *gorm.DB) context.Context {
 	return context.WithValue(ctx, dbKey{}, db)
@@ -69,4 +71,24 @@ func MustTrackingID(ctx context.Context) string {
 		panic(err)
 	}
 	return trackingID
+}
+
+func WithAPIToken(ctx context.Context, apiToken string) context.Context {
+	return context.WithValue(ctx, apiTokenKey{}, apiToken)
+}
+
+func GetAPIToken(ctx context.Context) (string, error) {
+	value := ctx.Value(apiTokenKey{})
+	if apiToken, ok := value.(string); ok {
+		return apiToken, nil
+	}
+	return "", errors.NotFoundf("failed to get api token from context")
+}
+
+func MustAPIToken(ctx context.Context) string {
+	v, err := GetAPIToken(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }
