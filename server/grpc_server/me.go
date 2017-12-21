@@ -31,7 +31,6 @@ func authorizeFromContext(ctx context.Context) (*model.User, error) {
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "No api token found")
 	}
-	// TODO: panic: errors.NotFound: Failed to get *gorm.DB from context
 	userService := model.NewUserService(context_data.MustDB(ctx))
 	user, err := userService.FindLoggedInUser(apiToken)
 	if err != nil {
