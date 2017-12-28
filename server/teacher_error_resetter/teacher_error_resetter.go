@@ -56,6 +56,10 @@ func (m *Main) Run() error {
 			logger.App.Error("fetcher.Fetch failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
 		}
+		if *m.DryRun {
+			logger.App.Info("Skip teacher because of dry-run", zap.Uint32("id", t.ID))
+			continue
+		}
 		if err := teacherService.ResetFetchErrorCount(t.ID); err != nil {
 			logger.App.Error("teacherService.ResetFetchErrorCount failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
