@@ -17,6 +17,7 @@ func main() {
 	m.LogLevel = flag.String("log-level", "info", "Log level")
 	flag.Parse()
 
+	bootstrap.CheckCLIEnvVars()
 	dbLogging := *m.LogLevel == "debug"
 	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
 	if err != nil {

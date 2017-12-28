@@ -107,7 +107,7 @@ func (s *TeacherService) FindByPK(id uint32) (*Teacher, error) {
 
 func (s *TeacherService) IncrementFetchErrorCount(id uint32, value int) error {
 	sql := fmt.Sprintf(
-		`UPDATE %s SET fetch_error_count = fetch_error_count + ? WHERE id = ?`,
+		`UPDATE %s SET fetch_error_count = fetch_error_count + ?, updatd_at = NOW() WHERE id = ?`,
 		new(Teacher).TableName(),
 	)
 	if err := s.db.Exec(sql, value, id).Error; err != nil {
@@ -118,7 +118,7 @@ func (s *TeacherService) IncrementFetchErrorCount(id uint32, value int) error {
 
 func (s *TeacherService) ResetFetchErrorCount(id uint32) error {
 	sql := fmt.Sprintf(
-		`UPDATE %s SET fetch_error_count = 0 WHERE id = ?`,
+		`UPDATE %s SET fetch_error_count = 0, updated_at = NOW() WHERE id = ?`,
 		new(Teacher).TableName(),
 	)
 	if err := s.db.Exec(sql, id).Error; err != nil {

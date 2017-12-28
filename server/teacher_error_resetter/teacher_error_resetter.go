@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const fetchErrorCount = 6
+const fetchErrorCount = 5
 
 type Main struct {
 	Concurrency *int
