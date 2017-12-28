@@ -3,13 +3,13 @@ package interceptor
 import (
 	"context"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-	"github.com/oinume/lekcije/server/context_data"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/context_data"
+	"github.com/oinume/lekcije/server/model"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 const apiTokenMetadataKey = "api-token"

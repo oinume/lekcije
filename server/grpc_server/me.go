@@ -2,12 +2,12 @@ package grpc_server
 
 import (
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/model"
-	"google.golang.org/grpc/status"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type apiV1Server struct{}
@@ -23,7 +23,7 @@ func (s *apiV1Server) GetMeEmail(
 	if err != nil {
 		return nil, err
 	}
-	return &api_v1.GetMeEmailResponse{Email:user.Email}, nil
+	return &api_v1.GetMeEmailResponse{Email: user.Email}, nil
 }
 
 func authorizeFromContext(ctx context.Context) (*model.User, error) {

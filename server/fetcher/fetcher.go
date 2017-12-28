@@ -336,3 +336,44 @@ func MustInt(s string) int {
 	}
 	return int(i)
 }
+
+type MockTransport struct {
+	sync.Mutex
+	NumCalled int
+	content   string
+}
+
+func NewMockTransport(path string) (*MockTransport, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("os.Open failed: path=%v, err=%v", path, err)
+	}
+	b, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("read file failed: err=%v", err)
+	}
+	return &MockTransport{
+		content: string(b),
+	}, nil
+}
+
+func NewMockTransportFromHTML(content string) *MockTransport {
+	return &MockTransport{
+		content: content,
+	}
+}
+
+func (t *MockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	t.Lock()
+	t.NumCalled++
+	t.Unlock()
+	resp := &http.Response{
+		Header:     make(http.Header),
+		Request:    req,
+		StatusCode: http.StatusOK,
+		Status:     "200 OK",
+	}
+	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+	resp.Body = ioutil.NopCloser(strings.NewReader(t.content))
+	return resp, nil
+}

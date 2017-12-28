@@ -8,15 +8,15 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/proto-gen/go/proto/echo/v1"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/grpc_server"
+	"github.com/oinume/lekcije/server/grpc_server/interceptor"
 	"github.com/oinume/lekcije/server/route"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
-	"github.com/oinume/lekcije/server/grpc_server/interceptor"
 )
 
 func init() {
