@@ -2,63 +2,65 @@ package teacher_error_resetter
 
 import (
 	"net/http"
+	"os"
+	"testing"
 	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/fetcher"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"go.uber.org/zap"
 )
 
-const fetchErrorCount = 6
+var helper *model.TestHelper
 
-type Main struct {
-	Concurrency *int
-	DryRun      *bool
-	LogLevel    *string
+func TestMain(m *testing.M) {
+	bootstrap.CheckCLIEnvVars()
+	helper = model.NewTestHelper()
+	helper.TruncateAllTables(helper.DB())
+	os.Exit(m.Run())
 }
 
-func (m *Main) Run() error {
-	bootstrap.CheckCLIEnvVars()
-	startedAt := time.Now().UTC()
-	logger.App.Info("notifier started")
-	defer func() {
-		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
-	}()
+func TestMain_Run(t *testing.T) {
+	teacherService := model.NewTeacherService(helper.DB())
+	teacher := &model.Teacher{
+		ID:                1,
+		Name:              "test",
+		CountryID:         1,
+		Gender:            "male",
+		Birthday:          time.Now().UTC(),
+		YearsOfExperience: 1,
+		FetchErrorCount:   10,
+		CreatedAt:         time.Now().UTC(),
+		UpdatedAt:         time.Now().UTC(),
+	}
+	if err := teacherService.CreateOrUpdate(teacher); err != nil {
+		t.Fatalf("teacherService.CreateOrUpdate failed: err=%v", err)
+	}
 
-	dbLogging := *m.LogLevel == "debug"
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
+	mockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/5982.html") // TODO: path
 	if err != nil {
-		return err
+		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 	}
-	defer db.Close()
+	httpClient := &http.Client{
+		Transport: mockTransport,
+	}
+	concurrency := 1
+	logLevel := "debug"
+	main := &Main{
+		Concurrency: &concurrency,
+		LogLevel:    &logLevel,
+		HTTPClient:  httpClient,
+		DB:          helper.DB(),
+	}
+	if err := main.Run(); err != nil {
+		t.Fatalf("main.Run failed: err=%v", err)
+	}
 
-	mCountryService := model.NewMCountryService(db)
-	mCountries, err := mCountryService.LoadAll()
+	gotTeacher, err := teacherService.FindByPK(teacher.ID)
 	if err != nil {
-		return err
+		t.Fatalf("teacherService.FindByPK failed: err=%v", err)
 	}
-
-	teacherService := model.NewTeacherService(db)
-	teachers, err := teacherService.FindByFetchErrorCountGt(fetchErrorCount)
-	if err != nil {
-		return err
+	if got, want := gotTeacher.FetchErrorCount, uint8(0); got != want {
+		t.Errorf("FetchErrorCount doesn't match: got=%v, want=%v", got, want)
 	}
-
-	fetcher := fetcher.NewTeacherLessonFetcher(http.DefaultClient, *m.Concurrency, false, mCountries, logger.App)
-	defer fetcher.Close()
-	for _, t := range teachers {
-		if _, _, err := fetcher.Fetch(t.ID); err != nil {
-			// TODO: logging
-			continue
-		}
-		if err := teacherService.ResetFetchErrorCount(t.ID); err != nil {
-			// TODO: logging
-			continue
-		}
-	}
-
-	return nil
 }

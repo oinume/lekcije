@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -17,15 +18,17 @@ type Main struct {
 	Concurrency *int
 	DryRun      *bool
 	LogLevel    *string
+	HTTPClient  *http.Client
+	DB          *gorm.DB
 }
 
 func (m *Main) Run() error {
 	bootstrap.CheckCLIEnvVars()
 	startedAt := time.Now().UTC()
-	logger.App.Info("notifier started")
+	logger.App.Info("teacher_error_resetter started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
+		logger.App.Info("teacher_error_resetter finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
 	dbLogging := *m.LogLevel == "debug"
@@ -35,27 +38,26 @@ func (m *Main) Run() error {
 	}
 	defer db.Close()
 
-	mCountryService := model.NewMCountryService(db)
+	mCountryService := model.NewMCountryService(m.DB)
 	mCountries, err := mCountryService.LoadAll()
 	if err != nil {
 		return err
 	}
 
-	teacherService := model.NewTeacherService(db)
+	teacherService := model.NewTeacherService(m.DB)
 	teachers, err := teacherService.FindByFetchErrorCountGt(fetchErrorCount)
 	if err != nil {
 		return err
 	}
-
-	fetcher := fetcher.NewTeacherLessonFetcher(http.DefaultClient, *m.Concurrency, false, mCountries, logger.App)
+	fetcher := fetcher.NewTeacherLessonFetcher(m.HTTPClient, *m.Concurrency, false, mCountries, logger.App)
 	defer fetcher.Close()
 	for _, t := range teachers {
 		if _, _, err := fetcher.Fetch(t.ID); err != nil {
-			// TODO: logging
+			logger.App.Error("fetcher.Fetch failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
 		}
 		if err := teacherService.ResetFetchErrorCount(t.ID); err != nil {
-			// TODO: logging
+			logger.App.Error("teacherService.ResetFetchErrorCount failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
 		}
 	}

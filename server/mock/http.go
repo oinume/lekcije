@@ -1,4 +1,4 @@
-package test
+package mock
 
 import (
 	"net/http"
@@ -6,19 +6,19 @@ import (
 	"sync"
 )
 
-type MockFetcherTransport struct {
+type FetcherTransport struct {
 	sync.Mutex
 	NumCalled int
 	mockHTML  string
 }
 
-func NewMockFetcherTransport(mockHTML string) *MockFetcherTransport {
-	return &MockFetcherTransport{
+func NewFetcherTransport(mockHTML string) *FetcherTransport {
+	return &FetcherTransport{
 		mockHTML: mockHTML,
 	}
 }
 
-func (t *MockFetcherTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *FetcherTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	t.Lock()
 	t.NumCalled++
 	t.Unlock()

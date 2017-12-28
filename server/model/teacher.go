@@ -129,7 +129,7 @@ func (s *TeacherService) ResetFetchErrorCount(id uint32) error {
 
 func (s *TeacherService) FindByFetchErrorCountGt(count uint32) ([]*Teacher, error) {
 	values := make([]*Teacher, 0, 3000)
-	sql := fmt.Sprintf(`SELECT * FROM teacher WHERE fetch_error_count > ? LIMIT 3000`)
+	sql := fmt.Sprintf(`SELECT * FROM teacher WHERE fetch_error_count > ? ORDER BY id LIMIT 3000`)
 	if result := s.db.Raw(sql, count).Scan(&values); result.Error != nil {
 		return nil, errors.InternalWrapf(result.Error, "Failed to FindByFetchErrorCountGt")
 	}
