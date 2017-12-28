@@ -46,8 +46,10 @@ func TestMain_Run(t *testing.T) {
 	}
 	concurrency := 1
 	logLevel := "debug"
+	dryRun := false
 	main := &Main{
 		Concurrency: &concurrency,
+		DryRun:      &dryRun,
 		LogLevel:    &logLevel,
 		HTTPClient:  httpClient,
 		DB:          helper.DB(),
