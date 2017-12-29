@@ -22,4 +22,12 @@ def timed_job_min10():
         "notifier -concurrency=9 -fetcher-cache=true -notification-interval=10 && curl -sS https://nosnch.in/c411a3a685",
         shell=True)
 
+
+@scheduler.scheduled_job('interval', days=7)
+def timed_job_days7():
+    print("Run teacher_error_resetter")
+    subprocess.check_call(
+        "teacher_error_resetter -concurrency=5",
+        shell=True)
+
 scheduler.start()
