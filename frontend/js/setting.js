@@ -16,6 +16,7 @@ class SettingView extends MicroContainer {
   componentDidMount() {
     this.subscribe({
       fetch: this.handleFetch,
+      onChange: this.handleOnChange,
       update: this.handleUpdate,
     });
 
@@ -25,7 +26,7 @@ class SettingView extends MicroContainer {
   render() {
     return (
       <div>
-        <EmailField value={this.state.email} />
+        <EmailField dispatch={this.dispatch} value={this.state.email} />
       </div>
     );
   }
@@ -52,15 +53,25 @@ class SettingView extends MicroContainer {
       });
   }
 
-  handleUpdate() {
+  handleOnChange(email) {
+    this.setState({email: email})
+  }
+
+  handleUpdate(email) {
+    alert('email is ' + email)
   }
 }
 
 class EmailField extends React.Component {
 
 //{{ template "_flashMessage.html" . }}
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(e) {
+    this.props.dispatch('onChange', e.target.value);
   }
 
   render() {
@@ -68,9 +79,12 @@ class EmailField extends React.Component {
       <form method="POST" action="/me/setting/update">
         <div className="form-group">
           <label htmlFor="email">Email address</label>
-          <input type="email" className="form-control" name="email" id="email" placeholder="Email" required autoFocus autoComplete="on" value={this.props.value} />
+          <input type="email" className="form-control" name="email" id="email" placeholder="Email" required autoFocus autoComplete="on" value={this.props.value} onChange={this.onChange} />
         </div>
-        <button type="submit" className="btn btn-primary">送信</button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => this.props.dispatch('update', this.props.value)}>送信</button>
       </form>
     );
   }
