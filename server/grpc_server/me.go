@@ -26,6 +26,21 @@ func (s *apiV1Server) GetMeEmail(
 	return &api_v1.GetMeEmailResponse{Email: user.Email}, nil
 }
 
+func (s *apiV1Server) UpdateMeEmail(
+	ctx context.Context, in *api_v1.UpdateMeEmailRequest,
+) (*api_v1.UpdateMeEmailResponse, error) {
+	user, err := authorizeFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userService := model.NewUserService(context_data.MustDB(ctx))
+	if err := userService.UpdateEmail(user, in.Email); err != nil {
+		return nil, err
+	}
+	return &api_v1.UpdateMeEmailResponse{}, nil
+}
+
 func authorizeFromContext(ctx context.Context) (*model.User, error) {
 	apiToken, err := context_data.GetAPIToken(ctx)
 	if err != nil {

@@ -10,6 +10,13 @@ service API {
           get: "/api/v1/me/email"
        };
     }
+
+    rpc UpdateMeEmail(UpdateMeEmailRequest) returns (UpdateMeEmailResponse) {
+        option (google.api.http) = {
+          post: "/api/v1/me/email"
+          body: "*"
+        };
+    }
 }
 
 message GetMeEmailRequest {}
@@ -17,3 +24,9 @@ message GetMeEmailRequest {}
 message GetMeEmailResponse {
     string email = 1;
 }
+
+message UpdateMeEmailRequest {
+    string email = 1;
+}
+
+message UpdateMeEmailResponse {}
