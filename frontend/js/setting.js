@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
 import MicroContainer from 'react-micro-container';
-import cookie from 'cookie';
+import {createClient} from './http';
 
 class SettingView extends MicroContainer {
 
@@ -26,22 +25,14 @@ class SettingView extends MicroContainer {
   render() {
     return (
       <div>
-        <EmailField dispatch={this.dispatch} value={this.state.email} />
+        <EmailForm dispatch={this.dispatch} value={this.state.email}/>
       </div>
     );
   }
 
   handleFetch() {
-    // TODO: move util
-    const cookies = cookie.parse(document.cookie);
-    const headers = {};
-    if (cookies['apiToken']) {
-      headers['Grpc-Metadata-Api-Token'] = cookies['apiToken'];
-      headers['X-Api-Token'] = cookies['apiToken'];
-    }
-    axios.get('/api/v1/me/email', {
-      'headers': headers
-    })
+    const client = createClient();
+    client.get('/api/v1/me/email')
       .then((response) => {
         this.setState({
           email: response.data['email'],
@@ -58,11 +49,22 @@ class SettingView extends MicroContainer {
   }
 
   handleUpdate(email) {
-    alert('email is ' + email)
+    //alert('email is ' + email);
+    const client = createClient();
+    client.post('/api/v1/me/email', {
+      email: email,
+    })
+      .then((response) => {
+        alert('POST success');
+      })
+      .catch((error) => {
+        console.log(error);
+        alert('POST failed'); // TODO: show error
+      });
   }
 }
 
-class EmailField extends React.Component {
+class EmailForm extends React.Component {
 
 //{{ template "_flashMessage.html" . }}
   constructor(props) {
@@ -79,19 +81,21 @@ class EmailField extends React.Component {
       <form method="POST" action="/me/setting/update">
         <div className="form-group">
           <label htmlFor="email">Email address</label>
-          <input type="email" className="form-control" name="email" id="email" placeholder="Email" required autoFocus autoComplete="on" value={this.props.value} onChange={this.onChange} />
+          <input type="email" className="form-control" name="email" id="email" placeholder="Email" required autoFocus
+                 autoComplete="on" value={this.props.value} onChange={this.onChange}/>
         </div>
         <button
           type="button"
           disabled={!this.props.value}
           className="btn btn-primary"
-          onClick={() => this.props.dispatch('update', this.props.value)}>送信</button>
+          onClick={() => this.props.dispatch('update', this.props.value)}>送信
+        </button>
       </form>
     );
   }
 }
 
 ReactDOM.render(
-  <SettingView />,
+  <SettingView/>,
   document.getElementById('root')
 );
