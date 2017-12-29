@@ -15,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -38,31 +39,6 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(m.Run())
-}
-
-type mockTransport struct {
-	sync.Mutex
-	called int
-}
-
-func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	t.Lock()
-	t.called++
-	t.Unlock()
-	resp := &http.Response{
-		Header:     make(http.Header),
-		Request:    req,
-		StatusCode: http.StatusOK,
-		Status:     "200 OK",
-	}
-	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
-
-	file, err := os.Open("testdata/5982.html")
-	if err != nil {
-		return nil, err
-	}
-	resp.Body = file // Close() will be called by client
-	return resp, nil
 }
 
 type errorTransport struct {
@@ -183,8 +159,10 @@ func TestFetchInternalServerError(t *testing.T) {
 
 func TestFetchConcurrency(t *testing.T) {
 	a := assert.New(t)
-	transport := &mockTransport{}
-	client := &http.Client{Transport: transport}
+	r := require.New(t)
+	mockTransport, err := NewMockTransport("testdata/5982.html")
+	r.NoError(err)
+	client := &http.Client{Transport: mockTransport}
 	fetcher := NewTeacherLessonFetcher(client, *concurrency, false, mCountries, nil)
 
 	const n = 1000
@@ -202,7 +180,7 @@ func TestFetchConcurrency(t *testing.T) {
 	}
 	wg.Wait()
 
-	a.Equal(n, transport.called)
+	a.Equal(n, mockTransport.NumCalled)
 }
 
 func TestParseHTML(t *testing.T) {

@@ -21,32 +21,6 @@ import (
 var helper = model.NewTestHelper()
 var _ = fmt.Print
 
-type mockFetcherTransport struct {
-	sync.Mutex
-	called int
-}
-
-func (t *mockFetcherTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	t.Lock()
-	t.called++
-	t.Unlock()
-	resp := &http.Response{
-		Header:     make(http.Header),
-		Request:    req,
-		StatusCode: http.StatusOK,
-		Status:     "200 OK",
-	}
-	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
-
-	// TODO: file location
-	file, err := os.Open("../fetcher/testdata/5982.html")
-	if err != nil {
-		return nil, err
-	}
-	resp.Body = file // Close() will be called by client
-	return resp, nil
-}
-
 type mockSenderTransport struct {
 	sync.Mutex
 	called int
@@ -81,8 +55,10 @@ func TestSendNotification(t *testing.T) {
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
+	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/5982.html")
+	r.NoError(err)
 	fetcherHTTPClient := &http.Client{
-		Transport: &mockFetcherTransport{},
+		Transport: fetcherMockTransport,
 		Timeout:   5 * time.Second,
 	}
 	fetcher := fetcher.NewTeacherLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
@@ -106,6 +82,6 @@ func TestSendNotification(t *testing.T) {
 
 	for _, user := range users {
 		err := n.SendNotification(user)
-		r.Nil(err)
+		r.NoError(err)
 	}
 }
