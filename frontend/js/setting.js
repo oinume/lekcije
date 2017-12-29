@@ -49,7 +49,7 @@ class SettingView extends MicroContainer {
       })
       .catch((error) => {
         console.log(error);
-        alert('GET failed'); // TODO: show error and disable update button
+        alert('GET failed'); // TODO: show error
       });
   }
 
@@ -83,6 +83,7 @@ class EmailField extends React.Component {
         </div>
         <button
           type="button"
+          disabled={!this.props.value}
           className="btn btn-primary"
           onClick={() => this.props.dispatch('update', this.props.value)}>送信</button>
       </form>
