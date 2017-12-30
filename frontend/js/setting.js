@@ -2,13 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createClient} from './http';
+import Alert from './components/alert';
 
 class SettingView extends MicroContainer {
 
   constructor(props) {
     super(props);
     this.state = {
-      email: ''
+      email: '',
+      alert: {
+        visible: false,
+        kind: '',
+        message: '',
+      },
     };
   }
 
@@ -16,15 +22,19 @@ class SettingView extends MicroContainer {
     this.subscribe({
       fetch: this.handleFetch,
       onChange: this.handleOnChange,
-      update: this.handleUpdate,
+      update: this.handleUpdate, // TODO: rename to updateEmail
+      showAlert: this.handleShowAlert,
+      hideAlert: this.handleHideAlert,
     });
 
     this.handleFetch();
   }
 
   render() {
+    const a = this.state.alert;
     return (
       <div>
+        <Alert dispatch={this.dispatch} visible={a.visible} kind={a.kind} message={a.message} />
         <EmailForm dispatch={this.dispatch} value={this.state.email}/>
       </div>
     );
@@ -55,22 +65,33 @@ class SettingView extends MicroContainer {
       email: email,
     })
       .then((response) => {
-        alert('POST success');
+        this.handleShowAlert('success', 'メールアドレスを更新しました！');
       })
       .catch((error) => {
         console.log(error);
-        if (error.response.status == 400) {
-          alert('正しいメールアドレスを入力してください')
+        if (error.response.status === 400) {
+          alert('正しいメールアドレスを入力してください');
         } else {
           alert('POST failed'); // TODO: show error
         }
       });
   }
+
+  handleShowAlert(kind, message) {
+    this.setState({
+      alert: {visible: true, kind: kind, message: message}
+    })
+  }
+
+  handleHideAlert() {
+    this.setState({
+      alert: {visible: false}
+    })
+  }
 }
 
 class EmailForm extends React.Component {
 
-//{{ template "_flashMessage.html" . }}
   constructor(props) {
     super(props);
     this.onChange = this.onChange.bind(this);
