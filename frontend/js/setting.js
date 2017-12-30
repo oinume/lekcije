@@ -59,7 +59,11 @@ class SettingView extends MicroContainer {
       })
       .catch((error) => {
         console.log(error);
-        alert('POST failed'); // TODO: show error
+        if (error.response.status == 400) {
+          alert('正しいメールアドレスを入力してください')
+        } else {
+          alert('POST failed'); // TODO: show error
+        }
       });
   }
 }

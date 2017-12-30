@@ -1,6 +1,8 @@
 package grpc_server
 
 import (
+	"strings"
+
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/model"
@@ -34,6 +36,12 @@ func (s *apiV1Server) UpdateMeEmail(
 		return nil, err
 	}
 
+	// TODO: better validation
+	email := in.Email
+	if email == "" || !validateEmail(email) {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid Email")
+	}
+
 	userService := model.NewUserService(context_data.MustDB(ctx))
 	if err := userService.UpdateEmail(user, in.Email); err != nil {
 		return nil, err
@@ -52,4 +60,9 @@ func authorizeFromContext(ctx context.Context) (*model.User, error) {
 		return nil, status.Errorf(codes.Unauthenticated, "No user found")
 	}
 	return user, nil
+}
+
+func validateEmail(email string) bool {
+	// TODO: better validation
+	return strings.Contains(email, "@")
 }
