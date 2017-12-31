@@ -34,7 +34,7 @@ class SettingView extends MicroContainer {
     const a = this.state.alert;
     return (
       <div>
-        <Alert dispatch={this.dispatch} visible={a.visible} kind={a.kind} message={a.message} />
+        <Alert dispatch={this.dispatch} visible={a.visible} kind={a.kind} message={a.message}/>
         <EmailForm dispatch={this.dispatch} value={this.state.email}/>
       </div>
     );
@@ -50,7 +50,7 @@ class SettingView extends MicroContainer {
       })
       .catch((error) => {
         console.log(error);
-        alert('GET failed'); // TODO: show error
+        this.handleShowAlert('danger', 'システムエラーが発生しました');
       });
   }
 
@@ -70,9 +70,10 @@ class SettingView extends MicroContainer {
       .catch((error) => {
         console.log(error);
         if (error.response.status === 400) {
-          alert('正しいメールアドレスを入力してください');
+          this.handleShowAlert('danger', '正しいメールアドレスを入力してください');
         } else {
-          alert('POST failed'); // TODO: show error
+          // TODO: external message
+          this.handleShowAlert('danger', 'システムエラーが発生しました');
         }
       });
   }
@@ -106,14 +107,18 @@ class EmailForm extends React.Component {
       <form method="POST" action="/me/setting/update">
         <div className="form-group">
           <label htmlFor="email">Email address</label>
-          <input type="email" className="form-control" name="email" id="email" placeholder="Email" required autoFocus
-                 autoComplete="on" value={this.props.value} onChange={this.onChange}/>
+          <input
+            type="email" className="form-control" name="email" id="email"
+            placeholder="Email" required autoFocus autoComplete="on"
+            value={this.props.value} onChange={this.onChange}/>
         </div>
         <button
           type="button"
           disabled={!this.props.value}
           className="btn btn-primary"
-          onClick={() => this.props.dispatch('update', this.props.value)}>送信
+          onClick={() => this.props.dispatch('update', this.props.value)}
+        >
+          送信
         </button>
       </form>
     );
