@@ -24,8 +24,8 @@ var plugins = [
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
-    { context: nodeModulesPath, from: 'react/dist/**', to: 'lib' },
-    { context: nodeModulesPath, from: 'react-dom/dist/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'react/umd/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'react-dom/umd/**', to: 'lib' },
   ])
 ];
 
@@ -76,9 +76,11 @@ const config = {
     chunkFilename: "js/[id].chunk.js"
   },
   externals: {
-    jquery: 'jQuery',
-//    react: 'React',
-    bootstrap: 'bootstrap',
+    'jquery': 'jQuery',
+    'react': 'React',
+    'react-dom': 'ReactDOM',
+    'bootstrap': 'bootstrap',
+    'bootswatch': 'bootswatch',
   },
   plugins: plugins,
   module: {
