@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createClient} from './http';
-import Alert from './components/alert';
+import Alert from './components/Alert';
 
 class SettingView extends MicroContainer {
 
