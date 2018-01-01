@@ -45,8 +45,11 @@ func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
 
 	if gatewayMux != nil {
 		// This path and path in the proto must be the same
-		routes.Handle(pat.Post("/api/v1/echo"), gatewayMux)
-		routes.Handle(pat.Post("/api/v2/echo"), gatewayMux)
+		routes.Handle(pat.Get("/api/v1/echo"), gatewayMux)
+		routes.Handle(pat.Get("/api/v2/echo"), gatewayMux)
+		routes.Handle(pat.Get("/api/v1/setting/email"), gatewayMux)
+		routes.Handle(pat.Get("/api/v1/me/email"), gatewayMux)
+		routes.Handle(pat.Post("/api/v1/me/email"), gatewayMux)
 	}
 
 	return routes

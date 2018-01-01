@@ -8,10 +8,12 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/proto-gen/go/proto/echo/v1"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/grpc_server"
+	"github.com/oinume/lekcije/server/grpc_server/interceptor"
 	"github.com/oinume/lekcije/server/route"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -48,8 +50,11 @@ func startGRPCServer(port int) error {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	server := grpc.NewServer()
+	var opts []grpc.ServerOption
+	opts = append(opts, interceptor.WithUnaryServerInterceptors())
+	server := grpc.NewServer(opts...)
 	grpc_server.RegisterEchoServer(server)
+	grpc_server.RegisterAPIV1Server(server)
 	// Register reflection service on gRPC server.
 	reflection.Register(server)
 	fmt.Printf("Starting gRPC server on %d\n", port)
@@ -67,8 +72,11 @@ func startHTTPServer(grpcPort, httpPort int) error {
 	if err := echo.RegisterEchoHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {
 		return err
 	}
+	if err := api_v1.RegisterAPIHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {
+		return err
+	}
 	routes := route.Create(gatewayMux)
 
-	fmt.Printf("Listening on :%v\n", httpPort)
+	fmt.Printf("Listening on %v\n", httpPort)
 	return http.ListenAndServe(fmt.Sprintf(":%d", httpPort), routes)
 }
