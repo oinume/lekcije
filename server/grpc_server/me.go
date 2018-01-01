@@ -1,10 +1,12 @@
 package grpc_server
 
 import (
+	"fmt"
 	"strings"
 
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/context_data"
+	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -46,6 +48,8 @@ func (s *apiV1Server) UpdateMeEmail(
 	if err := userService.UpdateEmail(user, in.Email); err != nil {
 		return nil, err
 	}
+	go event_logger.SendGAMeasurementEvent2(event_logger.MustGAMeasurementEventValues(ctx), event_logger.CategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
+
 	return &api_v1.UpdateMeEmailResponse{}, nil
 }
 
