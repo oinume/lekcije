@@ -125,6 +125,12 @@ class EmailForm extends React.Component {
   }
 }
 
+class TargetTimeSpanForm extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+}
+
 ReactDOM.render(
   <SettingView/>,
   document.getElementById('root')
