@@ -12,7 +12,6 @@ import (
 func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
 	routes := goji.NewMux()
 	routes.Use(middleware.SetTrackingID)
-	routes.Use(middleware.SetGRPCMetadata)
 	routes.Use(middleware.AccessLogger)
 	routes.Use(middleware.Redirecter)
 	routes.Use(middleware.PanicHandler)
@@ -21,6 +20,8 @@ func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
 	routes.Use(middleware.SetLoggedInUser)
 	routes.Use(middleware.LoginRequiredFilter)
 	routes.Use(middleware.CORS)
+	routes.Use(middleware.SetGRPCMetadata)
+	routes.Use(middleware.SetGAMeasurementEventValues)
 
 	routes.HandleFunc(pat.Get("/static/*"), controller.Static)
 	routes.HandleFunc(pat.Get("/"), controller.Index)

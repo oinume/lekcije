@@ -15,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -210,6 +211,15 @@ func SetGRPCMetadata(h http.Handler) http.Handler {
 		r.Header.Set("Grpc-Metadata-Http-Url-Path", r.URL.Path)
 		r.Header.Set("Grpc-Metadata-Http-Remote-Addr", getRemoteAddress(r))
 		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func SetGAMeasurementEventValues(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		v := event_logger.NewGAMeasurementEventValuesFromRequest(r)
+		c := event_logger.WithGAMeasurementEventValues(r.Context(), v)
+		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
 }
