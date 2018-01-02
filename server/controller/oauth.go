@@ -90,8 +90,9 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	userService := model.NewUserService(db)
 	user, err := userService.FindByGoogleID(googleID)
 	if err == nil {
-		go event_logger.SendGAMeasurementEvent(
-			r, event_logger.CategoryUser, "login",
+		go event_logger.SendGAMeasurementEvent2(
+			event_logger.MustGAMeasurementEventValues(r.Context()),
+			event_logger.CategoryUser, "login",
 			fmt.Sprint(user.ID), 0, user.ID,
 		)
 	} else {
@@ -109,8 +110,9 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, errTx)
 			return
 		}
-		go event_logger.SendGAMeasurementEvent(
-			r, event_logger.CategoryUser, "create",
+		go event_logger.SendGAMeasurementEvent2(
+			event_logger.MustGAMeasurementEventValues(r.Context()),
+			event_logger.CategoryUser, "create",
 			fmt.Sprint(user.ID), 0, user.ID,
 		)
 	}

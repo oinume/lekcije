@@ -15,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -196,6 +197,28 @@ func SetTrackingID(h http.Handler) http.Handler {
 			http.SetCookie(w, c)
 		}
 		c := context_data.SetTrackingID(r.Context(), trackingID)
+		r.Header.Set("Grpc-Metadata-Http-Tracking-Id", trackingID)
+		h.ServeHTTP(w, r.WithContext(c))
+	}
+	return http.HandlerFunc(fn)
+}
+
+func SetGRPCMetadata(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		r.Header.Set("Grpc-Metadata-Http-User-Agent", r.UserAgent())
+		r.Header.Set("Grpc-Metadata-Http-Referer", r.Referer())
+		r.Header.Set("Grpc-Metadata-Http-Host", r.Host)
+		r.Header.Set("Grpc-Metadata-Http-Url-Path", r.URL.Path)
+		r.Header.Set("Grpc-Metadata-Http-Remote-Addr", getRemoteAddress(r))
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func SetGAMeasurementEventValues(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		v := event_logger.NewGAMeasurementEventValuesFromRequest(r)
+		c := event_logger.WithGAMeasurementEventValues(r.Context(), v)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
@@ -261,4 +284,12 @@ func Redirecter(h http.Handler) http.Handler {
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
+}
+
+func getRemoteAddress(req *http.Request) string {
+	xForwardedFor := req.Header.Get("X-Forwarded-For")
+	if xForwardedFor == "" {
+		return (strings.Split(req.RemoteAddr, ":"))[0]
+	}
+	return strings.TrimSpace((strings.Split(xForwardedFor, ","))[0])
 }
