@@ -41,9 +41,11 @@ type GAMeasurementEventValues struct {
 type gaMeasurementEventValuesKey struct{}
 
 func NewGAMeasurementEventValuesFromRequest(req *http.Request) *GAMeasurementEventValues {
+	// Ignore if client id is not set
+	clientID, _ := context_data.GetTrackingID(req.Context())
 	return &GAMeasurementEventValues{
 		UserAgentOverride: req.UserAgent(),
-		ClientID:          context_data.MustTrackingID(req.Context()),
+		ClientID:          clientID,
 		DocumentHostName:  req.Host,
 		DocumentPath:      req.URL.Path,
 		DocumentTitle:     req.URL.Path,
