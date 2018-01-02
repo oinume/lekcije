@@ -36,6 +36,7 @@ class SettingView extends MicroContainer {
       <div>
         <Alert dispatch={this.dispatch} visible={a.visible} kind={a.kind} message={a.message}/>
         <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+        <NotificationTimeSpanForm dispatch={this.dispatch}/>
       </div>
     );
   }
@@ -104,30 +105,56 @@ class EmailForm extends React.Component {
 
   render() {
     return (
-      <form method="POST" action="/me/setting/update">
+      <form className="form-horizontal">
         <div className="form-group">
-          <label htmlFor="email">Email address</label>
-          <input
-            type="email" className="form-control" name="email" id="email"
-            placeholder="Email" required autoFocus autoComplete="on"
-            value={this.props.value} onChange={this.onChange}/>
+          <label htmlFor="email" className="col-sm-2 control-label">Email address</label>
+          <div className="col-sm-8">
+            <input
+              type="email" className="form-control" name="email" id="email"
+              placeholder="Email" required autoFocus autoComplete="on"
+              value={this.props.value} onChange={this.onChange}/>
+          </div>
         </div>
-        <button
-          type="button"
-          disabled={!this.props.value}
-          className="btn btn-primary"
-          onClick={() => this.props.dispatch('update', this.props.value)}
-        >
-          送信
-        </button>
+        <div className="form-group">
+          <div className="col-sm-offset-2 col-sm-8">
+            <button
+              type="button"
+              disabled={!this.props.value}
+              className="btn btn-primary"
+              onClick={() => this.props.dispatch('update', this.props.value)}
+            >
+              変更
+            </button>
+          </div>
+        </div>
       </form>
     );
   }
 }
 
-class TargetTimeSpanForm extends React.Component {
+class NotificationTimeSpanForm extends React.Component {
   constructor(props) {
     super(props);
+  }
+
+  render() {
+    return (
+      <form className="form-horizontal">
+        <div className="form-group">
+          <label htmlFor="notificationTimeSpan" className="col-sm-2 control-label">通知対象の時間帯</label>
+          <div className="col-sm-8">
+            <p>12:40 〜 23:50</p>
+            <p>12:40 〜 23:50</p>
+            <p>12:40 〜 23:50</p>
+          </div>
+        </div>
+        <div className="form-group">
+          <div className="col-sm-offset-2 col-sm-8">
+            <button type="button" className="btn btn-default">編集</button>
+          </div>
+        </div>
+      </form>
+    );
   }
 }
 
