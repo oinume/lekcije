@@ -85,6 +85,7 @@ func Log(userID uint32, category string, action string, fields ...zapcore.Field)
 	logger.Access.Info("eventLog", f...)
 }
 
+// TODO: remove
 func SendGAMeasurementEvent(req *http.Request, category, action, label string, value int64, userID uint32) {
 	gaClient, err := ga.NewClient(os.Getenv("GOOGLE_ANALYTICS_ID"))
 	if err != nil {
