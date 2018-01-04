@@ -2,7 +2,7 @@
 -- SQL in section 'Up' is executed when this migration is applied
 CREATE TABLE IF NOT EXISTS stat_new_lesson_notifier (
    `date` date NOT NULL,
-   `event` enum('click','delivered','open','deferred','drop','bounce','block') NOT NULL,
+   `event` enum('click','delivered','open','deferred','dropped','bounce','block') NOT NULL,
    `count` int unsigned NOT NULL,
    `uu_count` int unsigned NOT NULL,
    PRIMARY KEY (`date`, `event`)

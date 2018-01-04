@@ -13,7 +13,7 @@ import (
 
 func main() {
 	m := &daily_reporter.Main{}
-	m.Date = flag.String("date", time.Now().UTC().Format("2006-01-02"), "Target date (YYYY-MM-DD)")
+	m.TargetDate = flag.String("target-date", time.Now().UTC().Format("2006-01-02"), "Target date (YYYY-MM-DD)")
 	m.LogLevel = flag.String("log-level", "info", "Log level")
 	flag.Parse()
 

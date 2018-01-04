@@ -9,18 +9,18 @@ import (
 )
 
 type Main struct {
-	Date     *string
-	LogLevel *string
-	DB       *gorm.DB
+	TargetDate *string
+	LogLevel   *string
+	DB         *gorm.DB
 }
 
 func (m *Main) Run() error {
-	if *m.Date == "" {
-		return fmt.Errorf("date is required")
+	if *m.TargetDate == "" {
+		return fmt.Errorf("-target-date is required")
 	}
-	date, err := time.Parse("2006-01-02", *m.Date)
+	date, err := time.Parse("2006-01-02", *m.TargetDate)
 	if err != nil {
-		return fmt.Errorf("invalid date format: %s", *m.Date)
+		return fmt.Errorf("invalid date format: %s", *m.TargetDate)
 	}
 
 	eventLogEmailService := model.NewEventLogEmailService(m.DB)
