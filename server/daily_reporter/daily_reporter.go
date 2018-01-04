@@ -28,18 +28,18 @@ func (m *Main) Run() error {
 	if err != nil {
 		return err
 	}
-	statsUU, err := eventLogEmailService.FindStatsNewLessonNotifierUUCountByDate(date)
+	statUUs, err := eventLogEmailService.FindStatsNewLessonNotifierUUCountByDate(date)
 	if err != nil {
 		return err
 	}
 
-	values := make(map[string]*model.StatsNewLessonNotifier, 100)
+	values := make(map[string]*model.StatNewLessonNotifier, 100)
 	for _, s := range stats {
 		values[s.Event] = s
 	}
 
 	statsNewLessonNotifierService := model.NewStatsNewLessonNotifierService(m.DB)
-	for _, s := range statsUU {
+	for _, s := range statUUs {
 		v := values[s.Event]
 		v.UUCount = s.UUCount
 		if err := statsNewLessonNotifierService.CreateOrUpdate(v); err != nil {

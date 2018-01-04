@@ -40,7 +40,7 @@ func (s *EventLogEmailService) Create(e *EventLogEmail) error {
 	return s.db.Create(e).Error
 }
 
-func (s *EventLogEmailService) FindStatsNewLessonNotifierByDate(date time.Time) ([]*StatsNewLessonNotifier, error) {
+func (s *EventLogEmailService) FindStatsNewLessonNotifierByDate(date time.Time) ([]*StatNewLessonNotifier, error) {
 	sql := `
 SELECT CAST(datetime AS DATE) AS date, event, COUNT(*) AS count
 FROM event_log_email
@@ -50,14 +50,14 @@ WHERE
 GROUP BY event;
 `
 	d := date.Format("2006-01-02")
-	values := make([]*StatsNewLessonNotifier, 0, 100)
+	values := make([]*StatNewLessonNotifier, 0, 100)
 	if err := s.db.Raw(strings.TrimSpace(sql), d+" 00:00:00", d+" 23:59:59").Scan(&values).Error; err != nil {
 		return nil, errors.InternalWrapf(err, "error")
 	}
 	return values, nil
 }
 
-func (s *EventLogEmailService) FindStatsNewLessonNotifierUUCountByDate(date time.Time) ([]*StatsNewLessonNotifier, error) {
+func (s *EventLogEmailService) FindStatsNewLessonNotifierUUCountByDate(date time.Time) ([]*StatNewLessonNotifier, error) {
 	sql := `
 SELECT s.date, s.event, COUNT(*) AS uu_count
 FROM (
@@ -71,7 +71,7 @@ FROM (
 GROUP BY s.event
 `
 	d := date.Format("2006-01-02")
-	values := make([]*StatsNewLessonNotifier, 0, 100)
+	values := make([]*StatNewLessonNotifier, 0, 100)
 	if err := s.db.Raw(strings.TrimSpace(sql), d+" 00:00:00", d+" 23:59:59").Scan(&values).Error; err != nil {
 		return nil, errors.InternalWrapf(err, "error")
 	}

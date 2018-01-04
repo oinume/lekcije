@@ -8,26 +8,26 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
-type StatsNewLessonNotifier struct {
+type StatNewLessonNotifier struct {
 	Date    time.Time
 	Event   string
 	Count   uint32
 	UUCount uint32
 }
 
-func (*StatsNewLessonNotifier) TableName() string {
-	return "stats_new_lesson_notifier"
+func (*StatNewLessonNotifier) TableName() string {
+	return "stat_new_lesson_notifier"
 }
 
-type StatsNewLessonNotifierService struct {
+type StatNewLessonNotifierService struct {
 	db *gorm.DB
 }
 
-func NewStatsNewLessonNotifierService(db *gorm.DB) *StatsNewLessonNotifierService {
-	return &StatsNewLessonNotifierService{db}
+func NewStatsNewLessonNotifierService(db *gorm.DB) *StatNewLessonNotifierService {
+	return &StatNewLessonNotifierService{db}
 }
 
-func (s *StatsNewLessonNotifierService) CreateOrUpdate(v *StatsNewLessonNotifier) error {
+func (s *StatNewLessonNotifierService) CreateOrUpdate(v *StatNewLessonNotifier) error {
 	date := v.Date.Format("2006-01-02")
 	sql := fmt.Sprintf(`INSERT INTO %s VALUES (?, ?, ?, ?)`, v.TableName())
 	sql += " ON DUPLICATE KEY UPDATE"
