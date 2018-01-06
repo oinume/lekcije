@@ -66,7 +66,7 @@ func (m *Main) Run() error {
 	if err != nil {
 		return errors.InternalWrapf(err, "Failed to load all MCountries")
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *m.Concurrency, *m.FetcherCache, mCountries, logger.App)
+	fetcher := fetcher.NewLessonFetcher(nil, *m.Concurrency, *m.FetcherCache, mCountries, logger.App)
 
 	var sender emailer.Sender
 	if *m.SendEmail {

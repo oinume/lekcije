@@ -49,7 +49,7 @@ func (m *Main) Run() error {
 	if err != nil {
 		return err
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(m.HTTPClient, *m.Concurrency, false, mCountries, logger.App)
+	fetcher := fetcher.NewLessonFetcher(m.HTTPClient, *m.Concurrency, false, mCountries, logger.App)
 	defer fetcher.Close()
 	for _, t := range teachers {
 		if _, _, err := fetcher.Fetch(t.ID); err != nil {

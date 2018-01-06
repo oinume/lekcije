@@ -61,7 +61,7 @@ func TestSendNotification(t *testing.T) {
 		Transport: fetcherMockTransport,
 		Timeout:   5 * time.Second,
 	}
-	fetcher := fetcher.NewTeacherLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
 
 	var users []*model.User
 	for i := 0; i < 10; i++ {

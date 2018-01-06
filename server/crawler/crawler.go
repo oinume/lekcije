@@ -53,7 +53,7 @@ func (m *Main) Run() error {
 	}
 
 	loader := m.createLoader(db)
-	fetcher := fetcher.NewTeacherLessonFetcher(nil, *m.Concurrency, false, mCountries, logger.App)
+	fetcher := fetcher.NewLessonFetcher(nil, *m.Concurrency, false, mCountries, logger.App)
 	teacherService := model.NewTeacherService(db)
 	for cursor := loader.GetInitialCursor(); cursor != ""; {
 		var teacherIDs []uint32
@@ -70,7 +70,7 @@ func (m *Main) Run() error {
 				teacher, _, err := fetcher.Fetch(id)
 				if err != nil {
 					if *m.ContinueOnError {
-						logger.App.Error("Error during TeacherLessonFetcher.Fetch", zap.Error(err))
+						logger.App.Error("Error during LessonFetcher.Fetch", zap.Error(err))
 						return nil
 					} else {
 						return err
