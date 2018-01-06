@@ -129,27 +129,29 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []
 }
 
 func (fetcher *TeacherLessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
+	nopCloser := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return ioutil.NopCloser(strings.NewReader("")),
-			errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
+		return nopCloser, errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
 	}
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {
-		return ioutil.NopCloser(strings.NewReader("")),
-			errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
+		return nopCloser, errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
 	}
 
 	switch resp.StatusCode {
 	case http.StatusOK:
 		return resp.Body, nil
 	case http.StatusMovedPermanently, http.StatusFound:
-		return resp.Body, errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
+		_ = resp.Body.Close()
+		return nopCloser, errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
 	default:
-		return resp.Body, errors.Internalf(
-			"Unknown error in fetchContent: url=%v, status=%v",
-			url, resp.StatusCode,
+		body, _ := ioutil.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		return nopCloser, errors.Internalf(
+			"Unknown error in fetchContent: url=%v, status=%v, body=%v",
+			url, resp.StatusCode, string(body),
 		)
 	}
 }
