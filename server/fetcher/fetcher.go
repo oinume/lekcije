@@ -62,7 +62,7 @@ type teacherLessons struct {
 	lessons []*model.Lesson
 }
 
-type TeacherLessonFetcher struct {
+type LessonFetcher struct {
 	httpClient *http.Client
 	semaphore  chan struct{}
 	caching    bool
@@ -72,10 +72,10 @@ type TeacherLessonFetcher struct {
 	mCountries *model.MCountries
 }
 
-func NewTeacherLessonFetcher(
+func NewLessonFetcher(
 	httpClient *http.Client, concurrency int, caching bool,
 	mCountries *model.MCountries, log *zap.Logger,
-) *TeacherLessonFetcher {
+) *LessonFetcher {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
 	}
@@ -87,7 +87,7 @@ func NewTeacherLessonFetcher(
 	}
 	semaphore := make(chan struct{}, concurrency)
 	cache := make(map[uint32]*teacherLessons, 5000)
-	return &TeacherLessonFetcher{
+	return &LessonFetcher{
 		httpClient: httpClient,
 		semaphore:  semaphore,
 		caching:    caching,
@@ -98,7 +98,7 @@ func NewTeacherLessonFetcher(
 	}
 }
 
-func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
+func (fetcher *LessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
 	fetcher.semaphore <- struct{}{}
 	defer func() {
 		<-fetcher.semaphore
@@ -128,7 +128,7 @@ func (fetcher *TeacherLessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []
 	return fetcher.parseHTML(teacher, content)
 }
 
-func (fetcher *TeacherLessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
+func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 	nopCloser := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -156,7 +156,7 @@ func (fetcher *TeacherLessonFetcher) fetchContent(url string) (io.ReadCloser, er
 	}
 }
 
-func (fetcher *TeacherLessonFetcher) parseHTML(
+func (fetcher *LessonFetcher) parseHTML(
 	teacher *model.Teacher,
 	html io.Reader,
 ) (*model.Teacher, []*model.Lesson, error) {
@@ -279,7 +279,7 @@ func (fetcher *TeacherLessonFetcher) parseHTML(
 }
 
 // TODO: Move to model
-func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
+func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
 	switch name {
 	case "国籍":
 		c, found := fetcher.mCountries.GetByNameJA(value)
@@ -327,7 +327,7 @@ func (fetcher *TeacherLessonFetcher) setTeacherAttribute(teacher *model.Teacher,
 	return nil
 }
 
-func (fetcher *TeacherLessonFetcher) Close() {
+func (fetcher *LessonFetcher) Close() {
 	close(fetcher.semaphore)
 }
 

@@ -21,7 +21,7 @@ import (
 
 type Notifier struct {
 	db              *gorm.DB
-	fetcher         *fetcher.TeacherLessonFetcher
+	fetcher         *fetcher.LessonFetcher
 	dryRun          bool
 	lessonService   *model.LessonService
 	teachers        map[uint32]*model.Teacher
@@ -32,7 +32,7 @@ type Notifier struct {
 	sync.Mutex
 }
 
-func NewNotifier(db *gorm.DB, fetcher *fetcher.TeacherLessonFetcher, dryRun bool, sender emailer.Sender) *Notifier {
+func NewNotifier(db *gorm.DB, fetcher *fetcher.LessonFetcher, dryRun bool, sender emailer.Sender) *Notifier {
 	return &Notifier{
 		db:              db,
 		fetcher:         fetcher,
