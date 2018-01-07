@@ -137,17 +137,46 @@ class NotificationTimeSpanFormContainer extends MicroContainer {
 
   constructor(props) {
     super(props);
-    this.state = { editable: false };
+    this.state = {
+      editable: false,
+      timeSpans: [], // {fromHour:23, fromMinutes:0, toHour:23, toMinutes:30}
+    };
   }
 
   componentDidMount() {
     this.subscribe({
       setEditable: this.handleSetEditable,
+      add: this.handleAdd,
+      update: this.handleUpdate,
+    });
+
+    this.fetchTimeSpans();
+  }
+
+  fetchTimeSpans() {
+    let timeSpans = [
+      {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}
+    ];
+    this.setState({
+      timeSpans: timeSpans,
     });
   }
 
   handleSetEditable(value) {
-    this.setState({ editable: value })
+    this.setState({editable: value})
+  }
+
+  handleAdd() {
+    this.setState({
+      timeSpans: [...this.state.timeSpans, {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}]
+    });
+  }
+
+  handleUpdate() {
+    // TODO: api call
+    this.setState({
+      editable: false,
+    });
   }
 
   render() {
@@ -158,29 +187,86 @@ class NotificationTimeSpanFormContainer extends MicroContainer {
 class NotificationTimeSpanForm extends React.Component {
   constructor(props) {
     super(props);
+    this.onClickPlus = this.onClickPlus.bind(this);
+  }
+
+  onClickPlus(e) {
+    e.preventDefault();
+    this.props.dispatch('add');
   }
 
   render() {
+    let content;
+    if (this.props.editable) {
+      console.log(this.props.timeSpans);
+      let hourOptions = [];
+      for (let i = 0; i <= 23; i++) {
+        hourOptions.push(<option key={i} value={i}>{i}</option>);
+      }
+      let minuteOptions = [];
+      for (const i of [0, 30]) {
+        minuteOptions.push(<option key={i} value={i}>{i}</option>);
+      }
+
+      content =
+        <div className="col-sm-8">
+          <select name="fromHour" className="custom-select mr-sm-2">
+            {hourOptions}
+          </select>
+          &nbsp;
+          <select name="fromMinute" className="custom-select mr-sm-2">
+            {minuteOptions}
+          </select>
+
+          &nbsp;〜&nbsp;
+          <select name="fromHour" className="custom-select mr-sm-2">
+            {hourOptions}
+          </select>
+          &nbsp;
+          <select name="fromMinute" className="custom-select mr-sm-2">
+            {minuteOptions}
+          </select>
+          &nbsp;
+          /* TODO: add row max to 3 */
+          <a href="" onClick={() => this.onClickPlus(event)}><span class="glyphicon glyphicon-plus-sign"/></a>
+        </div>;
+    } else {
+      content =
+        <div className="col-sm-8">
+          <p>12:40 〜 23:50</p>
+          <p>12:40 〜 23:50</p>
+          <p>12:40 〜 23:50</p>
+        </div>;
+    }
+
+    let updateButton;
+    if (this.props.editable) {
+      updateButton =
+        <button
+          type="button" className="btn btn-primary"
+          onClick={() => this.props.dispatch('update', false)}
+        >
+          更新
+        </button>;
+    } else {
+      updateButton =
+        <button
+          type="button" className="btn btn-default"
+          onClick={() => this.props.dispatch('setEditable', true)}
+        >
+          編集
+        </button>;
+    }
+
     return (
       <form className="form-horizontal">
         <div className="form-group">
           <label htmlFor="notificationTimeSpan" className="col-sm-2 control-label">通知対象の時間帯</label>
-          <div className="col-sm-8">
-            <p>12:40 〜 23:50</p>
-            <p>12:40 〜 23:50</p>
-            <p>12:40 〜 23:50</p>
-            {console.log(this.props.editable)}
-          </div>
+          {content}
         </div>
         <div className="form-group">
           <div className="col-sm-offset-2 col-sm-8">
-            <button
-              type="button"
-              className="btn btn-default"
-              onClick={() => this.props.dispatch('setEditable', true)}
-            >
-              編集
-            </button>
+            {updateButton}
           </div>
         </div>
       </form>
