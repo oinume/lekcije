@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createClient} from './http';
 import Alert from './components/Alert';
+import Select from './components/Select';
 
 class SettingView extends MicroContainer {
 
@@ -188,11 +189,16 @@ class NotificationTimeSpanForm extends React.Component {
   constructor(props) {
     super(props);
     this.onClickPlus = this.onClickPlus.bind(this);
+    this.handleOnChange = this.handleOnChange.bind(this);
   }
 
   onClickPlus(e) {
     e.preventDefault();
     this.props.dispatch('add');
+  }
+
+  handleOnChange(selectedOption) {
+    console.log(`Selected: ${selectedOption.label}`);
   }
 
   render() {
@@ -201,32 +207,49 @@ class NotificationTimeSpanForm extends React.Component {
       console.log(this.props.timeSpans);
       let hourOptions = [];
       for (let i = 0; i <= 23; i++) {
-        hourOptions.push(<option key={i} value={i}>{i}</option>);
+        hourOptions.push({value: i, label: i})
       }
       let minuteOptions = [];
       for (const i of [0, 30]) {
-        minuteOptions.push(<option key={i} value={i}>{i}</option>);
+        minuteOptions.push({value:i, label: i});
       }
 
       content =
         <div className="col-sm-8">
-          <select name="fromHour" className="custom-select mr-sm-2">
-            {hourOptions}
-          </select>
+          <Select
+            name="fromHour"
+            value={0}
+            onChange={this.handleOnChange}
+            options={hourOptions}
+            className="custom-select mr-sm-2"
+          />時
           &nbsp;
-          <select name="fromMinute" className="custom-select mr-sm-2">
-            {minuteOptions}
-          </select>
+          <Select
+            name="fromMinute"
+            value={0}
+            onChange={this.handleOnChange}
+            options={minuteOptions}
+            className="custom-select mr-sm-2"
+          />分
 
-          &nbsp;〜&nbsp;
-          <select name="fromHour" className="custom-select mr-sm-2">
-            {hourOptions}
-          </select>
+          &nbsp; 〜 &nbsp;&nbsp;
+
+          <Select
+            name="toHour"
+            value={0}
+            onChange={this.handleOnChange}
+            options={hourOptions}
+            className="custom-select mr-sm-2"
+          />時
           &nbsp;
-          <select name="fromMinute" className="custom-select mr-sm-2">
-            {minuteOptions}
-          </select>
-          &nbsp;
+          <Select
+            name="toMinute"
+            value={0}
+            onChange={this.handleOnChange}
+            options={minuteOptions}
+            className="custom-select mr-sm-2"
+          />分
+
           /* TODO: add row max to 3 */
           <a href="" onClick={() => this.onClickPlus(event)}><span class="glyphicon glyphicon-plus-sign"/></a>
         </div>;
