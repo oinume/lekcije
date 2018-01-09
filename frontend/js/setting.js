@@ -149,6 +149,7 @@ class NotificationTimeSpanFormContainer extends MicroContainer {
       setEditable: this.handleSetEditable,
       add: this.handleAdd,
       update: this.handleUpdate,
+      onChange: this.handleOnChange,
     });
 
     this.fetchTimeSpans();
@@ -173,6 +174,14 @@ class NotificationTimeSpanFormContainer extends MicroContainer {
     });
   }
 
+  handleOnChange(name, index, value) {
+    let timeSpans = this.state.timeSpans;
+    timeSpans[index][name] = value;
+    this.setState({
+      timeSpans: timeSpans,
+    });
+  }
+
   handleUpdate() {
     // TODO: api call
     this.setState({
@@ -189,7 +198,7 @@ class NotificationTimeSpanForm extends React.Component {
   constructor(props) {
     super(props);
     this.onClickPlus = this.onClickPlus.bind(this);
-    this.handleOnChange = this.handleOnChange.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   onClickPlus(e) {
@@ -197,62 +206,76 @@ class NotificationTimeSpanForm extends React.Component {
     this.props.dispatch('add');
   }
 
-  handleOnChange(selectedOption) {
-    console.log(`Selected: ${selectedOption.label}`);
+  onChange(event) {
+    const a = event.target.name.split('_');
+    const name = a[0];
+    const index = a[1];
+    const timeSpans = this.props.timeSpans.slice();
+    timeSpans[index][name] = event.target.value;
+    this.props.dispatch('onChange', name, index, event.target.value);
+  }
+
+  createTimeSpanContent(timeSpan, index) {
+    let hourOptions = [];
+    for (let i = 0; i <= 23; i++) {
+      hourOptions.push({value: i, label: i})
+    }
+    let minuteOptions = [];
+    for (const i of [0, 30]) {
+      minuteOptions.push({value:i, label: i});
+    }
+
+    return (
+      <div className="col-sm-8">
+        <Select
+          name={'fromHour_' + index}
+          value={timeSpan.fromHour}
+          onChange={this.onChange}
+          options={hourOptions}
+          className="custom-select mr-sm-2"
+        />時
+        &nbsp;
+        <Select
+          name={'fromMinutes_' + index}
+          value={timeSpan.fromMinutes}
+          onChange={this.onChange}
+          options={minuteOptions}
+          className="custom-select mr-sm-2"
+        />分
+
+        &nbsp; 〜 &nbsp;&nbsp;
+
+        <Select
+          name={'toHour_' + index}
+          value={timeSpan.toHour}
+          onChange={this.onChange}
+          options={hourOptions}
+          className="custom-select mr-sm-2"
+        />時
+        &nbsp;
+        <Select
+          name={'toMinutes_' + index}
+          value={timeSpan.toMinutes}
+          onChange={this.onChange}
+          options={minuteOptions}
+          className="custom-select mr-sm-2"
+        />分
+
+        /* TODO: add row max to 3 */
+        <a href="" onClick={() => this.onClickPlus(event)}>
+          <span className="glyphicon glyphicon-plus-sign"/>
+        </a>
+      </div>
+    );
   }
 
   render() {
     let content;
     if (this.props.editable) {
-      console.log(this.props.timeSpans);
-      let hourOptions = [];
-      for (let i = 0; i <= 23; i++) {
-        hourOptions.push({value: i, label: i})
-      }
-      let minuteOptions = [];
-      for (const i of [0, 30]) {
-        minuteOptions.push({value:i, label: i});
-      }
-
-      content =
-        <div className="col-sm-8">
-          <Select
-            name="fromHour"
-            value={0}
-            onChange={this.handleOnChange}
-            options={hourOptions}
-            className="custom-select mr-sm-2"
-          />時
-          &nbsp;
-          <Select
-            name="fromMinute"
-            value={0}
-            onChange={this.handleOnChange}
-            options={minuteOptions}
-            className="custom-select mr-sm-2"
-          />分
-
-          &nbsp; 〜 &nbsp;&nbsp;
-
-          <Select
-            name="toHour"
-            value={0}
-            onChange={this.handleOnChange}
-            options={hourOptions}
-            className="custom-select mr-sm-2"
-          />時
-          &nbsp;
-          <Select
-            name="toMinute"
-            value={0}
-            onChange={this.handleOnChange}
-            options={minuteOptions}
-            className="custom-select mr-sm-2"
-          />分
-
-          /* TODO: add row max to 3 */
-          <a href="" onClick={() => this.onClickPlus(event)}><span class="glyphicon glyphicon-plus-sign"/></a>
-        </div>;
+      content = [];
+      this.props.timeSpans.map((timeSpan, i) => {
+        content.push(this.createTimeSpanContent(timeSpan, i));
+      });
     } else {
       content =
         <div className="col-sm-8">
