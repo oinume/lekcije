@@ -109,7 +109,9 @@ class EmailForm extends React.Component {
     return (
       <form className="form-horizontal">
         <div className="form-group">
-          <label htmlFor="email" className="col-sm-2 control-label">Email address</label>
+          <div className="col-sm-2">
+            <label htmlFor="email" className="control-label">Email address</label>
+          </div>
           <div className="col-sm-8">
             <input
               type="email" className="form-control" name="email" id="email"
@@ -169,6 +171,9 @@ class NotificationTimeSpanFormContainer extends MicroContainer {
   }
 
   handleAdd() {
+    if (this.state.timeSpans.length === 3) {
+      return;
+    }
     this.setState({
       timeSpans: [...this.state.timeSpans, {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}]
     });
@@ -226,7 +231,7 @@ class NotificationTimeSpanForm extends React.Component {
     }
 
     return (
-      <div className="col-sm-8">
+      <p>
         <Select
           name={'fromHour_' + index}
           value={timeSpan.fromHour}
@@ -261,11 +266,10 @@ class NotificationTimeSpanForm extends React.Component {
           className="custom-select mr-sm-2"
         />分
 
-        /* TODO: add row max to 3 */
-        <a href="" onClick={() => this.onClickPlus(event)}>
+        <button type="button" className="btn btn-link btn-xs" onClick={() => this.onClickPlus(event)}>
           <span className="glyphicon glyphicon-plus-sign"/>
-        </a>
-      </div>
+        </button>
+      </p>
     );
   }
 
@@ -278,7 +282,7 @@ class NotificationTimeSpanForm extends React.Component {
       });
     } else {
       content =
-        <div className="col-sm-8">
+        <div>
           <p>12:40 〜 23:50</p>
           <p>12:40 〜 23:50</p>
           <p>12:40 〜 23:50</p>
@@ -307,9 +311,14 @@ class NotificationTimeSpanForm extends React.Component {
     return (
       <form className="form-horizontal">
         <div className="form-group">
-          <label htmlFor="notificationTimeSpan" className="col-sm-2 control-label">通知対象の時間帯</label>
-          {content}
+          <div className="col-sm-2">
+            <label htmlFor="notificationTimeSpan" className="control-label">通知対象の時間帯</label>
+          </div>
+          <div className="col-sm-8">
+            {content}
+          </div>
         </div>
+
         <div className="form-group">
           <div className="col-sm-offset-2 col-sm-8">
             {updateButton}
