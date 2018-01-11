@@ -21,14 +21,13 @@ class SettingView extends MicroContainer {
 
   componentDidMount() {
     this.subscribe({
-      fetch: this.handleFetch,
-      onChange: this.handleOnChange,
-      update: this.handleUpdate, // TODO: rename to updateEmail or Move to EmailFormContainer
       showAlert: this.handleShowAlert,
       hideAlert: this.handleHideAlert,
+      onChangeEmail: this.handleOnChangeEmail,
+      updateEmail: this.handleUpdateEmail, // TODO: rename to updateEmail or Move to EmailFormContainer
     });
 
-    this.handleFetch();
+    this.fetch();
   }
 
   render() {
@@ -42,7 +41,7 @@ class SettingView extends MicroContainer {
     );
   }
 
-  handleFetch() {
+  fetch() {
     // TODO: ここでNotificationTimeSpanも取得
     const client = createClient();
     client.get('/api/v1/me/email')
@@ -57,11 +56,11 @@ class SettingView extends MicroContainer {
       });
   }
 
-  handleOnChange(email) {
+  handleOnChangeEmail(email) {
     this.setState({email: email})
   }
 
-  handleUpdate(email) {
+  handleUpdateEmail(email) {
     //alert('email is ' + email);
     const client = createClient();
     client.post('/api/v1/me/email', {
@@ -102,7 +101,7 @@ class EmailForm extends React.Component {
   }
 
   onChange(e) {
-    this.props.dispatch('onChange', e.target.value);
+    this.props.dispatch('onChangeEmail', e.target.value);
   }
 
   render() {
@@ -125,7 +124,7 @@ class EmailForm extends React.Component {
               type="button"
               disabled={!this.props.value}
               className="btn btn-primary"
-              onClick={() => this.props.dispatch('update', this.props.value)}
+              onClick={() => this.props.dispatch('updateEmail', this.props.value)}
             >
               変更
             </button>
