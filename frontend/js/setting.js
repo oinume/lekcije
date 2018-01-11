@@ -10,11 +10,15 @@ class SettingView extends MicroContainer {
   constructor(props) {
     super(props);
     this.state = {
-      email: '',
       alert: {
         visible: false,
         kind: '',
         message: '',
+      },
+      email: '',
+      timeSpan: {
+        editable: false,
+        timeSpans: [], // {fromHour:23, fromMinutes:0, toHour:23, toMinutes:30}
       },
     };
   }
@@ -22,21 +26,27 @@ class SettingView extends MicroContainer {
   componentDidMount() {
     this.subscribe({
       showAlert: this.handleShowAlert,
+      // Email
       hideAlert: this.handleHideAlert,
       onChangeEmail: this.handleOnChangeEmail,
-      updateEmail: this.handleUpdateEmail, // TODO: rename to updateEmail or Move to EmailFormContainer
+      updateEmail: this.handleUpdateEmail,
+      // TimeSpan
+      setTimeSpanEditable: this.handleSetTimeSpanEditable,
+      addTimeSpan: this.handleAddTimeSpan,
+      updateTimeSpan: this.handleUpdateTimeSpan,
+      onChangeTimeSpan: this.handleOnChangeTimeSpan,
     });
 
     this.fetch();
   }
 
   render() {
-    const a = this.state.alert;
     return (
       <div>
-        <Alert dispatch={this.dispatch} visible={a.visible} kind={a.kind} message={a.message}/>
+        <Alert dispatch={this.dispatch} {...this.state.alert}/>
         <EmailForm dispatch={this.dispatch} value={this.state.email}/>
-        <NotificationTimeSpanFormContainer rootDispatch={this.dispatch}/>
+        <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}
+        />
       </div>
     );
   }
@@ -54,6 +64,25 @@ class SettingView extends MicroContainer {
         console.log(error);
         this.handleShowAlert('danger', 'システムエラーが発生しました');
       });
+
+    let timeSpans = [
+      {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}
+    ];
+    this.setState({
+      timeSpans: timeSpans,
+    });
+  }
+
+  handleShowAlert(kind, message) {
+    this.setState({
+      alert: {visible: true, kind: kind, message: message}
+    })
+  }
+
+  handleHideAlert() {
+    this.setState({
+      alert: {visible: false}
+    })
   }
 
   handleOnChangeEmail(email) {
@@ -80,16 +109,46 @@ class SettingView extends MicroContainer {
       });
   }
 
-  handleShowAlert(kind, message) {
+  handleSetTimeSpanEditable(value) {
     this.setState({
-      alert: {visible: true, kind: kind, message: message}
+      timeSpan: {
+        editable: value,
+        timeSpans: this.state.timeSpans,
+      }
     })
   }
 
-  handleHideAlert() {
+  handleAddTimeSpan() {
+    if (this.state.timeSpan.timeSpans.length === 3) {
+      return;
+    }
     this.setState({
-      alert: {visible: false}
-    })
+      timeSpan: {
+        editable: this.state.timeSpan.editable,
+        timeSpans: [...this.state.timeSpan.timeSpans, {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}],
+      }
+    });
+  }
+
+  handleOnChangeTimeSpan(name, index, value) {
+    let timeSpans = this.state.timeSpans.slice();
+    timeSpans[index][name] = value;
+    this.setState({
+      timeSpan: {
+        editable: this.state.timeSpan.editable,
+        timeSpans: timeSpans,
+      }
+    });
+  }
+
+  handleUpdateTimeSpan() {
+    // TODO: api call
+    this.setState({
+      timeSpan: {
+        editable: false,
+        timeSpans: this.state.timeSpans,
+      }
+    });
   }
 }
 
@@ -135,69 +194,6 @@ class EmailForm extends React.Component {
   }
 }
 
-class NotificationTimeSpanFormContainer extends MicroContainer {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      editable: false,
-      timeSpans: [], // {fromHour:23, fromMinutes:0, toHour:23, toMinutes:30}
-    };
-  }
-
-  componentDidMount() {
-    this.subscribe({
-      setEditable: this.handleSetEditable,
-      add: this.handleAdd,
-      update: this.handleUpdate,
-      onChange: this.handleOnChange,
-    });
-
-    this.fetchTimeSpans();
-  }
-
-  fetchTimeSpans() {
-    let timeSpans = [
-      {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}
-    ];
-    this.setState({
-      timeSpans: timeSpans,
-    });
-  }
-
-  handleSetEditable(value) {
-    this.setState({editable: value})
-  }
-
-  handleAdd() {
-    if (this.state.timeSpans.length === 3) {
-      return;
-    }
-    this.setState({
-      timeSpans: [...this.state.timeSpans, {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}]
-    });
-  }
-
-  handleOnChange(name, index, value) {
-    let timeSpans = this.state.timeSpans;
-    timeSpans[index][name] = value;
-    this.setState({
-      timeSpans: timeSpans,
-    });
-  }
-
-  handleUpdate() {
-    // TODO: api call
-    this.setState({
-      editable: false,
-    });
-  }
-
-  render() {
-    return <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state}/>;
-  }
-}
-
 class NotificationTimeSpanForm extends React.Component {
   constructor(props) {
     super(props);
@@ -207,7 +203,7 @@ class NotificationTimeSpanForm extends React.Component {
 
   onClickPlus(e) {
     e.preventDefault();
-    this.props.dispatch('add');
+    this.props.dispatch('addTimeSpan');
   }
 
   onChange(event) {
@@ -216,7 +212,7 @@ class NotificationTimeSpanForm extends React.Component {
     const index = a[1];
     const timeSpans = this.props.timeSpans.slice();
     timeSpans[index][name] = event.target.value;
-    this.props.dispatch('onChange', name, index, event.target.value);
+    this.props.dispatch('onChangeTimeSpan', name, index, event.target.value);
   }
 
   createTimeSpanContent(timeSpan, index) {
@@ -293,7 +289,7 @@ class NotificationTimeSpanForm extends React.Component {
       updateButton =
         <button
           type="button" className="btn btn-primary"
-          onClick={() => this.props.dispatch('update', false)}
+          onClick={() => this.props.dispatch('updateTimeSpan', false)}
         >
           更新
         </button>;
@@ -301,7 +297,7 @@ class NotificationTimeSpanForm extends React.Component {
       updateButton =
         <button
           type="button" className="btn btn-default"
-          onClick={() => this.props.dispatch('setEditable', true)}
+          onClick={() => this.props.dispatch('setTimeSpanEditable', true)}
         >
           編集
         </button>;
