@@ -66,7 +66,11 @@ func startHTTPServer(grpcPort, httpPort int) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	gatewayMux := runtime.NewServeMux()
+	muxOptions := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		OrigName:     true,
+		EmitDefaults: true,
+	})
+	gatewayMux := runtime.NewServeMux(muxOptions)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 	endpoint := fmt.Sprintf("127.0.0.1:%d", grpcPort)
 	if err := echo.RegisterEchoHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {

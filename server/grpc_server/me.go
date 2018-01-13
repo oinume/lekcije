@@ -20,6 +20,26 @@ func RegisterAPIV1Server(server *grpc.Server) {
 	api_v1.RegisterAPIServer(server, &apiV1Server{})
 }
 
+func (s *apiV1Server) GetMe(
+	ctx context.Context, in *api_v1.GetMeRequest,
+) (*api_v1.GetMeResponse, error) {
+	user, err := authorizeFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	timeSpans := make([]*api_v1.NotificationTimeSpan, 0, 3)
+	timeSpans = append(timeSpans, &api_v1.NotificationTimeSpan{
+		FromHour:   12,
+		FromMinute: 30,
+		ToHour:     15,
+		ToMinute:   00,
+	})
+	return &api_v1.GetMeResponse{
+		Email: user.Email,
+		NotificationTimeSpans: timeSpans,
+	}, nil
+}
+
 func (s *apiV1Server) GetMeEmail(
 	ctx context.Context, in *api_v1.GetMeEmailRequest,
 ) (*api_v1.GetMeEmailResponse, error) {
