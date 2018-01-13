@@ -4,6 +4,7 @@ import MicroContainer from 'react-micro-container';
 import {createClient} from './http';
 import Alert from './components/Alert';
 import Select from './components/Select';
+import {sprintf} from 'sprintf-js';
 
 class SettingView extends MicroContainer {
 
@@ -52,7 +53,6 @@ class SettingView extends MicroContainer {
   }
 
   fetch() {
-    // TODO: ここでNotificationTimeSpanも取得
     const client = createClient();
     client.get('/api/v1/me')
       .then((response) => {
@@ -69,13 +69,6 @@ class SettingView extends MicroContainer {
         console.log(error);
         this.handleShowAlert('danger', 'システムエラーが発生しました');
       });
-
-    // let timeSpans = [
-    //   {fromHour:0, fromMinute:0, toHour:0, toMinute:0}
-    // ];
-    // this.setState({
-    //   timeSpans: timeSpans,
-    // });
   }
 
   handleShowAlert(kind, message) {
@@ -136,7 +129,7 @@ class SettingView extends MicroContainer {
   }
 
   handleOnChangeTimeSpan(name, index, value) {
-    let timeSpans = this.state.timeSpans.slice();
+    let timeSpans = this.state.timeSpan.timeSpans.slice();
     timeSpans[index][name] = value;
     this.setState({
       timeSpan: {
@@ -148,10 +141,11 @@ class SettingView extends MicroContainer {
 
   handleUpdateTimeSpan() {
     // TODO: api call
+    // TODO: ignore zero value
     this.setState({
       timeSpan: {
         editable: false,
-        timeSpans: this.state.timeSpans,
+        timeSpans: this.state.timeSpan.timeSpans,
       }
     });
   }
@@ -221,14 +215,13 @@ class NotificationTimeSpanForm extends React.Component {
   }
 
   createTimeSpanContent(timeSpan, index) {
-    // TODO: sprintf https://github.com/alexei/sprintf.js
     let hourOptions = [];
     for (let i = 0; i <= 23; i++) {
       hourOptions.push({value: i, label: i})
     }
     let minuteOptions = [];
     for (const i of [0, 30]) {
-      minuteOptions.push({value:i, label: i});
+      minuteOptions.push({value:i, label: sprintf('%02d', i)});
     }
 
     return (
@@ -282,7 +275,7 @@ class NotificationTimeSpanForm extends React.Component {
       });
     } else {
       for (let timeSpan of this.props.timeSpans) {
-        content.push(<p>{timeSpan.fromHour}:{timeSpan.fromMinute} 〜 {timeSpan.toHour}:{timeSpan.toMinute}</p>);
+        content.push(<p>{timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:{sprintf('%02d', timeSpan.toMinute)}</p>);
       }
     }
 
