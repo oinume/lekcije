@@ -73,6 +73,13 @@ func (s *apiV1Server) UpdateMeEmail(
 	return &api_v1.UpdateMeEmailResponse{}, nil
 }
 
+func (s *apiV1Server) UpdateMeNotificationTimeSpan(
+	ctx context.Context, in *api_v1.UpdateMeNotificationTimeSpanRequest,
+) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
+	//logger.App.Info(fmt.Sprintf("%+v", in))
+	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
+}
+
 func authorizeFromContext(ctx context.Context) (*model.User, error) {
 	apiToken, err := context_data.GetAPIToken(ctx)
 	if err != nil {

@@ -23,6 +23,13 @@ service API {
             body: "*"
         };
     }
+
+    rpc UpdateMeNotificationTimeSpan(UpdateMeNotificationTimeSpanRequest) returns (UpdateMeNotificationTimeSpanResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/me/notificationTimeSpan"
+            body: "*"
+        };
+    }
 }
 
 message GetMeRequest {}
@@ -50,3 +57,9 @@ message UpdateMeEmailRequest {
 }
 
 message UpdateMeEmailResponse {}
+
+message UpdateMeNotificationTimeSpanRequest {
+    repeated NotificationTimeSpan notificationTimeSpans = 1;
+}
+
+message UpdateMeNotificationTimeSpanResponse {}
