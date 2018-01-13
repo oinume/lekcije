@@ -18,7 +18,7 @@ class SettingView extends MicroContainer {
       email: '',
       timeSpan: {
         editable: false,
-        timeSpans: [], // {fromHour:23, fromMinutes:0, toHour:23, toMinutes:30}
+        timeSpans: [], // {fromHour:23, fromMinute:0, toHour:23, toMinute:30}
       },
     };
   }
@@ -54,10 +54,15 @@ class SettingView extends MicroContainer {
   fetch() {
     // TODO: ここでNotificationTimeSpanも取得
     const client = createClient();
-    client.get('/api/v1/me/email')
+    client.get('/api/v1/me')
       .then((response) => {
+        console.log(response.data);
         this.setState({
           email: response.data['email'],
+          timeSpan: {
+            editable: this.state.timeSpan.editable,
+            timeSpans: response.data['notificationTimeSpans'],
+          },
         })
       })
       .catch((error) => {
@@ -65,12 +70,12 @@ class SettingView extends MicroContainer {
         this.handleShowAlert('danger', 'システムエラーが発生しました');
       });
 
-    let timeSpans = [
-      {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}
-    ];
-    this.setState({
-      timeSpans: timeSpans,
-    });
+    // let timeSpans = [
+    //   {fromHour:0, fromMinute:0, toHour:0, toMinute:0}
+    // ];
+    // this.setState({
+    //   timeSpans: timeSpans,
+    // });
   }
 
   handleShowAlert(kind, message) {
@@ -113,7 +118,7 @@ class SettingView extends MicroContainer {
     this.setState({
       timeSpan: {
         editable: value,
-        timeSpans: this.state.timeSpans,
+        timeSpans: this.state.timeSpan.timeSpans,
       }
     })
   }
@@ -125,7 +130,7 @@ class SettingView extends MicroContainer {
     this.setState({
       timeSpan: {
         editable: this.state.timeSpan.editable,
-        timeSpans: [...this.state.timeSpan.timeSpans, {fromHour:0, fromMinutes:0, toHour:0, toMinutes:0}],
+        timeSpans: [...this.state.timeSpan.timeSpans, {fromHour:0, fromMinute:0, toHour:0, toMinute:0}],
       }
     });
   }
@@ -216,6 +221,7 @@ class NotificationTimeSpanForm extends React.Component {
   }
 
   createTimeSpanContent(timeSpan, index) {
+    // TODO: sprintf https://github.com/alexei/sprintf.js
     let hourOptions = [];
     for (let i = 0; i <= 23; i++) {
       hourOptions.push({value: i, label: i})
@@ -236,8 +242,8 @@ class NotificationTimeSpanForm extends React.Component {
         />時
         &nbsp;
         <Select
-          name={'fromMinutes_' + index}
-          value={timeSpan.fromMinutes}
+          name={'fromMinute_' + index}
+          value={timeSpan.fromMinute}
           onChange={this.onChange}
           options={minuteOptions}
           className="custom-select mr-sm-2"
@@ -254,8 +260,8 @@ class NotificationTimeSpanForm extends React.Component {
         />時
         &nbsp;
         <Select
-          name={'toMinutes_' + index}
-          value={timeSpan.toMinutes}
+          name={'toMinute_' + index}
+          value={timeSpan.toMinute}
           onChange={this.onChange}
           options={minuteOptions}
           className="custom-select mr-sm-2"
@@ -269,19 +275,15 @@ class NotificationTimeSpanForm extends React.Component {
   }
 
   render() {
-    let content;
+    let content = [];
     if (this.props.editable) {
-      content = [];
       this.props.timeSpans.map((timeSpan, i) => {
         content.push(this.createTimeSpanContent(timeSpan, i));
       });
     } else {
-      content =
-        <div>
-          <p>12:40 〜 23:50</p>
-          <p>12:40 〜 23:50</p>
-          <p>12:40 〜 23:50</p>
-        </div>;
+      for (let timeSpan of this.props.timeSpans) {
+        content.push(<p>{timeSpan.fromHour}:{timeSpan.fromMinute} 〜 {timeSpan.toHour}:{timeSpan.toMinute}</p>);
+      }
     }
 
     let updateButton;
