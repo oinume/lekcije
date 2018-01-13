@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
-import {createClient} from './http';
+import {createHttpClient} from './http';
 import Alert from './components/Alert';
 import Select from './components/Select';
 import {sprintf} from 'sprintf-js';
@@ -53,7 +53,7 @@ class SettingView extends MicroContainer {
   }
 
   fetch() {
-    const client = createClient();
+    const client = createHttpClient();
     client.get('/api/v1/me')
       .then((response) => {
         console.log(response.data);
@@ -89,7 +89,7 @@ class SettingView extends MicroContainer {
 
   handleUpdateEmail(email) {
     //alert('email is ' + email);
-    const client = createClient();
+    const client = createHttpClient();
     client.post('/api/v1/me/email', {
       email: email,
     })
@@ -123,7 +123,7 @@ class SettingView extends MicroContainer {
     this.setState({
       timeSpan: {
         editable: this.state.timeSpan.editable,
-        timeSpans: [...this.state.timeSpan.timeSpans, {fromHour:0, fromMinute:0, toHour:0, toMinute:0}],
+        timeSpans: [...this.state.timeSpan.timeSpans, {fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0}],
       }
     });
   }
@@ -140,12 +140,44 @@ class SettingView extends MicroContainer {
   }
 
   handleUpdateTimeSpan() {
-    // TODO: api call
-    // TODO: ignore zero value
+    const timeSpans = [];
+    for (const timeSpan of this.state.timeSpan.timeSpans) {
+      for (const [k, v] of Object.entries(timeSpan)) {
+        timeSpan[k] = parseInt(v);
+      }
+      if (timeSpan.fromHour === 0
+        && timeSpan.fromMinute === 0
+        && timeSpan.toHour === 0
+        && timeSpan.toMinute === 0) {
+        // Ignore zero value
+        continue;
+      }
+      timeSpans.push(timeSpan);
+    }
+
+    console.log(timeSpans);
+    const client = createHttpClient();
+    client.post('/api/v1/me/notificationTimeSpan', {
+      notificationTimeSpans: timeSpans,
+    })
+      .then((response) => {
+        this.handleShowAlert('success', '通知対象の時間帯を更新しました！');
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response.status === 400) {
+          this.handleShowAlert('danger', '正しい通知対象の時間帯を選択してください');
+        } else {
+          // TODO: external message
+          this.handleShowAlert('danger', 'システムエラーが発生しました');
+        }
+      });
+
+
     this.setState({
       timeSpan: {
         editable: false,
-        timeSpans: this.state.timeSpan.timeSpans,
+        timeSpans: timeSpans,
       }
     });
   }
@@ -221,7 +253,7 @@ class NotificationTimeSpanForm extends React.Component {
     }
     let minuteOptions = [];
     for (const i of [0, 30]) {
-      minuteOptions.push({value:i, label: sprintf('%02d', i)});
+      minuteOptions.push({value: i, label: sprintf('%02d', i)});
     }
 
     return (
@@ -275,7 +307,8 @@ class NotificationTimeSpanForm extends React.Component {
       });
     } else {
       for (let timeSpan of this.props.timeSpans) {
-        content.push(<p>{timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:{sprintf('%02d', timeSpan.toMinute)}</p>);
+        content.push(
+          <p>{timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:{sprintf('%02d', timeSpan.toMinute)}</p>);
       }
     }
 
