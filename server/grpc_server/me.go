@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
@@ -76,7 +76,17 @@ func (s *apiV1Server) UpdateMeEmail(
 func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 	ctx context.Context, in *api_v1.UpdateMeNotificationTimeSpanRequest,
 ) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
-	//logger.App.Info(fmt.Sprintf("%+v", in))
+	user, err := authorizeFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: validation
+	service := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
+	timeSpans := service.NewNotificationTimeSpansFromPB(user.ID, in.NotificationTimeSpans)
+	if err := service.UpdateAll(timeSpans); err != nil {
+		return nil, err
+	}
 	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
 }
 
