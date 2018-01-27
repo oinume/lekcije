@@ -82,9 +82,9 @@ func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 	}
 
 	// TODO: validation
-	service := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
-	timeSpans := service.NewNotificationTimeSpansFromPB(user.ID, in.NotificationTimeSpans)
-	if err := service.UpdateAll(timeSpans); err != nil {
+	timeSpanService := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
+	timeSpans := timeSpanService.NewNotificationTimeSpansFromPB(user.ID, in.NotificationTimeSpans)
+	if err := timeSpanService.UpdateAll(timeSpans); err != nil {
 		return nil, err
 	}
 	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil

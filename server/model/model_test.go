@@ -10,18 +10,19 @@ import (
 )
 
 var (
-	_                       = fmt.Print
-	helper                  = NewTestHelper()
-	testDBURL               string
-	followingTeacherService *FollowingTeacherService
-	lessonService           *LessonService
-	mCountryService         *MCountryService
-	mPlanService            *MPlanService
-	teacherService          *TeacherService
-	userService             *UserService
-	userGoogleService       *UserGoogleService
-	userAPITokenService     *UserAPITokenService
-	mCountries              *MCountries
+	_                           = fmt.Print
+	helper                      = NewTestHelper()
+	testDBURL                   string
+	followingTeacherService     *FollowingTeacherService
+	lessonService               *LessonService
+	mCountryService             *MCountryService
+	mPlanService                *MPlanService
+	notificationTimeSpanService *NotificationTimeSpanService
+	teacherService              *TeacherService
+	userService                 *UserService
+	userGoogleService           *UserGoogleService
+	userAPITokenService         *UserAPITokenService
+	mCountries                  *MCountries
 )
 
 func TestMain(m *testing.M) {
@@ -34,6 +35,7 @@ func TestMain(m *testing.M) {
 	lessonService = NewLessonService(db)
 	mCountryService = NewMCountryService(db)
 	mPlanService = NewMPlanService(db)
+	notificationTimeSpanService = NewNotificationTimeSpanService(db)
 	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
