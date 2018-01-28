@@ -58,11 +58,12 @@ class SettingView extends MicroContainer {
     client.get('/api/v1/me')
       .then((response) => {
         console.log(response.data);
+        const timeSpans = response.data['notificationTimeSpans'] ? response.data['notificationTimeSpans'] : [];
         this.setState({
           email: response.data['email'],
           timeSpan: {
             editable: this.state.timeSpan.editable,
-            timeSpans: response.data['notificationTimeSpans'],
+            timeSpans: timeSpans,
           },
         })
       })
@@ -253,7 +254,6 @@ class NotificationTimeSpanForm extends React.Component {
 
   onClickMinus(e, index) {
     e.preventDefault();
-    console.log(`index = ${index}`);
     this.props.dispatch('deleteTimeSpan', index);
   }
 
@@ -325,13 +325,23 @@ class NotificationTimeSpanForm extends React.Component {
   render() {
     let content = [];
     if (this.props.editable) {
-      this.props.timeSpans.map((timeSpan, i) => {
-        content.push(this.createTimeSpanRow(timeSpan, i));
-      });
+      if (this.props.timeSpans.length > 0) {
+        this.props.timeSpans.map((timeSpan, i) => {
+          content.push(this.createTimeSpanRow(timeSpan, i));
+        });
+      } else {
+        this.props.dispatch('addTimeSpan');
+      }
     } else {
-      for (let timeSpan of this.props.timeSpans) {
+      if (this.props.timeSpans.length > 0) {
+        for (let timeSpan of this.props.timeSpans) {
+          content.push(
+            <p>{timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:{sprintf('%02d', timeSpan.toMinute)}</p>);
+        }
+      } else {
         content.push(
-          <p>{timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:{sprintf('%02d', timeSpan.toMinute)}</p>);
+          <p>データがありません。編集ボタンで追加できます。</p>
+        );
       }
     }
 
@@ -364,7 +374,6 @@ class NotificationTimeSpanForm extends React.Component {
             {content}
           </div>
         </div>
-
         <div className="form-group">
           <div className="col-sm-offset-2 col-sm-8">
             {updateButton}
