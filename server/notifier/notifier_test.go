@@ -14,7 +14,6 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -50,13 +49,13 @@ func TestMain(m *testing.M) {
 }
 
 func TestSendNotification(t *testing.T) {
-	//a := assert.New(t)
-	r := require.New(t)
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
 	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/5982.html")
-	r.NoError(err)
+	if err != nil {
+		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
+	}
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
 		Timeout:   5 * time.Second,
@@ -64,7 +63,8 @@ func TestSendNotification(t *testing.T) {
 	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
 
 	var users []*model.User
-	for i := 0; i < 10; i++ {
+	const numOfUsers = 10
+	for i := 0; i < numOfUsers; i++ {
 		name := fmt.Sprintf("oinume+%02d", i)
 		user := helper.CreateUser(name, name+"@gmail.com")
 		teacher := helper.CreateRandomTeacher()
@@ -72,8 +72,9 @@ func TestSendNotification(t *testing.T) {
 		users = append(users, user)
 	}
 
+	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
-		Transport: &mockSenderTransport{},
+		Transport: senderTransport,
 		Timeout:   5 * time.Second,
 	}
 	sender := emailer.NewSendGridSender(senderHTTPClient)
@@ -82,6 +83,11 @@ func TestSendNotification(t *testing.T) {
 
 	for _, user := range users {
 		err := n.SendNotification(user)
-		r.NoError(err)
+		if err != nil {
+			t.Fatalf("SendNotification failed: err=%v", err)
+		}
+	}
+	if got, want := senderTransport.called, numOfUsers; got != want {
+		t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
 	}
 }
