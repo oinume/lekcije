@@ -76,11 +76,7 @@ func (s *NotificationTimeSpanService) FindByUserID(userID uint32) ([]*Notificati
 	return timeSpans, nil
 }
 
-func (s *NotificationTimeSpanService) UpdateAll(timeSpans []*NotificationTimeSpan) error {
-	if len(timeSpans) == 0 {
-		return nil
-	}
-	userID := timeSpans[0].UserID
+func (s *NotificationTimeSpanService) UpdateAll(userID uint32, timeSpans []*NotificationTimeSpan) error {
 	for _, timeSpan := range timeSpans {
 		if userID != timeSpan.UserID {
 			return errors.InvalidArgumentf("timeSpans userID must be same")
@@ -88,7 +84,7 @@ func (s *NotificationTimeSpanService) UpdateAll(timeSpans []*NotificationTimeSpa
 	}
 
 	tx := s.db.Begin()
-	sql := fmt.Sprintf(`DELETE FROM %s WHERE user_id = ?`, timeSpans[0].TableName())
+	sql := fmt.Sprintf(`DELETE FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
 	if err := tx.Exec(sql, userID).Error; err != nil {
 		return errors.InternalWrapf(err, "UpdateAll delete failed")
 	}
