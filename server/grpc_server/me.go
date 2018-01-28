@@ -27,16 +27,20 @@ func (s *apiV1Server) GetMe(
 	if err != nil {
 		return nil, err
 	}
-	timeSpans := make([]*api_v1.NotificationTimeSpan, 0, 3)
-	timeSpans = append(timeSpans, &api_v1.NotificationTimeSpan{
-		FromHour:   12,
-		FromMinute: 30,
-		ToHour:     15,
-		ToMinute:   00,
-	})
+
+	timeSpansService := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
+	timeSpans, err := timeSpansService.FindByUserID(user.ID)
+	if err != nil {
+		return nil, err
+	}
+	timeSpansPB, err := timeSpansService.NewNotificationTimeSpansPB(timeSpans)
+	if err != nil {
+		return nil, err
+	}
+
 	return &api_v1.GetMeResponse{
 		Email: user.Email,
-		NotificationTimeSpans: timeSpans,
+		NotificationTimeSpans: timeSpansPB,
 	}, nil
 }
 

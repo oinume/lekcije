@@ -46,6 +46,27 @@ func (s *NotificationTimeSpanService) NewNotificationTimeSpansFromPB(
 	return values
 }
 
+func (s *NotificationTimeSpanService) NewNotificationTimeSpansPB(args []*NotificationTimeSpan) ([]*api_v1.NotificationTimeSpan, error) {
+	values := make([]*api_v1.NotificationTimeSpan, 0, len(args))
+	for _, v := range args {
+		fromTime, err := time.Parse("15:04:05", v.FromTime)
+		if err != nil {
+			return nil, errors.InternalWrapf(err, "Invalid time format: FromTime=%v", v.FromTime)
+		}
+		toTime, err := time.Parse("15:04:05", v.ToTime)
+		if err != nil {
+			return nil, errors.InternalWrapf(err, "Invalid time format: ToTime=%v", v.ToTime)
+		}
+		values = append(values, &api_v1.NotificationTimeSpan{
+			FromHour:   int32(fromTime.Hour()),
+			FromMinute: int32(fromTime.Minute()),
+			ToHour:     int32(toTime.Hour()),
+			ToMinute:   int32(toTime.Minute()),
+		})
+	}
+	return values, nil
+}
+
 func (s *NotificationTimeSpanService) FindByUserID(userID uint32) ([]*NotificationTimeSpan, error) {
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
 	timeSpans := make([]*NotificationTimeSpan, 0, 10)
