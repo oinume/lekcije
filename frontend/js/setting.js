@@ -369,6 +369,9 @@ class NotificationTimeSpanForm extends React.Component {
         <div className="form-group">
           <div className="col-sm-2">
             <label htmlFor="notificationTimeSpan" className="control-label">通知対象の時間帯</label>
+            <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
+              <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+            </a>
           </div>
           <div className="col-sm-8">
             {content}
