@@ -34,6 +34,7 @@ class SettingView extends MicroContainer {
       // TimeSpan
       setTimeSpanEditable: this.handleSetTimeSpanEditable,
       addTimeSpan: this.handleAddTimeSpan,
+      deleteTimeSpan: this.handleDeleteTimeSpan,
       updateTimeSpan: this.handleUpdateTimeSpan,
       onChangeTimeSpan: this.handleOnChangeTimeSpan,
     });
@@ -128,6 +129,20 @@ class SettingView extends MicroContainer {
     });
   }
 
+  handleDeleteTimeSpan(index) {
+    let timeSpans = this.state.timeSpan.timeSpans.slice();
+    if (index >= timeSpans.length) {
+      return;
+    }
+    timeSpans.splice(index, 1);
+    this.setState({
+      timeSpan: {
+        editable: this.state.timeSpan.editable,
+        timeSpans: timeSpans,
+      },
+    });
+  }
+
   handleOnChangeTimeSpan(name, index, value) {
     let timeSpans = this.state.timeSpan.timeSpans.slice();
     timeSpans[index][name] = value;
@@ -155,7 +170,6 @@ class SettingView extends MicroContainer {
       timeSpans.push(timeSpan);
     }
 
-    console.log(timeSpans);
     const client = createHttpClient();
     client.post('/api/v1/me/notificationTimeSpan', {
       notificationTimeSpans: timeSpans,
@@ -237,6 +251,12 @@ class NotificationTimeSpanForm extends React.Component {
     this.props.dispatch('addTimeSpan');
   }
 
+  onClickMinus(e, index) {
+    e.preventDefault();
+    console.log(`index = ${index}`);
+    this.props.dispatch('deleteTimeSpan', index);
+  }
+
   onChange(event) {
     const a = event.target.name.split('_');
     const name = a[0];
@@ -246,7 +266,7 @@ class NotificationTimeSpanForm extends React.Component {
     this.props.dispatch('onChangeTimeSpan', name, index, event.target.value);
   }
 
-  createTimeSpanContent(timeSpan, index) {
+  createTimeSpanRow(timeSpan, index) {
     let hourOptions = [];
     for (let i = 0; i <= 23; i++) {
       hourOptions.push({value: i, label: i})
@@ -295,6 +315,9 @@ class NotificationTimeSpanForm extends React.Component {
         <button type="button" className="btn btn-link btn-xs" onClick={() => this.onClickPlus(event)}>
           <span className="glyphicon glyphicon-plus-sign"/>
         </button>
+        <button type="button" className="btn btn-link btn-xs" onClick={() => this.onClickMinus(event, index)}>
+          <span className="glyphicon glyphicon-minus-sign"/>
+        </button>
       </p>
     );
   }
@@ -303,7 +326,7 @@ class NotificationTimeSpanForm extends React.Component {
     let content = [];
     if (this.props.editable) {
       this.props.timeSpans.map((timeSpan, i) => {
-        content.push(this.createTimeSpanContent(timeSpan, i));
+        content.push(this.createTimeSpanRow(timeSpan, i));
       });
     } else {
       for (let timeSpan of this.props.timeSpans) {
