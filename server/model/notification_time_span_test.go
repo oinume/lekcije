@@ -26,7 +26,7 @@ func TestNotificationTimeSpanService_UpdateAll(t *testing.T) {
 		},
 	}
 
-	err := notificationTimeSpanService.UpdateAll(timeSpans)
+	err := notificationTimeSpanService.UpdateAll(user.ID, timeSpans)
 	if err != nil {
 		t.Fatalf("notificationTimeSpanService.UpdateAll failed: err=%v", err)
 	}

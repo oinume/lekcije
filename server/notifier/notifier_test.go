@@ -22,7 +22,8 @@ var _ = fmt.Print
 
 type mockSenderTransport struct {
 	sync.Mutex
-	called int
+	called      int
+	requestBody string
 }
 
 func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -36,7 +37,12 @@ func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, erro
 		StatusCode: http.StatusAccepted,
 		Status:     "202 Accepted",
 	}
-	//resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return resp, err
+	}
+	t.requestBody = string(body)
+	defer req.Body.Close()
 	resp.Body = ioutil.NopCloser(strings.NewReader(""))
 	return resp, nil
 }
@@ -58,36 +64,70 @@ func TestSendNotification(t *testing.T) {
 	}
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
-		Timeout:   5 * time.Second,
 	}
-	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
 
-	var users []*model.User
-	const numOfUsers = 10
-	for i := 0; i < numOfUsers; i++ {
-		name := fmt.Sprintf("oinume+%02d", i)
-		user := helper.CreateUser(name, name+"@gmail.com")
+	t.Run("10_users", func(t *testing.T) {
+		var users []*model.User
+		const numOfUsers = 10
+		for i := 0; i < numOfUsers; i++ {
+			name := fmt.Sprintf("oinume+%02d", i)
+			user := helper.CreateUser(name, name+"@gmail.com")
+			teacher := helper.CreateRandomTeacher()
+			helper.CreateFollowingTeacher(user.ID, teacher)
+			users = append(users, user)
+		}
+
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+		senderTransport := &mockSenderTransport{}
+		senderHTTPClient := &http.Client{
+			Transport: senderTransport,
+		}
+		sender := emailer.NewSendGridSender(senderHTTPClient)
+		n := NewNotifier(db, fetcher, true, sender)
+		defer n.Close()
+
+		for _, user := range users {
+			if err := n.SendNotification(user); err != nil {
+				t.Fatalf("SendNotification failed: err=%v", err)
+			}
+		}
+		if got, want := senderTransport.called, numOfUsers; got != want {
+			t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
+		}
+	})
+
+	t.Run("narrow_down_with_notification_time_span", func(t *testing.T) {
+		user := helper.CreateRandomUser()
 		teacher := helper.CreateRandomTeacher()
 		helper.CreateFollowingTeacher(user.ID, teacher)
-		users = append(users, user)
-	}
 
-	senderTransport := &mockSenderTransport{}
-	senderHTTPClient := &http.Client{
-		Transport: senderTransport,
-		Timeout:   5 * time.Second,
-	}
-	sender := emailer.NewSendGridSender(senderHTTPClient)
-	n := NewNotifier(db, fetcher, true, sender)
-	defer n.Close()
+		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB())
+		timeSpans := []*model.NotificationTimeSpan{
+			{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
+			{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
+		}
+		if err := notificationTimeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
+			t.Fatalf("UpdateAll failed: err=%v", err)
+		}
 
-	for _, user := range users {
-		err := n.SendNotification(user)
-		if err != nil {
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+		senderTransport := &mockSenderTransport{}
+		senderHTTPClient := &http.Client{
+			Transport: senderTransport,
+		}
+		sender := emailer.NewSendGridSender(senderHTTPClient)
+		n := NewNotifier(db, fetcher, true, sender)
+		if err := n.SendNotification(user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
-	}
-	if got, want := senderTransport.called, numOfUsers; got != want {
-		t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
-	}
+
+		n.Close() // Finish async request before reading request body
+		content := senderTransport.requestBody
+		if !strings.Contains(content, "16:30") {
+			t.Errorf("content must contain 16:30 due to notification time span")
+		}
+		if strings.Contains(content, "23:30") {
+			t.Errorf("content must not contain 23:30 due to notification time span")
+		}
+	})
 }
