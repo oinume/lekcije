@@ -38,7 +38,7 @@ type teachersAndLessons struct {
 	teacherIDs   []uint32
 }
 
-func (tal teachersAndLessons) CountLessons() int {
+func (tal *teachersAndLessons) CountLessons() int {
 	count := 0
 	for _, l := range tal.data {
 		count += len(l.Lessons)
@@ -46,8 +46,23 @@ func (tal teachersAndLessons) CountLessons() int {
 	return count
 }
 
-func (tal teachersAndLessons) FilterByTimeSpan() *teachersAndLessons {
-	return nil
+// TODO: unit test
+// Filter out by NotificationTimeSpanList.
+// If a lesson is within NotificationTimeSpanList, it'll be included in returned value.
+func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *teachersAndLessons {
+	ret := NewTeachersAndLessons(len(tal.data))
+	for teacherID, tl := range tal.data {
+		lessons := make([]*model.Lesson, 0, len(tl.Lessons))
+		for _, lesson := range tl.Lessons {
+			dt := lesson.Datetime
+			t, _ := time.Parse("15:04", fmt.Sprintf("%02d:%02d", dt.Hour(), dt.Minute()))
+			if list.Within(t) {
+				lessons = append(lessons, lesson)
+			}
+		}
+		ret.data[teacherID] = model.NewTeacherLessons(tl.Teacher, lessons)
+	}
+	return ret
 }
 
 func NewTeachersAndLessons(length int) *teachersAndLessons {
