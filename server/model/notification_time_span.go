@@ -15,10 +15,52 @@ type NotificationTimeSpan struct {
 	FromTime  string
 	ToTime    string
 	CreatedAt time.Time
+	from      time.Time
+	to        time.Time
 }
 
 func (*NotificationTimeSpan) TableName() string {
 	return "notification_time_span"
+}
+
+func (s *NotificationTimeSpan) ParseTime() error {
+	f, err := time.Parse("15:04:05", s.FromTime)
+	if err != nil {
+		return err
+	}
+	s.from = f
+
+	t, err := time.Parse("15:04:05", s.ToTime)
+	if err != nil {
+		return err
+	}
+	s.to = t
+	return nil
+}
+
+func (s *NotificationTimeSpan) Within(t time.Time) bool {
+	if err := s.ParseTime(); err != nil {
+		return false
+	}
+	if (t.After(s.from) || t.Equal(s.from)) && (t.Before(s.to) || t.Equal(s.to)) {
+		return true
+	}
+	return false
+}
+
+type NotificationTimeSpanList []*NotificationTimeSpan
+
+func (l NotificationTimeSpanList) Within(t time.Time) bool {
+	target := t
+	for _, timeSpan := range l {
+		if err := timeSpan.ParseTime(); err != nil {
+			return false
+		}
+		if timeSpan.Within(target) {
+			return true
+		}
+	}
+	return false
 }
 
 type NotificationTimeSpanService struct {
