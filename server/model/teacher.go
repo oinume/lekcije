@@ -26,8 +26,9 @@ type Teacher struct {
 	Birthday          time.Time
 	YearsOfExperience uint8
 	FetchErrorCount   uint8
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	//lessons           []*Lesson
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (*Teacher) TableName() string {
@@ -59,6 +60,15 @@ func NewTeachersFromIDsOrURL(idsOrUrl string) ([]*Teacher, error) {
 
 func (t *Teacher) URL() string {
 	return fmt.Sprintf(teacherUrlBase, t.ID)
+}
+
+type TeacherLessons struct {
+	Teacher *Teacher
+	Lessons []*Lesson
+}
+
+func NewTeacherLessons(t *Teacher, l []*Lesson) *TeacherLessons {
+	return &TeacherLessons{Teacher: t, Lessons: l}
 }
 
 type TeacherService struct {

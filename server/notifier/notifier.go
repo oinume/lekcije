@@ -32,6 +32,32 @@ type Notifier struct {
 	sync.Mutex
 }
 
+type teachersAndLessons struct {
+	data         map[uint32]*model.TeacherLessons
+	lessonsCount int
+	teacherIDs   []uint32
+}
+
+func (tal teachersAndLessons) CountLessons() int {
+	count := 0
+	for _, l := range tal.data {
+		count += len(l.Lessons)
+	}
+	return count
+}
+
+func (tal teachersAndLessons) FilterByTimeSpan() *teachersAndLessons {
+	return nil
+}
+
+func NewTeachersAndLessons(length int) *teachersAndLessons {
+	return &teachersAndLessons{
+		data:         make(map[uint32]*model.TeacherLessons, length),
+		lessonsCount: -1,
+		teacherIDs:   make([]uint32, 0, length),
+	}
+}
+
 func NewNotifier(db *gorm.DB, fetcher *fetcher.LessonFetcher, dryRun bool, sender emailer.Sender) *Notifier {
 	return &Notifier{
 		db:              db,
@@ -61,14 +87,15 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 	logger.App.Info("n", zap.Uint("userID", uint(user.ID)), zap.Int("teachers", len(teacherIDs)))
 
-	availableLessonsPerTeacher := make(map[uint32][]*model.Lesson, 1000)
+	//availableTeachersAndLessons := make(map[uint32][]*model.Lesson, 1000)
+	availableTeachersAndLessons := NewTeachersAndLessons(1000)
 	wg := &sync.WaitGroup{}
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
 		go func(teacherID uint32) {
 			defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
 			defer wg.Done()
-			teacher, fetchedLessons, newAvailableLessons, err := n.fetchAndExtractNewAvailableLessons(teacherID)
+			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 			if err != nil {
 				switch err.(type) {
 				case *errors.NotFound:
@@ -88,14 +115,15 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 			n.Lock()
 			defer n.Unlock()
-			n.teachers[teacherID] = teacher
+			n.teachers[teacherID] = fetched.Teacher
 			if _, ok := n.fetchedLessons[teacherID]; !ok {
 				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 5000)
 			}
-			n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetchedLessons...)
-			if len(newAvailableLessons) > 0 {
-				availableLessonsPerTeacher[teacherID] = newAvailableLessons
+			n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetched.Lessons...)
+			if len(newAvailable.Lessons) > 0 {
+				availableTeachersAndLessons.data[teacherID] = newAvailable
 			}
+			//fmt.Printf("go routine finished: user=%v\n", user.ID)
 		}(teacherID)
 
 		if err != nil {
@@ -104,7 +132,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 	wg.Wait()
 
-	if err := n.sendNotificationToUser(user, availableLessonsPerTeacher); err != nil {
+	if err := n.sendNotificationToUser(user, availableTeachersAndLessons); err != nil {
 		return err
 	}
 
@@ -116,11 +144,12 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 // Returns teacher, fetchedLessons, newAvailableLessons, error
 func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
-	*model.Teacher, []*model.Lesson, []*model.Lesson, error,
+	//*model.Teacher, []*model.Lesson, []*model.Lesson, error,
+	*model.TeacherLessons, *model.TeacherLessons, error,
 ) {
 	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	logger.App.Debug(
 		"fetcher.Fetch",
@@ -138,7 +167,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	toDate := fromDate.Add(24 * 6 * time.Hour)
 	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.ID, fromDate, toDate)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	//fmt.Printf("lastFetchedLessons ---\n")
 	//for _, l := range lastFetchedLessons {
@@ -150,20 +179,23 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
-	return teacher, fetchedLessons, newAvailableLessons, nil
+	return model.NewTeacherLessons(teacher, fetchedLessons),
+		model.NewTeacherLessons(teacher, newAvailableLessons),
+		nil
+	//return teacher, fetchedLessons, newAvailableLessons, nil
 }
 
 func (n *Notifier) sendNotificationToUser(
-	user *model.User,
-	lessonsPerTeacher map[uint32][]*model.Lesson,
+	user *model.User, lessonsPerTeacher *teachersAndLessons,
 ) error {
 	lessonsCount := 0
 	var teacherIDs []int
-	for teacherID, lessons := range lessonsPerTeacher {
+	for teacherID, l := range lessonsPerTeacher.data {
 		teacherIDs = append(teacherIDs, int(teacherID))
-		lessonsCount += len(lessons)
+		lessonsCount += len(l.Lessons)
 	}
-	if lessonsCount == 0 {
+	fmt.Printf("sendNotificationToUser: user=%v\n", user.ID)
+	if lessonsPerTeacher.CountLessons() == 0 {
 		// Don't send notification
 		return nil
 	}
@@ -183,14 +215,14 @@ func (n *Notifier) sendNotificationToUser(
 		TeacherNames      string
 		TeacherIDs        []uint32
 		Teachers          map[uint32]*model.Teacher
-		LessonsPerTeacher map[uint32][]*model.Lesson
+		LessonsPerTeacher map[uint32]*model.TeacherLessons
 		WebURL            string
 	}{
 		To:                user.Email,
 		TeacherNames:      strings.Join(teacherNames, ", "),
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
-		LessonsPerTeacher: lessonsPerTeacher,
+		LessonsPerTeacher: lessonsPerTeacher.data,
 		WebURL:            config.WebURL(),
 	}
 	email, err := emailer.NewEmailFromTemplate(t, data)
@@ -229,8 +261,8 @@ Body: text/html
 {{ range $teacherID := .TeacherIDs }}
 {{- $teacher := index $.Teachers $teacherID -}}
 --- {{ $teacher.Name }} ---
-  {{- $lessons := index $.LessonsPerTeacher $teacherID }}
-  {{- range $lesson := $lessons }}
+  {{- $tal := index $.LessonsPerTeacher $teacherID }}
+  {{- range $lesson := $tal.Lessons }}
 {{ $lesson.Datetime.Format "2006-01-02 15:04" }}
   {{- end }}
 
