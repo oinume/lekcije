@@ -43,14 +43,22 @@ class SettingView extends MicroContainer {
   }
 
   render() {
-    return (
-      <div>
-        <Alert dispatch={this.dispatch} {...this.state.alert}/>
-        <EmailForm dispatch={this.dispatch} value={this.state.email}/>
-        <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}
-        />
-      </div>
-    );
+    if (this.state.email.startsWith('oinume')) {
+      return (
+        <div>
+          <Alert dispatch={this.dispatch} {...this.state.alert}/>
+          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+          <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <Alert dispatch={this.dispatch} {...this.state.alert}/>
+          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+        </div>
+      );
+    }
   }
 
   fetch() {
@@ -214,7 +222,7 @@ class EmailForm extends React.Component {
       <form className="form-horizontal">
         <div className="form-group">
           <div className="col-sm-2">
-            <label htmlFor="email" className="control-label">Email address</label>
+            <label htmlFor="email" className="control-label">Email</label>
           </div>
           <div className="col-sm-8">
             <input
