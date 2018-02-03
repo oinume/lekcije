@@ -110,7 +110,7 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 func (s *TeacherService) FindByPK(id uint32) (*Teacher, error) {
 	teacher := &Teacher{}
 	if err := s.db.First(teacher, &Teacher{ID: id}).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to FindByPK")
+		return nil, errors.InternalWrapf(err, "Failed to FindByPK: id=%v", id)
 	}
 	return teacher, nil
 }
