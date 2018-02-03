@@ -159,7 +159,13 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	}
 	wg.Wait()
 
-	if err := n.sendNotificationToUser(user, availableTeachersAndLessons); err != nil {
+	notificationTimeSpanService := model.NewNotificationTimeSpanService(n.db)
+	timeSpans, err := notificationTimeSpanService.FindByUserID(user.ID)
+	if err != nil {
+		return err
+	}
+	filteredAvailable := availableTeachersAndLessons.FilterBy(model.NotificationTimeSpanList(timeSpans))
+	if err := n.sendNotificationToUser(user, filteredAvailable); err != nil {
 		return err
 	}
 

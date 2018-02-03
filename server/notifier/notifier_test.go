@@ -61,6 +61,7 @@ func TestTeachersAndLessons_FilterBy(t *testing.T) {
 		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
 	}
 	teacher := helper.CreateRandomTeacher()
+	// TODO: table driven test
 	lessons := []*model.Lesson{
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)}, // excluded
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)}, // included
@@ -160,13 +161,18 @@ func TestSendNotification(t *testing.T) {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
 
-		n.Close() // Finish async request before reading request body
-		//content := senderTransport.requestBody
-		//if !strings.Contains(content, "16:30") {
-		//	t.Errorf("content must contain 16:30 due to notification time span")
-		//}
-		//if strings.Contains(content, "23:30") {
-		//	t.Errorf("content must not contain 23:30 due to notification time span")
-		//}
+		n.Close() // Wait all async requests are done before reading request body
+		content := senderTransport.requestBody
+		// TODO: table drive test
+		if !strings.Contains(content, "16:30") {
+			t.Errorf("content must contain 16:30 due to notification time span")
+		}
+		if !strings.Contains(content, "20:30") {
+			t.Errorf("content must contain 20:30 due to notification time span")
+		}
+		if strings.Contains(content, "23:30") {
+			t.Errorf("content must not contain 23:30 due to notification time span")
+		}
+		//fmt.Printf("content = %v\n", content)
 	})
 }
