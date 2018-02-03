@@ -54,6 +54,45 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestTeachersAndLessons_FilterBy(t *testing.T) {
+	user := helper.CreateRandomUser()
+	timeSpans := []*model.NotificationTimeSpan{
+		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
+		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
+	}
+	teacher := helper.CreateRandomTeacher()
+	lessons := []*model.Lesson{
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)}, // excluded
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)}, // included
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 17, 0, 0, 0, time.UTC)}, // excluded
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 21, 0, 0, 0, time.UTC)}, // included
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 23, 0, 0, 0, time.UTC)}, // excluded
+	}
+	tal := NewTeachersAndLessons(10)
+	tal.data[teacher.ID] = &model.TeacherLessons{Teacher: teacher, Lessons: lessons}
+
+	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
+	if got, want := filtered.CountLessons(), 2; got != want {
+		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
+	}
+
+	wantTimes := []struct {
+		hour, minute int
+	}{
+		{16, 0},
+		{21, 0},
+	}
+	tl := filtered.data[teacher.ID]
+	for i, wantTime := range wantTimes {
+		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
+			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
+		}
+		if got, want := tl.Lessons[i].Datetime.Minute(), wantTime.minute; got != want {
+			t.Errorf("unexpected minute: got=%v, want=%v", got, want)
+		}
+	}
+}
+
 func TestSendNotification(t *testing.T) {
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)

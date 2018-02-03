@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"bytes"
 	"fmt"
 	"sort"
 	"strings"
@@ -46,7 +47,6 @@ func (tal *teachersAndLessons) CountLessons() int {
 	return count
 }
 
-// TODO: unit test
 // Filter out by NotificationTimeSpanList.
 // If a lesson is within NotificationTimeSpanList, it'll be included in returned value.
 func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *teachersAndLessons {
@@ -63,6 +63,18 @@ func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *te
 		ret.data[teacherID] = model.NewTeacherLessons(tl.Teacher, lessons)
 	}
 	return ret
+}
+
+func (tal *teachersAndLessons) String() string {
+	b := new(bytes.Buffer)
+	for _, tl := range tal.data {
+		fmt.Fprintf(b, "Teacher: %+v", tl.Teacher)
+		fmt.Fprint(b, ", Lessons:")
+		for _, l := range tl.Lessons {
+			fmt.Fprintf(b, " {%+v}", l)
+		}
+	}
+	return b.String()
 }
 
 func NewTeachersAndLessons(length int) *teachersAndLessons {
