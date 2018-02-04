@@ -50,6 +50,9 @@ func (tal *teachersAndLessons) CountLessons() int {
 // Filter out by NotificationTimeSpanList.
 // If a lesson is within NotificationTimeSpanList, it'll be included in returned value.
 func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *teachersAndLessons {
+	if len(list) == 0 {
+		return tal
+	}
 	ret := NewTeachersAndLessons(len(tal.data))
 	for teacherID, tl := range tal.data {
 		lessons := make([]*model.Lesson, 0, len(tl.Lessons))
@@ -227,7 +230,6 @@ func (n *Notifier) sendNotificationToUser(
 		teacherIDs = append(teacherIDs, int(teacherID))
 		lessonsCount += len(l.Lessons)
 	}
-	fmt.Printf("sendNotificationToUser: user=%v\n", user.ID)
 	if lessonsPerTeacher.CountLessons() == 0 {
 		// Don't send notification
 		return nil

@@ -94,6 +94,40 @@ func TestTeachersAndLessons_FilterBy(t *testing.T) {
 	}
 }
 
+func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
+	//user := helper.CreateRandomUser()
+	timeSpans := make([]*model.NotificationTimeSpan, 0)
+	teacher := helper.CreateRandomTeacher()
+	// TODO: table driven test
+	lessons := []*model.Lesson{
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)},
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)},
+	}
+	tal := NewTeachersAndLessons(10)
+	tal.data[teacher.ID] = &model.TeacherLessons{Teacher: teacher, Lessons: lessons}
+
+	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
+	if got, want := filtered.CountLessons(), len(lessons); got != want {
+		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
+	}
+
+	wantTimes := []struct {
+		hour, minute int
+	}{
+		{15, 0},
+		{16, 0},
+	}
+	tl := filtered.data[teacher.ID]
+	for i, wantTime := range wantTimes {
+		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
+			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
+		}
+		if got, want := tl.Lessons[i].Datetime.Minute(), wantTime.minute; got != want {
+			t.Errorf("unexpected minute: got=%v, want=%v", got, want)
+		}
+	}
+}
+
 func TestSendNotification(t *testing.T) {
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
@@ -131,9 +165,10 @@ func TestSendNotification(t *testing.T) {
 			}
 		}
 		n.Close() // Wait all async requests are done
-		//if got, want := senderTransport.called, numOfUsers; got != want {
-		//	t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
-		//}
+
+		if got, want := senderTransport.called, 1; got <= want {
+			t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
+		}
 	})
 
 	t.Run("narrow_down_with_notification_time_span", func(t *testing.T) {
