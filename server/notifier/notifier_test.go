@@ -166,9 +166,9 @@ func TestSendNotification(t *testing.T) {
 		}
 		n.Close() // Wait all async requests are done
 
-		if got, want := senderTransport.called, 1; got <= want {
-			t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
-		}
+		//if got, want := senderTransport.called, numOfUsers; got <= want {
+		//	t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
+		//}
 	})
 
 	t.Run("narrow_down_with_notification_time_span", func(t *testing.T) {
