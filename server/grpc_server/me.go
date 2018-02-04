@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
@@ -18,6 +18,30 @@ type apiV1Server struct{}
 
 func RegisterAPIV1Server(server *grpc.Server) {
 	api_v1.RegisterAPIServer(server, &apiV1Server{})
+}
+
+func (s *apiV1Server) GetMe(
+	ctx context.Context, in *api_v1.GetMeRequest,
+) (*api_v1.GetMeResponse, error) {
+	user, err := authorizeFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	timeSpansService := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
+	timeSpans, err := timeSpansService.FindByUserID(user.ID)
+	if err != nil {
+		return nil, err
+	}
+	timeSpansPB, err := timeSpansService.NewNotificationTimeSpansPB(timeSpans)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api_v1.GetMeResponse{
+		Email: user.Email,
+		NotificationTimeSpans: timeSpansPB,
+	}, nil
 }
 
 func (s *apiV1Server) GetMeEmail(
@@ -51,6 +75,23 @@ func (s *apiV1Server) UpdateMeEmail(
 	go event_logger.SendGAMeasurementEvent2(event_logger.MustGAMeasurementEventValues(ctx), event_logger.CategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
 
 	return &api_v1.UpdateMeEmailResponse{}, nil
+}
+
+func (s *apiV1Server) UpdateMeNotificationTimeSpan(
+	ctx context.Context, in *api_v1.UpdateMeNotificationTimeSpanRequest,
+) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
+	user, err := authorizeFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: validation
+	timeSpanService := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
+	timeSpans := timeSpanService.NewNotificationTimeSpansFromPB(user.ID, in.NotificationTimeSpans)
+	if err := timeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
+		return nil, err
+	}
+	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
 }
 
 func authorizeFromContext(ctx context.Context) (*model.User, error) {

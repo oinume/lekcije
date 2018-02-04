@@ -8,10 +8,15 @@ It is generated from these files:
 	proto/api/v1/me.proto
 
 It has these top-level messages:
+	GetMeRequest
+	NotificationTimeSpan
+	GetMeResponse
 	GetMeEmailRequest
 	GetMeEmailResponse
 	UpdateMeEmailRequest
 	UpdateMeEmailResponse
+	UpdateMeNotificationTimeSpanRequest
+	UpdateMeNotificationTimeSpanResponse
 */
 package api_v1
 
@@ -36,13 +41,85 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type GetMeRequest struct {
+}
+
+func (m *GetMeRequest) Reset()                    { *m = GetMeRequest{} }
+func (m *GetMeRequest) String() string            { return proto.CompactTextString(m) }
+func (*GetMeRequest) ProtoMessage()               {}
+func (*GetMeRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+type NotificationTimeSpan struct {
+	FromHour   int32 `protobuf:"varint,1,opt,name=fromHour" json:"fromHour,omitempty"`
+	FromMinute int32 `protobuf:"varint,2,opt,name=fromMinute" json:"fromMinute,omitempty"`
+	ToHour     int32 `protobuf:"varint,3,opt,name=toHour" json:"toHour,omitempty"`
+	ToMinute   int32 `protobuf:"varint,4,opt,name=toMinute" json:"toMinute,omitempty"`
+}
+
+func (m *NotificationTimeSpan) Reset()                    { *m = NotificationTimeSpan{} }
+func (m *NotificationTimeSpan) String() string            { return proto.CompactTextString(m) }
+func (*NotificationTimeSpan) ProtoMessage()               {}
+func (*NotificationTimeSpan) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *NotificationTimeSpan) GetFromHour() int32 {
+	if m != nil {
+		return m.FromHour
+	}
+	return 0
+}
+
+func (m *NotificationTimeSpan) GetFromMinute() int32 {
+	if m != nil {
+		return m.FromMinute
+	}
+	return 0
+}
+
+func (m *NotificationTimeSpan) GetToHour() int32 {
+	if m != nil {
+		return m.ToHour
+	}
+	return 0
+}
+
+func (m *NotificationTimeSpan) GetToMinute() int32 {
+	if m != nil {
+		return m.ToMinute
+	}
+	return 0
+}
+
+type GetMeResponse struct {
+	Email                 string                  `protobuf:"bytes,1,opt,name=email" json:"email,omitempty"`
+	NotificationTimeSpans []*NotificationTimeSpan `protobuf:"bytes,2,rep,name=notificationTimeSpans" json:"notificationTimeSpans,omitempty"`
+}
+
+func (m *GetMeResponse) Reset()                    { *m = GetMeResponse{} }
+func (m *GetMeResponse) String() string            { return proto.CompactTextString(m) }
+func (*GetMeResponse) ProtoMessage()               {}
+func (*GetMeResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *GetMeResponse) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *GetMeResponse) GetNotificationTimeSpans() []*NotificationTimeSpan {
+	if m != nil {
+		return m.NotificationTimeSpans
+	}
+	return nil
+}
+
 type GetMeEmailRequest struct {
 }
 
 func (m *GetMeEmailRequest) Reset()                    { *m = GetMeEmailRequest{} }
 func (m *GetMeEmailRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetMeEmailRequest) ProtoMessage()               {}
-func (*GetMeEmailRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*GetMeEmailRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
 type GetMeEmailResponse struct {
 	Email string `protobuf:"bytes,1,opt,name=email" json:"email,omitempty"`
@@ -51,7 +128,7 @@ type GetMeEmailResponse struct {
 func (m *GetMeEmailResponse) Reset()                    { *m = GetMeEmailResponse{} }
 func (m *GetMeEmailResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetMeEmailResponse) ProtoMessage()               {}
-func (*GetMeEmailResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (*GetMeEmailResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *GetMeEmailResponse) GetEmail() string {
 	if m != nil {
@@ -67,7 +144,7 @@ type UpdateMeEmailRequest struct {
 func (m *UpdateMeEmailRequest) Reset()                    { *m = UpdateMeEmailRequest{} }
 func (m *UpdateMeEmailRequest) String() string            { return proto.CompactTextString(m) }
 func (*UpdateMeEmailRequest) ProtoMessage()               {}
-func (*UpdateMeEmailRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*UpdateMeEmailRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *UpdateMeEmailRequest) GetEmail() string {
 	if m != nil {
@@ -82,13 +159,46 @@ type UpdateMeEmailResponse struct {
 func (m *UpdateMeEmailResponse) Reset()                    { *m = UpdateMeEmailResponse{} }
 func (m *UpdateMeEmailResponse) String() string            { return proto.CompactTextString(m) }
 func (*UpdateMeEmailResponse) ProtoMessage()               {}
-func (*UpdateMeEmailResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*UpdateMeEmailResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+
+type UpdateMeNotificationTimeSpanRequest struct {
+	NotificationTimeSpans []*NotificationTimeSpan `protobuf:"bytes,1,rep,name=notificationTimeSpans" json:"notificationTimeSpans,omitempty"`
+}
+
+func (m *UpdateMeNotificationTimeSpanRequest) Reset()         { *m = UpdateMeNotificationTimeSpanRequest{} }
+func (m *UpdateMeNotificationTimeSpanRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateMeNotificationTimeSpanRequest) ProtoMessage()    {}
+func (*UpdateMeNotificationTimeSpanRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{7}
+}
+
+func (m *UpdateMeNotificationTimeSpanRequest) GetNotificationTimeSpans() []*NotificationTimeSpan {
+	if m != nil {
+		return m.NotificationTimeSpans
+	}
+	return nil
+}
+
+type UpdateMeNotificationTimeSpanResponse struct {
+}
+
+func (m *UpdateMeNotificationTimeSpanResponse) Reset()         { *m = UpdateMeNotificationTimeSpanResponse{} }
+func (m *UpdateMeNotificationTimeSpanResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdateMeNotificationTimeSpanResponse) ProtoMessage()    {}
+func (*UpdateMeNotificationTimeSpanResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{8}
+}
 
 func init() {
+	proto.RegisterType((*GetMeRequest)(nil), "api.v1.GetMeRequest")
+	proto.RegisterType((*NotificationTimeSpan)(nil), "api.v1.NotificationTimeSpan")
+	proto.RegisterType((*GetMeResponse)(nil), "api.v1.GetMeResponse")
 	proto.RegisterType((*GetMeEmailRequest)(nil), "api.v1.GetMeEmailRequest")
 	proto.RegisterType((*GetMeEmailResponse)(nil), "api.v1.GetMeEmailResponse")
 	proto.RegisterType((*UpdateMeEmailRequest)(nil), "api.v1.UpdateMeEmailRequest")
 	proto.RegisterType((*UpdateMeEmailResponse)(nil), "api.v1.UpdateMeEmailResponse")
+	proto.RegisterType((*UpdateMeNotificationTimeSpanRequest)(nil), "api.v1.UpdateMeNotificationTimeSpanRequest")
+	proto.RegisterType((*UpdateMeNotificationTimeSpanResponse)(nil), "api.v1.UpdateMeNotificationTimeSpanResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -102,8 +212,10 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for API service
 
 type APIClient interface {
+	GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeResponse, error)
 	GetMeEmail(ctx context.Context, in *GetMeEmailRequest, opts ...grpc.CallOption) (*GetMeEmailResponse, error)
 	UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest, opts ...grpc.CallOption) (*UpdateMeEmailResponse, error)
+	UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest, opts ...grpc.CallOption) (*UpdateMeNotificationTimeSpanResponse, error)
 }
 
 type aPIClient struct {
@@ -112,6 +224,15 @@ type aPIClient struct {
 
 func NewAPIClient(cc *grpc.ClientConn) APIClient {
 	return &aPIClient{cc}
+}
+
+func (c *aPIClient) GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeResponse, error) {
+	out := new(GetMeResponse)
+	err := grpc.Invoke(ctx, "/api.v1.API/GetMe", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *aPIClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest, opts ...grpc.CallOption) (*GetMeEmailResponse, error) {
@@ -132,15 +253,44 @@ func (c *aPIClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest,
 	return out, nil
 }
 
+func (c *aPIClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest, opts ...grpc.CallOption) (*UpdateMeNotificationTimeSpanResponse, error) {
+	out := new(UpdateMeNotificationTimeSpanResponse)
+	err := grpc.Invoke(ctx, "/api.v1.API/UpdateMeNotificationTimeSpan", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for API service
 
 type APIServer interface {
+	GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error)
 	GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error)
 	UpdateMeEmail(context.Context, *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error)
+	UpdateMeNotificationTimeSpan(context.Context, *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error)
 }
 
 func RegisterAPIServer(s *grpc.Server, srv APIServer) {
 	s.RegisterService(&_API_serviceDesc, srv)
+}
+
+func _API_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetMe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.API/GetMe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetMe(ctx, req.(*GetMeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _API_GetMeEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -179,10 +329,32 @@ func _API_UpdateMeEmail_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _API_UpdateMeNotificationTimeSpan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMeNotificationTimeSpanRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).UpdateMeNotificationTimeSpan(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.API/UpdateMeNotificationTimeSpan",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).UpdateMeNotificationTimeSpan(ctx, req.(*UpdateMeNotificationTimeSpanRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _API_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "api.v1.API",
 	HandlerType: (*APIServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetMe",
+			Handler:    _API_GetMe_Handler,
+		},
 		{
 			MethodName: "GetMeEmail",
 			Handler:    _API_GetMeEmail_Handler,
@@ -190,6 +362,10 @@ var _API_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateMeEmail",
 			Handler:    _API_UpdateMeEmail_Handler,
+		},
+		{
+			MethodName: "UpdateMeNotificationTimeSpan",
+			Handler:    _API_UpdateMeNotificationTimeSpan_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -199,20 +375,32 @@ var _API_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("proto/api/v1/me.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 225 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2d, 0x28, 0xca, 0x2f,
-	0xc9, 0xd7, 0x4f, 0x2c, 0xc8, 0xd4, 0x2f, 0x33, 0xd4, 0xcf, 0x4d, 0xd5, 0x03, 0xf3, 0x85, 0xd8,
-	0x12, 0x0b, 0x32, 0xf5, 0xca, 0x0c, 0xa5, 0x64, 0xd2, 0xf3, 0xf3, 0xd3, 0x73, 0x52, 0xc1, 0xf2,
-	0x89, 0x79, 0x79, 0xf9, 0x25, 0x89, 0x25, 0x99, 0xf9, 0x79, 0xc5, 0x10, 0x55, 0x4a, 0xc2, 0x5c,
-	0x82, 0xee, 0xa9, 0x25, 0xbe, 0xa9, 0xae, 0xb9, 0x89, 0x99, 0x39, 0x41, 0xa9, 0x85, 0xa5, 0xa9,
-	0xc5, 0x25, 0x4a, 0x5a, 0x5c, 0x42, 0xc8, 0x82, 0xc5, 0x05, 0xf9, 0x79, 0xc5, 0xa9, 0x42, 0x22,
-	0x5c, 0xac, 0xa9, 0x20, 0x01, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20, 0x08, 0x47, 0x49, 0x87,
-	0x4b, 0x24, 0xb4, 0x20, 0x25, 0xb1, 0x24, 0x15, 0xd5, 0x0c, 0x1c, 0xaa, 0xc5, 0xb9, 0x44, 0xd1,
-	0x54, 0x43, 0x0c, 0x37, 0x3a, 0xcf, 0xc8, 0xc5, 0xec, 0x18, 0xe0, 0x29, 0x14, 0xcb, 0xc5, 0x85,
-	0xb0, 0x5a, 0x48, 0x52, 0x0f, 0xe2, 0x09, 0x3d, 0x0c, 0x37, 0x4a, 0x49, 0x61, 0x93, 0x82, 0x18,
-	0xa6, 0x24, 0xd1, 0x74, 0xf9, 0xc9, 0x64, 0x26, 0x21, 0x21, 0x01, 0x44, 0xa0, 0xe8, 0x83, 0xed,
-	0x17, 0xca, 0xe4, 0xe2, 0x45, 0xb1, 0x5f, 0x48, 0x06, 0x66, 0x0c, 0x36, 0x4f, 0x48, 0xc9, 0xe2,
-	0x90, 0x85, 0xda, 0x23, 0x0d, 0xb6, 0x47, 0x54, 0x09, 0xc3, 0x1e, 0x2b, 0x46, 0xad, 0x24, 0x36,
-	0x70, 0x00, 0x1b, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x1c, 0x87, 0x11, 0x47, 0x9f, 0x01, 0x00,
-	0x00,
+	// 425 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0x41, 0x6e, 0xda, 0x40,
+	0x14, 0x95, 0x71, 0x41, 0xed, 0x2f, 0x54, 0xed, 0xaf, 0xdd, 0xba, 0x2e, 0x6d, 0xd1, 0x14, 0x55,
+	0xc8, 0x45, 0xb6, 0xa0, 0x3b, 0x76, 0x5d, 0x54, 0xa5, 0x0b, 0xaa, 0xc8, 0x49, 0x96, 0x59, 0x38,
+	0xc9, 0x80, 0x46, 0xc2, 0x1e, 0x07, 0x0f, 0x48, 0x6c, 0xb3, 0xc8, 0x05, 0x72, 0x86, 0x1c, 0x24,
+	0x67, 0xc8, 0x15, 0x72, 0x90, 0x88, 0xf1, 0x18, 0x0c, 0x31, 0x56, 0x94, 0x9d, 0xff, 0xbc, 0xff,
+	0xdf, 0x7b, 0xf3, 0xe6, 0xcb, 0x60, 0xc6, 0x33, 0x2e, 0xb8, 0x17, 0xc4, 0xcc, 0x5b, 0xf4, 0xbc,
+	0x90, 0xba, 0xb2, 0xc6, 0x5a, 0x10, 0x33, 0x77, 0xd1, 0xb3, 0x9b, 0x13, 0xce, 0x27, 0x53, 0x2a,
+	0xf1, 0x20, 0x8a, 0xb8, 0x08, 0x04, 0xe3, 0x51, 0x92, 0x76, 0x91, 0x37, 0x50, 0xff, 0x4b, 0xc5,
+	0x88, 0xfa, 0xf4, 0x62, 0x4e, 0x13, 0x41, 0xae, 0x34, 0x30, 0xfe, 0x73, 0xc1, 0xc6, 0xec, 0x4c,
+	0xf6, 0x1d, 0xb1, 0x90, 0x1e, 0xc6, 0x41, 0x84, 0x36, 0xbc, 0x1c, 0xcf, 0x78, 0x38, 0xe4, 0xf3,
+	0x99, 0xa5, 0xb5, 0xb4, 0x4e, 0xd5, 0x5f, 0xd7, 0xf8, 0x15, 0x60, 0xf5, 0x3d, 0x62, 0xd1, 0x5c,
+	0x50, 0xab, 0x22, 0xd1, 0xdc, 0x09, 0x7e, 0x80, 0x9a, 0xe0, 0x72, 0x52, 0x97, 0x98, 0xaa, 0x56,
+	0x9c, 0x82, 0xab, 0xa9, 0x17, 0x29, 0x67, 0x56, 0x93, 0x25, 0x34, 0x94, 0xb1, 0x24, 0xe6, 0x51,
+	0x42, 0xd1, 0x80, 0x2a, 0x0d, 0x03, 0x36, 0x95, 0xea, 0xaf, 0xfc, 0xb4, 0x40, 0x1f, 0xcc, 0xa8,
+	0xc0, 0x6e, 0x62, 0x55, 0x5a, 0x7a, 0xe7, 0x75, 0xbf, 0xe9, 0xa6, 0x29, 0xb8, 0x45, 0x77, 0xf2,
+	0x8b, 0x47, 0xc9, 0x7b, 0x78, 0x27, 0xa5, 0xff, 0xac, 0x14, 0xb2, 0x60, 0x1c, 0xc0, 0xfc, 0x61,
+	0x99, 0x29, 0xd2, 0x05, 0xe3, 0x38, 0x3e, 0x0f, 0x04, 0xdd, 0xe6, 0xd8, 0xd3, 0xfd, 0x11, 0xcc,
+	0x9d, 0xee, 0x94, 0x9c, 0x2c, 0xe1, 0x7b, 0x06, 0x14, 0xda, 0x57, 0xac, 0x7b, 0x23, 0xd0, 0x9e,
+	0x1f, 0xc1, 0x0f, 0x68, 0x97, 0x4b, 0xa7, 0x16, 0xfb, 0xb7, 0x3a, 0xe8, 0xbf, 0x0f, 0xfe, 0xe1,
+	0x10, 0xaa, 0x32, 0x1d, 0x34, 0x32, 0xb5, 0xfc, 0x56, 0xd9, 0xe6, 0xce, 0xa9, 0xba, 0x20, 0x5e,
+	0xde, 0xdd, 0x5f, 0x57, 0xea, 0x08, 0x9b, 0xe5, 0xc5, 0x13, 0x80, 0x4d, 0xce, 0xf8, 0x69, 0x6b,
+	0x30, 0x1f, 0xa6, 0x6d, 0x17, 0x41, 0x8a, 0xd8, 0x92, 0xc4, 0x88, 0x6f, 0x37, 0xc4, 0x5e, 0xba,
+	0x2f, 0x0c, 0x1a, 0x5b, 0x61, 0xe3, 0x3a, 0x9e, 0xa2, 0x17, 0xb3, 0xbf, 0xec, 0x41, 0x95, 0xce,
+	0x67, 0xa9, 0x63, 0x92, 0x47, 0x3a, 0x03, 0xcd, 0xc1, 0x1b, 0x0d, 0x9a, 0x65, 0x21, 0xe2, 0xcf,
+	0x5d, 0xf2, 0x92, 0x57, 0xb6, 0xbb, 0x4f, 0x6b, 0x56, 0xc6, 0x1c, 0x69, 0xac, 0x4d, 0xbe, 0xe5,
+	0x8c, 0x15, 0xbd, 0xf4, 0x40, 0x73, 0x4e, 0x6b, 0xf2, 0x4f, 0xf0, 0xeb, 0x21, 0x00, 0x00, 0xff,
+	0xff, 0xe3, 0x2a, 0xc3, 0xc5, 0x48, 0x04, 0x00, 0x00,
 }

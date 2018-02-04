@@ -38,6 +38,11 @@ body {
     color: black;
 }
 
+.control-label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
 .logo-center {
     text-align:center;
     margin:0 auto 30px;

@@ -14,7 +14,6 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -23,7 +22,8 @@ var _ = fmt.Print
 
 type mockSenderTransport struct {
 	sync.Mutex
-	called int
+	called      int
+	requestBody string
 }
 
 func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -37,7 +37,12 @@ func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, erro
 		StatusCode: http.StatusAccepted,
 		Status:     "202 Accepted",
 	}
-	//resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return resp, err
+	}
+	t.requestBody = string(body)
+	defer req.Body.Close()
 	resp.Body = ioutil.NopCloser(strings.NewReader(""))
 	return resp, nil
 }
@@ -49,39 +54,125 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestTeachersAndLessons_FilterBy(t *testing.T) {
+	user := helper.CreateRandomUser()
+	timeSpans := []*model.NotificationTimeSpan{
+		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
+		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
+	}
+	teacher := helper.CreateRandomTeacher()
+	// TODO: table driven test
+	lessons := []*model.Lesson{
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)}, // excluded
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)}, // included
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 17, 0, 0, 0, time.UTC)}, // excluded
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 21, 0, 0, 0, time.UTC)}, // included
+		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 23, 0, 0, 0, time.UTC)}, // excluded
+	}
+	tal := NewTeachersAndLessons(10)
+	tal.data[teacher.ID] = &model.TeacherLessons{Teacher: teacher, Lessons: lessons}
+
+	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
+	if got, want := filtered.CountLessons(), 2; got != want {
+		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
+	}
+
+	wantTimes := []struct {
+		hour, minute int
+	}{
+		{16, 0},
+		{21, 0},
+	}
+	tl := filtered.data[teacher.ID]
+	for i, wantTime := range wantTimes {
+		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
+			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
+		}
+		if got, want := tl.Lessons[i].Datetime.Minute(), wantTime.minute; got != want {
+			t.Errorf("unexpected minute: got=%v, want=%v", got, want)
+		}
+	}
+}
+
 func TestSendNotification(t *testing.T) {
-	//a := assert.New(t)
-	r := require.New(t)
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
 	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/5982.html")
-	r.NoError(err)
+	if err != nil {
+		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
+	}
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
-		Timeout:   5 * time.Second,
 	}
-	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
 
-	var users []*model.User
-	for i := 0; i < 10; i++ {
-		name := fmt.Sprintf("oinume+%02d", i)
-		user := helper.CreateUser(name, name+"@gmail.com")
+	t.Run("10_users", func(t *testing.T) {
+		var users []*model.User
+		const numOfUsers = 10
+		for i := 0; i < numOfUsers; i++ {
+			name := fmt.Sprintf("oinume+%02d", i)
+			user := helper.CreateUser(name, name+"@gmail.com")
+			teacher := helper.CreateRandomTeacher()
+			helper.CreateFollowingTeacher(user.ID, teacher)
+			users = append(users, user)
+		}
+
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+		senderTransport := &mockSenderTransport{}
+		senderHTTPClient := &http.Client{
+			Transport: senderTransport,
+		}
+		sender := emailer.NewSendGridSender(senderHTTPClient)
+		n := NewNotifier(db, fetcher, true, sender)
+
+		for _, user := range users {
+			if err := n.SendNotification(user); err != nil {
+				t.Fatalf("SendNotification failed: err=%v", err)
+			}
+		}
+		n.Close() // Wait all async requests are done
+		//if got, want := senderTransport.called, numOfUsers; got != want {
+		//	t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
+		//}
+	})
+
+	t.Run("narrow_down_with_notification_time_span", func(t *testing.T) {
+		user := helper.CreateRandomUser()
 		teacher := helper.CreateRandomTeacher()
 		helper.CreateFollowingTeacher(user.ID, teacher)
-		users = append(users, user)
-	}
 
-	senderHTTPClient := &http.Client{
-		Transport: &mockSenderTransport{},
-		Timeout:   5 * time.Second,
-	}
-	sender := emailer.NewSendGridSender(senderHTTPClient)
-	n := NewNotifier(db, fetcher, true, sender)
-	defer n.Close()
+		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB())
+		timeSpans := []*model.NotificationTimeSpan{
+			{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
+			{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
+		}
+		if err := notificationTimeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
+			t.Fatalf("UpdateAll failed: err=%v", err)
+		}
 
-	for _, user := range users {
-		err := n.SendNotification(user)
-		r.NoError(err)
-	}
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+		senderTransport := &mockSenderTransport{}
+		senderHTTPClient := &http.Client{
+			Transport: senderTransport,
+		}
+		sender := emailer.NewSendGridSender(senderHTTPClient)
+		n := NewNotifier(db, fetcher, true, sender)
+		if err := n.SendNotification(user); err != nil {
+			t.Fatalf("SendNotification failed: err=%v", err)
+		}
+
+		n.Close() // Wait all async requests are done before reading request body
+		content := senderTransport.requestBody
+		// TODO: table drive test
+		if !strings.Contains(content, "16:30") {
+			t.Errorf("content must contain 16:30 due to notification time span")
+		}
+		if !strings.Contains(content, "20:30") {
+			t.Errorf("content must contain 20:30 due to notification time span")
+		}
+		if strings.Contains(content, "23:30") {
+			t.Errorf("content must not contain 23:30 due to notification time span")
+		}
+		//fmt.Printf("content = %v\n", content)
+	})
 }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import cookie from 'cookie';
 
-function createClient() {
+function createHttpClient() {
   const cookies = cookie.parse(document.cookie);
   const headers = {};
   if (cookies['apiToken']) {
@@ -15,4 +15,4 @@ function createClient() {
   });
 }
 
-export { createClient };
+export { createHttpClient };

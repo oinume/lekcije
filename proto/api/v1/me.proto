@@ -5,18 +5,45 @@ package api.v1;
 import "google/api/annotations.proto";
 
 service API {
+    rpc GetMe(GetMeRequest) returns (GetMeResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/me"
+        };
+    }
+
     rpc GetMeEmail(GetMeEmailRequest) returns (GetMeEmailResponse) {
         option (google.api.http) = {
-          get: "/api/v1/me/email"
-       };
+            get: "/api/v1/me/email"
+        };
     }
 
     rpc UpdateMeEmail(UpdateMeEmailRequest) returns (UpdateMeEmailResponse) {
         option (google.api.http) = {
-          post: "/api/v1/me/email"
-          body: "*"
+            post: "/api/v1/me/email"
+            body: "*"
         };
     }
+
+    rpc UpdateMeNotificationTimeSpan(UpdateMeNotificationTimeSpanRequest) returns (UpdateMeNotificationTimeSpanResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/me/notificationTimeSpan"
+            body: "*"
+        };
+    }
+}
+
+message GetMeRequest {}
+
+message NotificationTimeSpan {
+    int32 fromHour = 1;
+    int32 fromMinute = 2;
+    int32 toHour = 3;
+    int32 toMinute = 4;
+}
+
+message GetMeResponse {
+    string email = 1;
+    repeated NotificationTimeSpan notificationTimeSpans = 2;
 }
 
 message GetMeEmailRequest {}
@@ -30,3 +57,9 @@ message UpdateMeEmailRequest {
 }
 
 message UpdateMeEmailResponse {}
+
+message UpdateMeNotificationTimeSpanRequest {
+    repeated NotificationTimeSpan notificationTimeSpans = 1;
+}
+
+message UpdateMeNotificationTimeSpanResponse {}
