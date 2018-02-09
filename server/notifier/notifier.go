@@ -115,7 +115,8 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		return nil
 	}
 
-	logger.App.Info("n", zap.Uint("userID", uint(user.ID)), zap.Int("teachers", len(teacherIDs)))
+	// Comment out due to papertrail limit
+	//logger.App.Info("n", zap.Uint("userID", uint(user.ID)), zap.Int("teachers", len(teacherIDs)))
 
 	//availableTeachersAndLessons := make(map[uint32][]*model.Lesson, 1000)
 	availableTeachersAndLessons := NewTeachersAndLessons(1000)
