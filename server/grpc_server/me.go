@@ -39,7 +39,8 @@ func (s *apiV1Server) GetMe(
 	}
 
 	return &api_v1.GetMeResponse{
-		Email: user.Email,
+		UserId: int32(user.ID),
+		Email:  user.Email,
 		NotificationTimeSpans: timeSpansPB,
 	}, nil
 }

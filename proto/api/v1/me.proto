@@ -42,8 +42,9 @@ message NotificationTimeSpan {
 }
 
 message GetMeResponse {
-    string email = 1;
-    repeated NotificationTimeSpan notificationTimeSpans = 2;
+    int32 userId = 1;
+    string email = 2;
+    repeated NotificationTimeSpan notificationTimeSpans = 3;
 }
 
 message GetMeEmailRequest {}

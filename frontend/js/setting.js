@@ -16,6 +16,7 @@ class SettingView extends MicroContainer {
         kind: '',
         message: '',
       },
+      userId: 0,
       email: '',
       timeSpan: {
         editable: false,
@@ -43,7 +44,7 @@ class SettingView extends MicroContainer {
   }
 
   render() {
-    if (this.state.email.startsWith('oinume')) {
+    if ([1, 705].includes(this.state.userId)) { // A/B
       return (
         <div>
           <Alert dispatch={this.dispatch} {...this.state.alert}/>
@@ -68,6 +69,7 @@ class SettingView extends MicroContainer {
         console.log(response.data);
         const timeSpans = response.data['notificationTimeSpans'] ? response.data['notificationTimeSpans'] : [];
         this.setState({
+          userId: response.data['userId'],
           email: response.data['email'],
           timeSpan: {
             editable: this.state.timeSpan.editable,
@@ -184,12 +186,12 @@ class SettingView extends MicroContainer {
       notificationTimeSpans: timeSpans,
     })
       .then((response) => {
-        this.handleShowAlert('success', '通知対象の時間帯を更新しました！');
+        this.handleShowAlert('success', 'レッスン希望時間帯を更新しました！');
       })
       .catch((error) => {
         console.log(error);
         if (error.response.status === 400) {
-          this.handleShowAlert('danger', '正しい通知対象の時間帯を選択してください');
+          this.handleShowAlert('danger', '正しいレッスン希望時間帯を選択してください');
         } else {
           // TODO: external message
           this.handleShowAlert('danger', 'システムエラーが発生しました');
@@ -376,7 +378,7 @@ class NotificationTimeSpanForm extends React.Component {
       <form className="form-horizontal">
         <div className="form-group">
           <div className="col-sm-2">
-            <label htmlFor="notificationTimeSpan" className="control-label">通知対象の時間帯</label>
+            <label htmlFor="notificationTimeSpan" className="control-label">レッスン希望時間帯</label>
             <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
               <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
             </a>
