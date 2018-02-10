@@ -92,6 +92,9 @@ func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 	if err := timeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
 		return nil, err
 	}
+
+	go event_logger.SendGAMeasurementEvent2(event_logger.MustGAMeasurementEventValues(ctx), event_logger.CategoryUser, "updateNotificationTimeSpan", fmt.Sprint(user.ID), 0, user.ID)
+
 	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
 }
 
