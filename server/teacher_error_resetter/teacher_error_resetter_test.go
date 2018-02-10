@@ -9,6 +9,7 @@ import (
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
 )
 
 var helper *model.TestHelper
@@ -16,14 +17,16 @@ var helper *model.TestHelper
 func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
 	helper = model.NewTestHelper()
-	helper.TruncateAllTables(helper.DB())
+	// NOTE: Avoid "Failed to FindByPK: id=1: record not found"
+	//helper.TruncateAllTables(helper.DB())
 	os.Exit(m.Run())
 }
 
 func TestMain_Run(t *testing.T) {
 	teacherService := model.NewTeacherService(helper.DB())
+	helper.CreateRandomTeacher()
 	teacher := &model.Teacher{
-		ID:                1,
+		ID:                uint32(util.RandomInt(99999)),
 		Name:              "test",
 		CountryID:         1,
 		Gender:            "male",
