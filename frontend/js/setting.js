@@ -44,7 +44,7 @@ class SettingView extends MicroContainer {
   }
 
   render() {
-    if ([1, 705].includes(this.state.userId)) { // A/B
+    if ([1, 705, 715].includes(this.state.userId)) { // AB test
       return (
         <div>
           <Alert dispatch={this.dispatch} {...this.state.alert}/>
