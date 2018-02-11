@@ -104,3 +104,8 @@ body {
     white-space: nowrap;
     line-height: 1;
 }
+
+.button-plus {
+    font-size: 1.25em;
+    padding: 8px 6px;
+}
