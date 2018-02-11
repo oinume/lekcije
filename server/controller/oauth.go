@@ -196,6 +196,10 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 
 func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	c := googleOAuthConfig
-	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.WebURLScheme(r), r.Host)
+	host := r.Header.Get("X-Original-Host") // For ngrok
+	if host == "" {
+		host = r.Host
+	}
+	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.WebURLScheme(r), host)
 	return c
 }
