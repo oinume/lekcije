@@ -172,36 +172,10 @@ func (fetcher *LessonFetcher) parseHTML(
 		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.URL)
 	}
 
-	// TODO: Wrap up as a method
-	nameXPath := xmlpath.MustCompile(`./dt`)
-	valueXPath := xmlpath.MustCompile(`./dd`)
-	for iter := attributesXPath.Iter(root); iter.Next(); {
-		node := iter.Node()
-		name, ok := nameXPath.String(node)
-		if !ok {
-			fetcher.logger.Error(
-				fmt.Sprintf("Failed to parse teacher attribute: name=%v", name),
-				zap.Uint("teacherID", uint(teacher.ID)),
-			)
-			continue
-		}
-		value, ok := valueXPath.String(node)
-		if !ok {
-			fetcher.logger.Error(
-				fmt.Sprintf("Failed to parse teacher attribute: name=%v, value=%v", name, value),
-				zap.Uint("teacherID", uint(teacher.ID)),
-			)
-			continue
-		}
-		if err := fetcher.setTeacherAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value)); err != nil {
-			fetcher.logger.Error(
-				fmt.Sprintf("Failed to setTeacherAttribute: name=%v, value=%v", name, value),
-				zap.Uint("teacherID", uint(teacher.ID)),
-			)
-		}
-		//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
-	}
-	//fmt.Printf("teacher = %+v\n", teacher)
+	// Nationality, birthday, etc...
+	fetcher.parseTeacherAttribute(teacher, root)
+	// FavoriteCount
+	fetcher.parseTeacherFavoriteCount(teacher, root)
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
 	lessons := make([]*model.Lesson, 0, 1000)
@@ -278,7 +252,38 @@ func (fetcher *LessonFetcher) parseHTML(
 	return teacher, lessons, nil
 }
 
-// TODO: Move to model
+func (fetcher *LessonFetcher) parseTeacherAttribute(teacher *model.Teacher, rootNode *xmlpath.Node) {
+	nameXPath := xmlpath.MustCompile(`./dt`)
+	valueXPath := xmlpath.MustCompile(`./dd`)
+	for iter := attributesXPath.Iter(rootNode); iter.Next(); {
+		node := iter.Node()
+		name, ok := nameXPath.String(node)
+		if !ok {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to parse teacher value: name=%v", name),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+			continue
+		}
+		value, ok := valueXPath.String(node)
+		if !ok {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to parse teacher value: name=%v, value=%v", name, value),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+			continue
+		}
+		if err := fetcher.setTeacherAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value)); err != nil {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to setTeacherAttribute: name=%v, value=%v", name, value),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+		}
+		//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
+	}
+	//fmt.Printf("teacher = %+v\n", teacher)
+}
+
 func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
 	switch name {
 	case "国籍":
@@ -325,6 +330,27 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 		teacher.YearsOfExperience = uint8(yoe)
 	}
 	return nil
+}
+
+func (fetcher *LessonFetcher) parseTeacherFavoriteCount(teacher *model.Teacher, rootNode *xmlpath.Node) {
+	nameXPath := xmlpath.MustCompile(`//span[@id='fav_count']`)
+	value, ok := nameXPath.String(rootNode)
+	if !ok {
+		fetcher.logger.Error(
+			fmt.Sprintf("Failed to parse teacher favorite count"),
+			zap.Uint("teacherID", uint(teacher.ID)),
+		)
+		return
+	}
+	v, err := strconv.ParseUint(value, 10, 32)
+	if err != nil {
+		fetcher.logger.Error(
+			fmt.Sprintf("Failed to parse teacher favorite count. It's not a number"),
+			zap.Uint("teacherID", uint(teacher.ID)),
+		)
+		return
+	}
+	teacher.FavoriteCount = uint32(v)
 }
 
 func (fetcher *LessonFetcher) Close() {

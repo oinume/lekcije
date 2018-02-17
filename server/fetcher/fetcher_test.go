@@ -185,14 +185,20 @@ func TestFetchConcurrency(t *testing.T) {
 
 func TestParseHTML(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 	fetcher := NewLessonFetcher(http.DefaultClient, 1, false, mCountries, nil)
 	file, err := os.Open("testdata/5982.html")
-	a.Nil(err)
+	r.NoError(err)
 	defer file.Close()
 
 	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)
-	a.Nil(err)
+	r.NoError(err)
 	a.Equal("Xai", teacher.Name)
+	a.Equal(uint16(608), teacher.CountryID) // Philippines
+	a.Equal("female", teacher.Gender)
+	a.Equal("1980-03-17", teacher.Birthday.Format("2006-01-02"))
+	a.Equal(uint32(814), teacher.FavoriteCount)
+
 	a.True(len(lessons) > 0)
 	for _, lesson := range lessons {
 		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 11:00" {
