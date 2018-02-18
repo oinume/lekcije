@@ -29,6 +29,7 @@
 
 [[constraint]]
   name = "github.com/Songmu/retry"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/fukata/golang-stats-api-handler"
@@ -36,34 +37,43 @@
 
 [[constraint]]
   name = "github.com/go-sql-driver/mysql"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/golang/protobuf"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/google/uuid"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
-  version = "1.3.0"
+  version = "1.3.1"
 
 [[constraint]]
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/jinzhu/gorm"
+  revision = "85774eb9dab486c4f0568df98fe5ad9ce7d4f75b"
 
 [[constraint]]
   name = "github.com/jpillora/go-ogle-analytics"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/newrelic/go-agent"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/oinume/goenum"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/pkg/errors"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/pkg/profile"
@@ -71,21 +81,27 @@
 
 [[constraint]]
   name = "github.com/rs/cors"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/sclevine/agouti"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/sendgrid/rest"
+  version = "v2.4.0"
 
 [[constraint]]
   name = "github.com/sendgrid/sendgrid-go"
+  version = "v3.4.1"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/stvp/rollbar"
+  branch = "master"
 
 [[constraint]]
   name = "go.uber.org/zap"
@@ -93,30 +109,43 @@
 
 [[constraint]]
   name = "goji.io"
+  source = "github.com/goji/goji"
+  branch = "master"
 
 [[constraint]]
   name = "golang.org/x/net"
+  branch = "master"
 
 [[constraint]]
   name = "golang.org/x/oauth2"
+  revision = "543e37812f10c46c622c9575afd7ad22f22a12ba"
 
 [[constraint]]
   name = "golang.org/x/sync"
+  branch = "master"
 
 [[constraint]]
   name = "golang.org/x/text"
+  branch = "master"
 
 [[constraint]]
   name = "google.golang.org/api"
+  branch = "master"
 
 [[constraint]]
   name = "google.golang.org/genproto"
+  branch = "master"
 
 [[constraint]]
   name = "google.golang.org/grpc"
+  version = "1.10.0"
 
 [[constraint]]
   name = "gopkg.in/redis.v4"
+  source = "github.com/go-redis/redis"
+  version = "v4.2.4"
 
 [[constraint]]
   name = "gopkg.in/xmlpath.v2"
+  source = "github.com/go-xmlpath/xmlpath"
+  branch = "v2"
