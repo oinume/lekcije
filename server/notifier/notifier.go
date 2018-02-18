@@ -293,10 +293,6 @@ From: lekcije <lekcije@lekcije.com>
 To: {{ .To }}
 Subject: {{ .TeacherNames }}の空きレッスンがあります
 Body: text/html
-PR ─────────────────────────────────────────────
-<a href="https://px.a8.net/svt/ejp?a8mat=2Z8HPF+AF33W2+3L4M+5ZU2A" target="_blank" rel="nofollow">全世界で３万人が受講！「 英語速読・記憶講座」が￥2400！</a><img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=2Z8HPF+AF33W2+3L4M+5ZU2A" alt="">
-PR ─────────────────────────────────────────────
-
 {{ range $teacherID := .TeacherIDs }}
 {{- $teacher := index $.Teachers $teacherID -}}
 --- {{ $teacher.Name }} ---
@@ -310,6 +306,10 @@ PR ─────────────────────────�
 <a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
 
 {{ end }}
+PR ────────────────
+<a href="https://px.a8.net/svt/ejp?a8mat=2Z8HPF+AF33W2+3L4M+5ZU2A" target="_blank" rel="nofollow">全世界で３万人が受講！「 英語速読・記憶講座」が￥2400！</a><img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=2Z8HPF+AF33W2+3L4M+5ZU2A" alt="">
+PR ────────────────
+
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
 
 <a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">お問い合わせ</a>
