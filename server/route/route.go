@@ -25,6 +25,7 @@ func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
 
 	routes.HandleFunc(pat.Get("/static/*"), controller.Static)
 	routes.HandleFunc(pat.Get("/"), controller.Index)
+	routes.HandleFunc(pat.Get("/inquiry"), controller.Inquiry)
 	routes.HandleFunc(pat.Get("/signup"), controller.Signup)
 	routes.HandleFunc(pat.Get("/oauth/google"), controller.OAuthGoogle)
 	routes.HandleFunc(pat.Get("/oauth/google/callback"), controller.OAuthGoogleCallback)

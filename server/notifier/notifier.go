@@ -312,7 +312,7 @@ PR ────────────────
 
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
 
-<a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">お問い合わせ</a>
+<a href="mailto:support@lekcije.freshdesk.com">お問い合わせ</a>
 	`)
 }
 
