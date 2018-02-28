@@ -44,22 +44,13 @@ class SettingView extends MicroContainer {
   }
 
   render() {
-    if ([1, 705, 715].includes(this.state.userId)) { // AB test
-      return (
-        <div>
-          <Alert dispatch={this.dispatch} {...this.state.alert}/>
-          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
-          <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <Alert dispatch={this.dispatch} {...this.state.alert}/>
-          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
-        </div>
-      );
-    }
+    return (
+      <div>
+        <Alert dispatch={this.dispatch} {...this.state.alert}/>
+        <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+        <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+      </div>
+    );
   }
 
   fetch() {
