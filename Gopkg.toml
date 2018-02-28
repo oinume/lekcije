@@ -22,7 +22,7 @@
 
 [metadata.heroku]
   root-package = "github.com/oinume/lekcije"
-  go-version = "go1.9"
+  go-version = "go1.10"
   install = [ "./server/cmd/..." ]
   ensure = "true"
 #  additional-tools = ["github.com/mattes/migrate"]
