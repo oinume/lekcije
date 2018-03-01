@@ -183,7 +183,7 @@ func TestFetchConcurrency(t *testing.T) {
 	a.Equal(n, mockTransport.NumCalled)
 }
 
-func TestParseHTML(t *testing.T) {
+func TestParseHTMLLesson(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 	fetcher := NewLessonFetcher(http.DefaultClient, 1, false, mCountries, nil)
@@ -212,6 +212,24 @@ func TestParseHTML(t *testing.T) {
 		}
 	}
 	//fmt.Printf("%v\n", spew.Sdump(lessons))
+}
+
+func TestParseHTMLTeacher(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+	fetcher := NewLessonFetcher(http.DefaultClient, 1, false, mCountries, nil)
+	file, err := os.Open("testdata/3986.html")
+	r.NoError(err)
+	defer file.Close()
+
+	teacher, _, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)
+	r.NoError(err)
+	a.Equal("Hena", teacher.Name)
+	a.Equal(uint16(70), teacher.CountryID) // Bosnia and Herzegovina
+	a.Equal("female", teacher.Gender)
+	a.Equal("1996-04-14", teacher.Birthday.Format("2006-01-02"))
+	a.Equal(uint32(1763), teacher.FavoriteCount)
+	a.Equal(float32(4.9), teacher.Rating)
 }
 
 //<a href="#" class="bt-open" id="a:3:{s:8:&quot;launched&quot;;s:19:&quot;2016-07-01 16:30:00&quot;;s:10:&quot;teacher_id&quot;;s:4:&quot;5982&quot;;s:9:&quot;lesson_id&quot;;s:8:&quot;25880364&quot;;}">予約可</a>
