@@ -198,6 +198,7 @@ func TestParseHTML(t *testing.T) {
 	a.Equal("female", teacher.Gender)
 	a.Equal("1996-04-14", teacher.Birthday.Format("2006-01-02"))
 	a.Equal(uint32(1763), teacher.FavoriteCount)
+	a.Equal(uint32(1366), teacher.ReviewCount)
 	a.Equal(float32(4.9), teacher.Rating)
 
 	a.True(len(lessons) > 0)

@@ -356,8 +356,30 @@ func (fetcher *LessonFetcher) parseTeacherFavoriteCount(teacher *model.Teacher, 
 }
 
 func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNode *xmlpath.Node) {
+	totalXPath := xmlpath.MustCompile(`//p[@id='total']`)
+	value, ok := totalXPath.String(rootNode)
+	if !ok {
+		fetcher.logger.Error(
+			fmt.Sprintf("Failed to parse teacher review count"),
+			zap.Uint("teacherID", uint(teacher.ID)),
+		)
+		return
+	}
+	matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
+	fmt.Printf("matches = %+v\n", matches)
+	reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
+	if err != nil {
+		fetcher.logger.Error(
+			fmt.Sprintf("Failed to parse teacher review count. It's not a number"),
+			zap.Uint("teacherID", uint(teacher.ID)),
+			zap.String("value", value),
+		)
+		return
+	}
+	teacher.ReviewCount = uint32(reviewCount)
+
 	numXPath := xmlpath.MustCompile(`//li[@id='num']`)
-	value, ok := numXPath.String(rootNode)
+	value, ok = numXPath.String(rootNode)
 	if !ok {
 		fetcher.logger.Error(
 			fmt.Sprintf("Failed to parse teacher rating"),
@@ -365,7 +387,7 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 		)
 		return
 	}
-	v, err := strconv.ParseFloat(value, 32)
+	rating, err := strconv.ParseFloat(value, 32)
 	if err != nil {
 		fetcher.logger.Error(
 			fmt.Sprintf("Failed to parse teacher rating. It's not a number"),
@@ -373,7 +395,7 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 		)
 		return
 	}
-	teacher.Rating = float32(v)
+	teacher.Rating = float32(rating)
 }
 
 func (fetcher *LessonFetcher) Close() {
