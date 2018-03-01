@@ -307,7 +307,7 @@ Body: text/html
 
 {{ end }}
 PR ────────────────
-<a href="https://px.a8.net/svt/ejp?a8mat=2Z8HPF+AF33W2+3L4M+5ZU2A" target="_blank" rel="nofollow">全世界で３万人が受講！「 英語速読・記憶講座」が￥2400！</a><img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=2Z8HPF+AF33W2+3L4M+5ZU2A" alt="">
+<a href="https://lekcije.amebaownd.com/posts/3780950" target="_blank" rel="nofollow">設定画面からレッスン希望時間帯が設定できるようになりました</a>
 PR ────────────────
 
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
