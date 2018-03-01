@@ -87,9 +87,9 @@ func TestFetch(t *testing.T) {
 	transport := &errorTransport{okThreshold: 0}
 	client := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	teacher, _, err := fetcher.Fetch(5982)
+	teacher, _, err := fetcher.Fetch(3986)
 	a.Nil(err)
-	a.Equal("Xai", teacher.Name)
+	a.Equal("Hena", teacher.Name)
 	a.Equal(1, transport.callCount)
 }
 
@@ -107,9 +107,9 @@ func TestFetchRetry(t *testing.T) {
 	transport := &errorTransport{okThreshold: 2}
 	client := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	teacher, _, err := fetcher.Fetch(5982)
+	teacher, _, err := fetcher.Fetch(3986)
 	a.Nil(err)
-	a.Equal("Xai", teacher.Name)
+	a.Equal("Hena", teacher.Name)
 	a.Equal(2, transport.callCount)
 }
 
