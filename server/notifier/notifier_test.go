@@ -178,8 +178,8 @@ func TestSendNotification(t *testing.T) {
 
 		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB())
 		timeSpans := []*model.NotificationTimeSpan{
-			{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
-			{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
+			{UserID: user.ID, Number: 1, FromTime: "02:00:00", ToTime: "03:00:00"},
+			{UserID: user.ID, Number: 2, FromTime: "06:00:00", ToTime: "07:00:00"},
 		}
 		if err := notificationTimeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
 			t.Fatalf("UpdateAll failed: err=%v", err)
@@ -199,13 +199,13 @@ func TestSendNotification(t *testing.T) {
 		n.Close() // Wait all async requests are done before reading request body
 		content := senderTransport.requestBody
 		// TODO: table drive test
-		if !strings.Contains(content, "16:30") {
-			t.Errorf("content must contain 16:30 due to notification time span")
+		if !strings.Contains(content, "02:30") {
+			t.Errorf("content must contain 02:30 due to notification time span")
 		}
-		if !strings.Contains(content, "20:30") {
-			t.Errorf("content must contain 20:30 due to notification time span")
+		if !strings.Contains(content, "06:00") {
+			t.Errorf("content must contain 06:00 due to notification time span")
 		}
-		if strings.Contains(content, "23:30") {
+		if strings.Contains(content, "05:00") {
 			t.Errorf("content must not contain 23:30 due to notification time span")
 		}
 		//fmt.Printf("content = %v\n", content)
