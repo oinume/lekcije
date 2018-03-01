@@ -132,7 +132,7 @@ func TestSendNotification(t *testing.T) {
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
-	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/5982.html")
+	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
 	if err != nil {
 		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 	}

@@ -60,7 +60,7 @@ func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
 
-	file, err := os.Open("testdata/5982.html")
+	file, err := os.Open("testdata/3986.html")
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func TestFetchInternalServerError(t *testing.T) {
 func TestFetchConcurrency(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
-	mockTransport, err := NewMockTransport("testdata/5982.html")
+	mockTransport, err := NewMockTransport("testdata/3986.html")
 	r.NoError(err)
 	client := &http.Client{Transport: mockTransport}
 	fetcher := NewLessonFetcher(client, *concurrency, false, mCountries, nil)
@@ -183,38 +183,7 @@ func TestFetchConcurrency(t *testing.T) {
 	a.Equal(n, mockTransport.NumCalled)
 }
 
-func TestParseHTMLLesson(t *testing.T) {
-	a := assert.New(t)
-	r := require.New(t)
-	fetcher := NewLessonFetcher(http.DefaultClient, 1, false, mCountries, nil)
-	file, err := os.Open("testdata/5982.html")
-	r.NoError(err)
-	defer file.Close()
-
-	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)
-	r.NoError(err)
-	a.Equal("Xai", teacher.Name)
-	a.Equal(uint16(608), teacher.CountryID) // Philippines
-	a.Equal("female", teacher.Gender)
-	a.Equal("1980-03-17", teacher.Birthday.Format("2006-01-02"))
-	a.Equal(uint32(814), teacher.FavoriteCount)
-
-	a.True(len(lessons) > 0)
-	for _, lesson := range lessons {
-		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 11:00" {
-			a.Equal("Finished", lesson.Status)
-		}
-		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 16:30" {
-			a.Equal("Available", lesson.Status)
-		}
-		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 18:00" {
-			a.Equal("Reserved", lesson.Status)
-		}
-	}
-	//fmt.Printf("%v\n", spew.Sdump(lessons))
-}
-
-func TestParseHTMLTeacher(t *testing.T) {
+func TestParseHTML(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 	fetcher := NewLessonFetcher(http.DefaultClient, 1, false, mCountries, nil)
@@ -222,7 +191,7 @@ func TestParseHTMLTeacher(t *testing.T) {
 	r.NoError(err)
 	defer file.Close()
 
-	teacher, _, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)
+	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(3986)), file)
 	r.NoError(err)
 	a.Equal("Hena", teacher.Name)
 	a.Equal(uint16(70), teacher.CountryID) // Bosnia and Herzegovina
@@ -230,6 +199,20 @@ func TestParseHTMLTeacher(t *testing.T) {
 	a.Equal("1996-04-14", teacher.Birthday.Format("2006-01-02"))
 	a.Equal(uint32(1763), teacher.FavoriteCount)
 	a.Equal(float32(4.9), teacher.Rating)
+
+	a.True(len(lessons) > 0)
+	for _, lesson := range lessons {
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-01 18:00" {
+			a.Equal("Finished", lesson.Status)
+		}
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-03 06:30" {
+			a.Equal("Available", lesson.Status)
+		}
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-03 02:00" {
+			a.Equal("Reserved", lesson.Status)
+		}
+	}
+	//fmt.Printf("%v\n", spew.Sdump(lessons))
 }
 
 //<a href="#" class="bt-open" id="a:3:{s:8:&quot;launched&quot;;s:19:&quot;2016-07-01 16:30:00&quot;;s:10:&quot;teacher_id&quot;;s:4:&quot;5982&quot;;s:9:&quot;lesson_id&quot;;s:8:&quot;25880364&quot;;}">予約可</a>

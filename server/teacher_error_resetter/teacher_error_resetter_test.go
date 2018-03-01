@@ -42,7 +42,7 @@ func TestMain_Run(t *testing.T) {
 		t.Fatalf("teacherService.CreateOrUpdate failed: err=%v", err)
 	}
 
-	mockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/5982.html") // TODO: path
+	mockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html") // TODO: path
 	if err != nil {
 		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 	}
