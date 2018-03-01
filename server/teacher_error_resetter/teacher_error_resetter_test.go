@@ -32,6 +32,8 @@ func TestMain_Run(t *testing.T) {
 		Gender:            "male",
 		Birthday:          time.Now().UTC(),
 		YearsOfExperience: 1,
+		FavoriteCount:     10,
+		Rating:            4.8,
 		FetchErrorCount:   10,
 		CreatedAt:         time.Now().UTC(),
 		UpdatedAt:         time.Now().UTC(),
