@@ -366,7 +366,6 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 		return
 	}
 	matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
-	fmt.Printf("matches = %+v\n", matches)
 	reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
 	if err != nil {
 		fetcher.logger.Error(
