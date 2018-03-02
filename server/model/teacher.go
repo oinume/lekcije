@@ -26,6 +26,8 @@ type Teacher struct {
 	Birthday          time.Time
 	YearsOfExperience uint8
 	FavoriteCount     uint32
+	ReviewCount       uint32
+	Rating            float32
 	FetchErrorCount   uint8
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
@@ -80,9 +82,9 @@ func NewTeacherService(db *gorm.DB) *TeacherService {
 }
 
 func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
-	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
+	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
 	sql += " ON DUPLICATE KEY UPDATE"
-	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?"
+	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?, review_count=?, rating=?"
 	now := time.Now()
 	values := []interface{}{
 		t.ID,
@@ -92,6 +94,8 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 		t.Birthday.Format("2006-01-02"),
 		t.YearsOfExperience,
 		t.FavoriteCount,
+		t.ReviewCount,
+		t.Rating,
 		t.FetchErrorCount,
 		now.Format("2006-01-02 15:04:05"),
 		now.Format("2006-01-02 15:04:05"),
@@ -101,6 +105,8 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 		t.YearsOfExperience,
 		t.Birthday.Format("2006-01-02"),
 		t.FavoriteCount,
+		t.ReviewCount,
+		t.Rating,
 	}
 
 	if err := s.db.Exec(sql, values...).Error; err != nil {

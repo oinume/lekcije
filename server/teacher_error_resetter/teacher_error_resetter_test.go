@@ -32,6 +32,8 @@ func TestMain_Run(t *testing.T) {
 		Gender:            "male",
 		Birthday:          time.Now().UTC(),
 		YearsOfExperience: 1,
+		FavoriteCount:     10,
+		Rating:            4.8,
 		FetchErrorCount:   10,
 		CreatedAt:         time.Now().UTC(),
 		UpdatedAt:         time.Now().UTC(),
@@ -40,7 +42,7 @@ func TestMain_Run(t *testing.T) {
 		t.Fatalf("teacherService.CreateOrUpdate failed: err=%v", err)
 	}
 
-	mockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/5982.html") // TODO: path
+	mockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html") // TODO: path
 	if err != nil {
 		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 	}

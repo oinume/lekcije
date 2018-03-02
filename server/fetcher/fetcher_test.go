@@ -60,7 +60,7 @@ func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
 
-	file, err := os.Open("testdata/5982.html")
+	file, err := os.Open("testdata/3986.html")
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +87,9 @@ func TestFetch(t *testing.T) {
 	transport := &errorTransport{okThreshold: 0}
 	client := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	teacher, _, err := fetcher.Fetch(5982)
+	teacher, _, err := fetcher.Fetch(3986)
 	a.Nil(err)
-	a.Equal("Xai", teacher.Name)
+	a.Equal("Hena", teacher.Name)
 	a.Equal(1, transport.callCount)
 }
 
@@ -107,9 +107,9 @@ func TestFetchRetry(t *testing.T) {
 	transport := &errorTransport{okThreshold: 2}
 	client := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	teacher, _, err := fetcher.Fetch(5982)
+	teacher, _, err := fetcher.Fetch(3986)
 	a.Nil(err)
-	a.Equal("Xai", teacher.Name)
+	a.Equal("Hena", teacher.Name)
 	a.Equal(2, transport.callCount)
 }
 
@@ -160,7 +160,7 @@ func TestFetchInternalServerError(t *testing.T) {
 func TestFetchConcurrency(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
-	mockTransport, err := NewMockTransport("testdata/5982.html")
+	mockTransport, err := NewMockTransport("testdata/3986.html")
 	r.NoError(err)
 	client := &http.Client{Transport: mockTransport}
 	fetcher := NewLessonFetcher(client, *concurrency, false, mCountries, nil)
@@ -187,27 +187,29 @@ func TestParseHTML(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 	fetcher := NewLessonFetcher(http.DefaultClient, 1, false, mCountries, nil)
-	file, err := os.Open("testdata/5982.html")
+	file, err := os.Open("testdata/3986.html")
 	r.NoError(err)
 	defer file.Close()
 
-	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(5982)), file)
+	teacher, lessons, err := fetcher.parseHTML(model.NewTeacher(uint32(3986)), file)
 	r.NoError(err)
-	a.Equal("Xai", teacher.Name)
-	a.Equal(uint16(608), teacher.CountryID) // Philippines
+	a.Equal("Hena", teacher.Name)
+	a.Equal(uint16(70), teacher.CountryID) // Bosnia and Herzegovina
 	a.Equal("female", teacher.Gender)
-	a.Equal("1980-03-17", teacher.Birthday.Format("2006-01-02"))
-	a.Equal(uint32(814), teacher.FavoriteCount)
+	a.Equal("1996-04-14", teacher.Birthday.Format("2006-01-02"))
+	a.Equal(uint32(1763), teacher.FavoriteCount)
+	a.Equal(uint32(1366), teacher.ReviewCount)
+	a.Equal(float32(4.9), teacher.Rating)
 
 	a.True(len(lessons) > 0)
 	for _, lesson := range lessons {
-		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 11:00" {
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-01 18:00" {
 			a.Equal("Finished", lesson.Status)
 		}
-		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 16:30" {
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-03 06:30" {
 			a.Equal("Available", lesson.Status)
 		}
-		if lesson.Datetime.Format("2006-01-02 15:04") == "2016-07-01 18:00" {
+		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-03 02:00" {
 			a.Equal("Reserved", lesson.Status)
 		}
 	}
