@@ -323,10 +323,19 @@ func (n *Notifier) Close() {
 		if n.dryRun {
 			return
 		}
+		teacherService := model.NewTeacherService(n.db)
 		for teacherID, lessons := range n.fetchedLessons {
+			if teacher, ok := n.teachers[teacherID]; ok {
+				if err := teacherService.CreateOrUpdate(teacher); err != nil {
+					logger.App.Error(
+						"teacherService.CreateOrUpdate failed in Notifier.Close",
+						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
+					)
+				}
+			}
 			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
 				logger.App.Error(
-					"An error ocurred in Notifier.Close",
+					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 				)
 			}

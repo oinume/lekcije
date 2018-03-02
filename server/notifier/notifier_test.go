@@ -14,6 +14,8 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -128,7 +130,7 @@ func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
 	}
 }
 
-func TestSendNotification(t *testing.T) {
+func TestNotifier_SendNotification(t *testing.T) {
 	db := helper.DB()
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
@@ -210,4 +212,41 @@ func TestSendNotification(t *testing.T) {
 		}
 		//fmt.Printf("content = %v\n", content)
 	})
+}
+
+func TestNotifier_Close(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+	db := helper.DB()
+	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
+
+	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
+	r.NoError(err, "fetcher.NewMockTransport failed")
+	fetcherHTTPClient := &http.Client{
+		Transport: fetcherMockTransport,
+	}
+	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+
+	senderTransport := &mockSenderTransport{}
+	senderHTTPClient := &http.Client{
+		Transport: senderTransport,
+	}
+	sender := emailer.NewSendGridSender(senderHTTPClient)
+
+	user := helper.CreateRandomUser()
+	teacher := helper.CreateTeacher(3982, "Hena")
+	helper.CreateFollowingTeacher(user.ID, teacher)
+
+	n := NewNotifier(db, fetcher, false, sender)
+	err = n.SendNotification(user)
+	r.NoError(err, "SendNotification failed")
+	n.Close()
+
+	teacherService := model.NewTeacherService(db)
+	updatedTeacher, err := teacherService.FindByPK(teacher.ID)
+	r.NoError(err)
+	a.NotEqual(teacher.CountryID, updatedTeacher.CountryID)
+	a.NotEqual(teacher.FavoriteCount, updatedTeacher.FavoriteCount)
+	a.NotEqual(teacher.Rating, updatedTeacher.Rating)
+	a.NotEqual(teacher.ReviewCount, updatedTeacher.ReviewCount)
 }
