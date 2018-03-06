@@ -42,10 +42,13 @@ func (m *Main) Run() error {
 	//if *m.LogLevel != "" {
 	//	//logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
 	//}
-	logger.App.Info("notifier started")
+	logger.App.Info(fmt.Sprintf("notifier started (interval=%d)", *m.NotificationInterval))
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("notifier finished", zap.Int("elapsed", int(elapsed)))
+		logger.App.Info(
+			fmt.Sprintf("notifier finished (interval=%d)", *m.NotificationInterval),
+			zap.Int("elapsed", int(elapsed)),
+		)
 	}()
 
 	dbLogging := *m.LogLevel == "debug"
