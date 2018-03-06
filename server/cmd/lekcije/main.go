@@ -9,7 +9,6 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
-	"github.com/oinume/lekcije/proto-gen/go/proto/echo/v1"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/grpc_server"
@@ -53,7 +52,6 @@ func startGRPCServer(port int) error {
 	var opts []grpc.ServerOption
 	opts = append(opts, interceptor.WithUnaryServerInterceptors())
 	server := grpc.NewServer(opts...)
-	grpc_server.RegisterEchoServer(server)
 	grpc_server.RegisterAPIV1Server(server)
 	// Register reflection service on gRPC server.
 	reflection.Register(server)
@@ -73,9 +71,6 @@ func startHTTPServer(grpcPort, httpPort int) error {
 	gatewayMux := runtime.NewServeMux(muxOptions)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 	endpoint := fmt.Sprintf("127.0.0.1:%d", grpcPort)
-	if err := echo.RegisterEchoHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {
-		return err
-	}
 	if err := api_v1.RegisterAPIHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {
 		return err
 	}
