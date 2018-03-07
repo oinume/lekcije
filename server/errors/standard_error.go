@@ -31,3 +31,7 @@ func WrapStandardError(code Code, original error) *StandardError {
 	}
 	return be
 }
+
+// Functional Option Pattern
+// https://qiita.com/weloan/items/56f1c7792088b5ede136
+// WithOriginalError(err), WithOutputStackTrace(false)
