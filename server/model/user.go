@@ -155,9 +155,8 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 				email, googleID,
 			)
 		}
-	} else {
-		// The user exists. Do nothing
 	}
+	// Do nothing if the user exists.
 
 	userGoogle := &UserGoogle{
 		GoogleID: googleID,
