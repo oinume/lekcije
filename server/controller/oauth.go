@@ -177,7 +177,6 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 	oauth2Client := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
 	service, err := google_auth2.New(oauth2Client)
 	if err != nil {
-		// TODO: quit using errors.Wrap
 		return "", "", "", errors.InternalWrapf(err, "Failed to create oauth2.Client")
 	}
 
@@ -186,12 +185,7 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 		return "", "", "", errors.InternalWrapf(err, "Failed to get userinfo")
 	}
 
-	tokeninfo, err := service.Tokeninfo().IdToken(idToken).Do()
-	if err != nil {
-		return "", "", "", errors.InternalWrapf(err, "Failed to get tokeninfo")
-	}
-
-	return tokeninfo.UserId, userinfo.Name, tokeninfo.Email, nil
+	return userinfo.Id, userinfo.Name, userinfo.Email, nil
 }
 
 func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
