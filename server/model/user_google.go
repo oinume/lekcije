@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/oinume/lekcije/server/errors"
 )
 
 type UserGoogle struct {
@@ -23,4 +24,18 @@ type UserGoogleService struct {
 
 func NewUserGoogleService(db *gorm.DB) *UserGoogleService {
 	return &UserGoogleService{db: db}
+}
+
+func (s *UserGoogleService) FindByUserID(userID uint32) (*UserGoogle, error) {
+	userGoogle := &UserGoogle{}
+	if result := s.db.First(userGoogle, &UserGoogle{UserID: userID}); result.Error != nil {
+		if result.RecordNotFound() {
+			return nil, errors.NotFoundWrapf(result.Error, "UserGoogle not found: userID=%v", userID)
+		} else {
+			return nil, errors.InternalWrapf(
+				result.Error, "userID=%v", userID,
+			)
+		}
+	}
+	return userGoogle, nil
 }

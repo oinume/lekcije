@@ -158,15 +158,20 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 	}
 	// Do nothing if the user exists.
 
-	userGoogle := &UserGoogle{
-		GoogleID: googleID,
-		UserID:   user.ID,
+	userGoogleService := NewUserGoogleService(s.db)
+	userGoogle, err := userGoogleService.FindByUserID(user.ID)
+	if _, notFound := err.(*errors.NotFound); notFound {
+		userGoogle = &UserGoogle{
+			GoogleID: googleID,
+			UserID:   user.ID,
+		}
+		if result := s.db.Create(userGoogle); result.Error != nil {
+			return nil, nil, errors.InternalWrapf(
+				result.Error, "Failed to create UserGoogle: googleID=%v", googleID,
+			)
+		}
 	}
-	if result := s.db.Create(userGoogle); result.Error != nil {
-		return nil, nil, errors.InternalWrapf(
-			result.Error, "Failed to create UserGoogle: email=%v", email,
-		)
-	}
+	// Do nothing if the user google exists.
 
 	return user, userGoogle, nil
 }
