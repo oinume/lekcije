@@ -139,6 +139,11 @@ func WriteError(w io.Writer, err error) {
 	case *errors.Internal:
 		e := err.(*errors.Internal)
 		fmt.Fprintf(w, "%+v\n", e.StackTrace())
+	case *errors.StandardError:
+		e := err.(*errors.StandardError)
+		if e.OutputStackTrace() {
+			fmt.Fprintf(w, "%+v\n", e.StackTrace())
+		}
 	default:
 		fmt.Fprintf(w, "%+v", err)
 	}
