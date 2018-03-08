@@ -1,7 +1,9 @@
 package errors
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 
 	"github.com/pkg/errors"
 )
@@ -29,12 +31,14 @@ func (c Code) String() string {
 
 type StandardError struct {
 	code             Code
+	message          string
 	wrapped          error
 	cause            error
 	stackTrace       errors.StackTrace
 	outputStackTrace bool
-	resourceName     string
-	resourceID       string
+	resourceKind     string
+	resourceKey      string
+	resourceValue    string
 }
 
 func NewStandardError(code Code, options ...Option) *StandardError {
@@ -57,6 +61,12 @@ func NewStandardError(code Code, options ...Option) *StandardError {
 // WithOriginalError(err), WithOutputStackTrace(false)
 
 type Option func(*StandardError)
+
+func WithMessage(message string) Option {
+	return func(se *StandardError) {
+		se.message = message
+	}
+}
 
 func WithError(err error) Option {
 	return func(se *StandardError) {
@@ -84,26 +94,43 @@ func WithOutputStackTrace(outputStackTrace bool) Option {
 	}
 }
 
-func WithResourceName(resourceName string) Option {
-	return func(se *StandardError) {
-		se.resourceName = resourceName
-	}
-}
+//func WithResourceKind(kind string) Option {
+//	return func(se *StandardError) {
+//		se.resourceKind = kind
+//	}
+//}
+//
+//func WithResourceKey(key string) Option {
+//	return func(se *StandardError) {
+//		se.resourceKey = key
+//	}
+//}
+//
+//func WithResourceValue(value string) Option {
+//	return func(se *StandardError) {
+//		se.resourceValue = value
+//	}
+//}
 
-func WithResourceID(resourceID string) Option {
+func WithResource(kind, key, value string) Option {
 	return func(se *StandardError) {
-		se.resourceID = resourceID
+		se.resourceKind = kind
+		se.resourceKey = key
+		se.resourceValue = value
 	}
 }
 
 func (e *StandardError) Error() string {
-	return fmt.Sprintf(
-		"%v: resource: name=%v, id=%v: %v",
-		e.code.String(),
-		e.resourceName,
-		e.resourceID,
-		e.wrapped.Error(),
-	)
+	var b bytes.Buffer
+	io.WriteString(&b, e.code.String())
+	if e.message != "" {
+		fmt.Fprintf(&b, ": %v", e.message)
+	}
+	if e.wrapped != nil {
+		fmt.Fprintf(&b, ": %v", e.wrapped.Error())
+	}
+	return b.String()
+	//return fmt.Sprintf("%v: %v: %v", e.code.String(), e.message, e.wrapped.Error())
 }
 
 func (e *StandardError) Code() Code {
@@ -118,10 +145,18 @@ func (e *StandardError) OutputStackTrace() bool {
 	return e.outputStackTrace
 }
 
-func (e *StandardError) ResourceName() string {
-	return e.resourceName
+func (e *StandardError) ResourceString() string {
+	return fmt.Sprintf("%v:%v:%v", e.resourceKind, e.resourceKey, e.resourceValue)
 }
 
-func (e *StandardError) ResourceID() string {
-	return e.resourceID
+func (e *StandardError) ResourceKind() string {
+	return e.resourceKind
+}
+
+func (e *StandardError) ResourceKey() string {
+	return e.resourceKey
+}
+
+func (e *StandardError) ResourceValue() string {
+	return e.resourceValue
 }
