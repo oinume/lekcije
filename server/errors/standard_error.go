@@ -24,7 +24,7 @@ func (c Code) String() string {
 	case CodeInternal:
 		s = "Internal"
 	}
-	return "errors." + s
+	return "code." + s
 }
 
 type StandardError struct {
@@ -33,12 +33,15 @@ type StandardError struct {
 	cause            error
 	stackTrace       errors.StackTrace
 	outputStackTrace bool
+	resourceName     string
+	resourceID       string
 }
 
 func NewStandardError(code Code, options ...Option) *StandardError {
 	se := &StandardError{
-		code:    code,
-		wrapped: errors.New(""), // As a default value
+		code:             code,
+		wrapped:          errors.New(""), // As a default value
+		outputStackTrace: true,
 	}
 	if st, ok := se.wrapped.(StackTracer); ok {
 		se.stackTrace = st.StackTrace()
@@ -69,6 +72,18 @@ func WithError(err error) Option {
 func WithOutputStackTrace(outputStackTrace bool) Option {
 	return func(se *StandardError) {
 		se.outputStackTrace = outputStackTrace
+	}
+}
+
+func WithResourceName(resourceName string) Option {
+	return func(se *StandardError) {
+		se.resourceName = resourceName
+	}
+}
+
+func WithResourceID(resourceID string) Option {
+	return func(se *StandardError) {
+		se.resourceID = resourceID
 	}
 }
 
