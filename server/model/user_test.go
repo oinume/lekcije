@@ -24,7 +24,26 @@ func TestUserService_FindByGoogleID(t *testing.T) {
 	a.Equal(user.Email, userActual.Email)
 }
 
-func TestCreateUser(t *testing.T) {
+func TestUserService_CreateWithGoogle(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+
+	email := randomEmail()
+	googleID := util.RandomString(16)
+	user, userGoogle, err := userService.CreateWithGoogle(googleID, email, googleID)
+	r.NoError(err)
+	a.Equal(email, user.Email)
+	a.Equal(user.ID, userGoogle.UserID)
+	a.Equal(googleID, userGoogle.GoogleID)
+
+	googleID2 := util.RandomString(16)
+	user2, _, err := userService.CreateWithGoogle(googleID2, email, googleID2)
+	r.NoError(err)
+	a.Equal(user.ID, user2.ID)
+	a.Equal(user.Email, user2.Email)
+}
+
+func TestUserService_Create(t *testing.T) {
 	a := assert.New(t)
 	email := randomEmail()
 	user, err := userService.Create("test", email)
@@ -37,7 +56,7 @@ func TestCreateUser(t *testing.T) {
 	a.Equal(DefaultMPlanID, user.PlanID)
 }
 
-func TestUpdateEmail(t *testing.T) {
+func TestUserService_UpdateEmail(t *testing.T) {
 	a := assert.New(t)
 
 	user := helper.CreateRandomUser()

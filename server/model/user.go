@@ -44,6 +44,20 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 	return user, nil
 }
 
+func (s *UserService) FindByEmail(email string) (*User, error) {
+	user := &User{}
+	if result := s.db.First(user, &User{Email: email}); result.Error != nil {
+		if result.RecordNotFound() {
+			return nil, errors.NotFoundWrapf(result.Error, "User not found: email=%v", email)
+		} else {
+			return nil, errors.InternalWrapf(
+				result.Error, "email=%v", email,
+			)
+		}
+	}
+	return user, nil
+}
+
 func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
 	user := &User{}
 	sql := `
@@ -126,29 +140,38 @@ func (s *UserService) Create(name, email string) (*User, error) {
 }
 
 func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
-	user := &User{
-		Name:          name,
-		Email:         email,
-		EmailVerified: true, // TODO: set false after implement email verification
-		PlanID:        DefaultMPlanID,
+	user, err := s.FindByEmail(email)
+	if _, notFound := err.(*errors.NotFound); notFound {
+		user = &User{
+			Name:          name,
+			Email:         email,
+			EmailVerified: true, // TODO: set false after implement email verification
+			PlanID:        DefaultMPlanID,
+		}
+		if result := s.db.Create(user); result.Error != nil {
+			return nil, nil, errors.InternalWrapf(
+				result.Error,
+				"Failed to create User: email=%v, googleID=%v",
+				email, googleID,
+			)
+		}
 	}
-	if result := s.db.Create(user); result.Error != nil {
-		return nil, nil, errors.InternalWrapf(
-			result.Error,
-			"Failed to create User: email=%v, googleID=%v",
-			email, googleID,
-		)
-	}
+	// Do nothing if the user exists.
 
-	userGoogle := &UserGoogle{
-		GoogleID: googleID,
-		UserID:   user.ID,
+	userGoogleService := NewUserGoogleService(s.db)
+	userGoogle, err := userGoogleService.FindByUserID(user.ID)
+	if _, notFound := err.(*errors.NotFound); notFound {
+		userGoogle = &UserGoogle{
+			GoogleID: googleID,
+			UserID:   user.ID,
+		}
+		if result := s.db.Create(userGoogle); result.Error != nil {
+			return nil, nil, errors.InternalWrapf(
+				result.Error, "Failed to create UserGoogle: googleID=%v", googleID,
+			)
+		}
 	}
-	if result := s.db.Create(userGoogle); result.Error != nil {
-		return nil, nil, errors.InternalWrapf(
-			result.Error, "Failed to create UserGoogle: email=%v", email,
-		)
-	}
+	// Do nothing if the user google exists.
 
 	return user, userGoogle, nil
 }
