@@ -60,9 +60,18 @@ type Option func(*StandardError)
 
 func WithError(err error) Option {
 	return func(se *StandardError) {
-		if err != nil {
+		if err == nil {
+			return
+		}
+
+		if st, ok := err.(StackTracer); ok {
 			se.wrapped = err
-			if st, ok := err.(StackTracer); ok {
+			se.stackTrace = st.StackTrace()
+		} else {
+			// Wrap the err to save stack trace
+			e := errors.WithStack(err)
+			se.wrapped = err
+			if st, ok := e.(StackTracer); ok {
 				se.stackTrace = st.StackTrace()
 			}
 		}
@@ -88,7 +97,17 @@ func WithResourceID(resourceID string) Option {
 }
 
 func (e *StandardError) Error() string {
-	return fmt.Sprintf("%v: %v", e.code.String(), e.wrapped.Error())
+	return fmt.Sprintf(
+		"%v: resource: name=%v, id=%v: %v",
+		e.code.String(),
+		e.resourceName,
+		e.resourceID,
+		e.wrapped.Error(),
+	)
+}
+
+func (e *StandardError) Code() Code {
+	return e.code
 }
 
 func (e *StandardError) StackTrace() errors.StackTrace {
@@ -97,4 +116,12 @@ func (e *StandardError) StackTrace() errors.StackTrace {
 
 func (e *StandardError) OutputStackTrace() bool {
 	return e.outputStackTrace
+}
+
+func (e *StandardError) ResourceName() string {
+	return e.resourceName
+}
+
+func (e *StandardError) ResourceID() string {
+	return e.resourceID
 }
