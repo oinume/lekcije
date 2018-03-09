@@ -165,7 +165,7 @@ func (s *UserService) Create(name, email string) (*User, error) {
 
 func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
 	user, err := s.FindByEmail(email)
-	if _, notFound := err.(*errors.NotFound); notFound {
+	if e, ok := err.(*errors.StandardError); ok && e.IsNotFound() {
 		user = &User{
 			Name:          name,
 			Email:         email,
@@ -184,7 +184,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 
 	userGoogleService := NewUserGoogleService(s.db)
 	userGoogle, err := userGoogleService.FindByUserID(user.ID)
-	if _, notFound := err.(*errors.NotFound); notFound {
+	if e, ok := err.(*errors.StandardError); ok && e.IsNotFound() {
 		userGoogle = &UserGoogle{
 			GoogleID: googleID,
 			UserID:   user.ID,

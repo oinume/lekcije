@@ -58,6 +58,7 @@ func TestUserService_Create(t *testing.T) {
 
 func TestUserService_UpdateEmail(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 
 	user := helper.CreateRandomUser()
 	email := randomEmail()
@@ -65,10 +66,10 @@ func TestUserService_UpdateEmail(t *testing.T) {
 	if e, ok := err.(*errors.Internal); ok {
 		fmt.Printf("%+v\n", e.StackTrace())
 	}
-	a.Nil(err)
+	r.NoError(err)
 
 	actual, err := userService.FindByPK(user.ID)
-	a.Nil(err)
+	r.NoError(err)
 	a.NotEqual(user.Email, actual.Email)
 	a.Equal(email, actual.Email)
 }

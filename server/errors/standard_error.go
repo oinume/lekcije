@@ -160,3 +160,15 @@ func (e *StandardError) ResourceKey() string {
 func (e *StandardError) ResourceValue() string {
 	return e.resourceValue
 }
+
+func (e *StandardError) IsNotFound() bool {
+	return e.code == CodeNotFound
+}
+
+func (e *StandardError) IsInternal() bool {
+	return e.code == CodeInternal
+}
+
+func (e *StandardError) IsInvalidArgument() bool {
+	return e.code == CodeInvalidArgument
+}
