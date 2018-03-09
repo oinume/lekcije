@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -30,10 +31,16 @@ func (s *UserGoogleService) FindByUserID(userID uint32) (*UserGoogle, error) {
 	userGoogle := &UserGoogle{}
 	if result := s.db.First(userGoogle, &UserGoogle{UserID: userID}); result.Error != nil {
 		if result.RecordNotFound() {
-			return nil, errors.NotFoundWrapf(result.Error, "UserGoogle not found: userID=%v", userID)
+			return nil, errors.NewStandardError(
+				errors.CodeNotFound,
+				errors.WithError(result.Error),
+				errors.WithResource(userGoogle.TableName(), "userID", fmt.Sprint(userID)),
+			)
 		} else {
-			return nil, errors.InternalWrapf(
-				result.Error, "userID=%v", userID,
+			return nil, errors.NewStandardError(
+				errors.CodeInternal,
+				errors.WithError(result.Error),
+				errors.WithResource(userGoogle.TableName(), "userID", fmt.Sprint(userID)),
 			)
 		}
 	}

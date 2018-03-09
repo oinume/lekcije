@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -38,6 +39,19 @@ func (s *UserService) TableName() string {
 
 func (s *UserService) FindByPK(id uint32) (*User, error) {
 	user := &User{}
+	if result := s.db.First(user, &User{ID: id}); result.Error != nil {
+		if result.RecordNotFound() {
+			return nil, errors.NewStandardError(
+				errors.CodeNotFound, errors.WithError(result.Error),
+				errors.WithResource(user.TableName(), "id", fmt.Sprint(id)),
+			)
+		} else {
+			return nil, errors.NewStandardError(
+				errors.CodeInternal, errors.WithError(result.Error),
+				errors.WithResource(user.TableName(), "id", fmt.Sprint(id)),
+			)
+		}
+	}
 	if err := s.db.First(user, &User{ID: id}).Error; err != nil {
 		return nil, err
 	}
@@ -48,10 +62,15 @@ func (s *UserService) FindByEmail(email string) (*User, error) {
 	user := &User{}
 	if result := s.db.First(user, &User{Email: email}); result.Error != nil {
 		if result.RecordNotFound() {
-			return nil, errors.NotFoundWrapf(result.Error, "User not found: email=%v", email)
+			//return nil, errors.NotFoundWrapf(result.Error, "User not found: email=%v", email)
+			return nil, errors.NewStandardError(
+				errors.CodeNotFound, errors.WithError(result.Error),
+				errors.WithResource(user.TableName(), "email", email),
+			)
 		} else {
-			return nil, errors.InternalWrapf(
-				result.Error, "email=%v", email,
+			return nil, errors.NewStandardError(
+				errors.CodeInternal, errors.WithError(result.Error),
+				errors.WithResource(user.TableName(), "email", email),
 			)
 		}
 	}
@@ -110,7 +129,12 @@ func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*U
 	`
 	result := s.db.Raw(sql, notificationInterval).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
-		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
+		//return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
+		return nil, errors.NewStandardError(
+			errors.CodeInternal,
+			errors.WithMessage("Failed to find Users"),
+			errors.WithError(result.Error),
+		)
 	}
 	return users, nil
 }
@@ -141,7 +165,7 @@ func (s *UserService) Create(name, email string) (*User, error) {
 
 func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
 	user, err := s.FindByEmail(email)
-	if _, notFound := err.(*errors.NotFound); notFound {
+	if e, ok := err.(*errors.StandardError); ok && e.IsNotFound() {
 		user = &User{
 			Name:          name,
 			Email:         email,
@@ -160,7 +184,7 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 
 	userGoogleService := NewUserGoogleService(s.db)
 	userGoogle, err := userGoogleService.FindByUserID(user.ID)
-	if _, notFound := err.(*errors.NotFound); notFound {
+	if e, ok := err.(*errors.StandardError); ok && e.IsNotFound() {
 		userGoogle = &UserGoogle{
 			GoogleID: googleID,
 			UserID:   user.ID,
