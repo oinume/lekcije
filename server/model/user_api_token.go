@@ -43,8 +43,15 @@ func (s *UserAPITokenService) Create(userID uint32) (*UserAPIToken, error) {
 
 func (s *UserAPITokenService) FindByPK(token string) (*UserAPIToken, error) {
 	userAPIToken := &UserAPIToken{}
-	if err := s.db.First(userAPIToken, &UserAPIToken{Token: token}).Error; err != nil {
-		return nil, errors.NotFoundWrapf(err, "UserAPIToken not found for token = %v", token)
+	if result := s.db.First(userAPIToken, &UserAPIToken{Token: token}); result.Error != nil {
+		if err := wrapNotFound(result, userAPIToken.TableName(), "token", token); err != nil {
+			return nil, err
+		}
+		return nil, errors.NewAnnotatedError(
+			errors.CodeInternal,
+			errors.WithError(result.Error),
+			errors.WithResource(userAPIToken.TableName(), "token", token),
+		)
 	}
 	return userAPIToken, nil
 }

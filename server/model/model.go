@@ -160,9 +160,13 @@ func GetDBName(dbURL string) string {
 	return ""
 }
 
-func wrapNotFound(result *gorm.DB, format string, args ...interface{}) *errors.NotFound {
+func wrapNotFound(result *gorm.DB, kind, key, value string) *errors.AnnotatedError {
 	if result.RecordNotFound() {
-		return errors.NotFoundWrapf(result.Error, format, args)
+		return errors.NewAnnotatedError(
+			errors.CodeNotFound,
+			errors.WithError(result.Error),
+			errors.WithResource(kind, key, value),
+		)
 	} else {
 		return nil
 	}

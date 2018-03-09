@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -39,7 +40,11 @@ func (s *MPlanService) TableName() string {
 func (s *MPlanService) FindByPK(id uint8) (*MPlan, error) {
 	plan := &MPlan{}
 	if err := s.db.First(plan, &MPlan{ID: id}).Error; err != nil {
-		return nil, errors.NotFoundWrapf(err, "MPlan not found for id = %v", id)
+		return nil, errors.NewAnnotatedError(
+			errors.CodeNotFound,
+			errors.WithError(err),
+			errors.WithResource("m_plan", "id", fmt.Sprint(id)),
+		)
 	}
 	return plan, nil
 }

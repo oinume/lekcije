@@ -86,15 +86,14 @@ func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
 	LIMIT 1
 	`
 	if result := s.db.Raw(sql, googleID).Scan(user); result.Error != nil {
-		if result.RecordNotFound() {
-			return nil, errors.NotFoundWrapf(
-				result.Error, "UserGoogle not found: googleID=%v", googleID,
-			)
-		} else {
-			return nil, errors.InternalWrapf(
-				result.Error, "googleID=%v", googleID,
-			)
+		if err := wrapNotFound(result, "user_google", "google_id", googleID); err != nil {
+			return nil, err
 		}
+		return nil, errors.NewAnnotatedError(
+			errors.CodeInternal,
+			errors.WithError(result.Error),
+			errors.WithResource("user_google", "google_id", googleID),
+		)
 	}
 	return user, nil
 }
@@ -107,11 +106,13 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 	WHERE uat.token = ?
 	`
 	if result := s.db.Raw(sql, userAPIToken).Scan(user); result.Error != nil {
-		if err := wrapNotFound(result, "User not found: userAPIToken=%v", userAPIToken); err != nil {
+		if err := wrapNotFound(result, user.TableName(), "userAPIToken", userAPIToken); err != nil {
 			return nil, err
 		}
-		return nil, errors.InternalWrapf(
-			result.Error, "userAPIToken=%v", userAPIToken,
+		return nil, errors.NewAnnotatedError(
+			errors.CodeInternal,
+			errors.WithError(result.Error),
+			errors.WithResource(user.TableName(), "userAPIToken", userAPIToken),
 		)
 	}
 	return user, nil
@@ -228,10 +229,14 @@ func (s *UserService) FindLoggedInUser(token string) (*User, error) {
 		`
 	result := s.db.Model(&User{}).Raw(strings.TrimSpace(sql), token).Scan(user)
 	if result.Error != nil {
-		if result.RecordNotFound() {
-			return nil, errors.NotFoundWrapf(result.Error, "Failed to find user: token=%s", token)
+		if err := wrapNotFound(result, user.TableName(), "token", token); err != nil {
+			return nil, err
 		}
-		return nil, errors.InternalWrapf(result.Error, "find user: token=%s", token)
+		return nil, errors.NewAnnotatedError(
+			errors.CodeInternal,
+			errors.WithError(result.Error),
+			errors.WithResource(user.TableName(), "token", token),
+		)
 	}
 	return user, nil
 }
