@@ -47,8 +47,7 @@ func (s *UserAPITokenService) FindByPK(token string) (*UserAPIToken, error) {
 		if err := wrapNotFound(result, userAPIToken.TableName(), "token", token); err != nil {
 			return nil, err
 		}
-		return nil, errors.NewAnnotatedError(
-			errors.CodeInternal,
+		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
 			errors.WithResource(userAPIToken.TableName(), "token", token),
 		)

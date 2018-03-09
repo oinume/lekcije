@@ -56,6 +56,10 @@ func NewAnnotatedError(code Code, options ...Option) *AnnotatedError {
 	return se
 }
 
+func NewInternalError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeInternal, options...)
+}
+
 // Functional Option Pattern
 // https://qiita.com/weloan/items/56f1c7792088b5ede136
 // WithOriginalError(err), WithOutputStackTrace(false)

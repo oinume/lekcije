@@ -60,8 +60,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	data.Teachers = teachers
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.NewAnnotatedError(
-			errors.CodeInternal,
+		InternalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
 		))
@@ -198,8 +197,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		util.StringToUint32Slice(teacherIDs...),
 	)
 	if err != nil {
-		InternalServerError(w, errors.NewAnnotatedError(
-			errors.CodeInternal,
+		InternalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to delete teachers"),
 			errors.WithResource("following_teacher_service", "teacherIDs", fmt.Sprint(teacherIDs)),
@@ -235,8 +233,7 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.NewAnnotatedError(
-			errors.CodeInternal,
+		InternalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
 		))
@@ -283,8 +280,7 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie(APITokenCookieName)
 	if err != nil {
-		InternalServerError(w, errors.NewAnnotatedError(
-			errors.CodeInternal,
+		InternalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to get token cookie"),
 		))

@@ -139,8 +139,7 @@ func checkState(r *http.Request) error {
 	state := r.FormValue("state")
 	oauthState, err := r.Cookie("oauthState")
 	if err != nil {
-		return errors.NewAnnotatedError(
-			errors.CodeInternal,
+		return errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage(fmt.Sprintf(
 				"Failed to get cookie oauthState: userAgent=%v, remoteAddr=%v",
@@ -149,8 +148,7 @@ func checkState(r *http.Request) error {
 		)
 	}
 	if state != oauthState.Value {
-		return errors.NewAnnotatedError(
-			errors.CodeInternal,
+		return errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("state mismatch"),
 		)
@@ -171,8 +169,7 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	c := getGoogleOAuthConfig(r)
 	token, err := c.Exchange(context.Background(), code)
 	if err != nil {
-		return nil, "", errors.NewAnnotatedError(
-			errors.CodeInternal,
+		return nil, "", errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to exchange"),
 		)
@@ -189,8 +186,7 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 	oauth2Client := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
 	service, err := google_auth2.New(oauth2Client)
 	if err != nil {
-		return "", "", "", errors.NewAnnotatedError(
-			errors.CodeInternal,
+		return "", "", "", errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to create oauth2.Client"),
 		)
@@ -198,8 +194,7 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 
 	userinfo, err := service.Userinfo.V2.Me.Get().Do()
 	if err != nil {
-		return "", "", "", errors.NewAnnotatedError(
-			errors.CodeInternal,
+		return "", "", "", errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to get userinfo"),
 		)

@@ -30,19 +30,13 @@ func NewUserGoogleService(db *gorm.DB) *UserGoogleService {
 func (s *UserGoogleService) FindByUserID(userID uint32) (*UserGoogle, error) {
 	userGoogle := &UserGoogle{}
 	if result := s.db.First(userGoogle, &UserGoogle{UserID: userID}); result.Error != nil {
-		if result.RecordNotFound() {
-			return nil, errors.NewAnnotatedError(
-				errors.CodeNotFound,
-				errors.WithError(result.Error),
-				errors.WithResource(userGoogle.TableName(), "userID", fmt.Sprint(userID)),
-			)
-		} else {
-			return nil, errors.NewAnnotatedError(
-				errors.CodeInternal,
-				errors.WithError(result.Error),
-				errors.WithResource(userGoogle.TableName(), "userID", fmt.Sprint(userID)),
-			)
+		if err := wrapNotFound(result, userGoogle.TableName(), "userID", fmt.Sprint(userID)); err != nil {
+			return nil, err
 		}
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithResource(userGoogle.TableName(), "userID", fmt.Sprint(userID)),
+		)
 	}
 	return userGoogle, nil
 }
