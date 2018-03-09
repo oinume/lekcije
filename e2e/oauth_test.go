@@ -114,7 +114,6 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	a.Nil(page.Navigate(server.URL + "/me/logout"))
 	userAPITokenService := model.NewUserAPITokenService(db)
 	_, err = userAPITokenService.FindByPK(apiToken)
-	a.IsType(&errors.AnnotatedError{}, err)
 	a.True(errors.IsNotFound(err))
 }
 

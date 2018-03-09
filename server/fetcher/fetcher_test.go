@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -123,8 +122,7 @@ func TestFetchRedirect(t *testing.T) {
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
 	_, _, err := fetcher.Fetch(5982)
 	r.Error(err)
-	a.Equal(reflect.TypeOf(&errors.AnnotatedError{}), reflect.TypeOf(err))
-	a.Equal(errors.CodeNotFound, err.(*errors.AnnotatedError).Code())
+	a.True(errors.IsNotFound(err))
 }
 
 type responseTransport struct {
