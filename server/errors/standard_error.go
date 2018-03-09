@@ -94,24 +94,6 @@ func WithOutputStackTrace(outputStackTrace bool) Option {
 	}
 }
 
-//func WithResourceKind(kind string) Option {
-//	return func(se *StandardError) {
-//		se.resourceKind = kind
-//	}
-//}
-//
-//func WithResourceKey(key string) Option {
-//	return func(se *StandardError) {
-//		se.resourceKey = key
-//	}
-//}
-//
-//func WithResourceValue(value string) Option {
-//	return func(se *StandardError) {
-//		se.resourceValue = value
-//	}
-//}
-
 func WithResource(kind, key, value string) Option {
 	return func(se *StandardError) {
 		se.resourceKind = kind
@@ -130,7 +112,6 @@ func (e *StandardError) Error() string {
 		fmt.Fprintf(&b, ": %v", e.wrapped.Error())
 	}
 	return b.String()
-	//return fmt.Sprintf("%v: %v: %v", e.code.String(), e.message, e.wrapped.Error())
 }
 
 func (e *StandardError) Code() Code {
