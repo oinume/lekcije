@@ -242,15 +242,13 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 		userService := model.NewUserService(context_data.MustDB(ctx))
 		user, err := userService.FindLoggedInUser(cookie.Value)
 		if err != nil {
-			switch err.(type) {
-			case *errors.NotFound:
+			if errors.IsNotFound(err) {
 				logger.App.Debug("not logged in")
 				http.Redirect(w, r, config.WebURL(), http.StatusFound)
 				return
-			default:
-				controller.InternalServerError(w, err)
-				return
 			}
+			controller.InternalServerError(w, err)
+			return
 		}
 		logger.App.Debug("Logged in user", zap.String("name", user.Name))
 		c := context_data.SetLoggedInUser(ctx, user)

@@ -96,7 +96,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprint(user.ID), 0, user.ID,
 		)
 	} else {
-		if _, notFound := err.(*errors.NotFound); !notFound {
+		if !errors.IsNotFound(err) {
 			InternalServerError(w, err)
 			return
 		}
@@ -139,13 +139,19 @@ func checkState(r *http.Request) error {
 	state := r.FormValue("state")
 	oauthState, err := r.Cookie("oauthState")
 	if err != nil {
-		return errors.InternalWrapf(
-			err, "Failed to get cookie oauthState: userAgent=%v, remoteAddr=%v",
-			r.UserAgent(), GetRemoteAddress(r),
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage(fmt.Sprintf(
+				"Failed to get cookie oauthState: userAgent=%v, remoteAddr=%v",
+				r.UserAgent(), GetRemoteAddress(r),
+			)),
 		)
 	}
 	if state != oauthState.Value {
-		return errors.InternalWrapf(err, "state mismatch")
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("state mismatch"),
+		)
 	}
 	return nil
 }
@@ -163,7 +169,10 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	c := getGoogleOAuthConfig(r)
 	token, err := c.Exchange(context.Background(), code)
 	if err != nil {
-		return nil, "", errors.InternalWrapf(err, "Failed to exchange")
+		return nil, "", errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to exchange"),
+		)
 	}
 	idToken, ok := token.Extra("id_token").(string)
 	if !ok {
@@ -177,12 +186,18 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 	oauth2Client := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
 	service, err := google_auth2.New(oauth2Client)
 	if err != nil {
-		return "", "", "", errors.InternalWrapf(err, "Failed to create oauth2.Client")
+		return "", "", "", errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to create oauth2.Client"),
+		)
 	}
 
 	userinfo, err := service.Userinfo.V2.Me.Get().Do()
 	if err != nil {
-		return "", "", "", errors.InternalWrapf(err, "Failed to get userinfo")
+		return "", "", "", errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to get userinfo"),
+		)
 	}
 
 	return userinfo.Id, userinfo.Name, userinfo.Email, nil

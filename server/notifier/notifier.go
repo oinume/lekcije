@@ -128,8 +128,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			defer wg.Done()
 			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 			if err != nil {
-				switch err.(type) {
-				case *errors.NotFound:
+				if errors.IsNotFound(err) {
 					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
 						logger.App.Error(
 							"IncrementFetchErrorCount failed",
@@ -137,10 +136,9 @@ func (n *Notifier) SendNotification(user *model.User) error {
 						)
 					}
 					logger.App.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
-				// TODO: Handle a case eikaiwa.dmm.com is down
-				default:
-					logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				}
+				// TODO: Handle a case eikaiwa.dmm.com is down
+				logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				return
 			}
 

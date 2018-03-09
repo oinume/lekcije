@@ -34,7 +34,10 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		))
 		return
 	}
 }
@@ -52,7 +55,10 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData: getCommonTemplateData(r, false, 0),
 	}
 	if err := t.Execute(w, &data); err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		))
 		return
 	}
 }
@@ -106,7 +112,10 @@ func Terms(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		))
 		return
 	}
 }

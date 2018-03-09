@@ -60,7 +60,10 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	data.Teachers = teachers
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		))
 		return
 	}
 }
@@ -136,15 +139,13 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	for _, t := range teachers {
 		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
-			switch err.(type) {
-			case *errors.NotFound:
+			if errors.IsNotFound(err) {
 				// TODO: return error to user
 				continue
-			default:
-				// TODO: continue the loop
-				InternalServerError(w, err)
-				return
 			}
+			// TODO: continue the loop
+			InternalServerError(w, err)
+			return
 		}
 		if _, err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
 			InternalServerError(w, err)
@@ -194,8 +195,11 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		util.StringToUint32Slice(teacherIDs...),
 	)
 	if err != nil {
-		e := errors.InternalWrapf(err, "Failed to delete Teachers: teacherIds=%v", teacherIDs)
-		InternalServerError(w, e)
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to delete teachers"),
+			errors.WithResource("following_teacher_service", "teacherIDs", fmt.Sprint(teacherIDs)),
+		))
 		return
 	}
 	go event_logger.SendGAMeasurementEvent2(
@@ -227,7 +231,10 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to template.Execute()"))
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		))
 		return
 	}
 }
@@ -271,7 +278,10 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie(APITokenCookieName)
 	if err != nil {
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to get token cookie"))
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to get token cookie"),
+		))
 		return
 	}
 	token := cookie.Value

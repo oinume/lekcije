@@ -29,7 +29,7 @@ func (c Code) String() string {
 	return "code." + s
 }
 
-type StandardError struct {
+type AnnotatedError struct {
 	code             Code
 	message          string
 	wrapped          error
@@ -41,8 +41,8 @@ type StandardError struct {
 	resourceValue    string
 }
 
-func NewStandardError(code Code, options ...Option) *StandardError {
-	se := &StandardError{
+func NewAnnotatedError(code Code, options ...Option) *AnnotatedError {
+	se := &AnnotatedError{
 		code:             code,
 		wrapped:          errors.New(""), // As a default value
 		outputStackTrace: true,
@@ -56,20 +56,28 @@ func NewStandardError(code Code, options ...Option) *StandardError {
 	return se
 }
 
+func NewInternalError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeInternal, options...)
+}
+
+func NewNotFoundError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeNotFound, options...)
+}
+
 // Functional Option Pattern
 // https://qiita.com/weloan/items/56f1c7792088b5ede136
 // WithOriginalError(err), WithOutputStackTrace(false)
 
-type Option func(*StandardError)
+type Option func(*AnnotatedError)
 
 func WithMessage(message string) Option {
-	return func(se *StandardError) {
+	return func(se *AnnotatedError) {
 		se.message = message
 	}
 }
 
 func WithError(err error) Option {
-	return func(se *StandardError) {
+	return func(se *AnnotatedError) {
 		if err == nil {
 			return
 		}
@@ -89,20 +97,20 @@ func WithError(err error) Option {
 }
 
 func WithOutputStackTrace(outputStackTrace bool) Option {
-	return func(se *StandardError) {
+	return func(se *AnnotatedError) {
 		se.outputStackTrace = outputStackTrace
 	}
 }
 
 func WithResource(kind, key, value string) Option {
-	return func(se *StandardError) {
+	return func(se *AnnotatedError) {
 		se.resourceKind = kind
 		se.resourceKey = key
 		se.resourceValue = value
 	}
 }
 
-func (e *StandardError) Error() string {
+func (e *AnnotatedError) Error() string {
 	var b bytes.Buffer
 	io.WriteString(&b, e.code.String())
 	if e.message != "" {
@@ -114,42 +122,49 @@ func (e *StandardError) Error() string {
 	return b.String()
 }
 
-func (e *StandardError) Code() Code {
+func (e *AnnotatedError) Code() Code {
 	return e.code
 }
 
-func (e *StandardError) StackTrace() errors.StackTrace {
+func (e *AnnotatedError) StackTrace() errors.StackTrace {
 	return e.stackTrace
 }
 
-func (e *StandardError) OutputStackTrace() bool {
+func (e *AnnotatedError) OutputStackTrace() bool {
 	return e.outputStackTrace
 }
 
-func (e *StandardError) ResourceString() string {
+func (e *AnnotatedError) ResourceString() string {
 	return fmt.Sprintf("%v:%v:%v", e.resourceKind, e.resourceKey, e.resourceValue)
 }
 
-func (e *StandardError) ResourceKind() string {
+func (e *AnnotatedError) ResourceKind() string {
 	return e.resourceKind
 }
 
-func (e *StandardError) ResourceKey() string {
+func (e *AnnotatedError) ResourceKey() string {
 	return e.resourceKey
 }
 
-func (e *StandardError) ResourceValue() string {
+func (e *AnnotatedError) ResourceValue() string {
 	return e.resourceValue
 }
 
-func (e *StandardError) IsNotFound() bool {
+func (e *AnnotatedError) IsNotFound() bool {
 	return e.code == CodeNotFound
 }
 
-func (e *StandardError) IsInternal() bool {
+func (e *AnnotatedError) IsInternal() bool {
 	return e.code == CodeInternal
 }
 
-func (e *StandardError) IsInvalidArgument() bool {
+func (e *AnnotatedError) IsInvalidArgument() bool {
 	return e.code == CodeInvalidArgument
+}
+
+func IsNotFound(err error) bool {
+	if e, ok := err.(*AnnotatedError); ok {
+		return e.code == CodeNotFound
+	}
+	return false
 }

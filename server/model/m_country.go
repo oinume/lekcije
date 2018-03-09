@@ -47,7 +47,7 @@ func (s *MCountryService) GetMCountryByNameJA(nameJA string) (*MCountry, error) 
 	if c, ok := s.allCountries[nameJA]; ok {
 		return c, nil
 	} else {
-		return nil, errors.NotFoundf("MCountry not found for '%s'", nameJA)
+		return nil, errors.NewNotFoundError(errors.WithMessage(fmt.Sprintf("No MCountries for %v", nameJA)))
 	}
 }
 

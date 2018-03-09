@@ -74,14 +74,6 @@ func (e *Internal) Error() string {
 	return fmt.Sprintf("errors.Internal: %s", e.wrapped.Error())
 }
 
-type NotFound struct {
-	*BaseError
-}
-
-func (e *NotFound) Error() string {
-	return fmt.Sprintf("errors.NotFound: %s", e.wrapped.Error())
-}
-
 type InvalidArgument struct {
 	*BaseError
 }
@@ -96,14 +88,6 @@ func Internalf(format string, args ...interface{}) *Internal {
 
 func InternalWrapf(err error, format string, args ...interface{}) *Internal {
 	return &Internal{NewBaseError(errors.Wrapf(err, format, args...))}
-}
-
-func NotFoundf(format string, args ...interface{}) *NotFound {
-	return &NotFound{NewBaseError(fmt.Errorf(format, args...))}
-}
-
-func NotFoundWrapf(err error, format string, args ...interface{}) *NotFound {
-	return &NotFound{NewBaseError(errors.Wrapf(err, format, args...))}
 }
 
 func InvalidArgumentf(format string, args ...interface{}) *InvalidArgument {

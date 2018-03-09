@@ -145,7 +145,9 @@ func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 		return resp.Body, nil
 	case http.StatusMovedPermanently, http.StatusFound:
 		_ = resp.Body.Close()
-		return nopCloser, errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
+		return nopCloser, errors.NewNotFoundError(
+			errors.WithMessage(fmt.Sprintf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)),
+		)
 	default:
 		body, _ := ioutil.ReadAll(resp.Body)
 		_ = resp.Body.Close()
@@ -291,7 +293,7 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 	case "国籍":
 		c, found := fetcher.mCountries.GetByNameJA(value)
 		if !found {
-			return errors.NotFoundf("No MCountries for %v", value)
+			return errors.NewNotFoundError(errors.WithMessage(fmt.Sprintf("No MCountries for %v", value)))
 		}
 		teacher.CountryID = c.ID
 	case "誕生日":
