@@ -45,7 +45,7 @@ func TestWriteError(t *testing.T) {
 	a := assert.New(t)
 
 	var out bytes.Buffer
-	err := errors.NewStandardError(
+	err := errors.NewAnnotatedError(
 		errors.CodeInternal,
 		errors.WithError(fmt.Errorf("error message")),
 	)

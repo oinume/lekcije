@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewStandardError(t *testing.T) {
+func TestNewAnnotatedError(t *testing.T) {
 	a := assert.New(t)
 
-	err := NewStandardError(
+	err := NewAnnotatedError(
 		CodeNotFound,
 		WithMessage("failed"),
 		WithError(fmt.Errorf("not exist")),
@@ -26,6 +26,6 @@ func TestNewStandardError(t *testing.T) {
 
 	var out bytes.Buffer
 	fmt.Fprintf(&out, "%+v\n", err.StackTrace())
-	a.Contains(out.String(), "github.com/oinume/lekcije/server/errors.NewStandardError")
-	a.Contains(out.String(), "TestNewStandardError")
+	a.Contains(out.String(), "github.com/oinume/lekcije/server/errors.NewAnnotatedError")
+	a.Contains(out.String(), "TestNewAnnotatedError")
 }
