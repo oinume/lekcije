@@ -22,7 +22,7 @@ func GetDB(ctx context.Context) (*gorm.DB, error) {
 	if db, ok := value.(*gorm.DB); ok {
 		return db, nil
 	}
-	return nil, errors.NotFoundf("Failed to get *gorm.DB from context")
+	return nil, errors.NewNotFoundError(errors.WithMessage("Failed to get *gorm.DB from context"))
 }
 
 func MustDB(ctx context.Context) *gorm.DB {
@@ -38,7 +38,7 @@ func GetLoggedInUser(ctx context.Context) (*model.User, error) {
 	if user, ok := value.(*model.User); ok {
 		return user, nil
 	}
-	return nil, errors.NotFoundf("Failed to get loggedInUser from context")
+	return nil, errors.NewNotFoundError(errors.WithMessage("Failed to get loggedInUser from context"))
 }
 
 func MustLoggedInUser(ctx context.Context) *model.User {
@@ -62,7 +62,7 @@ func GetTrackingID(ctx context.Context) (string, error) {
 	if trackingID, ok := value.(string); ok {
 		return trackingID, nil
 	}
-	return "", errors.NotFoundf("Failed to get trackingID from context")
+	return "", errors.NewNotFoundError(errors.WithMessage("Failed to get trackingID from context"))
 }
 
 func MustTrackingID(ctx context.Context) string {
@@ -82,7 +82,7 @@ func GetAPIToken(ctx context.Context) (string, error) {
 	if apiToken, ok := value.(string); ok {
 		return apiToken, nil
 	}
-	return "", errors.NotFoundf("failed to get api token from context")
+	return "", errors.NewNotFoundError(errors.WithMessage("failed to get api token from context"))
 }
 
 func MustAPIToken(ctx context.Context) string {

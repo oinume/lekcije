@@ -60,6 +60,10 @@ func NewInternalError(options ...Option) *AnnotatedError {
 	return NewAnnotatedError(CodeInternal, options...)
 }
 
+func NewNotFoundError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeNotFound, options...)
+}
+
 // Functional Option Pattern
 // https://qiita.com/weloan/items/56f1c7792088b5ede136
 // WithOriginalError(err), WithOutputStackTrace(false)
@@ -156,4 +160,11 @@ func (e *AnnotatedError) IsInternal() bool {
 
 func (e *AnnotatedError) IsInvalidArgument() bool {
 	return e.code == CodeInvalidArgument
+}
+
+func IsNotFound(err error) bool {
+	if e, ok := err.(*AnnotatedError); ok {
+		return e.code == CodeNotFound
+	}
+	return false
 }

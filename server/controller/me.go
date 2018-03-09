@@ -139,15 +139,13 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	for _, t := range teachers {
 		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
-			switch err.(type) {
-			case *errors.NotFound:
+			if errors.IsNotFound(err) {
 				// TODO: return error to user
 				continue
-			default:
-				// TODO: continue the loop
-				InternalServerError(w, err)
-				return
 			}
+			// TODO: continue the loop
+			InternalServerError(w, err)
+			return
 		}
 		if _, err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
 			InternalServerError(w, err)

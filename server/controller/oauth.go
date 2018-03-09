@@ -96,7 +96,7 @@ func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprint(user.ID), 0, user.ID,
 		)
 	} else {
-		if _, notFound := err.(*errors.NotFound); !notFound {
+		if !errors.IsNotFound(err) {
 			InternalServerError(w, err)
 			return
 		}

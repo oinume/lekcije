@@ -115,14 +115,16 @@ func TestFetchRetry(t *testing.T) {
 
 func TestFetchRedirect(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 	client := &http.Client{
 		Transport:     &redirectTransport{},
 		CheckRedirect: redirectErrorFunc,
 	}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
 	_, _, err := fetcher.Fetch(5982)
-	a.Error(err)
-	a.Equal(reflect.TypeOf(&errors.NotFound{}), reflect.TypeOf(err))
+	r.Error(err)
+	a.Equal(reflect.TypeOf(&errors.AnnotatedError{}), reflect.TypeOf(err))
+	a.Equal(errors.CodeNotFound, err.(*errors.AnnotatedError).Code())
 }
 
 type responseTransport struct {
