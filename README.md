@@ -7,6 +7,7 @@ Follow your favorite teachers in DMM Eikaiwa and receive notification when favor
 
 ```bash
 brew cask install dockertoolbox
+brew install fswatch
 make setup
 npm install
 ```
@@ -27,7 +28,7 @@ docker-compose up
 
 ### Run server
 ```
-reflex -R node_modules -R vendor -r '\.go$' -s make serve
+make watch
 ```
 
 ### Run frontend
