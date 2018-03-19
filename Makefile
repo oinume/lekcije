@@ -3,7 +3,7 @@ VENDOR_DIR = vendor
 PROTO_GEN_DIR = proto-gen
 GRPC_GATEWAY_REPO = github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
 GO_GET ?= go get
-GO_TEST ?= go test -v -parallel=1 # To avoid database operations conflict
+GO_TEST ?= go test -v -race -parallel=1 # To avoid database operations conflict
 GO_TEST_PACKAGES = $(shell go list ./... | grep -v vendor | grep -v e2e)
 DB_HOST = 192.168.99.100
 LINT_PACKAGES = $(shell go list ./...)
