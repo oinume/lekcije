@@ -31,7 +31,7 @@ type mockSenderTransport struct {
 func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	t.Lock()
 	t.called++
-	t.Unlock()
+	defer t.Unlock()
 	time.Sleep(time.Millisecond * 500)
 	resp := &http.Response{
 		Header:     make(http.Header),
