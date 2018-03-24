@@ -16,13 +16,13 @@ func TestNewAnnotatedError(t *testing.T) {
 		WithMessage("failed"),
 		WithError(fmt.Errorf("not exist")),
 		WithOutputStackTrace(false),
-		WithResource("user", "id", "12345"),
+		WithResource(NewResource("user", "id", "12345")),
 	)
 	a.Equal(CodeNotFound, err.Code())
 	a.Equal(err.Error(), "code.NotFound: failed: not exist")
-	a.Equal("user", err.ResourceKind())
-	a.Equal("id", err.ResourceKey())
-	a.Equal("12345", err.ResourceValue())
+	a.Equal("user", err.Resource().kind)
+	a.Equal("id", err.Resource().key)
+	a.Equal("12345", err.Resource().value)
 
 	var out bytes.Buffer
 	fmt.Fprintf(&out, "%+v\n", err.StackTrace())
