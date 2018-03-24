@@ -41,9 +41,9 @@ func NewTeacher(id uint32) *Teacher {
 	return &Teacher{ID: id}
 }
 
-func NewTeachersFromIDsOrURL(idsOrUrl string) ([]*Teacher, error) {
-	if idsRegexp.MatchString(idsOrUrl) {
-		ids := strings.Split(idsOrUrl, ",")
+func NewTeachersFromIDsOrURL(idsOrURL string) ([]*Teacher, error) {
+	if idsRegexp.MatchString(idsOrURL) {
+		ids := strings.Split(idsOrURL, ",")
 		teachers := make([]*Teacher, 0, len(ids))
 		for _, sid := range ids {
 			if id, err := strconv.ParseUint(sid, 10, 32); err == nil {
@@ -53,11 +53,14 @@ func NewTeachersFromIDsOrURL(idsOrUrl string) ([]*Teacher, error) {
 			}
 		}
 		return teachers, nil
-	} else if group := teacherUrlRegexp.FindStringSubmatch(idsOrUrl); len(group) > 0 {
+	} else if group := teacherUrlRegexp.FindStringSubmatch(idsOrURL); len(group) > 0 {
 		id, _ := strconv.ParseUint(group[1], 10, 32)
 		return []*Teacher{NewTeacher(uint32(id))}, nil
 	}
-	return nil, errors.InvalidArgumentf("Failed to parse idsOrUrl: %s", idsOrUrl)
+	return nil, errors.NewInvalidArgumentError(
+		errors.WithMessage("Failed to parse idsOrURL"),
+		errors.WithResource(errors.NewResource("teacher", "idsOrURL", idsOrURL)),
+	)
 }
 
 func (t *Teacher) URL() string {

@@ -89,11 +89,3 @@ func Internalf(format string, args ...interface{}) *Internal {
 func InternalWrapf(err error, format string, args ...interface{}) *Internal {
 	return &Internal{NewBaseError(errors.Wrapf(err, format, args...))}
 }
-
-func InvalidArgumentf(format string, args ...interface{}) *InvalidArgument {
-	return &InvalidArgument{NewBaseError(fmt.Errorf(format, args...))}
-}
-
-func InvalidArgumentWrapf(err error, format string, args ...interface{}) *InvalidArgument {
-	return &InvalidArgument{NewBaseError(errors.Wrapf(err, format, args...))}
-}

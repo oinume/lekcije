@@ -121,7 +121,9 @@ func (s *NotificationTimeSpanService) FindByUserID(userID uint32) ([]*Notificati
 func (s *NotificationTimeSpanService) UpdateAll(userID uint32, timeSpans []*NotificationTimeSpan) error {
 	for _, timeSpan := range timeSpans {
 		if userID != timeSpan.UserID {
-			return errors.InvalidArgumentf("timeSpans userID must be same")
+			return errors.NewInvalidArgumentError(
+				errors.WithMessage("Given userID and userID of timeSpans must be same"),
+			)
 		}
 	}
 
