@@ -27,7 +27,6 @@ var (
 
 func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
-	helper.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
 	db := helper.DB()
 	defer db.Close()
 
