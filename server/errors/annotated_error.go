@@ -80,6 +80,10 @@ func NewNotFoundError(options ...Option) *AnnotatedError {
 	return NewAnnotatedError(CodeNotFound, options...)
 }
 
+func NewInvalidArgumentError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeInvalidArgument, options...)
+}
+
 // Functional Option Pattern
 // https://qiita.com/weloan/items/56f1c7792088b5ede136
 // WithOriginalError(err), WithOutputStackTrace(false)
@@ -115,12 +119,6 @@ func WithError(err error) Option {
 func WithOutputStackTrace(outputStackTrace bool) Option {
 	return func(ae *AnnotatedError) {
 		ae.outputStackTrace = outputStackTrace
-	}
-}
-
-func WithResourceValue(kind, key, value string) Option {
-	return func(ae *AnnotatedError) {
-		ae.resource = NewResource(kind, key, value)
 	}
 }
 
