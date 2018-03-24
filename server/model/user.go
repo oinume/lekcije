@@ -45,7 +45,7 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResource(user.TableName(), "id", fmt.Sprint(id)),
+			errors.WithResource(errors.NewResource(user.TableName(), "id", fmt.Sprint(id))),
 		)
 	}
 	if err := s.db.First(user, &User{ID: id}).Error; err != nil {
@@ -62,7 +62,7 @@ func (s *UserService) FindByEmail(email string) (*User, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResource(user.TableName(), "email", email),
+			errors.WithResource(errors.NewResource(user.TableName(), "email", email)),
 		)
 	}
 	return user, nil
@@ -82,7 +82,7 @@ func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResource("user_google", "google_id", googleID),
+			errors.WithResource(errors.NewResource("user_google", "google_id", googleID)),
 		)
 	}
 	return user, nil
@@ -101,7 +101,7 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResource(user.TableName(), "userAPIToken", userAPIToken),
+			errors.WithResource(errors.NewResource(user.TableName(), "userAPIToken", userAPIToken)),
 		)
 	}
 	return user, nil
@@ -221,7 +221,7 @@ func (s *UserService) FindLoggedInUser(token string) (*User, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResource(user.TableName(), "token", token),
+			errors.WithResource(errors.NewResource(user.TableName(), "token", token)),
 		)
 	}
 	return user, nil

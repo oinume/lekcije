@@ -130,22 +130,6 @@ func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {
 	return tableNames, nil
 }
 
-func TruncateAllTables(db *gorm.DB, dbName string) error {
-	tables, err := LoadAllTables(db, dbName)
-	if err != nil {
-		return err
-	}
-	for _, t := range tables {
-		if strings.HasPrefix(t, "m_") {
-			continue
-		}
-		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func ReplaceToTestDBURL(dbURL string) string {
 	if strings.HasSuffix(dbURL, "/lekcije") {
 		return strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
@@ -165,7 +149,7 @@ func wrapNotFound(result *gorm.DB, kind, key, value string) *errors.AnnotatedErr
 		return errors.NewAnnotatedError(
 			errors.CodeNotFound,
 			errors.WithError(result.Error),
-			errors.WithResource(kind, key, value),
+			errors.WithResource(errors.NewResource(kind, key, value)),
 		)
 	} else {
 		return nil

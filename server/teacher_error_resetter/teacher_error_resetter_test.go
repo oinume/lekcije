@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
 	helper = model.NewTestHelper()
 	// NOTE: Avoid "Failed to FindByPK: id=1: record not found"
-	//helper.TruncateAllTables(helper.DB())
+	helper.TruncateAllTables(helper.DB())
 	os.Exit(m.Run())
 }
 

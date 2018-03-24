@@ -29,6 +29,24 @@ func (c Code) String() string {
 	return "code." + s
 }
 
+type Resource struct {
+	kind  string
+	key   string
+	value string
+}
+
+func NewResource(kind, key, value string) *Resource {
+	return &Resource{
+		kind:  kind,
+		key:   key,
+		value: value,
+	}
+}
+
+func (r *Resource) String() string {
+	return fmt.Sprintf("%v:%v:%v", r.kind, r.key, r.value)
+}
+
 type AnnotatedError struct {
 	code             Code
 	message          string
@@ -36,24 +54,22 @@ type AnnotatedError struct {
 	cause            error
 	stackTrace       errors.StackTrace
 	outputStackTrace bool
-	resourceKind     string
-	resourceKey      string
-	resourceValue    string
+	resource         *Resource
 }
 
 func NewAnnotatedError(code Code, options ...Option) *AnnotatedError {
-	se := &AnnotatedError{
+	ae := &AnnotatedError{
 		code:             code,
 		wrapped:          errors.New(""), // As a default value
 		outputStackTrace: true,
 	}
-	if st, ok := se.wrapped.(StackTracer); ok {
-		se.stackTrace = st.StackTrace()
+	if st, ok := ae.wrapped.(StackTracer); ok {
+		ae.stackTrace = st.StackTrace()
 	}
 	for _, option := range options {
-		option(se)
+		option(ae)
 	}
-	return se
+	return ae
 }
 
 func NewInternalError(options ...Option) *AnnotatedError {
@@ -97,16 +113,20 @@ func WithError(err error) Option {
 }
 
 func WithOutputStackTrace(outputStackTrace bool) Option {
-	return func(se *AnnotatedError) {
-		se.outputStackTrace = outputStackTrace
+	return func(ae *AnnotatedError) {
+		ae.outputStackTrace = outputStackTrace
 	}
 }
 
-func WithResource(kind, key, value string) Option {
-	return func(se *AnnotatedError) {
-		se.resourceKind = kind
-		se.resourceKey = key
-		se.resourceValue = value
+func WithResourceValue(kind, key, value string) Option {
+	return func(ae *AnnotatedError) {
+		ae.resource = NewResource(kind, key, value)
+	}
+}
+
+func WithResource(r *Resource) Option {
+	return func(ae *AnnotatedError) {
+		ae.resource = r
 	}
 }
 
@@ -134,20 +154,8 @@ func (e *AnnotatedError) OutputStackTrace() bool {
 	return e.outputStackTrace
 }
 
-func (e *AnnotatedError) ResourceString() string {
-	return fmt.Sprintf("%v:%v:%v", e.resourceKind, e.resourceKey, e.resourceValue)
-}
-
-func (e *AnnotatedError) ResourceKind() string {
-	return e.resourceKind
-}
-
-func (e *AnnotatedError) ResourceKey() string {
-	return e.resourceKey
-}
-
-func (e *AnnotatedError) ResourceValue() string {
-	return e.resourceValue
+func (e *AnnotatedError) Resource() *Resource {
+	return e.resource
 }
 
 func (e *AnnotatedError) IsNotFound() bool {

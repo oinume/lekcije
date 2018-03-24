@@ -24,10 +24,11 @@ import (
 var server *httptest.Server
 var client = http.DefaultClient
 var db *gorm.DB
+var helper = model.NewTestHelper()
 
 func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
-	dbURL := model.ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
+	db = helper.DB()
 	if err := os.Setenv("MYSQL_DATABASE", "lekcije_test"); err != nil {
 		// TODO: Not use panic
 		panic(err)
@@ -42,14 +43,7 @@ func TestMain(m *testing.M) {
 	}
 	logger.InitializeAppLogger(&appLogBuffer, appLogLevel)
 
-	var err error
-	db, err = model.OpenDB(dbURL, 1, true) // TODO: env
-	if err != nil {
-		panic(err)
-	}
-	if err := model.TruncateAllTables(db, model.GetDBName(dbURL)); err != nil {
-		panic(err)
-	}
+	helper.TruncateAllTables(helper.DB())
 
 	port := config.ListenPort()
 	routes := route.Create(nil) // TODO: grpc-gateway
