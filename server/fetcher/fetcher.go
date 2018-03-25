@@ -151,9 +151,8 @@ func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 	default:
 		body, _ := ioutil.ReadAll(resp.Body)
 		_ = resp.Body.Close()
-		return nopCloser, errors.Internalf(
-			"Unknown error in fetchContent: url=%v, status=%v, body=%v",
-			url, resp.StatusCode, string(body),
+		return nopCloser, errors.NewInternalError(
+			errors.WithMessagef("Unknown error in fetchContent: url=%v, status=%v, body=%v", url, resp.StatusCode, string(body)),
 		)
 	}
 }
@@ -171,7 +170,9 @@ func (fetcher *LessonFetcher) parseHTML(
 	if title, ok := titleXPath.String(root); ok {
 		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
 	} else {
-		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.URL)
+		return nil, nil, errors.NewInternalError(
+			errors.WithMessagef("failed to fetch teacher's name: url=%v", teacher.URL),
+		)
 	}
 
 	// Nationality, birthday, etc...
@@ -314,7 +315,9 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 		case "女性":
 			teacher.Gender = "female"
 		default:
-			return errors.Internalf("Unknown gender for %v", value)
+			return errors.NewInternalError(
+				errors.WithMessagef("Unknown gender for %v", value),
+			)
 		}
 	case "経歴":
 		yoe := -1

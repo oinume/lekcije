@@ -82,10 +82,6 @@ func (e *InvalidArgument) Error() string {
 	return fmt.Sprintf("errors.InvalidArgument: %s", e.wrapped.Error())
 }
 
-func Internalf(format string, args ...interface{}) *Internal {
-	return &Internal{NewBaseError(errors.Errorf(format, args...))}
-}
-
 func InternalWrapf(err error, format string, args ...interface{}) *Internal {
 	return &Internal{NewBaseError(errors.Wrapf(err, format, args...))}
 }

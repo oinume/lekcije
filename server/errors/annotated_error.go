@@ -97,6 +97,12 @@ func WithMessage(message string) Option {
 	}
 }
 
+func WithMessagef(format string, args ...interface{}) Option {
+	return func(se *AnnotatedError) {
+		se.message = fmt.Sprintf(format, args...)
+	}
+}
+
 func WithError(err error) Option {
 	return func(se *AnnotatedError) {
 		if err == nil {

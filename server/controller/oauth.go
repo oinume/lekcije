@@ -176,7 +176,9 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	}
 	idToken, ok := token.Extra("id_token").(string)
 	if !ok {
-		return nil, "", errors.Internalf("Failed to get id_token")
+		return nil, "", errors.NewInternalError(
+			errors.WithMessage("Failed to get id_token"),
+		)
 	}
 	return token, idToken, nil
 }

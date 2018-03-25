@@ -98,23 +98,34 @@ func (l *scrapingTeacherIDLoader) Load(cursor string) ([]uint32, string, error) 
 	url := scrapingURLPrefix + cursor
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, "", errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
+		return nil, "", errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to create HTTP request: url=%v", url),
+		)
 	}
 	req.Header.Set("User-Agent", userAgent)
 
 	resp, err := l.httpClient.Do(req)
 	if err != nil {
-		return nil, "", errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
+		return nil, "", errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed httpClient.Do(): url=%v", url),
+		)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, "", errors.Internalf("Unknown error in fetchContent: url=%v, status=%v", url, resp.StatusCode)
+		return nil, "", errors.NewInternalError(
+			errors.WithMessagef("Unknown error in fetchContent: url=%v, status=%v", url, resp.StatusCode),
+		)
 	}
 	defer resp.Body.Close()
 
 	root, err := xmlpath.ParseHTML(resp.Body)
 	if err != nil {
-		return nil, "", errors.Internalf("Failed to parse HTML: url=%v", url)
+		return nil, "", errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to parse HTML: url=%v", url),
+		)
 	}
 
 	ids := make([]uint32, 0, 100)
@@ -126,7 +137,9 @@ func (l *scrapingTeacherIDLoader) Load(cursor string) ([]uint32, string, error) 
 		}
 		v, err := strconv.ParseUint(id, 10, 32)
 		if err != nil {
-			return nil, "", errors.Internalf("Failed to parse id: id=%v", id)
+			return nil, "", errors.NewInternalError(
+				errors.WithMessagef("Failed to parse id: id=%v", id),
+			)
 		}
 		ids = append(ids, uint32(v))
 	}
