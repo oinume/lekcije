@@ -149,7 +149,7 @@ func wrapNotFound(result *gorm.DB, kind, key, value string) *errors.AnnotatedErr
 		return errors.NewAnnotatedError(
 			errors.CodeNotFound,
 			errors.WithError(result.Error),
-			errors.WithResource(errors.NewResource(kind, key, value)),
+			errors.WithResources(errors.NewResource(kind, key, value)),
 		)
 	} else {
 		return nil

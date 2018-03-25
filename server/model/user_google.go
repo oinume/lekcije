@@ -35,7 +35,7 @@ func (s *UserGoogleService) FindByUserID(userID uint32) (*UserGoogle, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResource(errors.NewResource(userGoogle.TableName(), "userID", fmt.Sprint(userID))),
+			errors.WithResources(errors.NewResource(userGoogle.TableName(), "userID", fmt.Sprint(userID))),
 		)
 	}
 	return userGoogle, nil

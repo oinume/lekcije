@@ -59,7 +59,7 @@ func NewTeachersFromIDsOrURL(idsOrURL string) ([]*Teacher, error) {
 	}
 	return nil, errors.NewInvalidArgumentError(
 		errors.WithMessage("Failed to parse idsOrURL"),
-		errors.WithResource(errors.NewResource("teacher", "idsOrURL", idsOrURL)),
+		errors.WithResources(errors.NewResource("teacher", "idsOrURL", idsOrURL)),
 	)
 }
 

@@ -43,7 +43,7 @@ func (s *MPlanService) FindByPK(id uint8) (*MPlan, error) {
 		return nil, errors.NewAnnotatedError(
 			errors.CodeNotFound,
 			errors.WithError(err),
-			errors.WithResource(errors.NewResource("m_plan", "id", fmt.Sprint(id))),
+			errors.WithResources(errors.NewResource("m_plan", "id", fmt.Sprint(id))),
 		)
 	}
 	return plan, nil

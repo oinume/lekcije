@@ -92,32 +92,32 @@ func NewInvalidArgumentError(options ...Option) *AnnotatedError {
 type Option func(*AnnotatedError)
 
 func WithMessage(message string) Option {
-	return func(se *AnnotatedError) {
-		se.message = message
+	return func(ae *AnnotatedError) {
+		ae.message = message
 	}
 }
 
 func WithMessagef(format string, args ...interface{}) Option {
-	return func(se *AnnotatedError) {
-		se.message = fmt.Sprintf(format, args...)
+	return func(ae *AnnotatedError) {
+		ae.message = fmt.Sprintf(format, args...)
 	}
 }
 
 func WithError(err error) Option {
-	return func(se *AnnotatedError) {
+	return func(ae *AnnotatedError) {
 		if err == nil {
 			return
 		}
 
 		if st, ok := err.(StackTracer); ok {
-			se.wrapped = err
-			se.stackTrace = st.StackTrace()
+			ae.wrapped = err
+			ae.stackTrace = st.StackTrace()
 		} else {
 			// Wrap the err to save stack trace
 			e := errors.WithStack(err)
-			se.wrapped = err
+			ae.wrapped = err
 			if st, ok := e.(StackTracer); ok {
-				se.stackTrace = st.StackTrace()
+				ae.stackTrace = st.StackTrace()
 			}
 		}
 	}

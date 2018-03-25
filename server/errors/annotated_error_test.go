@@ -16,7 +16,7 @@ func TestNewAnnotatedError(t *testing.T) {
 		WithMessage("failed"),
 		WithError(fmt.Errorf("not exist")),
 		WithOutputStackTrace(false),
-		WithResource(NewResource("user", "id", "12345")),
+		WithResources(NewResource("user", "id", "12345")),
 	)
 	a.Equal(CodeNotFound, err.Code())
 	a.Equal(err.Error(), "code.NotFound: failed: not exist")
