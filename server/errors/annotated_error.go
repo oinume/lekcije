@@ -153,9 +153,9 @@ func WithOutputStackTrace(outputStackTrace bool) Option {
 	}
 }
 
-func WithResources(resources ...*Resource) Option {
+func WithResource(r *Resource) Option {
 	return func(ae *AnnotatedError) {
-		ae.resources = append(ae.resources, resources...)
+		ae.resources = append(ae.resources, r)
 	}
 }
 

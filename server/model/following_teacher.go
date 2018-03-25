@@ -108,7 +108,7 @@ func (s *FollowingTeacherService) CountFollowingTeachersByUserID(userID uint32) 
 		return 0, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("count failed"),
-			errors.WithResources(errors.NewResource("following_teacher", "userID", userID)),
+			errors.WithResource(errors.NewResource("following_teacher", "userID", userID)),
 		)
 	}
 	return count.Count, nil
@@ -131,7 +131,7 @@ func (s *FollowingTeacherService) FollowTeacher(
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("failed to select or create teacher"),
-			errors.WithResources(errors.NewResource("teacher", "id", teacher.ID)),
+			errors.WithResource(errors.NewResource("teacher", "id", teacher.ID)),
 		)
 	}
 
@@ -144,7 +144,7 @@ func (s *FollowingTeacherService) FollowTeacher(
 	if err := s.db.FirstOrCreate(ft).Error; err != nil {
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
-			errors.WithResources(
+			errors.WithResource(
 				errors.NewResourceWithEntries(ft.TableName(), []errors.ResourceEntry{
 					{"userID", userID},
 					{"teacherID", teacher.ID},

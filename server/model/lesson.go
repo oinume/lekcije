@@ -107,7 +107,7 @@ LIMIT 1000
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
 			errors.WithMessage("Failed to find lessons: teacherID=%v"),
-			errors.WithResources(errors.NewResource(s.TableName(), "teacherID", teacherID)),
+			errors.WithResource(errors.NewResource(s.TableName(), "teacherID", teacherID)),
 		)
 	}
 

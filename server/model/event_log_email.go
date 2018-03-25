@@ -55,7 +55,7 @@ GROUP BY event;
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessagef("select failed"),
-			errors.WithResources(errors.NewResource("event_log_email", "date", date.Format("2006-01-02"))),
+			errors.WithResource(errors.NewResource("event_log_email", "date", date.Format("2006-01-02"))),
 		)
 	}
 	return values, nil
@@ -80,7 +80,7 @@ GROUP BY s.event
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessagef("select failed"),
-			errors.WithResources(errors.NewResource("event_log_email", "date", date.Format("2006-01-02"))),
+			errors.WithResource(errors.NewResource("event_log_email", "date", date.Format("2006-01-02"))),
 		)
 	}
 	return values, nil

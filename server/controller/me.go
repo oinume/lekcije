@@ -198,7 +198,7 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to delete teachers"),
-			errors.WithResources(errors.NewResource("following_teacher_service", "teacherIDs", teacherIDs)),
+			errors.WithResource(errors.NewResource("following_teacher_service", "teacherIDs", teacherIDs)),
 		))
 		return
 	}

@@ -49,7 +49,7 @@ func (s *UserAPITokenService) FindByPK(token string) (*UserAPIToken, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResources(errors.NewResource(userAPIToken.TableName(), "token", token)),
+			errors.WithResource(errors.NewResource(userAPIToken.TableName(), "token", token)),
 		)
 	}
 	return userAPIToken, nil
