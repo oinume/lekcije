@@ -45,7 +45,7 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResources(errors.NewResource(user.TableName(), "id", fmt.Sprint(id))),
+			errors.WithResources(errors.NewResource(user.TableName(), "id", id)),
 		)
 	}
 	if err := s.db.First(user, &User{ID: id}).Error; err != nil {

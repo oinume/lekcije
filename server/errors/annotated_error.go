@@ -29,22 +29,46 @@ func (c Code) String() string {
 	return "code." + s
 }
 
-type Resource struct {
-	kind  string
-	key   string
-	value string
+type ResourceEntry struct {
+	Key   string
+	Value interface{}
 }
 
-func NewResource(kind, key, value string) *Resource {
+type Resource struct {
+	kind    string
+	entries []ResourceEntry
+}
+
+func NewResource(kind, key string, value interface{}) *Resource {
 	return &Resource{
-		kind:  kind,
-		key:   key,
-		value: value,
+		kind: kind,
+		entries: []ResourceEntry{
+			{Key: key, Value: value},
+		},
+	}
+}
+
+func NewResourceWithEntries(kind string, entries []ResourceEntry) *Resource {
+	return &Resource{
+		kind:    kind,
+		entries: entries,
 	}
 }
 
 func (r *Resource) String() string {
-	return fmt.Sprintf("%v:%v:%v", r.kind, r.key, r.value)
+	var b bytes.Buffer
+	b.WriteString(r.kind)
+	for _, entry := range r.entries {
+		b.WriteString(":")
+		b.WriteString(entry.Key)
+		b.WriteString(":")
+		if s, ok := entry.Value.(fmt.Stringer); ok {
+			b.WriteString(s.String())
+		} else {
+			b.WriteString(fmt.Sprint(entry.Value))
+		}
+	}
+	return b.String()
 }
 
 type AnnotatedError struct {
@@ -60,7 +84,7 @@ type AnnotatedError struct {
 func NewAnnotatedError(code Code, options ...Option) *AnnotatedError {
 	ae := &AnnotatedError{
 		code:             code,
-		wrapped:          errors.New(""), // As a default value
+		wrapped:          errors.New(""), // As a default Value
 		outputStackTrace: true,
 		resources:        make([]*Resource, 0, 20),
 	}

@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -43,7 +42,7 @@ func (s *MPlanService) FindByPK(id uint8) (*MPlan, error) {
 		return nil, errors.NewAnnotatedError(
 			errors.CodeNotFound,
 			errors.WithError(err),
-			errors.WithResources(errors.NewResource("m_plan", "id", fmt.Sprint(id))),
+			errors.WithResources(errors.NewResource("m_plan", "id", id)),
 		)
 	}
 	return plan, nil
