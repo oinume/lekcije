@@ -151,12 +151,6 @@ func (s *FollowingTeacherService) FollowTeacher(
 				}),
 			),
 		)
-
-		return nil, errors.InternalWrapf(
-			err,
-			"Failed to create FollowingTeacher: userID=%d, teacherID=%d",
-			userID, teacher.ID,
-		)
 	}
 	return ft, nil
 }
@@ -176,7 +170,14 @@ func (s *FollowingTeacherService) DeleteTeachersByUserIDAndTeacherIDs(
 		args = append(args, teacherID)
 	}
 	if result := s.db.Exec(sql, args...); result.Error != nil {
-		return 0, result.Error
+		return 0, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to delete following_teacher"),
+			errors.WithResource(errors.NewResourceWithEntries(s.TableName(), []errors.ResourceEntry{
+				{"userID", userID},
+				{"teacherIDs", teacherIDs},
+			})),
+		)
 	} else {
 		return int(result.RowsAffected), nil
 	}

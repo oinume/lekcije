@@ -7,7 +7,6 @@ import (
 
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/emailer"
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
@@ -67,7 +66,7 @@ func (m *Main) Run() error {
 	}
 	mCountries, err := model.NewMCountryService(db).LoadAll()
 	if err != nil {
-		return errors.InternalWrapf(err, "Failed to load all MCountries")
+		return err
 	}
 	fetcher := fetcher.NewLessonFetcher(nil, *m.Concurrency, *m.FetcherCache, mCountries, logger.App)
 

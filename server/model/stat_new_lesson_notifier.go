@@ -37,7 +37,10 @@ func (s *StatNewLessonNotifierService) CreateOrUpdate(v *StatNewLessonNotifier) 
 		v.Count, v.UUCount,
 	}
 	if err := s.db.Exec(sql, values...).Error; err != nil {
-		return errors.InternalWrapf(err, "Failed to INSERT or UPDATE %s: date=%v", v.TableName(), date)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithResource(errors.NewResource(v.TableName(), "date", date)),
+		)
 	}
 	return nil
 }

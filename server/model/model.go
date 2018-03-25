@@ -30,12 +30,18 @@ func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	db.SetMaxIdleConns(maxConnections)
 	db.SetConnMaxLifetime(10 * time.Minute)
 	if err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to sql.Open()")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to sql.Open()"),
+		)
 	}
 
 	gormDB, err := gorm.Open("mysql", db)
 	if err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to gorm.Open()"),
+		)
 	}
 	gormDB.LogMode(logging)
 
@@ -83,7 +89,10 @@ type GORMTransactional func(tx *gorm.DB) error
 func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error {
 	tx := db.Begin()
 	if tx.Error != nil {
-		return errors.InternalWrapf(tx.Error, "Failed to begin transaction: name=%v", name)
+		return errors.NewInternalError(
+			errors.WithError(tx.Error),
+			errors.WithMessagef("Failed to begin transaction: name=%v", name),
+		)
 	}
 
 	var err error
@@ -93,7 +102,10 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 			return
 		}
 		if err2 := tx.Rollback().Error; err2 != nil {
-			err = errors.InternalWrapf(err2, "Failed to rollback transaction: name=%v", name)
+			err = errors.NewInternalError(
+				errors.WithError(err2),
+				errors.WithMessagef("Failed to rollback transaction: name=%v", name),
+			)
 		}
 	}()
 
@@ -104,7 +116,10 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 		return tx.Error
 	}
 	if err2 := tx.Commit().Error; err2 != nil {
-		return errors.InternalWrapf(err2, "Failed to commit transaction: name=%v", name)
+		return errors.NewInternalError(
+			errors.WithError(err2),
+			errors.WithMessagef("Failed to commit transaction: name=%v", name),
+		)
 	}
 	success = true
 	return err

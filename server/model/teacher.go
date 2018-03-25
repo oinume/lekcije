@@ -113,7 +113,11 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 	}
 
 	if err := s.db.Exec(sql, values...).Error; err != nil {
-		return errors.InternalWrapf(err, "Failed to INSERT or UPDATE teacher: id=%v", t.ID)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to INSERT or UPDATE teacher"),
+			errors.WithResource(errors.NewResource("teacher", "id", t.ID)),
+		)
 	}
 	return nil
 }
@@ -121,29 +125,43 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 func (s *TeacherService) FindByPK(id uint32) (*Teacher, error) {
 	teacher := &Teacher{}
 	if err := s.db.First(teacher, &Teacher{ID: id}).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to FindByPK: id=%v", id)
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to FindByPK"),
+			errors.WithResource(errors.NewResource(teacher.TableName(), "id", id)),
+		)
 	}
 	return teacher, nil
 }
 
 func (s *TeacherService) IncrementFetchErrorCount(id uint32, value int) error {
+	tableName := new(Teacher).TableName()
 	sql := fmt.Sprintf(
 		`UPDATE %s SET fetch_error_count = fetch_error_count + ?, updated_at = NOW() WHERE id = ?`,
-		new(Teacher).TableName(),
+		tableName,
 	)
 	if err := s.db.Exec(sql, value, id).Error; err != nil {
-		return errors.InternalWrapf(err, "Failed to UPDATE teacher: id=%v", id)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to UPDATE teacher"),
+			errors.WithResource(errors.NewResource(tableName, "id", id)),
+		)
 	}
 	return nil
 }
 
 func (s *TeacherService) ResetFetchErrorCount(id uint32) error {
+	tableName := new(Teacher).TableName()
 	sql := fmt.Sprintf(
 		`UPDATE %s SET fetch_error_count = 0, updated_at = NOW() WHERE id = ?`,
-		new(Teacher).TableName(),
+		tableName,
 	)
 	if err := s.db.Exec(sql, id).Error; err != nil {
-		return errors.InternalWrapf(err, "Failed to UPDATE teacher: id=%v", id)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to UPDATE teacher"),
+			errors.WithResource(errors.NewResource(tableName, "id", id)),
+		)
 	}
 	return nil
 }
@@ -152,7 +170,10 @@ func (s *TeacherService) FindByFetchErrorCountGt(count uint32) ([]*Teacher, erro
 	values := make([]*Teacher, 0, 3000)
 	sql := fmt.Sprintf(`SELECT * FROM teacher WHERE fetch_error_count > ? ORDER BY id LIMIT 3000`)
 	if result := s.db.Raw(sql, count).Scan(&values); result.Error != nil {
-		return nil, errors.InternalWrapf(result.Error, "Failed to FindByFetchErrorCountGt")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to FindByFetchErrorCountGt"),
+		)
 	}
 	return values, nil
 }

@@ -81,7 +81,9 @@ func EncryptString(plainText string, encryptionKey string) (string, error) {
 	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
-		return "", errors.InternalWrapf(err, "")
+		return "", errors.NewInternalError(
+			errors.WithError(err),
+		)
 	}
 	plainBytes := []byte(plainText)
 	//cipherBytes := make([]byte, aes.BlockSize+len(plainBytes))
@@ -98,11 +100,15 @@ func EncryptString(plainText string, encryptionKey string) (string, error) {
 func DecryptString(cipherText string, encryptionKey string) (string, error) {
 	cipherBytes, err := hex.DecodeString(cipherText)
 	if err != nil {
-		return "", errors.InternalWrapf(err, "")
+		return "", errors.NewInternalError(
+			errors.WithError(err),
+		)
 	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
-		return "", errors.InternalWrapf(err, "")
+		return "", errors.NewInternalError(
+			errors.WithError(err),
+		)
 	}
 	//if len(cipherBytes) < aes.BlockSize {
 	//	return "", errors.Internalf("cipherText is too short.")
