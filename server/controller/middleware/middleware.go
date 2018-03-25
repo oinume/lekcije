@@ -37,9 +37,12 @@ func PanicHandler(h http.Handler) http.Handler {
 				case error:
 					err = errorType
 				default:
-					err = fmt.Errorf("Unknown error type: %v", errorType)
+					err = fmt.Errorf("unknown error type: %v", errorType)
 				}
-				controller.InternalServerError(w, errors.InternalWrapf(err, "panic ocurred"))
+				controller.InternalServerError(w, errors.NewInternalError(
+					errors.WithError(err),
+					errors.WithMessage("panic ocurred"),
+				))
 				return
 			}
 		}()

@@ -93,11 +93,17 @@ func (s *NotificationTimeSpanService) NewNotificationTimeSpansPB(args []*Notific
 	for _, v := range args {
 		fromTime, err := time.Parse("15:04:05", v.FromTime)
 		if err != nil {
-			return nil, errors.InternalWrapf(err, "Invalid time format: FromTime=%v", v.FromTime)
+			return nil, errors.NewInternalError(
+				errors.WithError(err),
+				errors.WithMessagef("Invalid time format: FromTime=%v", v.FromTime),
+			)
 		}
 		toTime, err := time.Parse("15:04:05", v.ToTime)
 		if err != nil {
-			return nil, errors.InternalWrapf(err, "Invalid time format: ToTime=%v", v.ToTime)
+			return nil, errors.NewInternalError(
+				errors.WithError(err),
+				errors.WithMessagef("Invalid time format: ToTime=%v", v.ToTime),
+			)
 		}
 		values = append(values, &api_v1.NotificationTimeSpan{
 			FromHour:   int32(fromTime.Hour()),
@@ -113,7 +119,11 @@ func (s *NotificationTimeSpanService) FindByUserID(userID uint32) ([]*Notificati
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
 	timeSpans := make([]*NotificationTimeSpan, 0, 10)
 	if err := s.db.Raw(sql, userID).Scan(&timeSpans).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "FindByUserID select failed: userID=%v", userID)
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("FindByUserID select failed"),
+			errors.WithResource(errors.NewResource((&NotificationTimeSpan{}).TableName(), "userID", userID)),
+		)
 	}
 	return timeSpans, nil
 }
@@ -128,19 +138,32 @@ func (s *NotificationTimeSpanService) UpdateAll(userID uint32, timeSpans []*Noti
 	}
 
 	tx := s.db.Begin()
-	sql := fmt.Sprintf(`DELETE FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
+	tableName := (&NotificationTimeSpan{}).TableName()
+	sql := fmt.Sprintf(`DELETE FROM %s WHERE user_id = ?`, tableName)
 	if err := tx.Exec(sql, userID).Error; err != nil {
-		return errors.InternalWrapf(err, "UpdateAll delete failed")
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("UpdateAll delete failed"),
+			errors.WithResource(errors.NewResource(tableName, "userID", userID)),
+		)
 	}
 
 	for _, timeSpan := range timeSpans {
 		if err := tx.Create(timeSpan).Error; err != nil {
-			errors.InternalWrapf(err, "UpdateAll insert failed")
+			return errors.NewInternalError(
+				errors.WithError(err),
+				errors.WithMessage("UpdateAll insert failed"),
+				errors.WithResource(errors.NewResource(tableName, "userID", userID)),
+			)
 		}
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		return errors.InternalWrapf(err, "UpdateAll commit failed")
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("UpdateAll commit failed"),
+			errors.WithResource(errors.NewResource(tableName, "userID", userID)),
+		)
 	}
 
 	return nil

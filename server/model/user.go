@@ -45,7 +45,7 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 		}
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
-			errors.WithResource(errors.NewResource(user.TableName(), "id", fmt.Sprint(id))),
+			errors.WithResource(errors.NewResource(user.TableName(), "id", id)),
 		)
 	}
 	if err := s.db.First(user, &User{ID: id}).Error; err != nil {
@@ -133,7 +133,10 @@ func (s *UserService) FindAllFollowedTeacherAtIsNull(createdAt time.Time) ([]*Us
 	sql := `SELECT * FROM user WHERE followed_teacher_at IS NULL AND CAST(created_at AS DATE) = ? ORDER BY id`
 	result := s.db.Raw(sql, createdAt.Format(dbDateFormat)).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
-		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to find users"),
+		)
 	}
 	return users, nil
 }
@@ -146,7 +149,11 @@ func (s *UserService) Create(name, email string) (*User, error) {
 		PlanID:        DefaultMPlanID,
 	}
 	if result := s.db.Create(user); result.Error != nil {
-		return nil, errors.InternalWrapf(result.Error, "")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to Create user"),
+			errors.WithResource(errors.NewResource("user", "email", email)),
+		)
 	}
 	return user, nil
 }
@@ -157,14 +164,18 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 		user = &User{
 			Name:          name,
 			Email:         email,
-			EmailVerified: true, // TODO: set false after implement email verification
+			EmailVerified: true,
 			PlanID:        DefaultMPlanID,
 		}
 		if result := s.db.Create(user); result.Error != nil {
-			return nil, nil, errors.InternalWrapf(
-				result.Error,
-				"Failed to create User: email=%v, googleID=%v",
-				email, googleID,
+			return nil, nil, errors.NewInternalError(
+				errors.WithError(result.Error),
+				errors.WithMessage("Failed to create User"),
+				errors.WithResource(errors.NewResourceWithEntries(
+					"user", []errors.ResourceEntry{
+						{"email", email}, {"googleID", googleID},
+					},
+				)),
 			)
 		}
 	}
@@ -178,8 +189,10 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 			UserID:   user.ID,
 		}
 		if result := s.db.Create(userGoogle); result.Error != nil {
-			return nil, nil, errors.InternalWrapf(
-				result.Error, "Failed to create UserGoogle: googleID=%v", googleID,
+			return nil, nil, errors.NewInternalError(
+				errors.WithError(result.Error),
+				errors.WithMessage("Failed to create UserGoogle"),
+				errors.WithResource(errors.NewResource("user_google", "googleID", googleID)),
 			)
 		}
 	}
@@ -191,9 +204,14 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", newEmail, user.ID)
 	if result.Error != nil {
-		return errors.InternalWrapf(
-			result.Error,
-			"Failed to update email: id=%v, email=%v", user.ID, newEmail,
+		return errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to update user email"),
+			errors.WithResource(errors.NewResourceWithEntries(
+				user.TableName(), []errors.ResourceEntry{
+					{"id", user.ID}, {"email", newEmail},
+				},
+			)),
 		)
 	}
 	return nil
@@ -202,7 +220,11 @@ func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
 	sql := "UPDATE user SET followed_teacher_at = NOW() WHERE id = ?"
 	if err := s.db.Exec(sql, user.ID).Error; err != nil {
-		return errors.InternalWrapf(err, "Failed to update followed_teacher_at: id=%v", user.ID)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update followed_teacher_at"),
+			errors.WithResource(errors.NewResource(user.TableName(), "id", user.ID)),
+		)
 	}
 	return nil
 }

@@ -107,7 +107,10 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	const maxFetchErrorCount = 5
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, maxFetchErrorCount)
 	if err != nil {
-		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to FindTeacherIDsByUserID(): userID=%v", user.ID),
+		)
 	}
 	n.stopwatch.Mark(fmt.Sprintf("FindTeacherIDsByUserID:%d", user.ID))
 
@@ -260,7 +263,10 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	email, err := emailer.NewEmailFromTemplate(t, data)
 	if err != nil {
-		return errors.InternalWrapf(err, "Failed to create emailer.Email from template: to=%v", user.Email)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to create emailer.Email from template: to=%v", user.Email),
+		)
 	}
 	email.SetCustomArg("email_type", model.EmailTypeNewLessonNotifier)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))

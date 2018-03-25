@@ -80,7 +80,10 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 
 	result := s.db.Exec(sql, values...)
 	if err := result.Error; err != nil {
-		return 0, errors.InternalWrapf(err, "")
+		return 0, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update lessons"),
+		)
 	}
 
 	return result.RowsAffected, nil
@@ -103,7 +106,11 @@ LIMIT 1000
 		if result.RecordNotFound() {
 			return lessons, nil
 		}
-		return nil, errors.InternalWrapf(result.Error, "Failed to find lessons: teacherID=%v", teacherID)
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to find lessons"),
+			errors.WithResource(errors.NewResource(s.TableName(), "teacherID", teacherID)),
+		)
 	}
 
 	return lessons, nil

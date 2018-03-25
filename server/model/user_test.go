@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -45,12 +44,10 @@ func TestUserService_CreateWithGoogle(t *testing.T) {
 
 func TestUserService_Create(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 	email := randomEmail()
 	user, err := userService.Create("test", email)
-	if e, ok := err.(*errors.Internal); ok {
-		fmt.Printf("%+v\n", e.StackTrace())
-	}
-	a.Nil(err)
+	r.NoError(err)
 	a.True(user.ID > 0)
 	a.Equal(email, user.Email)
 	a.Equal(DefaultMPlanID, user.PlanID)
@@ -63,9 +60,6 @@ func TestUserService_UpdateEmail(t *testing.T) {
 	user := helper.CreateRandomUser()
 	email := randomEmail()
 	err := userService.UpdateEmail(user, email)
-	if e, ok := err.(*errors.Internal); ok {
-		fmt.Printf("%+v\n", e.StackTrace())
-	}
 	r.NoError(err)
 
 	actual, err := userService.FindByPK(user.ID)
