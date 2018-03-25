@@ -149,7 +149,6 @@ func (s *UserService) Create(name, email string) (*User, error) {
 		PlanID:        DefaultMPlanID,
 	}
 	if result := s.db.Create(user); result.Error != nil {
-		return nil, errors.InternalWrapf(result.Error, "")
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
 			errors.WithMessage("Failed to Create user"),
@@ -205,10 +204,6 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", newEmail, user.ID)
 	if result.Error != nil {
-		return errors.InternalWrapf(
-			result.Error,
-			"Failed to update email: id=%v, email=%v", user.ID, newEmail,
-		)
 		return errors.NewInternalError(
 			errors.WithError(result.Error),
 			errors.WithMessage("Failed to update user email"),

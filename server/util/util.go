@@ -142,9 +142,6 @@ func WriteError(w io.Writer, err error) {
 	fmt.Fprintf(w, "%v", err.Error())
 	fmt.Fprint(w, "\n--- stacktrace ---")
 	switch err.(type) {
-	case *errors.Internal:
-		e := err.(*errors.Internal)
-		fmt.Fprintf(w, "%+v\n", e.StackTrace())
 	case *errors.AnnotatedError:
 		e := err.(*errors.AnnotatedError)
 		if e.OutputStackTrace() {

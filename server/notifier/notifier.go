@@ -107,7 +107,10 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	const maxFetchErrorCount = 5
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, maxFetchErrorCount)
 	if err != nil {
-		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to FindTeacherIDsByUserID(): userID=%v", user.ID),
+		)
 	}
 	n.stopwatch.Mark(fmt.Sprintf("FindTeacherIDsByUserID:%d", user.ID))
 
