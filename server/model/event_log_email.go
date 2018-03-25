@@ -52,7 +52,11 @@ GROUP BY event;
 	d := date.Format("2006-01-02")
 	values := make([]*StatNewLessonNotifier, 0, 100)
 	if err := s.db.Raw(strings.TrimSpace(sql), d+" 00:00:00", d+" 23:59:59").Scan(&values).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "error")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("select failed"),
+			errors.WithResources(errors.NewResource("event_log_email", "date", date.Format("2006-01-02"))),
+		)
 	}
 	return values, nil
 }
@@ -73,7 +77,11 @@ GROUP BY s.event
 	d := date.Format("2006-01-02")
 	values := make([]*StatNewLessonNotifier, 0, 100)
 	if err := s.db.Raw(strings.TrimSpace(sql), d+" 00:00:00", d+" 23:59:59").Scan(&values).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "error")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("select failed"),
+			errors.WithResources(errors.NewResource("event_log_email", "date", date.Format("2006-01-02"))),
+		)
 	}
 	return values, nil
 }

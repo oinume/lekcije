@@ -104,6 +104,11 @@ LIMIT 1000
 			return lessons, nil
 		}
 		return nil, errors.InternalWrapf(result.Error, "Failed to find lessons: teacherID=%v", teacherID)
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to find lessons: teacherID=%v"),
+			errors.WithResources(errors.NewResource(s.TableName(), "teacherID", fmt.Sprint(teacherID))),
+		)
 	}
 
 	return lessons, nil

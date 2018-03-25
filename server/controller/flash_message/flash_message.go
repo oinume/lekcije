@@ -75,7 +75,10 @@ func (f *FlashMessage) HasMultipleMessage() bool {
 func (f *FlashMessage) Set() (string, error) {
 	bytes, err := json.Marshal(f)
 	if err != nil {
-		return "", errors.InternalWrapf(err, "Failed to json.Marshal()")
+		return "", errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to json.Marshal()"),
+		)
 	}
 	return string(bytes), nil
 }
