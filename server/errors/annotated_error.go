@@ -54,7 +54,7 @@ type AnnotatedError struct {
 	cause            error
 	stackTrace       errors.StackTrace
 	outputStackTrace bool
-	resource         *Resource
+	resources        []*Resource
 }
 
 func NewAnnotatedError(code Code, options ...Option) *AnnotatedError {
@@ -62,6 +62,7 @@ func NewAnnotatedError(code Code, options ...Option) *AnnotatedError {
 		code:             code,
 		wrapped:          errors.New(""), // As a default value
 		outputStackTrace: true,
+		resources:        make([]*Resource, 0, 20),
 	}
 	if st, ok := ae.wrapped.(StackTracer); ok {
 		ae.stackTrace = st.StackTrace()
@@ -124,7 +125,13 @@ func WithOutputStackTrace(outputStackTrace bool) Option {
 
 func WithResource(r *Resource) Option {
 	return func(ae *AnnotatedError) {
-		ae.resource = r
+		ae.resources = append(ae.resources, r)
+	}
+}
+
+func WithResources(resources ...*Resource) Option {
+	return func(ae *AnnotatedError) {
+		ae.resources = append(ae.resources, resources...)
 	}
 }
 
@@ -152,8 +159,8 @@ func (e *AnnotatedError) OutputStackTrace() bool {
 	return e.outputStackTrace
 }
 
-func (e *AnnotatedError) Resource() *Resource {
-	return e.resource
+func (e *AnnotatedError) Resources() []*Resource {
+	return e.resources
 }
 
 func (e *AnnotatedError) IsNotFound() bool {
