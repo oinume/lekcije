@@ -15,6 +15,7 @@ func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 
 	user := helper.CreateRandomUser()
 	// TODO: Use helper.CreateTeacher
+	//helper.CreateTeacher()
 	c, _ := mCountries.GetByNameJA("セルビア")
 	teacher := &Teacher{
 		ID:                1,
@@ -23,14 +24,16 @@ func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 		Gender:            "male",
 		YearsOfExperience: uint8(3),
 		Birthday:          time.Date(1999, 12, 31, 0, 0, 0, 0, time.UTC),
+		LastLessonAt:      time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 	_, err := followingTeacherService.FollowTeacher(user.ID, teacher, time.Now().UTC())
 	r.NoError(err)
 
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
-	a.Nil(err)
+	r.NoError(err)
 	a.Equal(1, len(teachers))
 	a.Equal("Donald", teachers[0].Name)
+	a.Equal(time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC), teachers[0].LastLessonAt)
 }
 
 func TestFollowingTeacherService_CountFollowingTeachersByUserID(t *testing.T) {
