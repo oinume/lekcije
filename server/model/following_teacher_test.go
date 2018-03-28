@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 	a := assert.New(t)
+	r := require.New(t)
 
 	user := helper.CreateRandomUser()
 	// TODO: Use helper.CreateTeacher
@@ -23,7 +25,7 @@ func TestFollowingTeacherService_FollowTeacher(t *testing.T) {
 		Birthday:          time.Date(1999, 12, 31, 0, 0, 0, 0, time.UTC),
 	}
 	_, err := followingTeacherService.FollowTeacher(user.ID, teacher, time.Now().UTC())
-	a.Nil(err)
+	r.NoError(err)
 
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
 	a.Nil(err)

@@ -147,6 +147,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			InternalServerError(w, err)
 			return
 		}
+		// TODO: set last_lesson_at
 		if _, err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
 			InternalServerError(w, err)
 			return

@@ -27,7 +27,7 @@ func (h *TestHelper) DB() *gorm.DB {
 	}
 	bootstrap.CheckCLIEnvVars()
 	h.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
-	db, err := OpenDB(h.dbURL, 1, false /* TODO: env */)
+	db, err := OpenDB(h.dbURL, 1, true /* TODO: env */)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to OpenDB(): err=%v", err))
 	}

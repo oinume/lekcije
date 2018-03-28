@@ -86,21 +86,24 @@ func NewTeacherService(db *gorm.DB) *TeacherService {
 }
 
 func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
-	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
+	now := time.Now().UTC()
+	if t.LastLessonAt.IsZero() {
+		t.LastLessonAt = now
+	}
+	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
 	sql += " ON DUPLICATE KEY UPDATE"
 	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?, review_count=?, rating=?, last_lesson_at=?"
-	now := time.Now()
 	values := []interface{}{
 		t.ID,
 		t.Name,
 		t.CountryID,
 		t.Gender,
-		t.Birthday.Format("2006-01-02"),
+		t.Birthday.Format(dbDateFormat),
 		t.YearsOfExperience,
 		t.FavoriteCount,
 		t.ReviewCount,
 		t.Rating,
-		// TODO: last_lesson_at
+		t.LastLessonAt.Format(dbDatetimeFormat),
 		t.FetchErrorCount,
 		now.Format(dbDatetimeFormat),
 		now.Format(dbDatetimeFormat),
@@ -108,13 +111,12 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 		t.CountryID,
 		t.Gender,
 		t.YearsOfExperience,
-		t.Birthday.Format("2006-01-02"),
+		t.Birthday.Format(dbDateFormat),
 		t.FavoriteCount,
 		t.ReviewCount,
 		t.Rating,
-		t.LastLessonAt,
+		t.LastLessonAt.Format(dbDatetimeFormat),
 	}
-
 	if err := s.db.Exec(sql, values...).Error; err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
