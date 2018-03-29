@@ -125,14 +125,12 @@ func (s FollowingTeacherService) ReachesFollowingTeacherLimit(userID uint32, add
 func (s *FollowingTeacherService) FollowTeacher(
 	userID uint32, teacher *Teacher, timestamp time.Time,
 ) (*FollowingTeacher, error) {
+	// Create teacher at first
 	teacher.CreatedAt = timestamp
 	teacher.UpdatedAt = timestamp
-	if err := s.db.FirstOrCreate(teacher).Error; err != nil {
-		return nil, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("failed to select or create teacher"),
-			errors.WithResource(errors.NewResource("teacher", "id", teacher.ID)),
-		)
+	teacherService := NewTeacherService(s.db)
+	if err := teacherService.CreateOrUpdate(teacher); err != nil {
+		return nil, err
 	}
 
 	ft := &FollowingTeacher{

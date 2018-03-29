@@ -14,8 +14,9 @@ import (
 const teacherUrlBase = "http://eikaiwa.dmm.com/teacher/index/%v/"
 
 var (
-	idsRegexp        = regexp.MustCompile(`^[\d,]+$`)
-	teacherUrlRegexp = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
+	defaultLastLessonAt = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+	idsRegexp           = regexp.MustCompile(`^[\d,]+$`)
+	teacherUrlRegexp    = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
 )
 
 type Teacher struct {
@@ -28,6 +29,7 @@ type Teacher struct {
 	FavoriteCount     uint32
 	ReviewCount       uint32
 	Rating            float32
+	LastLessonAt      time.Time
 	FetchErrorCount   uint8
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
@@ -85,33 +87,38 @@ func NewTeacherService(db *gorm.DB) *TeacherService {
 }
 
 func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
-	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
+	if t.LastLessonAt.IsZero() {
+		t.LastLessonAt = defaultLastLessonAt
+	}
+	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
 	sql += " ON DUPLICATE KEY UPDATE"
-	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?, review_count=?, rating=?"
-	now := time.Now()
+	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?, review_count=?, rating=?, last_lesson_at=?"
+
+	now := time.Now().UTC()
 	values := []interface{}{
 		t.ID,
 		t.Name,
 		t.CountryID,
 		t.Gender,
-		t.Birthday.Format("2006-01-02"),
+		t.Birthday.Format(dbDateFormat),
 		t.YearsOfExperience,
 		t.FavoriteCount,
 		t.ReviewCount,
 		t.Rating,
+		t.LastLessonAt.Format(dbDatetimeFormat),
 		t.FetchErrorCount,
-		now.Format("2006-01-02 15:04:05"),
-		now.Format("2006-01-02 15:04:05"),
+		now.Format(dbDatetimeFormat),
+		now.Format(dbDatetimeFormat),
 		// update
 		t.CountryID,
 		t.Gender,
 		t.YearsOfExperience,
-		t.Birthday.Format("2006-01-02"),
+		t.Birthday.Format(dbDateFormat),
 		t.FavoriteCount,
 		t.ReviewCount,
 		t.Rating,
+		t.LastLessonAt.Format(dbDatetimeFormat),
 	}
-
 	if err := s.db.Exec(sql, values...).Error; err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
