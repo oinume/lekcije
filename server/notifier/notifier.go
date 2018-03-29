@@ -149,7 +149,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			defer n.Unlock()
 			n.teachers[teacherID] = fetched.Teacher
 			if _, ok := n.fetchedLessons[teacherID]; !ok {
-				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 5000)
+				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 500)
 			}
 			n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetched.Lessons...)
 			if len(newAvailable.Lessons) > 0 {
@@ -330,6 +330,9 @@ func (n *Notifier) Close() {
 		teacherService := model.NewTeacherService(n.db)
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
+				if len(lessons) > 0 {
+					teacher.LastLessonAt = lessons[len(lessons)-1].Datetime
+				}
 				if err := teacherService.CreateOrUpdate(teacher); err != nil {
 					logger.App.Error(
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
