@@ -49,6 +49,30 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	a.Equal(teacher.LastLessonAt, actual.LastLessonAt)
 }
 
+func TestTeacherService_CreateOrUpdate2(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+
+	teacher := &Teacher{
+		ID:                1,
+		Name:              "Donald",
+		CountryID:         688, // Serbia
+		Gender:            "male",
+		Birthday:          time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
+		YearsOfExperience: 2,
+		FavoriteCount:     100,
+		ReviewCount:       50,
+		Rating:            5.0,
+	}
+	err := teacherService.CreateOrUpdate(teacher)
+	r.NoError(err)
+
+	actual, err := teacherService.FindByPK(teacher.ID)
+	r.NoError(err)
+	a.Equal(teacher.Name, actual.Name)
+	a.Equal(defaultLastLessonAt, actual.LastLessonAt)
+}
+
 func TestTeacherService_IncrementFetchErrorCount(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
