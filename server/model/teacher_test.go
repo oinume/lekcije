@@ -46,7 +46,7 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	actual, err := teacherService.FindByPK(teacher.ID)
 	r.NoError(err)
 	a.Equal(teacher.Name, actual.Name)
-	a.Equal(LastLessonAt)
+	a.Equal(teacher.LastLessonAt, actual.LastLessonAt)
 }
 
 func TestTeacherService_IncrementFetchErrorCount(t *testing.T) {
