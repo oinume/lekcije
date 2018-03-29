@@ -107,7 +107,10 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	const maxFetchErrorCount = 5
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, maxFetchErrorCount)
 	if err != nil {
-		return errors.Wrapperf(err, "Failed to FindTeacherIDsByUserID(): userID=%v", user.ID)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to FindTeacherIDsByUserID(): userID=%v", user.ID),
+		)
 	}
 	n.stopwatch.Mark(fmt.Sprintf("FindTeacherIDsByUserID:%d", user.ID))
 
@@ -128,8 +131,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			defer wg.Done()
 			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 			if err != nil {
-				switch err.(type) {
-				case *errors.NotFound:
+				if errors.IsNotFound(err) {
 					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
 						logger.App.Error(
 							"IncrementFetchErrorCount failed",
@@ -137,10 +139,9 @@ func (n *Notifier) SendNotification(user *model.User) error {
 						)
 					}
 					logger.App.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
-				// TODO: Handle a case eikaiwa.dmm.com is down
-				default:
-					logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				}
+				// TODO: Handle a case eikaiwa.dmm.com is down
+				logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				return
 			}
 
@@ -148,7 +149,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 			defer n.Unlock()
 			n.teachers[teacherID] = fetched.Teacher
 			if _, ok := n.fetchedLessons[teacherID]; !ok {
-				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 5000)
+				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 500)
 			}
 			n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetched.Lessons...)
 			if len(newAvailable.Lessons) > 0 {
@@ -262,7 +263,10 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	email, err := emailer.NewEmailFromTemplate(t, data)
 	if err != nil {
-		return errors.InternalWrapf(err, "Failed to create emailer.Email from template: to=%v", user.Email)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to create emailer.Email from template: to=%v", user.Email),
+		)
 	}
 	email.SetCustomArg("email_type", model.EmailTypeNewLessonNotifier)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))

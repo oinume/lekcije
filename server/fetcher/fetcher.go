@@ -125,19 +125,33 @@ func (fetcher *LessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []*model.
 	if err != nil {
 		return nil, nil, err
 	}
-	return fetcher.parseHTML(teacher, content)
+
+	_, lessons, err := fetcher.parseHTML(teacher, content)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(lessons) > 0 {
+		teacher.LastLessonAt = lessons[len(lessons)-1].Datetime
+	}
+	return teacher, lessons, nil
 }
 
 func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 	nopCloser := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nopCloser, errors.InternalWrapf(err, "Failed to create HTTP request: url=%v", url)
+		return nopCloser, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed to create HTTP request: url=%v", url),
+		)
 	}
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {
-		return nopCloser, errors.InternalWrapf(err, "Failed httpClient.Do(): url=%v", url)
+		return nopCloser, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessagef("Failed httpClient.Do(): url=%v", url),
+		)
 	}
 
 	switch resp.StatusCode {
@@ -145,13 +159,14 @@ func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 		return resp.Body, nil
 	case http.StatusMovedPermanently, http.StatusFound:
 		_ = resp.Body.Close()
-		return nopCloser, errors.NotFoundf("Teacher not found: url=%v, status=%v", url, resp.StatusCode)
+		return nopCloser, errors.NewNotFoundError(
+			errors.WithMessagef("Teacher not found: url=%v, status=%v", url, resp.StatusCode),
+		)
 	default:
 		body, _ := ioutil.ReadAll(resp.Body)
 		_ = resp.Body.Close()
-		return nopCloser, errors.Internalf(
-			"Unknown error in fetchContent: url=%v, status=%v, body=%v",
-			url, resp.StatusCode, string(body),
+		return nopCloser, errors.NewInternalError(
+			errors.WithMessagef("Unknown error in fetchContent: url=%v, status=%v, body=%v", url, resp.StatusCode, string(body)),
 		)
 	}
 }
@@ -169,7 +184,9 @@ func (fetcher *LessonFetcher) parseHTML(
 	if title, ok := titleXPath.String(root); ok {
 		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
 	} else {
-		return nil, nil, errors.Internalf("failed to fetch teacher's name: url=%v", teacher.URL)
+		return nil, nil, errors.NewInternalError(
+			errors.WithMessagef("failed to fetch teacher's name: url=%v", teacher.URL),
+		)
 	}
 
 	// Nationality, birthday, etc...
@@ -291,7 +308,7 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 	case "国籍":
 		c, found := fetcher.mCountries.GetByNameJA(value)
 		if !found {
-			return errors.NotFoundf("No MCountries for %v", value)
+			return errors.NewNotFoundError(errors.WithMessage(fmt.Sprintf("No MCountries for %v", value)))
 		}
 		teacher.CountryID = c.ID
 	case "誕生日":
@@ -312,7 +329,9 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 		case "女性":
 			teacher.Gender = "female"
 		default:
-			return errors.Internalf("Unknown gender for %v", value)
+			return errors.NewInternalError(
+				errors.WithMessagef("Unknown gender for %v", value),
+			)
 		}
 	case "経歴":
 		yoe := -1
@@ -326,7 +345,10 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 			if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
 				yoe = int(v)
 			} else {
-				return errors.InternalWrapf(err, "Failed to convert to number: %v", value)
+				return errors.NewInternalError(
+					errors.WithError(err),
+					errors.WithMessagef("Failed to convert to number: %v", value),
+				)
 			}
 		}
 		teacher.YearsOfExperience = uint8(yoe)

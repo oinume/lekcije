@@ -81,7 +81,9 @@ func EncryptString(plainText string, encryptionKey string) (string, error) {
 	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
-		return "", errors.InternalWrapf(err, "")
+		return "", errors.NewInternalError(
+			errors.WithError(err),
+		)
 	}
 	plainBytes := []byte(plainText)
 	//cipherBytes := make([]byte, aes.BlockSize+len(plainBytes))
@@ -98,11 +100,15 @@ func EncryptString(plainText string, encryptionKey string) (string, error) {
 func DecryptString(cipherText string, encryptionKey string) (string, error) {
 	cipherBytes, err := hex.DecodeString(cipherText)
 	if err != nil {
-		return "", errors.InternalWrapf(err, "")
+		return "", errors.NewInternalError(
+			errors.WithError(err),
+		)
 	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
-		return "", errors.InternalWrapf(err, "")
+		return "", errors.NewInternalError(
+			errors.WithError(err),
+		)
 	}
 	//if len(cipherBytes) < aes.BlockSize {
 	//	return "", errors.Internalf("cipherText is too short.")
@@ -136,9 +142,11 @@ func WriteError(w io.Writer, err error) {
 	fmt.Fprintf(w, "%v", err.Error())
 	fmt.Fprint(w, "\n--- stacktrace ---")
 	switch err.(type) {
-	case *errors.Internal:
-		e := err.(*errors.Internal)
-		fmt.Fprintf(w, "%+v\n", e.StackTrace())
+	case *errors.AnnotatedError:
+		e := err.(*errors.AnnotatedError)
+		if e.OutputStackTrace() {
+			fmt.Fprintf(w, "%+v\n", e.StackTrace())
+		}
 	default:
 		fmt.Fprintf(w, "%+v", err)
 	}

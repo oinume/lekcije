@@ -50,7 +50,9 @@ func (s *FollowingTeacherService) FindTeachersByUserID(userID uint32) ([]*Teache
 		if result.RecordNotFound() {
 			return values, nil
 		}
-		return values, errors.InternalWrapf(result.Error, "")
+		return values, errors.NewInternalError(
+			errors.WithError(result.Error),
+		)
 	}
 	return values, nil
 }
@@ -62,7 +64,10 @@ func (s *FollowingTeacherService) FindTeacherIDs() ([]uint32, error) {
 		if result.RecordNotFound() {
 			return nil, nil
 		}
-		return nil, errors.InternalWrapf(result.Error, "")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessagef("failed to select teacher ids"),
+		)
 	}
 	ids := make([]uint32, len(values))
 	for i, t := range values {
@@ -83,7 +88,9 @@ func (s *FollowingTeacherService) FindTeacherIDsByUserID(userID uint32, fetchErr
 		if result.RecordNotFound() {
 			return nil, nil
 		}
-		return nil, errors.InternalWrapf(result.Error, "")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+		)
 	}
 	ids := make([]uint32, len(values))
 	for i, t := range values {
@@ -98,7 +105,11 @@ func (s *FollowingTeacherService) CountFollowingTeachersByUserID(userID uint32) 
 	}{}
 	sql := `SELECT COUNT(*) AS count FROM following_teacher WHERE user_id = ?`
 	if err := s.db.Raw(sql, userID).Scan(&count).Error; err != nil {
-		return 0, errors.InternalWrapf(err, "Failed to count: userID=%v", userID)
+		return 0, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("count failed"),
+			errors.WithResource(errors.NewResource("following_teacher", "userID", userID)),
+		)
 	}
 	return count.Count, nil
 }
@@ -114,10 +125,12 @@ func (s FollowingTeacherService) ReachesFollowingTeacherLimit(userID uint32, add
 func (s *FollowingTeacherService) FollowTeacher(
 	userID uint32, teacher *Teacher, timestamp time.Time,
 ) (*FollowingTeacher, error) {
+	// Create teacher at first
 	teacher.CreatedAt = timestamp
 	teacher.UpdatedAt = timestamp
-	if err := s.db.FirstOrCreate(teacher).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to create Teacher: teacherID=%d", teacher.ID)
+	teacherService := NewTeacherService(s.db)
+	if err := teacherService.CreateOrUpdate(teacher); err != nil {
+		return nil, err
 	}
 
 	ft := &FollowingTeacher{
@@ -127,10 +140,14 @@ func (s *FollowingTeacherService) FollowTeacher(
 		UpdatedAt: timestamp,
 	}
 	if err := s.db.FirstOrCreate(ft).Error; err != nil {
-		return nil, errors.InternalWrapf(
-			err,
-			"Failed to create FollowingTeacher: userID=%d, teacherID=%d",
-			userID, teacher.ID,
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithResource(
+				errors.NewResourceWithEntries(ft.TableName(), []errors.ResourceEntry{
+					{"userID", userID},
+					{"teacherID", teacher.ID},
+				}),
+			),
 		)
 	}
 	return ft, nil
@@ -151,7 +168,14 @@ func (s *FollowingTeacherService) DeleteTeachersByUserIDAndTeacherIDs(
 		args = append(args, teacherID)
 	}
 	if result := s.db.Exec(sql, args...); result.Error != nil {
-		return 0, result.Error
+		return 0, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to delete following_teacher"),
+			errors.WithResource(errors.NewResourceWithEntries(s.TableName(), []errors.ResourceEntry{
+				{"userID", userID},
+				{"teacherIDs", teacherIDs},
+			})),
+		)
 	} else {
 		return int(result.RowsAffected), nil
 	}

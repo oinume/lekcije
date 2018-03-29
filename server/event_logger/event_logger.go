@@ -63,7 +63,9 @@ func GetGAMeasurementEventValues(ctx context.Context) (*GAMeasurementEventValues
 	if value, ok := v.(*GAMeasurementEventValues); ok {
 		return value, nil
 	} else {
-		return nil, errors.Internalf("failed get value from context")
+		return nil, errors.NewInternalError(
+			errors.WithMessage("failed get value from context"),
+		)
 	}
 }
 

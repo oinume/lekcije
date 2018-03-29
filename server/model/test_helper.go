@@ -7,6 +7,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
 )
 
@@ -62,6 +63,7 @@ func (h *TestHelper) LoadAllTables(db *gorm.DB) []string {
 }
 
 func (h *TestHelper) TruncateAllTables(db *gorm.DB) {
+	fmt.Printf("TruncateAllTables() called!\n--- stack ---\n%+v\n", errors.NewInternalError().StackTrace())
 	tables := h.LoadAllTables(db)
 	for _, t := range tables {
 		if strings.HasPrefix(t, "m_") {
@@ -101,9 +103,10 @@ func (h *TestHelper) CreateUserGoogle(googleID string, userID uint32) *UserGoogl
 func (h *TestHelper) CreateTeacher(id uint32, name string) *Teacher {
 	db := h.DB()
 	teacher := &Teacher{
-		ID:     id,
-		Name:   name,
-		Gender: "female",
+		ID:       id,
+		Name:     name,
+		Gender:   "female",
+		Birthday: time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 	if err := NewTeacherService(db).CreateOrUpdate(teacher); err != nil {
 		panic(fmt.Sprintf("Failed to CreateTeacher(): err=%v", err))

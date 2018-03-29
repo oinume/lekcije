@@ -30,12 +30,18 @@ func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	db.SetMaxIdleConns(maxConnections)
 	db.SetConnMaxLifetime(10 * time.Minute)
 	if err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to sql.Open()")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to sql.Open()"),
+		)
 	}
 
 	gormDB, err := gorm.Open("mysql", db)
 	if err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to gorm.Open()")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to gorm.Open()"),
+		)
 	}
 	gormDB.LogMode(logging)
 
@@ -83,7 +89,10 @@ type GORMTransactional func(tx *gorm.DB) error
 func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error {
 	tx := db.Begin()
 	if tx.Error != nil {
-		return errors.InternalWrapf(tx.Error, "Failed to begin transaction: name=%v", name)
+		return errors.NewInternalError(
+			errors.WithError(tx.Error),
+			errors.WithMessagef("Failed to begin transaction: name=%v", name),
+		)
 	}
 
 	var err error
@@ -93,7 +102,10 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 			return
 		}
 		if err2 := tx.Rollback().Error; err2 != nil {
-			err = errors.InternalWrapf(err2, "Failed to rollback transaction: name=%v", name)
+			err = errors.NewInternalError(
+				errors.WithError(err2),
+				errors.WithMessagef("Failed to rollback transaction: name=%v", name),
+			)
 		}
 	}()
 
@@ -104,7 +116,10 @@ func GORMTransaction(db *gorm.DB, name string, callback GORMTransactional) error
 		return tx.Error
 	}
 	if err2 := tx.Commit().Error; err2 != nil {
-		return errors.InternalWrapf(err2, "Failed to commit transaction: name=%v", name)
+		return errors.NewInternalError(
+			errors.WithError(err2),
+			errors.WithMessagef("Failed to commit transaction: name=%v", name),
+		)
 	}
 	success = true
 	return err
@@ -130,22 +145,6 @@ func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {
 	return tableNames, nil
 }
 
-func TruncateAllTables(db *gorm.DB, dbName string) error {
-	tables, err := LoadAllTables(db, dbName)
-	if err != nil {
-		return err
-	}
-	for _, t := range tables {
-		if strings.HasPrefix(t, "m_") {
-			continue
-		}
-		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func ReplaceToTestDBURL(dbURL string) string {
 	if strings.HasSuffix(dbURL, "/lekcije") {
 		return strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
@@ -160,9 +159,13 @@ func GetDBName(dbURL string) string {
 	return ""
 }
 
-func wrapNotFound(result *gorm.DB, format string, args ...interface{}) *errors.NotFound {
+func wrapNotFound(result *gorm.DB, kind, key, value string) *errors.AnnotatedError {
 	if result.RecordNotFound() {
-		return errors.NotFoundWrapf(result.Error, format, args)
+		return errors.NewAnnotatedError(
+			errors.CodeNotFound,
+			errors.WithError(result.Error),
+			errors.WithResource(errors.NewResource(kind, key, value)),
+		)
 	} else {
 		return nil
 	}

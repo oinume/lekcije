@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -38,8 +39,31 @@ func (s *UserService) TableName() string {
 
 func (s *UserService) FindByPK(id uint32) (*User, error) {
 	user := &User{}
+	if result := s.db.First(user, &User{ID: id}); result.Error != nil {
+		if err := wrapNotFound(result, user.TableName(), "id", fmt.Sprint(id)); err != nil {
+			return nil, err
+		}
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithResource(errors.NewResource(user.TableName(), "id", id)),
+		)
+	}
 	if err := s.db.First(user, &User{ID: id}).Error; err != nil {
 		return nil, err
+	}
+	return user, nil
+}
+
+func (s *UserService) FindByEmail(email string) (*User, error) {
+	user := &User{}
+	if result := s.db.First(user, &User{Email: email}); result.Error != nil {
+		if err := wrapNotFound(result, user.TableName(), "email", email); err != nil {
+			return nil, err
+		}
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithResource(errors.NewResource(user.TableName(), "email", email)),
+		)
 	}
 	return user, nil
 }
@@ -53,15 +77,13 @@ func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
 	LIMIT 1
 	`
 	if result := s.db.Raw(sql, googleID).Scan(user); result.Error != nil {
-		if result.RecordNotFound() {
-			return nil, errors.NotFoundWrapf(
-				result.Error, "UserGoogle not found: googleID=%v", googleID,
-			)
-		} else {
-			return nil, errors.InternalWrapf(
-				result.Error, "googleID=%v", googleID,
-			)
+		if err := wrapNotFound(result, "user_google", "google_id", googleID); err != nil {
+			return nil, err
 		}
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithResource(errors.NewResource("user_google", "google_id", googleID)),
+		)
 	}
 	return user, nil
 }
@@ -74,11 +96,12 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 	WHERE uat.token = ?
 	`
 	if result := s.db.Raw(sql, userAPIToken).Scan(user); result.Error != nil {
-		if err := wrapNotFound(result, "User not found: userAPIToken=%v", userAPIToken); err != nil {
+		if err := wrapNotFound(result, user.TableName(), "userAPIToken", userAPIToken); err != nil {
 			return nil, err
 		}
-		return nil, errors.InternalWrapf(
-			result.Error, "userAPIToken=%v", userAPIToken,
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithResource(errors.NewResource(user.TableName(), "userAPIToken", userAPIToken)),
 		)
 	}
 	return user, nil
@@ -96,7 +119,10 @@ func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*U
 	`
 	result := s.db.Raw(sql, notificationInterval).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
-		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to find Users"),
+		)
 	}
 	return users, nil
 }
@@ -107,7 +133,10 @@ func (s *UserService) FindAllFollowedTeacherAtIsNull(createdAt time.Time) ([]*Us
 	sql := `SELECT * FROM user WHERE followed_teacher_at IS NULL AND CAST(created_at AS DATE) = ? ORDER BY id`
 	result := s.db.Raw(sql, createdAt.Format(dbDateFormat)).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
-		return nil, errors.InternalWrapf(result.Error, "Failed to find Users")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to find users"),
+		)
 	}
 	return users, nil
 }
@@ -120,35 +149,54 @@ func (s *UserService) Create(name, email string) (*User, error) {
 		PlanID:        DefaultMPlanID,
 	}
 	if result := s.db.Create(user); result.Error != nil {
-		return nil, errors.InternalWrapf(result.Error, "")
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to Create user"),
+			errors.WithResource(errors.NewResource("user", "email", email)),
+		)
 	}
 	return user, nil
 }
 
 func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
-	user := &User{
-		Name:          name,
-		Email:         email,
-		EmailVerified: true, // TODO: set false after implement email verification
-		PlanID:        DefaultMPlanID,
+	user, err := s.FindByEmail(email)
+	if e, ok := err.(*errors.AnnotatedError); ok && e.IsNotFound() {
+		user = &User{
+			Name:          name,
+			Email:         email,
+			EmailVerified: true,
+			PlanID:        DefaultMPlanID,
+		}
+		if result := s.db.Create(user); result.Error != nil {
+			return nil, nil, errors.NewInternalError(
+				errors.WithError(result.Error),
+				errors.WithMessage("Failed to create User"),
+				errors.WithResource(errors.NewResourceWithEntries(
+					"user", []errors.ResourceEntry{
+						{"email", email}, {"googleID", googleID},
+					},
+				)),
+			)
+		}
 	}
-	if result := s.db.Create(user); result.Error != nil {
-		return nil, nil, errors.InternalWrapf(
-			result.Error,
-			"Failed to create User: email=%v, googleID=%v",
-			email, googleID,
-		)
-	}
+	// Do nothing if the user exists.
 
-	userGoogle := &UserGoogle{
-		GoogleID: googleID,
-		UserID:   user.ID,
+	userGoogleService := NewUserGoogleService(s.db)
+	userGoogle, err := userGoogleService.FindByUserID(user.ID)
+	if e, ok := err.(*errors.AnnotatedError); ok && e.IsNotFound() {
+		userGoogle = &UserGoogle{
+			GoogleID: googleID,
+			UserID:   user.ID,
+		}
+		if result := s.db.Create(userGoogle); result.Error != nil {
+			return nil, nil, errors.NewInternalError(
+				errors.WithError(result.Error),
+				errors.WithMessage("Failed to create UserGoogle"),
+				errors.WithResource(errors.NewResource("user_google", "googleID", googleID)),
+			)
+		}
 	}
-	if result := s.db.Create(userGoogle); result.Error != nil {
-		return nil, nil, errors.InternalWrapf(
-			result.Error, "Failed to create UserGoogle: email=%v", email,
-		)
-	}
+	// Do nothing if the user google exists.
 
 	return user, userGoogle, nil
 }
@@ -156,9 +204,14 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", newEmail, user.ID)
 	if result.Error != nil {
-		return errors.InternalWrapf(
-			result.Error,
-			"Failed to update email: id=%v, email=%v", user.ID, newEmail,
+		return errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to update user email"),
+			errors.WithResource(errors.NewResourceWithEntries(
+				user.TableName(), []errors.ResourceEntry{
+					{"id", user.ID}, {"email", newEmail},
+				},
+			)),
 		)
 	}
 	return nil
@@ -167,7 +220,11 @@ func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
 	sql := "UPDATE user SET followed_teacher_at = NOW() WHERE id = ?"
 	if err := s.db.Exec(sql, user.ID).Error; err != nil {
-		return errors.InternalWrapf(err, "Failed to update followed_teacher_at: id=%v", user.ID)
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update followed_teacher_at"),
+			errors.WithResource(errors.NewResource(user.TableName(), "id", user.ID)),
+		)
 	}
 	return nil
 }
@@ -181,10 +238,13 @@ func (s *UserService) FindLoggedInUser(token string) (*User, error) {
 		`
 	result := s.db.Model(&User{}).Raw(strings.TrimSpace(sql), token).Scan(user)
 	if result.Error != nil {
-		if result.RecordNotFound() {
-			return nil, errors.NotFoundWrapf(result.Error, "Failed to find user: token=%s", token)
+		if err := wrapNotFound(result, user.TableName(), "token", token); err != nil {
+			return nil, err
 		}
-		return nil, errors.InternalWrapf(result.Error, "find user: token=%s", token)
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithResource(errors.NewResource(user.TableName(), "token", token)),
+		)
 	}
 	return user, nil
 }

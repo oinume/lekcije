@@ -36,15 +36,25 @@ func (s *UserAPITokenService) Create(userID uint32) (*UserAPIToken, error) {
 		Token:  apiToken,
 	}
 	if err := s.db.Create(&userAPIToken).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to create UserAPIToken")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to create UserAPIToken"),
+			errors.WithResource(errors.NewResource(userAPIToken.TableName(), "userID", userID)),
+		)
 	}
 	return &userAPIToken, nil
 }
 
 func (s *UserAPITokenService) FindByPK(token string) (*UserAPIToken, error) {
 	userAPIToken := &UserAPIToken{}
-	if err := s.db.First(userAPIToken, &UserAPIToken{Token: token}).Error; err != nil {
-		return nil, errors.NotFoundWrapf(err, "UserAPIToken not found for token = %v", token)
+	if result := s.db.First(userAPIToken, &UserAPIToken{Token: token}); result.Error != nil {
+		if err := wrapNotFound(result, userAPIToken.TableName(), "token", token); err != nil {
+			return nil, err
+		}
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithResource(errors.NewResource(userAPIToken.TableName(), "token", token)),
+		)
 	}
 	return userAPIToken, nil
 }
@@ -52,10 +62,17 @@ func (s *UserAPITokenService) FindByPK(token string) (*UserAPIToken, error) {
 func (s *UserAPITokenService) DeleteByUserIDAndToken(userID uint32, token string) error {
 	result := s.db.Where("user_id = ? AND token = ?", userID, token).Delete(&UserAPIToken{})
 	if result.Error != nil {
-		return errors.InternalWrapf(
-			result.Error,
-			"Failed to DeleteByUserIDAndToken: userID=%v, token=%v",
-			userID, token,
+		return errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to DeleteByUserIDAndToken"),
+			errors.WithResource(
+				errors.NewResourceWithEntries(
+					(&UserAPIToken{}).TableName(), []errors.ResourceEntry{
+						{"userID", userID},
+						{"token", token},
+					},
+				),
+			),
 		)
 	}
 	return nil

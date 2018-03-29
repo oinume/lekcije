@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/oinume/lekcije/tree/master.svg?style=svg)](https://circleci.com/gh/oinume/lekcije/tree/master)
+[![codecov](https://codecov.io/gh/oinume/lekcije/branch/master/graph/badge.svg)](https://codecov.io/gh/oinume/lekcije)
 
 # lekcije
 Follow your favorite teachers in DMM Eikaiwa and receive notification when favorite teachers open lessons.
@@ -7,6 +8,7 @@ Follow your favorite teachers in DMM Eikaiwa and receive notification when favor
 
 ```bash
 brew cask install dockertoolbox
+brew install fswatch
 make setup
 npm install
 ```
@@ -27,7 +29,7 @@ docker-compose up
 
 ### Run server
 ```
-reflex -R node_modules -R vendor -r '\.go$' -s make serve
+make watch
 ```
 
 ### Run frontend

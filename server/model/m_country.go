@@ -35,7 +35,10 @@ func (s *MCountryService) LoadAll() (*MCountries, error) {
 	values := make([]*MCountry, 0, 1000)
 	sql := `SELECT * FROM m_country ORDER BY name`
 	if err := s.db.Raw(sql).Scan(&values).Error; err != nil {
-		return nil, errors.InternalWrapf(err, "Failed to load from m_country")
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to load from m_country"),
+		)
 	}
 	return NewMCountries(values), nil
 }
@@ -47,7 +50,7 @@ func (s *MCountryService) GetMCountryByNameJA(nameJA string) (*MCountry, error) 
 	if c, ok := s.allCountries[nameJA]; ok {
 		return c, nil
 	} else {
-		return nil, errors.NotFoundf("MCountry not found for '%s'", nameJA)
+		return nil, errors.NewNotFoundError(errors.WithMessagef("No MCountries for %v", nameJA))
 	}
 }
 

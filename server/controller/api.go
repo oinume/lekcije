@@ -60,7 +60,10 @@ func GetAPIMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := json.NewEncoder(w).Encode(teachers); err != nil {
 		// TODO: JSON
-		InternalServerError(w, errors.InternalWrapf(err, "Failed to encode JSON"))
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to encode JSON"),
+		))
 		return
 	}
 }

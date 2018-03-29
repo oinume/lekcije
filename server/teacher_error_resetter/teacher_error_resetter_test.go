@@ -4,12 +4,10 @@ import (
 	"net/http"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
 )
 
 var helper *model.TestHelper
@@ -18,26 +16,17 @@ func TestMain(m *testing.M) {
 	bootstrap.CheckCLIEnvVars()
 	helper = model.NewTestHelper()
 	// NOTE: Avoid "Failed to FindByPK: id=1: record not found"
-	//helper.TruncateAllTables(helper.DB())
+	helper.TruncateAllTables(helper.DB())
 	os.Exit(m.Run())
 }
 
 func TestMain_Run(t *testing.T) {
 	teacherService := model.NewTeacherService(helper.DB())
-	helper.CreateRandomTeacher()
-	teacher := &model.Teacher{
-		ID:                uint32(util.RandomInt(99999)),
-		Name:              "test",
-		CountryID:         1,
-		Gender:            "male",
-		Birthday:          time.Now().UTC(),
-		YearsOfExperience: 1,
-		FavoriteCount:     10,
-		Rating:            4.8,
-		FetchErrorCount:   10,
-		CreatedAt:         time.Now().UTC(),
-		UpdatedAt:         time.Now().UTC(),
-	}
+	teacher := helper.CreateRandomTeacher()
+	teacher.YearsOfExperience = 1
+	teacher.FavoriteCount = 10
+	teacher.Rating = 4.8
+	teacher.FetchErrorCount = 10
 	if err := teacherService.CreateOrUpdate(teacher); err != nil {
 		t.Fatalf("teacherService.CreateOrUpdate failed: err=%v", err)
 	}

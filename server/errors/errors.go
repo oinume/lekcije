@@ -1,115 +1,211 @@
 package errors
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 
 	"github.com/pkg/errors"
 )
-
-var _ = fmt.Printf
-
-type Causer interface {
-	Cause() error
-}
 
 type StackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
-type BaseError struct {
-	wrapped         error
-	cause           error
-	stackTrace      errors.StackTrace
-	outpuStackTrace bool
-}
+type Code int
 
-func (be *BaseError) Cause() error {
-	return be.cause
-}
+const (
+	CodeNotFound        Code = 1
+	CodeInvalidArgument Code = 2
+	CodeInternal        Code = 3
+)
 
-func (be *BaseError) StackTrace() errors.StackTrace {
-	return be.stackTrace
-}
-
-func (be *BaseError) SetOutputStackTrace(output bool) {
-	be.outpuStackTrace = output
-}
-
-func (be *BaseError) GetOutputStackTrace() bool {
-	return be.outpuStackTrace
-}
-
-func NewBaseError(wrapped error) *BaseError {
-	be := &BaseError{wrapped: wrapped}
-	if c, ok := be.wrapped.(Causer); ok {
-		be.cause = c.Cause()
+func (c Code) String() string {
+	s := "Unknown"
+	switch c {
+	case CodeNotFound:
+		s = "NotFound"
+	case CodeInvalidArgument:
+		s = "InvalidArgument"
+	case CodeInternal:
+		s = "Internal"
 	}
-	if st, ok := be.wrapped.(StackTracer); ok {
-		be.stackTrace = st.StackTrace()
+	return "code." + s
+}
+
+type ResourceEntry struct {
+	Key   string
+	Value interface{}
+}
+
+type Resource struct {
+	kind    string
+	entries []ResourceEntry
+}
+
+func NewResource(kind, key string, value interface{}) *Resource {
+	return &Resource{
+		kind: kind,
+		entries: []ResourceEntry{
+			{Key: key, Value: value},
+		},
 	}
-	return be
 }
 
-type Wrapper struct {
-	*BaseError
+func NewResourceWithEntries(kind string, entries []ResourceEntry) *Resource {
+	return &Resource{
+		kind:    kind,
+		entries: entries,
+	}
 }
 
-func (e *Wrapper) GetOutputStackTrace() bool {
+func (r *Resource) String() string {
+	var b bytes.Buffer
+	b.WriteString(r.kind)
+	for _, entry := range r.entries {
+		b.WriteString(":")
+		b.WriteString(entry.Key)
+		b.WriteString(":")
+		if s, ok := entry.Value.(fmt.Stringer); ok {
+			b.WriteString(s.String())
+		} else {
+			b.WriteString(fmt.Sprint(entry.Value))
+		}
+	}
+	return b.String()
+}
+
+type AnnotatedError struct {
+	code             Code
+	message          string
+	wrapped          error
+	cause            error
+	stackTrace       errors.StackTrace
+	outputStackTrace bool
+	resources        []*Resource
+}
+
+func NewAnnotatedError(code Code, options ...Option) *AnnotatedError {
+	ae := &AnnotatedError{
+		code:             code,
+		wrapped:          errors.New(""), // As a default Value
+		outputStackTrace: true,
+		resources:        make([]*Resource, 0, 20),
+	}
+	if st, ok := ae.wrapped.(StackTracer); ok {
+		ae.stackTrace = st.StackTrace()
+	}
+	for _, option := range options {
+		option(ae)
+	}
+	return ae
+}
+
+func NewInternalError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeInternal, options...)
+}
+
+func NewNotFoundError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeNotFound, options...)
+}
+
+func NewInvalidArgumentError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeInvalidArgument, options...)
+}
+
+// Functional Option Pattern
+// https://qiita.com/weloan/items/56f1c7792088b5ede136
+// WithOriginalError(err), WithOutputStackTrace(false)
+
+type Option func(*AnnotatedError)
+
+func WithMessage(message string) Option {
+	return func(ae *AnnotatedError) {
+		ae.message = message
+	}
+}
+
+func WithMessagef(format string, args ...interface{}) Option {
+	return func(ae *AnnotatedError) {
+		ae.message = fmt.Sprintf(format, args...)
+	}
+}
+
+func WithError(err error) Option {
+	return func(ae *AnnotatedError) {
+		if err == nil {
+			return
+		}
+
+		if st, ok := err.(StackTracer); ok {
+			ae.wrapped = err
+			ae.stackTrace = st.StackTrace()
+		} else {
+			// Wrap the err to save stack trace
+			e := errors.WithStack(err)
+			ae.wrapped = err
+			if st, ok := e.(StackTracer); ok {
+				ae.stackTrace = st.StackTrace()
+			}
+		}
+	}
+}
+
+func WithOutputStackTrace(outputStackTrace bool) Option {
+	return func(ae *AnnotatedError) {
+		ae.outputStackTrace = outputStackTrace
+	}
+}
+
+func WithResource(r *Resource) Option {
+	return func(ae *AnnotatedError) {
+		ae.resources = append(ae.resources, r)
+	}
+}
+
+func (e *AnnotatedError) Error() string {
+	var b bytes.Buffer
+	io.WriteString(&b, e.code.String())
+	if e.message != "" {
+		fmt.Fprintf(&b, ": %v", e.message)
+	}
+	if e.wrapped != nil {
+		fmt.Fprintf(&b, ": %v", e.wrapped.Error())
+	}
+	return b.String()
+}
+
+func (e *AnnotatedError) Code() Code {
+	return e.code
+}
+
+func (e *AnnotatedError) StackTrace() errors.StackTrace {
+	return e.stackTrace
+}
+
+func (e *AnnotatedError) OutputStackTrace() bool {
+	return e.outputStackTrace
+}
+
+func (e *AnnotatedError) Resources() []*Resource {
+	return e.resources
+}
+
+func (e *AnnotatedError) IsNotFound() bool {
+	return e.code == CodeNotFound
+}
+
+func (e *AnnotatedError) IsInternal() bool {
+	return e.code == CodeInternal
+}
+
+func (e *AnnotatedError) IsInvalidArgument() bool {
+	return e.code == CodeInvalidArgument
+}
+
+func IsNotFound(err error) bool {
+	if e, ok := err.(*AnnotatedError); ok {
+		return e.code == CodeNotFound
+	}
 	return false
-}
-
-func (e *Wrapper) Error() string {
-	return fmt.Sprintf("errors.Wrapper: %s", e.wrapped.Error())
-}
-
-func Wrapperf(err error, format string, args ...interface{}) *Wrapper {
-	return &Wrapper{NewBaseError(errors.Wrapf(err, format, args...))}
-}
-
-type Internal struct {
-	*BaseError
-}
-
-func (e *Internal) Error() string {
-	return fmt.Sprintf("errors.Internal: %s", e.wrapped.Error())
-}
-
-type NotFound struct {
-	*BaseError
-}
-
-func (e *NotFound) Error() string {
-	return fmt.Sprintf("errors.NotFound: %s", e.wrapped.Error())
-}
-
-type InvalidArgument struct {
-	*BaseError
-}
-
-func (e *InvalidArgument) Error() string {
-	return fmt.Sprintf("errors.InvalidArgument: %s", e.wrapped.Error())
-}
-
-func Internalf(format string, args ...interface{}) *Internal {
-	return &Internal{NewBaseError(errors.Errorf(format, args...))}
-}
-
-func InternalWrapf(err error, format string, args ...interface{}) *Internal {
-	return &Internal{NewBaseError(errors.Wrapf(err, format, args...))}
-}
-
-func NotFoundf(format string, args ...interface{}) *NotFound {
-	return &NotFound{NewBaseError(fmt.Errorf(format, args...))}
-}
-
-func NotFoundWrapf(err error, format string, args ...interface{}) *NotFound {
-	return &NotFound{NewBaseError(errors.Wrapf(err, format, args...))}
-}
-
-func InvalidArgumentf(format string, args ...interface{}) *InvalidArgument {
-	return &InvalidArgument{NewBaseError(fmt.Errorf(format, args...))}
-}
-
-func InvalidArgumentWrapf(err error, format string, args ...interface{}) *InvalidArgument {
-	return &InvalidArgument{NewBaseError(errors.Wrapf(err, format, args...))}
 }

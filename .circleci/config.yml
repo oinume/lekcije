@@ -84,5 +84,9 @@ jobs:
           name: "Run go-test"
           command: |
             export MYSQL_USER=lekcije
-            make go-test
+            make go-test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -parallel=1"
+      - run:
+          name: "Upload to codecov"
+          command: |
+            bash <(curl -s https://codecov.io/bash)
 # TODO: Run e2e-test
