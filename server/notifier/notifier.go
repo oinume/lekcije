@@ -330,9 +330,6 @@ func (n *Notifier) Close() {
 		teacherService := model.NewTeacherService(n.db)
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
-				if len(lessons) > 0 {
-					teacher.LastLessonAt = lessons[len(lessons)-1].Datetime
-				}
 				if err := teacherService.CreateOrUpdate(teacher); err != nil {
 					logger.App.Error(
 						"teacherService.CreateOrUpdate failed in Notifier.Close",

@@ -14,8 +14,9 @@ import (
 const teacherUrlBase = "http://eikaiwa.dmm.com/teacher/index/%v/"
 
 var (
-	idsRegexp        = regexp.MustCompile(`^[\d,]+$`)
-	teacherUrlRegexp = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
+	defaultLastLessonAt = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+	idsRegexp           = regexp.MustCompile(`^[\d,]+$`)
+	teacherUrlRegexp    = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
 )
 
 type Teacher struct {
@@ -86,13 +87,14 @@ func NewTeacherService(db *gorm.DB) *TeacherService {
 }
 
 func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
-	now := time.Now().UTC()
 	if t.LastLessonAt.IsZero() {
-		t.LastLessonAt = now
+		t.LastLessonAt = defaultLastLessonAt
 	}
 	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
 	sql += " ON DUPLICATE KEY UPDATE"
 	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?, review_count=?, rating=?, last_lesson_at=?"
+
+	now := time.Now().UTC()
 	values := []interface{}{
 		t.ID,
 		t.Name,

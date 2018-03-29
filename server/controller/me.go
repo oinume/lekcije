@@ -137,7 +137,7 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	teacherIDs := make([]string, 0, len(teachers))
 	for _, t := range teachers {
-		teacher, lessons, err := fetcher.Fetch(t.ID)
+		teacher, _, err := fetcher.Fetch(t.ID)
 		if err != nil {
 			if errors.IsNotFound(err) {
 				continue
@@ -146,11 +146,6 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if len(lessons) > 0 {
-			teacher.LastLessonAt = lessons[len(lessons)-1].Datetime
-		} else {
-			teacher.LastLessonAt = now
-		}
 		if _, err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
 			InternalServerError(w, err)
 			return

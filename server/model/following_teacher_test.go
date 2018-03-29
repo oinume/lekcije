@@ -34,21 +34,21 @@ func TestFollowingTeacherService_CountFollowingTeachersByUserID(t *testing.T) {
 
 func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 	a := assert.New(t)
-	r := assert.New(t)
+	r := require.New(t)
 
 	user := helper.CreateRandomUser()
 	teacher := helper.CreateRandomTeacher()
 	now := time.Now()
 	_, err := followingTeacherService.FollowTeacher(user.ID, teacher, now)
-	r.Nil(err)
+	r.NoError(err)
 
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
-	r.Nil(err)
+	r.NoError(err)
 	a.Equal(1, len(teacherIDs))
 
 	err = teacherService.IncrementFetchErrorCount(teacher.ID, 6)
-	r.Nil(err)
+	r.NoError(err)
 	teacherIDs, err = followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
-	r.Nil(err)
+	r.NoError(err)
 	a.Equal(0, len(teacherIDs))
 }

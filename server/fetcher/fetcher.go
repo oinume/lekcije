@@ -125,7 +125,15 @@ func (fetcher *LessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []*model.
 	if err != nil {
 		return nil, nil, err
 	}
-	return fetcher.parseHTML(teacher, content)
+
+	_, lessons, err := fetcher.parseHTML(teacher, content)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(lessons) > 0 {
+		teacher.LastLessonAt = lessons[len(lessons)-1].Datetime
+	}
+	return teacher, lessons, nil
 }
 
 func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
