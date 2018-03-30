@@ -10,7 +10,7 @@ export default class Select extends React.Component {
   render() {
     let options = [];
     for (const o of this.props.options) {
-      options.push(<option value={o.value}>{o.label}</option>);
+      options.push(<option key={o.value} value={o.value}>{o.label}</option>);
     }
 
     return (
