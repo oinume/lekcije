@@ -1,5 +1,27 @@
 version: 2
 jobs:
+  frontend:
+    working_directory: /go/src/github.com/oinume/lekcije
+    docker:
+      - image: node:9.10-stretch
+    steps:
+      - checkout
+      - run:
+          name: "Set .gitconfig"
+          command: |
+            echo "" > ~/.gitconfig
+            git config --global url."https://github.com".insteadOf git://github.com
+            git config --global http.https://gopkg.in.followRedirects true
+      - run:
+          name: "Install packages"
+          command: |
+            set -eu
+            npm install
+      - run:
+          name: "Run tests"
+          command: |
+            npm test
+
   build:
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
@@ -90,3 +112,16 @@ jobs:
           command: |
             bash <(curl -s https://codecov.io/bash)
 # TODO: Run e2e-test
+
+workflows:
+  version: 2
+  build-workflow:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: /.*/
+      - frontend:
+          filters:
+            branches:
+              only: /.*/
