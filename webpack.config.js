@@ -10,11 +10,6 @@ const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server 
 
 var devtool = 'source-map'; // Render source-map file for final build
 var plugins = [
-  //new webpack.NoEmitOnErrorsPlugin(),
-  new webpack.optimize.CommonsChunkPlugin({
-    filename: "js/common.js",
-    name: "common"
-  }),
   new CopyWebpackPlugin([
     { context: 'frontend', from: '**/*.css' },
     { context: 'frontend', from: '**/*.html' },
@@ -60,6 +55,7 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
 }
 
 const config = {
+  mode: process.env.MINIFY === 'true' ? 'production' : 'development',
   entry: {
     main: './frontend/js/main.js',
     setting: './frontend/js/setting.js',
@@ -82,26 +78,27 @@ const config = {
     'bootstrap': 'bootstrap',
     'bootswatch': 'bootswatch',
   },
+  optimization: {
+    splitChunks: {
+      name: 'vendor',
+      chunks: 'initial',
+    }
+  },
   plugins: plugins,
   module: {
     rules: [
       {
-        //React-hot loader and
-        test: /\.jsx?$/,  //All .js files
-        loaders: ['react-hot-loader/webpack', 'babel-loader'], //react-hot-loader is like browser sync and babel loads jsx and es6-7
-        // query: {
-        //   presets: ['react', 'es2015']
-        // },
-        exclude: [nodeModulesPath]
+        test: /\.(js|jsx)$/,
+        //include: paths.appSrc,
+        loader: require.resolve('babel-loader'),
+        options: {
+          // This is a feature of `babel-loader` for Webpack (not Babel itself).
+          // It enables caching results in ./node_modules/.cache/babel-loader/
+          // directory for faster rebuilds.
+          cacheDirectory: true,
+          plugins: ['react-hot-loader/babel'],
+        },
       },
-      // {
-      //   test: /\//,
-      //   loader: 'string-replace',
-      //   query: {
-      //     search: '$staticUrl$',
-      //     replace: 'http://static.local.lekcije.com/static'
-      //   }
-      // },
       {
         test: /\.css$/,
         loader: "style-loader!css-loader"
