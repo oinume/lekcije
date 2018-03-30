@@ -24,19 +24,6 @@ var plugins = [
   ])
 ];
 
-if (process.env.MINIFY === 'true') {
-  console.log('MINIFY = true');
-  plugins.push(
-    // Minify the bundle
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        //suppress warnings, usually from module minification
-        warnings: false,
-      }
-    })
-  );
-}
-
 if (process.env.WEBPACK_DEV_SERVER === 'true') {
   console.log('WEBPACK_DEV_SERVER is true');
   devtool = 'eval';
@@ -69,7 +56,7 @@ const config = {
     path: path.join(buildPath, process.env.VERSION_HASH),
     publicPath: path.join('/static', process.env.VERSION_HASH),
     filename: "js/[name].bundle.js",
-    chunkFilename: "js/[id].chunk.js"
+    chunkFilename: "js/[name].chunk.js"
   },
   externals: {
     'jquery': 'jQuery',
@@ -79,6 +66,9 @@ const config = {
     'bootswatch': 'bootswatch',
   },
   optimization: {
+    runtimeChunk: {
+      name: 'vendor'
+    },
     splitChunks: {
       name: 'vendor',
       chunks: 'initial',
