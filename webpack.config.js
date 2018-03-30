@@ -10,11 +10,6 @@ const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server 
 
 var devtool = 'source-map'; // Render source-map file for final build
 var plugins = [
-  //new webpack.NoEmitOnErrorsPlugin(),
-  new webpack.optimize.CommonsChunkPlugin({
-    filename: "js/common.js",
-    name: "common"
-  }),
   new CopyWebpackPlugin([
     { context: 'frontend', from: '**/*.css' },
     { context: 'frontend', from: '**/*.html' },
@@ -28,19 +23,6 @@ var plugins = [
     { context: nodeModulesPath, from: 'react-dom/umd/**', to: 'lib' },
   ])
 ];
-
-if (process.env.MINIFY === 'true') {
-  console.log('MINIFY = true');
-  plugins.push(
-    // Minify the bundle
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        //suppress warnings, usually from module minification
-        warnings: false,
-      }
-    })
-  );
-}
 
 if (process.env.WEBPACK_DEV_SERVER === 'true') {
   console.log('WEBPACK_DEV_SERVER is true');
@@ -60,6 +42,7 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
 }
 
 const config = {
+  mode: process.env.MINIFY === 'true' ? 'production' : 'development',
   entry: {
     main: './frontend/js/main.js',
     setting: './frontend/js/setting.js',
@@ -73,7 +56,7 @@ const config = {
     path: path.join(buildPath, process.env.VERSION_HASH),
     publicPath: path.join('/static', process.env.VERSION_HASH),
     filename: "js/[name].bundle.js",
-    chunkFilename: "js/[id].chunk.js"
+    chunkFilename: "js/[name].chunk.js"
   },
   externals: {
     'jquery': 'jQuery',
@@ -82,26 +65,30 @@ const config = {
     'bootstrap': 'bootstrap',
     'bootswatch': 'bootswatch',
   },
+  optimization: {
+    runtimeChunk: {
+      name: 'vendor'
+    },
+    splitChunks: {
+      name: 'vendor',
+      chunks: 'initial',
+    }
+  },
   plugins: plugins,
   module: {
     rules: [
       {
-        //React-hot loader and
-        test: /\.jsx?$/,  //All .js files
-        loaders: ['react-hot-loader/webpack', 'babel-loader'], //react-hot-loader is like browser sync and babel loads jsx and es6-7
-        // query: {
-        //   presets: ['react', 'es2015']
-        // },
-        exclude: [nodeModulesPath]
+        test: /\.(js|jsx)$/,
+        //include: paths.appSrc,
+        loader: require.resolve('babel-loader'),
+        options: {
+          // This is a feature of `babel-loader` for Webpack (not Babel itself).
+          // It enables caching results in ./node_modules/.cache/babel-loader/
+          // directory for faster rebuilds.
+          cacheDirectory: true,
+          plugins: ['react-hot-loader/babel'],
+        },
       },
-      // {
-      //   test: /\//,
-      //   loader: 'string-replace',
-      //   query: {
-      //     search: '$staticUrl$',
-      //     replace: 'http://static.local.lekcije.com/static'
-      //   }
-      // },
       {
         test: /\.css$/,
         loader: "style-loader!css-loader"
