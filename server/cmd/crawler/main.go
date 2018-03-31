@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"time"
 
 	"github.com/oinume/lekcije/server/crawler"
 	"github.com/oinume/lekcije/server/util"
@@ -16,6 +17,7 @@ func main() {
 	m.Followed = flag.Bool("followed", false, "Crawl followed teachers")
 	m.All = flag.Bool("all", false, "Crawl all teachers ordered by evaluation")
 	m.New = flag.Bool("new", false, "Crawl all teachers ordered by new")
+	m.Interval = flag.Duration("interval", 1*time.Second, "Fetch interval. (default=1s)")
 	m.LogLevel = flag.String("log-level", "info", "Log level")
 
 	flag.Parse()
