@@ -21,6 +21,7 @@ type Main struct {
 	Followed        *bool
 	All             *bool
 	New             *bool
+	Interval        *time.Duration
 	LogLevel        *string
 }
 
@@ -37,7 +38,7 @@ func (m *Main) Run() error {
 	logger.App.Info("crawler started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("fetcher finished", zap.Int("elapsed", int(elapsed)))
+		logger.App.Info("crawler finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
 	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, !config.IsProductionEnv())
@@ -93,7 +94,7 @@ func (m *Main) Run() error {
 			return err
 		}
 
-		time.Sleep(1 * time.Second) // TODO: -interval flag
+		time.Sleep(*m.Interval)
 	}
 
 	return nil
