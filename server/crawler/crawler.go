@@ -63,6 +63,7 @@ func (m *Main) Run() error {
 			return err
 		}
 
+		// TODO: semaphore
 		var g errgroup.Group
 		for _, id := range teacherIDs {
 			id := id
@@ -84,6 +85,7 @@ func (m *Main) Run() error {
 						return err
 					}
 				}
+				// TODO: update lessons
 
 				return nil
 			})
