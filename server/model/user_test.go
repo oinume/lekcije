@@ -23,20 +23,20 @@ func TestUserService_FindByGoogleID(t *testing.T) {
 	a.Equal(user.Email, userActual.Email)
 }
 
-func TestUserService_FindAllEmailVerifiedIsTrue(t *testing.T) {
-	a := assert.New(t)
-	r := require.New(t)
-	helper.TruncateAllTables(helper.DB())
-
-	user := helper.CreateRandomUser()
-	teacher := helper.CreateRandomTeacher()
-	_ = helper.CreateFollowingTeacher(user.ID, teacher)
-
-	users, err := userService.FindAllEmailVerifiedIsTrue(10)
-	r.NoError(err)
-	a.Equal(1, len(users))
-	a.Equal(user.ID, users[0].ID)
-}
+//func TestUserService_FindAllEmailVerifiedIsTrue(t *testing.T) {
+//	a := assert.New(t)
+//	r := require.New(t)
+//	helper.TruncateAllTables(helper.DB())
+//
+//	user := helper.CreateRandomUser()
+//	teacher := helper.CreateRandomTeacher()
+//	_ = helper.CreateFollowingTeacher(user.ID, teacher)
+//
+//	users, err := userService.FindAllEmailVerifiedIsTrue(10)
+//	r.NoError(err)
+//	a.Equal(1, len(users))
+//	a.Equal(user.ID, users[0].ID)
+//}
 
 func TestUserService_CreateWithGoogle(t *testing.T) {
 	a := assert.New(t)
