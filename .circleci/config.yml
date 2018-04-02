@@ -106,7 +106,7 @@ jobs:
           name: "Run go-test"
           command: |
             export MYSQL_USER=lekcije
-            make go-test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1 -parallel=1"
+            make go-test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - run:
           name: "Upload to codecov"
           command: |
