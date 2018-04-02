@@ -165,7 +165,7 @@ func TestFetchConcurrency(t *testing.T) {
 	client := &http.Client{Transport: mockTransport}
 	fetcher := NewLessonFetcher(client, *concurrency, false, mCountries, nil)
 
-	const n = 1000
+	const n = 500
 	wg := &sync.WaitGroup{}
 	for i := 0; i < n; i++ {
 		wg.Add(1)
