@@ -48,6 +48,14 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	r.NoError(err)
 	a.Equal(teacher.Name, actual.Name)
 	a.Equal(teacher.LastLessonAt, actual.LastLessonAt)
+
+	newLastLessonAt := time.Date(2018, 4, 1, 11, 10, 0, 0, time.UTC)
+	teacher.LastLessonAt = newLastLessonAt
+	err = teacherService.CreateOrUpdate(teacher)
+	r.NoError(err)
+	actual, err = teacherService.FindByPK(teacher.ID)
+	r.NoError(err)
+	a.Equal(newLastLessonAt, actual.LastLessonAt)
 }
 
 func TestTeacherService_CreateOrUpdate2(t *testing.T) {
