@@ -26,6 +26,7 @@ func TestUserService_FindByGoogleID(t *testing.T) {
 func TestUserService_FindAllEmailVerifiedIsTrue(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
+	helper.TruncateAllTables(helper.DB())
 
 	user := helper.CreateRandomUser()
 	teacher := helper.CreateRandomTeacher()
