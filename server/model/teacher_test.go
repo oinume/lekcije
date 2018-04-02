@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +30,7 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	r := require.New(t)
 
 	teacher := &Teacher{
-		ID:                1,
+		ID:                uint32(util.RandomInt(9999999)),
 		Name:              "Donald",
 		CountryID:         688, // Serbia
 		Gender:            "male",
@@ -47,6 +48,14 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	r.NoError(err)
 	a.Equal(teacher.Name, actual.Name)
 	a.Equal(teacher.LastLessonAt, actual.LastLessonAt)
+
+	newLastLessonAt := time.Date(2018, 4, 1, 11, 10, 0, 0, time.UTC)
+	teacher.LastLessonAt = newLastLessonAt
+	err = teacherService.CreateOrUpdate(teacher)
+	r.NoError(err)
+	actual, err = teacherService.FindByPK(teacher.ID)
+	r.NoError(err)
+	a.Equal(newLastLessonAt, actual.LastLessonAt)
 }
 
 func TestTeacherService_CreateOrUpdate2(t *testing.T) {
@@ -54,7 +63,7 @@ func TestTeacherService_CreateOrUpdate2(t *testing.T) {
 	r := require.New(t)
 
 	teacher := &Teacher{
-		ID:                1,
+		ID:                uint32(util.RandomInt(9999999)),
 		Name:              "Donald",
 		CountryID:         688, // Serbia
 		Gender:            "male",
