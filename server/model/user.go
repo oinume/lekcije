@@ -115,6 +115,7 @@ func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*U
 	INNER JOIN m_plan AS mp ON u.plan_id = mp.id
 	WHERE
 	  u.email_verified = 1
+	  AND u.followed_teacher_at IS NOT NULL
 	  AND mp.notification_interval = ?
 	`
 	result := s.db.Raw(sql, notificationInterval).Scan(&users)
