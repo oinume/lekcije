@@ -111,7 +111,7 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*User, error) {
 	var users []*User
 	sql := `
-	SELECT u.* FROM following_teacher AS ft
+	SELECT u.* FROM (SELECT DISTINCT(user_id) FROM following_teacher) AS ft
 	INNER JOIN user AS u ON ft.user_id = u.id
 	INNER JOIN m_plan AS mp ON u.plan_id = mp.id
 	WHERE
