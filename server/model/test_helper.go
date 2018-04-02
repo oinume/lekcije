@@ -115,7 +115,7 @@ func (h *TestHelper) CreateTeacher(id uint32, name string) *Teacher {
 }
 
 func (h *TestHelper) CreateRandomTeacher() *Teacher {
-	return h.CreateTeacher(uint32(util.RandomInt(99999)), util.RandomString(6))
+	return h.CreateTeacher(uint32(util.RandomInt(9999999)), util.RandomString(6))
 }
 
 func (h *TestHelper) LoadMCountries() *MCountries {

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +30,7 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	r := require.New(t)
 
 	teacher := &Teacher{
-		ID:                1,
+		ID:                uint32(util.RandomInt(9999999)),
 		Name:              "Donald",
 		CountryID:         688, // Serbia
 		Gender:            "male",
@@ -54,7 +55,7 @@ func TestTeacherService_CreateOrUpdate2(t *testing.T) {
 	r := require.New(t)
 
 	teacher := &Teacher{
-		ID:                1,
+		ID:                uint32(util.RandomInt(9999999)),
 		Name:              "Donald",
 		CountryID:         688, // Serbia
 		Gender:            "male",
