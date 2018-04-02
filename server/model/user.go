@@ -111,13 +111,14 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*User, error) {
 	var users []*User
 	sql := `
-	SELECT u.* FROM user AS u
+	SELECT u.* FROM following_teacher AS ft
+	INNER JOIN user AS u ON ft.user_id = u.id
 	INNER JOIN m_plan AS mp ON u.plan_id = mp.id
 	WHERE
 	  u.email_verified = 1
 	  AND mp.notification_interval = ?
 	`
-	result := s.db.Raw(sql, notificationInterval).Scan(&users)
+	result := s.db.Raw(strings.TrimSpace(sql), notificationInterval).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
 		return nil, errors.NewInternalError(
 			errors.WithError(result.Error),
