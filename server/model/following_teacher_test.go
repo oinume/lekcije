@@ -42,13 +42,13 @@ func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 	_, err := followingTeacherService.FollowTeacher(user.ID, teacher, now)
 	r.NoError(err)
 
-	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5, defaultLastLessonAt)
 	r.NoError(err)
 	a.Equal(1, len(teacherIDs))
 
 	err = teacherService.IncrementFetchErrorCount(teacher.ID, 6)
 	r.NoError(err)
-	teacherIDs, err = followingTeacherService.FindTeacherIDsByUserID(user.ID, 5)
+	teacherIDs, err = followingTeacherService.FindTeacherIDsByUserID(user.ID, 5, defaultLastLessonAt)
 	r.NoError(err)
 	a.Equal(0, len(teacherIDs))
 }
