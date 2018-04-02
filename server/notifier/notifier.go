@@ -105,7 +105,9 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	n.lessonService = model.NewLessonService(n.db)
 	const maxFetchErrorCount = 5
-	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, maxFetchErrorCount)
+	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
+		user.ID, maxFetchErrorCount, time.Now().Add(-1*60*24*time.Hour), /* 2 months */
+	)
 	if err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
