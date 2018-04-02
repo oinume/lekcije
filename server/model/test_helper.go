@@ -103,11 +103,10 @@ func (h *TestHelper) CreateUserGoogle(googleID string, userID uint32) *UserGoogl
 func (h *TestHelper) CreateTeacher(id uint32, name string) *Teacher {
 	db := h.DB()
 	teacher := &Teacher{
-		ID:           id,
-		Name:         name,
-		Gender:       "female",
-		Birthday:     time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
-		LastLessonAt: time.Now().Add(-1 * 24 * time.Hour), // 1 day ago
+		ID:       id,
+		Name:     name,
+		Gender:   "female",
+		Birthday: time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 	if err := NewTeacherService(db).CreateOrUpdate(teacher); err != nil {
 		panic(fmt.Sprintf("Failed to CreateTeacher(): err=%v", err))
