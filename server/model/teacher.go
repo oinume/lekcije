@@ -87,13 +87,13 @@ func NewTeacherService(db *gorm.DB) *TeacherService {
 }
 
 func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
+	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
+	sql += " ON DUPLICATE KEY UPDATE"
+	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?, review_count=?, rating=?"
+
 	if t.LastLessonAt.IsZero() {
 		t.LastLessonAt = defaultLastLessonAt
 	}
-	sql := fmt.Sprintf("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", t.TableName())
-	sql += " ON DUPLICATE KEY UPDATE"
-	sql += " country_id=?, gender=?, years_of_experience=?, birthday=?, favorite_count=?, review_count=?, rating=?, last_lesson_at=?"
-
 	now := time.Now().UTC()
 	values := []interface{}{
 		t.ID,
@@ -117,8 +117,14 @@ func (s *TeacherService) CreateOrUpdate(t *Teacher) error {
 		t.FavoriteCount,
 		t.ReviewCount,
 		t.Rating,
-		t.LastLessonAt.Format(dbDatetimeFormat),
 	}
+
+	if !t.LastLessonAt.Equal(defaultLastLessonAt) {
+		// UPDATE last_lesson_at only when it's NOT default value
+		sql += ", last_lesson_at=?"
+		values = append(values, t.LastLessonAt.Format(dbDatetimeFormat))
+	}
+
 	if err := s.db.Exec(sql, values...).Error; err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
