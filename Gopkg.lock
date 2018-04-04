@@ -5,11 +5,15 @@
   name = "cloud.google.com/go"
   packages = [
     "compute/metadata",
+    "iam",
     "internal",
     "internal/optional",
+    "internal/trace",
+    "internal/version",
     "storage"
   ]
-  revision = "3258e6905e9694db9bcd41910c65ecc30ae6dbbe"
+  revision = "4b98a6370e36d7a85192e7bad08a4ebd82eac2a8"
+  version = "v0.20.0"
 
 [[projects]]
   branch = "master"
@@ -185,6 +189,15 @@
   revision = "4a50daf855af93a350f2a6789101cd51955c88ca"
 
 [[projects]]
+  name = "go.opencensus.io"
+  packages = [
+    "internal",
+    "trace"
+  ]
+  revision = "076344b67ac19bcb8096c4b12440c3cf92ac3927"
+  version = "v0.7.0"
+
+[[projects]]
   name = "go.uber.org/atomic"
   packages = ["."]
   revision = "8474b86a5a6f79c443ce4b2992817ff32cf208b8"
@@ -290,8 +303,6 @@
     "oauth2/v2",
     "option",
     "storage/v1",
-    "transport",
-    "transport/grpc",
     "transport/http"
   ]
   revision = "c7a403bb5fe12fe4644bb956edd5cd677626120a"
@@ -308,9 +319,7 @@
     "internal/log",
     "internal/modules",
     "internal/remote_api",
-    "internal/socket",
     "internal/urlfetch",
-    "socket",
     "urlfetch"
   ]
   revision = "a2c54d2174c17540446e0ced57d9d459af61bc1c"
@@ -320,6 +329,8 @@
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
+    "googleapis/iam/v1",
+    "googleapis/rpc/code",
     "googleapis/rpc/status"
   ]
   revision = "2b5a72b8730b0b16380010cfe5286c42108d88e7"
@@ -334,7 +345,6 @@
     "codes",
     "connectivity",
     "credentials",
-    "credentials/oauth",
     "encoding",
     "encoding/proto",
     "grpclb/grpc_lb_v1/messages",
@@ -388,6 +398,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b999e19cf6254e26c7fc399766605cada1e76f0e07832a0b572362b0d0e8d20a"
+  inputs-digest = "3a70aaeb5fc45775ae85e2eb61c72643d0effc1cff5ffa09c7635676dd9fd93a"
   solver-name = "gps-cdcl"
   solver-version = 1

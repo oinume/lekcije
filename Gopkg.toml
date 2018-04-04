@@ -128,9 +128,9 @@
   name = "golang.org/x/text"
   branch = "master"
 
-[[constraint]]
-  name = "google.golang.org/api"
-  branch = "master"
+#[[constraint]]
+#  name = "google.golang.org/api"
+#  branch = "master"
 
 [[constraint]]
   name = "google.golang.org/genproto"
@@ -152,3 +152,4 @@
 
 [[constraint]]
   name = "cloud.google.com/go"
+  version = "v0.20.0"

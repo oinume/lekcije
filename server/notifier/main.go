@@ -10,6 +10,7 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/pkg/profile"
 	"go.uber.org/zap"
 )
@@ -25,6 +26,7 @@ type Main struct {
 }
 
 func (m *Main) Run() error {
+	var sw stopwatch.Stopwatch
 	switch *m.ProfileMode {
 	case "block":
 		defer profile.Start(profile.ProfilePath("."), profile.BlockProfile).Stop()
@@ -34,6 +36,9 @@ func (m *Main) Run() error {
 		defer profile.Start(profile.ProfilePath("."), profile.MemProfile).Stop()
 	case "trace":
 		defer profile.Start(profile.ProfilePath("."), profile.TraceProfile).Stop()
+	case "stopwatch":
+		sw = stopwatch.NewSync()
+		sw.Start()
 	}
 
 	bootstrap.CheckCLIEnvVars()
@@ -56,6 +61,7 @@ func (m *Main) Run() error {
 		return err
 	}
 	defer db.Close()
+	sw.Mark("model.OpenDB")
 
 	if *m.NotificationInterval == 0 {
 		return fmt.Errorf("-notification-interval is required")
@@ -77,7 +83,7 @@ func (m *Main) Run() error {
 		sender = &emailer.NoSender{}
 	}
 
-	n := NewNotifier(db, fetcher, *m.DryRun, sender)
+	n := NewNotifier(db, fetcher, *m.DryRun, sender, sw)
 	defer n.Close()
 	for _, user := range users {
 		if err := n.SendNotification(user); err != nil {
