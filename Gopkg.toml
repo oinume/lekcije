@@ -149,3 +149,6 @@
   name = "gopkg.in/xmlpath.v2"
   source = "github.com/go-xmlpath/xmlpath"
   branch = "v2"
+
+[[constraint]]
+  name = "cloud.google.com/go"

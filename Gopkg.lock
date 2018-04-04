@@ -5,7 +5,9 @@
   name = "cloud.google.com/go"
   packages = [
     "compute/metadata",
-    "internal"
+    "internal",
+    "internal/optional",
+    "storage"
   ]
   revision = "3258e6905e9694db9bcd41910c65ecc30ae6dbbe"
 
@@ -282,7 +284,15 @@
     "gensupport",
     "googleapi",
     "googleapi/internal/uritemplates",
-    "oauth2/v2"
+    "googleapi/transport",
+    "internal",
+    "iterator",
+    "oauth2/v2",
+    "option",
+    "storage/v1",
+    "transport",
+    "transport/grpc",
+    "transport/http"
   ]
   revision = "c7a403bb5fe12fe4644bb956edd5cd677626120a"
 
@@ -298,7 +308,9 @@
     "internal/log",
     "internal/modules",
     "internal/remote_api",
+    "internal/socket",
     "internal/urlfetch",
+    "socket",
     "urlfetch"
   ]
   revision = "a2c54d2174c17540446e0ced57d9d459af61bc1c"
@@ -322,6 +334,7 @@
     "codes",
     "connectivity",
     "credentials",
+    "credentials/oauth",
     "encoding",
     "encoding/proto",
     "grpclb/grpc_lb_v1/messages",
@@ -375,6 +388,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4f5527263953c3b7705e5d2870bc8ca877b1a17b23ffcf7ac5b4dfa68e3f1844"
+  inputs-digest = "b999e19cf6254e26c7fc399766605cada1e76f0e07832a0b572362b0d0e8d20a"
   solver-name = "gps-cdcl"
   solver-version = 1
