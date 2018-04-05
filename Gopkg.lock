@@ -5,9 +5,15 @@
   name = "cloud.google.com/go"
   packages = [
     "compute/metadata",
-    "internal"
+    "iam",
+    "internal",
+    "internal/optional",
+    "internal/trace",
+    "internal/version",
+    "storage"
   ]
-  revision = "3258e6905e9694db9bcd41910c65ecc30ae6dbbe"
+  revision = "4b98a6370e36d7a85192e7bad08a4ebd82eac2a8"
+  version = "v0.20.0"
 
 [[projects]]
   branch = "master"
@@ -57,7 +63,7 @@
 [[projects]]
   name = "github.com/googleapis/gax-go"
   packages = ["."]
-  revision = "da06d194a00e19ce00d9011a13931c3f6f6887c7"
+  revision = "de2cc08e690b99dd3f7d19937d80d3d54e04682f"
 
 [[projects]]
   branch = "master"
@@ -183,6 +189,15 @@
   revision = "4a50daf855af93a350f2a6789101cd51955c88ca"
 
 [[projects]]
+  name = "go.opencensus.io"
+  packages = [
+    "internal",
+    "trace"
+  ]
+  revision = "076344b67ac19bcb8096c4b12440c3cf92ac3927"
+  version = "v0.7.0"
+
+[[projects]]
   name = "go.uber.org/atomic"
   packages = ["."]
   revision = "8474b86a5a6f79c443ce4b2992817ff32cf208b8"
@@ -282,7 +297,13 @@
     "gensupport",
     "googleapi",
     "googleapi/internal/uritemplates",
-    "oauth2/v2"
+    "googleapi/transport",
+    "internal",
+    "iterator",
+    "oauth2/v2",
+    "option",
+    "storage/v1",
+    "transport/http"
   ]
   revision = "c7a403bb5fe12fe4644bb956edd5cd677626120a"
 
@@ -308,6 +329,8 @@
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
+    "googleapis/iam/v1",
+    "googleapis/rpc/code",
     "googleapis/rpc/status"
   ]
   revision = "2b5a72b8730b0b16380010cfe5286c42108d88e7"
@@ -375,6 +398,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4f5527263953c3b7705e5d2870bc8ca877b1a17b23ffcf7ac5b4dfa68e3f1844"
+  inputs-digest = "87c12e93cc6486794e25e92ff2db69fb27926919730f9eac2eb66e1ecb3b91b9"
   solver-name = "gps-cdcl"
   solver-version = 1

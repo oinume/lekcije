@@ -2,12 +2,14 @@ package notifier
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
@@ -30,6 +32,7 @@ type Notifier struct {
 	sender          emailer.Sender
 	senderWaitGroup *sync.WaitGroup
 	stopwatch       stopwatch.Stopwatch
+	storageClient   *storage.Client
 	sync.Mutex
 }
 
@@ -88,7 +91,17 @@ func NewTeachersAndLessons(length int) *teachersAndLessons {
 	}
 }
 
-func NewNotifier(db *gorm.DB, fetcher *fetcher.LessonFetcher, dryRun bool, sender emailer.Sender) *Notifier {
+func NewNotifier(
+	db *gorm.DB,
+	fetcher *fetcher.LessonFetcher,
+	dryRun bool,
+	sender emailer.Sender,
+	sw stopwatch.Stopwatch,
+	storageClient *storage.Client,
+) *Notifier {
+	if sw == nil {
+		sw = stopwatch.NewSync()
+	}
 	return &Notifier{
 		db:              db,
 		fetcher:         fetcher,
@@ -97,7 +110,8 @@ func NewNotifier(db *gorm.DB, fetcher *fetcher.LessonFetcher, dryRun bool, sende
 		fetchedLessons:  make(map[uint32][]*model.Lesson, 1000),
 		sender:          sender,
 		senderWaitGroup: &sync.WaitGroup{},
-		stopwatch:       stopwatch.NewSync().Start(),
+		stopwatch:       sw,
+		storageClient:   storageClient,
 	}
 }
 
@@ -171,6 +185,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	if err != nil {
 		return err
 	}
+	n.stopwatch.Mark(fmt.Sprintf("notificationTimeSpanService.FindByUserID:%d", user.ID))
 	filteredAvailable := availableTeachersAndLessons.FilterBy(model.NotificationTimeSpanList(timeSpans))
 	if err := n.sendNotificationToUser(user, filteredAvailable); err != nil {
 		return err
@@ -225,7 +240,8 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 }
 
 func (n *Notifier) sendNotificationToUser(
-	user *model.User, lessonsPerTeacher *teachersAndLessons,
+	user *model.User,
+	lessonsPerTeacher *teachersAndLessons,
 ) error {
 	lessonsCount := 0
 	var teacherIDs []int
@@ -274,14 +290,13 @@ func (n *Notifier) sendNotificationToUser(
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 	email.SetCustomArg("teacher_ids", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
-	n.stopwatch.Mark("emailer.NewEmailFromTemplate")
 
 	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))
 
 	n.senderWaitGroup.Add(1)
 	go func(email *emailer.Email) {
-		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
 		defer n.senderWaitGroup.Done()
+		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
 		if err := n.sender.Send(email); err != nil {
 			logger.App.Error(
 				"Failed to sendNotificationToUser",
@@ -349,8 +364,29 @@ func (n *Notifier) Close() {
 	}()
 	defer func() {
 		n.stopwatch.Stop()
-		//logger.App.Info("Stopwatch report", zap.String("report", watch.Report()))
-		//fmt.Println("--- stopwatch ---")
-		//fmt.Println(n.stopwatch.Report())
+		if n.storageClient != nil {
+			//fmt.Println("--- stopwatch ---")
+			//fmt.Println(n.stopwatch.Report())
+			if err := n.uploadStopwatchReport(); err != nil {
+				logger.App.Error("uploadStopwatchReport failed", zap.Error(err))
+			}
+		}
 	}()
+}
+
+func (n *Notifier) uploadStopwatchReport() error {
+	fmt.Printf("storageClinet = %v\n", n.storageClient)
+	if n.storageClient == nil {
+		return nil
+	}
+
+	path := time.Now().UTC().Format("stopwatch/20060102/150405.txt")
+	w := n.storageClient.Bucket("lekcije").Object(path).NewWriter(context.Background())
+	if _, err := w.Write([]byte(n.stopwatch.Report())); err != nil {
+		return err
+	}
+	if err := w.Close(); err != nil {
+		return err
+	}
+	return nil
 }
