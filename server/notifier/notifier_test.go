@@ -14,6 +14,7 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
@@ -159,7 +160,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient)
-		n := NewNotifier(db, fetcher, true, sender)
+		n := NewNotifier(db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
 
 		for _, user := range users {
 			if err := n.SendNotification(user); err != nil {
@@ -193,7 +194,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient)
-		n := NewNotifier(db, fetcher, true, sender)
+		n := NewNotifier(db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
 		if err := n.SendNotification(user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -237,7 +238,7 @@ func TestNotifier_Close(t *testing.T) {
 	teacher := helper.CreateTeacher(3982, "Hena")
 	helper.CreateFollowingTeacher(user.ID, teacher)
 
-	n := NewNotifier(db, fetcher, false, sender)
+	n := NewNotifier(db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
 	err = n.SendNotification(user)
 	r.NoError(err, "SendNotification failed")
 	n.Close()

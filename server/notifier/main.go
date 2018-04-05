@@ -1,18 +1,25 @@
 package notifier
 
 import (
+	"context"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/emailer"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/pkg/profile"
 	"go.uber.org/zap"
+	"google.golang.org/api/option"
 )
 
 type Main struct {
@@ -27,6 +34,7 @@ type Main struct {
 
 func (m *Main) Run() error {
 	var sw stopwatch.Stopwatch
+	var storageClient *storage.Client
 	switch *m.ProfileMode {
 	case "block":
 		defer profile.Start(profile.ProfilePath("."), profile.BlockProfile).Stop()
@@ -39,6 +47,11 @@ func (m *Main) Run() error {
 	case "stopwatch":
 		sw = stopwatch.NewSync()
 		sw.Start()
+		var err error
+		storageClient, err = newStorageClient()
+		if err != nil {
+			return err
+		}
 	}
 
 	bootstrap.CheckCLIEnvVars()
@@ -83,7 +96,7 @@ func (m *Main) Run() error {
 		sender = &emailer.NoSender{}
 	}
 
-	n := NewNotifier(db, fetcher, *m.DryRun, sender, sw)
+	n := NewNotifier(db, fetcher, *m.DryRun, sender, sw, storageClient)
 	defer n.Close()
 	for _, user := range users {
 		if err := n.SendNotification(user); err != nil {
@@ -92,4 +105,24 @@ func (m *Main) Run() error {
 	}
 
 	return nil
+}
+
+func newStorageClient() (*storage.Client, error) {
+	gcloudServiceKey := os.Getenv("GCLOUD_SERVICE_KEY")
+	if gcloudServiceKey == "" {
+		return nil, errors.NewInternalError(errors.WithMessage("Env not found"))
+	}
+	b, err := base64.StdEncoding.DecodeString(gcloudServiceKey)
+	if err != nil {
+		return nil, errors.NewInternalError(errors.WithError(err))
+	}
+	f, err := ioutil.TempFile("", "gcloud-")
+	if err != nil {
+		return nil, errors.NewInternalError(errors.WithError(err))
+	}
+	defer os.Remove(f.Name())
+	if _, err := f.Write(b); err != nil {
+		return nil, errors.NewInternalError(errors.WithError(err))
+	}
+	return storage.NewClient(context.Background(), option.WithCredentialsFile(f.Name()))
 }

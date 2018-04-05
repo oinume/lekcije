@@ -3,10 +3,7 @@ package notifier
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -23,7 +20,6 @@ import (
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
 	"go.uber.org/zap"
-	"google.golang.org/api/option"
 )
 
 type Notifier struct {
@@ -36,8 +32,7 @@ type Notifier struct {
 	sender          emailer.Sender
 	senderWaitGroup *sync.WaitGroup
 	stopwatch       stopwatch.Stopwatch
-	profiling       bool
-	//	storageClient   *storage.Client
+	storageClient   *storage.Client
 	sync.Mutex
 }
 
@@ -102,11 +97,10 @@ func NewNotifier(
 	dryRun bool,
 	sender emailer.Sender,
 	sw stopwatch.Stopwatch,
+	storageClient *storage.Client,
 ) *Notifier {
-	profiling := true
 	if sw == nil {
 		sw = stopwatch.NewSync()
-		profiling = false
 	}
 	return &Notifier{
 		db:              db,
@@ -117,7 +111,7 @@ func NewNotifier(
 		sender:          sender,
 		senderWaitGroup: &sync.WaitGroup{},
 		stopwatch:       sw,
-		profiling:       profiling,
+		storageClient:   storageClient,
 	}
 }
 
@@ -370,7 +364,7 @@ func (n *Notifier) Close() {
 	}()
 	defer func() {
 		n.stopwatch.Stop()
-		if n.profiling {
+		if n.storageClient != nil {
 			//fmt.Println("--- stopwatch ---")
 			//fmt.Println(n.stopwatch.Report())
 			if err := n.uploadStopwatchReport(); err != nil {
@@ -381,30 +375,13 @@ func (n *Notifier) Close() {
 }
 
 func (n *Notifier) uploadStopwatchReport() error {
-	c := context.Background()
-	gcloudServiceKey := os.Getenv("GCLOUD_SERVICE_KEY")
-	if gcloudServiceKey == "" {
+	fmt.Printf("storageClinet = %v\n", n.storageClient)
+	if n.storageClient == nil {
 		return nil
-	}
-	b, err := base64.StdEncoding.DecodeString(gcloudServiceKey)
-	if err != nil {
-		return err
-	}
-	f, err := ioutil.TempFile("", "gcloud-")
-	if err != nil {
-		return nil
-	}
-	defer os.Remove(f.Name())
-	if _, err := f.Write(b); err != nil {
-		return err
 	}
 
-	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(f.Name()))
-	if err != nil {
-		return err
-	}
-	bucket := client.Bucket("lekcije")
-	w := bucket.Object("stopwatch.txt").NewWriter(c)
+	path := time.Now().UTC().Format("stopwatch/20060102/150405.txt")
+	w := n.storageClient.Bucket("lekcije").Object(path).NewWriter(context.Background())
 	if _, err := w.Write([]byte(n.stopwatch.Report())); err != nil {
 		return err
 	}
