@@ -7,7 +7,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
 )
 
@@ -63,7 +62,7 @@ func (h *TestHelper) LoadAllTables(db *gorm.DB) []string {
 }
 
 func (h *TestHelper) TruncateAllTables(db *gorm.DB) {
-	fmt.Printf("TruncateAllTables() called!\n--- stack ---\n%+v\n", errors.NewInternalError().StackTrace())
+	//fmt.Printf("TruncateAllTables() called!\n--- stack ---\n%+v\n", errors.NewInternalError().StackTrace())
 	tables := h.LoadAllTables(db)
 	for _, t := range tables {
 		if strings.HasPrefix(t, "m_") {
