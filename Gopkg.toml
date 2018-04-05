@@ -153,3 +153,7 @@
 [[constraint]]
   name = "cloud.google.com/go"
   version = "v0.20.0"
+
+[[override]]
+  name = "github.com/googleapis/gax-go"
+  revision = "de2cc08e690b99dd3f7d19937d80d3d54e04682f"
