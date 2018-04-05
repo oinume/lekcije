@@ -33,7 +33,8 @@ type Main struct {
 }
 
 func (m *Main) Run() error {
-	var sw stopwatch.Stopwatch
+	sw := stopwatch.NewSync()
+	sw.Start()
 	var storageClient *storage.Client
 	switch *m.ProfileMode {
 	case "block":
@@ -45,8 +46,6 @@ func (m *Main) Run() error {
 	case "trace":
 		defer profile.Start(profile.ProfilePath("."), profile.TraceProfile).Stop()
 	case "stopwatch":
-		sw = stopwatch.NewSync()
-		sw.Start()
 		var err error
 		storageClient, err = newStorageClient()
 		if err != nil {
