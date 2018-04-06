@@ -47,10 +47,36 @@ func TestNotificationTimeSpan_Within(t *testing.T) {
 }
 
 func TestNotificationTimeSpanList_Within(t *testing.T) {
-	list := []*NotificationTimeSpanList{
-		&NotificationTimeSpan{
-			Number: 1,
+	table := []struct {
+		name         string
+		timeSpanList NotificationTimeSpanList
+		target       string
+		within       bool
+	}{
+		{
+			name: "",
+			timeSpanList: NotificationTimeSpanList{
+				&NotificationTimeSpan{
+					Number:   1,
+					FromTime: "01:00:00",
+					ToTime:   "02:00:00",
+				},
+				&NotificationTimeSpan{
+					Number:   2,
+					FromTime: "08:30:00",
+					ToTime:   "10:00:00",
+				},
+			},
+			target: "09:00:00",
+			within: true,
 		},
+	}
+
+	for _, tt := range table {
+		target, _ := time.Parse("15:04:05", tt.target)
+		if got := tt.timeSpanList.Within(target); got != tt.within {
+			t.Errorf("%v: unexpected value from Within: got=%v, want=%v", tt.name, got, tt.within)
+		}
 	}
 }
 
