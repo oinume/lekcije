@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUpdateLessons(t *testing.T) {
+func TestLessonService_UpdateLessons(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
@@ -38,7 +38,7 @@ func TestUpdateLessons(t *testing.T) {
 	}
 }
 
-func TestUpdateLessonsOverwrite(t *testing.T) {
+func TestLessonService_UpdateLessonsOverwrite(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
@@ -64,7 +64,7 @@ func TestUpdateLessonsOverwrite(t *testing.T) {
 	a.Equal(2, len(logs))
 }
 
-func TestUpdateLessonsNoChange(t *testing.T) {
+func TestLessonService_UpdateLessonsNoChange(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
@@ -88,7 +88,7 @@ func TestUpdateLessonsNoChange(t *testing.T) {
 	a.Equal(1, len(logs))
 }
 
-func TestGetNewAvailableLessons1(t *testing.T) {
+func TestLessonService_GetNewAvailableLessons1(t *testing.T) {
 	a := assert.New(t)
 
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
@@ -101,7 +101,7 @@ func TestGetNewAvailableLessons1(t *testing.T) {
 	a.Equal(datetime.Add(1*time.Hour), availableLessons[0].Datetime)
 }
 
-func TestGetNewAvailableLessons2(t *testing.T) {
+func TestLessonService_GetNewAvailableLessons2(t *testing.T) {
 	a := assert.New(t)
 
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
