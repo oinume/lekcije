@@ -58,6 +58,10 @@ func TestUpdateLessonsOverwrite(t *testing.T) {
 	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
 	r.NoError(err)
 	a.Equal(strings.ToLower(foundLessons[0].Status), "reserved")
+
+	logs, err := lessonStatusLogService.FindAllByLessonID(foundLessons[0].ID)
+	r.NoError(err)
+	a.Equal(2, len(logs))
 }
 
 func TestGetNewAvailableLessons1(t *testing.T) {
