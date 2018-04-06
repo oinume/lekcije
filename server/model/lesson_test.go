@@ -6,21 +6,25 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUpdateLessons(t *testing.T) {
 	a := assert.New(t)
-	teacherID := uint32(1)
+	r := require.New(t)
+
+	teacherID := uint32(util.RandomInt(999999))
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
 	lessons := createLessons(teacherID, datetime, "Reserved", 5)
 
 	affected, err := lessonService.UpdateLessons(lessons)
-	a.Nil(err)
+	r.NoError(err)
 	a.Equal(int64(5), affected)
 
 	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
-	a.Nil(err)
+	r.NoError(err)
 	a.Equal(len(lessons), len(foundLessons))
 	for i := range lessons {
 		// TODO: custom enum type
@@ -30,16 +34,24 @@ func TestUpdateLessons(t *testing.T) {
 
 func TestUpdateLessonsOverwrite(t *testing.T) {
 	a := assert.New(t)
-	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
-	lessons := createLessons(1, datetime, "Reserved", 5)
+	r := require.New(t)
 
-	lessons[0].Status = "Available"
+	teacherID := uint32(util.RandomInt(999999))
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
+	lessons := createLessons(teacherID, datetime, "Available", 5)
 	affected, err := lessonService.UpdateLessons(lessons)
-	a.Nil(err)
-	a.Equal(int64(2), affected) // Why 2????
-	foundLessons, err := lessonService.FindLessons(1, datetime, datetime)
-	a.Nil(err)
-	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
+	r.NoError(err)
+	a.EqualValues(len(lessons), affected)
+
+	time.Sleep(1 * time.Second)
+	lessons[0].Status = "Reserved"
+	affected, err = lessonService.UpdateLessons(lessons)
+	r.NoError(err)
+	a.EqualValues(1, affected)
+
+	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
+	r.NoError(err)
+	a.Equal(strings.ToLower(foundLessons[0].Status), "reserved")
 }
 
 func TestGetNewAvailableLessons1(t *testing.T) {
@@ -70,7 +82,7 @@ func TestGetNewAvailableLessons2(t *testing.T) {
 
 func createLessons(teacherID uint32, baseDatetime time.Time, status string, length int) []*Lesson {
 	lessons := make([]*Lesson, length)
-	now := time.Now()
+	now := time.Now().UTC()
 	for i := range lessons {
 		lessons[i] = &Lesson{
 			TeacherID: teacherID,

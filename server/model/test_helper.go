@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -26,7 +27,7 @@ func (h *TestHelper) DB() *gorm.DB {
 	}
 	bootstrap.CheckCLIEnvVars()
 	h.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
-	db, err := OpenDB(h.dbURL, 1, false /* TODO: env */)
+	db, err := OpenDB(h.dbURL, 1, os.Getenv("DEBUG_SQL") == "true")
 	if err != nil {
 		panic(fmt.Sprintf("Failed to OpenDB(): err=%v", err))
 	}
