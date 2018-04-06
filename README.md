@@ -8,7 +8,7 @@ Follow your favorite teachers in DMM Eikaiwa and receive notification when favor
 
 ```bash
 brew cask install dockertoolbox
-brew install fswatch
+brew install dep fswatch
 make setup
 npm install
 ```
@@ -23,8 +23,31 @@ brew install chromedriver
 ### Run MySQL server
 
 ```
+docker-machine start default
 eval "$(docker-machine env default)"
 docker-compose up
+```
+
+### Migrate DB
+```
+goose -env=local up
+```
+
+### Define environmental variables
+```
+cp .envrc.local .envrc
+```
+
+Use direnv
+```
+direnv allow
+```
+
+or
+
+Just source
+```
+source .envrc
 ```
 
 ### Run server
