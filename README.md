@@ -43,12 +43,15 @@ goose -env=local up
 cp .envrc.local .envrc
 ```
 
-Use direnv
+Replace `192.168.99.100` to `127.0.0.1` on your .envrc if you use `Docker for Mac`.
+
+And then, load environmental variables with `direnv`.
+
 ```
 direnv allow
 ```
 
-OR just source
+Or just use source.
 ```
 source .envrc
 ```
@@ -63,7 +66,7 @@ make watch
 npm start
 ```
 
-### Connect to mysql on Docker
+### Connect to MySQL on Docker
 
 Use `docker-machine ip default` on docker-machine
 ```
