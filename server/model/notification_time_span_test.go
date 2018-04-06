@@ -45,6 +45,15 @@ func TestNotificationTimeSpan_Within(t *testing.T) {
 		}
 	}
 }
+
+func TestNotificationTimeSpanList_Within(t *testing.T) {
+	list := []*NotificationTimeSpanList{
+		&NotificationTimeSpan{
+			Number: 1,
+		},
+	}
+}
+
 func TestNotificationTimeSpanService_UpdateAll(t *testing.T) {
 	user := helper.CreateRandomUser()
 	now := time.Now().UTC()
