@@ -22,6 +22,9 @@ func TestUpdateLessons(t *testing.T) {
 	affected, err := lessonService.UpdateLessons(lessons)
 	r.NoError(err)
 	a.Equal(int64(5), affected)
+	for _, l := range lessons {
+		a.NotEqual(uint64(0), l.ID)
+	}
 
 	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
 	r.NoError(err)

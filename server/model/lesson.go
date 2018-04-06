@@ -86,6 +86,14 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 				)
 			}
 			rowsAffected++
+
+			log := &LessonStatusLog{
+				LessonID: l.ID,
+				Status:   lesson.Status,
+			}
+			if err := NewLessonStatusLogService(s.db).Create(log); err != nil {
+				return 0, err
+			}
 		} else {
 			// INSERT
 			dt := lesson.Datetime
@@ -104,6 +112,14 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 				)
 			}
 			rowsAffected++
+
+			log := &LessonStatusLog{
+				LessonID: lesson.ID,
+				Status:   lesson.Status,
+			}
+			if err := NewLessonStatusLogService(s.db).Create(log); err != nil {
+				return 0, err
+			}
 		}
 	}
 
