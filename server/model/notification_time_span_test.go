@@ -54,7 +54,7 @@ func TestNotificationTimeSpanList_Within(t *testing.T) {
 		within       bool
 	}{
 		{
-			name: "",
+			name: "normal true",
 			timeSpanList: NotificationTimeSpanList{
 				&NotificationTimeSpan{
 					Number:   1,
@@ -69,6 +69,23 @@ func TestNotificationTimeSpanList_Within(t *testing.T) {
 			},
 			target: "09:00:00",
 			within: true,
+		},
+		{
+			name: "normal false",
+			timeSpanList: NotificationTimeSpanList{
+				&NotificationTimeSpan{
+					Number:   1,
+					FromTime: "01:00:00",
+					ToTime:   "02:00:00",
+				},
+				&NotificationTimeSpan{
+					Number:   2,
+					FromTime: "08:30:00",
+					ToTime:   "10:00:00",
+				},
+			},
+			target: "10:30:00",
+			within: false,
 		},
 	}
 
