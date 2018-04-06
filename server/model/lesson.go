@@ -64,6 +64,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 		return 0, nil
 	}
 
+	// TODO: 既存のデータをSELECTしてmapに詰める
 	updatedAt := time.Now().UTC()
 	sql := fmt.Sprintf("INSERT INTO %s VALUES", s.TableName())
 	values := []interface{}{}

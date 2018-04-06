@@ -199,7 +199,9 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 // Returns teacher, fetchedLessons, newAvailableLessons, error
 func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
-	*model.TeacherLessons, *model.TeacherLessons, error,
+	*model.TeacherLessons,
+	*model.TeacherLessons,
+	error,
 ) {
 	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
