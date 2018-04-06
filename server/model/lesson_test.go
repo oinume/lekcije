@@ -64,6 +64,30 @@ func TestUpdateLessonsOverwrite(t *testing.T) {
 	a.Equal(2, len(logs))
 }
 
+func TestUpdateLessonsNoChange(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+
+	teacherID := uint32(util.RandomInt(999999))
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalTimezone())
+	lessons := createLessons(teacherID, datetime, "Available", 5)
+	affected, err := lessonService.UpdateLessons(lessons)
+	r.NoError(err)
+	a.EqualValues(len(lessons), affected)
+
+	affected, err = lessonService.UpdateLessons(lessons)
+	r.NoError(err)
+	a.EqualValues(0, affected)
+
+	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
+	r.NoError(err)
+	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
+
+	logs, err := lessonStatusLogService.FindAllByLessonID(foundLessons[0].ID)
+	r.NoError(err)
+	a.Equal(1, len(logs))
+}
+
 func TestGetNewAvailableLessons1(t *testing.T) {
 	a := assert.New(t)
 
