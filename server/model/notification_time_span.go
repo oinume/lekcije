@@ -53,9 +53,6 @@ type NotificationTimeSpanList []*NotificationTimeSpan
 func (l NotificationTimeSpanList) Within(t time.Time) bool {
 	target := t
 	for _, timeSpan := range l {
-		if err := timeSpan.ParseTime(); err != nil {
-			return false
-		}
 		if timeSpan.Within(target) {
 			return true
 		}
