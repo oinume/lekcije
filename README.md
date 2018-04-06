@@ -28,6 +28,11 @@ eval "$(docker-machine env default)"
 docker-compose up
 ```
 
+OR Use `Docker for Mac`.
+```
+docker-compose up
+```
+
 ### Migrate DB
 ```
 goose -env=local up
@@ -43,9 +48,7 @@ Use direnv
 direnv allow
 ```
 
-or
-
-Just source
+OR just source
 ```
 source .envrc
 ```
@@ -62,6 +65,13 @@ npm start
 
 ### Connect to mysql on Docker
 
+Use `docker-machine ip default` on docker-machine
 ```
 mysql -uroot -proot -h $(docker-machine ip default) -P 13306 lekcije
+```
+
+Or `127.0.0.1` on Docker for Mac.
+
+```
+mysql -uroot -proot -h 127.0.0.1 -P 13306 lekcije
 ```
