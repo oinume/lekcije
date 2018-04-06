@@ -75,14 +75,6 @@ func Uint32ToStringSlice(from ...uint32) []string {
 	return to
 }
 
-func TimeToInterfaceSlice(from ...time.Time) []interface{} {
-	to := make([]interface{}, len(from))
-	for i := range from {
-		to[i] = from[i]
-	}
-	return to
-}
-
 func EncryptString(plainText string, encryptionKey string) (string, error) {
 	if encryptionKey == "" {
 		return "", fmt.Errorf("encryptionKey is empty.")
