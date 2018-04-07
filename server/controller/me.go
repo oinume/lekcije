@@ -238,35 +238,6 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PostMeSettingUpdate(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user := context_data.MustLoggedInUser(ctx)
-	email := r.FormValue("email")
-	// TODO: better validation
-	if email == "" || !validateEmail(email) {
-		http.Redirect(w, r, "/me/setting", http.StatusFound)
-		return
-	}
-
-	service := model.NewUserService(context_data.MustDB(ctx))
-	if err := service.UpdateEmail(user, email); err != nil {
-		InternalServerError(w, err)
-		return
-	}
-	go event_logger.SendGAMeasurementEvent2(
-		event_logger.MustGAMeasurementEventValues(r.Context()),
-		event_logger.CategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID,
-	)
-
-	successMessage := flash_message.New(flash_message.KindSuccess, updatedMessage)
-	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
-		InternalServerError(w, err)
-		return
-	}
-
-	http.Redirect(w, r, "/me/setting?"+successMessage.AsURLQueryString(), http.StatusFound)
-}
-
 func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := context_data.GetLoggedInUser(ctx)

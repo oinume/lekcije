@@ -36,7 +36,6 @@ func Create(gatewayMux *runtime.ServeMux) *goji.Mux {
 	routes.HandleFunc(pat.Post("/me/followingTeachers/delete"), controller.PostMeFollowingTeachersDelete)
 	routes.HandleFunc(pat.Get("/me/logout"), controller.GetMeLogout)
 	routes.HandleFunc(pat.Get("/me/setting"), controller.GetMeSetting)
-	routes.HandleFunc(pat.Post("/me/setting/update"), controller.PostMeSettingUpdate)
 	routes.HandleFunc(pat.Get("/api/status"), controller.GetAPIStatus)
 	routes.HandleFunc(pat.Get("/api/me/followingTeachers"), controller.GetAPIMeFollowingTeachers)
 	routes.HandleFunc(pat.Get("/api/debug/envVar"), controller.GetAPIDebugEnvVar)
