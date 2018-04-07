@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/oinume/lekcije/server/bootstrap"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -15,6 +15,7 @@ var (
 	testDBURL                   string
 	followingTeacherService     *FollowingTeacherService
 	lessonService               *LessonService
+	lessonStatusLogService      *LessonStatusLogService
 	mCountryService             *MCountryService
 	mPlanService                *MPlanService
 	notificationTimeSpanService *NotificationTimeSpanService
@@ -32,6 +33,7 @@ func TestMain(m *testing.M) {
 
 	followingTeacherService = NewFollowingTeacherService(db)
 	lessonService = NewLessonService(db)
+	lessonStatusLogService = NewLessonStatusLogService(db)
 	mCountryService = NewMCountryService(db)
 	mPlanService = NewMPlanService(db)
 	notificationTimeSpanService = NewNotificationTimeSpanService(db)
@@ -46,14 +48,14 @@ func TestMain(m *testing.M) {
 }
 
 func TestOpenRedis(t *testing.T) {
-	a := assert.New(t)
+	r := require.New(t)
 
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
-		a.Fail("Env 'REDIS_URL' required.")
+		r.Fail("Env 'REDIS_URL' required.")
 	}
 	client, err := OpenRedis(redisURL)
-	a.Nil(err)
+	r.NoError(err)
 	defer client.Close()
-	a.Nil(client.Ping().Err())
+	r.NoError(client.Ping().Err())
 }

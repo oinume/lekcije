@@ -159,6 +159,11 @@ func GetDBName(dbURL string) string {
 	return ""
 }
 
+func Placeholders(values []interface{}) string {
+	s := strings.Repeat("?,", len(values))
+	return strings.TrimRight(s, ",")
+}
+
 func wrapNotFound(result *gorm.DB, kind, key, value string) *errors.AnnotatedError {
 	if result.RecordNotFound() {
 		return errors.NewAnnotatedError(
