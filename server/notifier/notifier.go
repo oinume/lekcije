@@ -381,7 +381,6 @@ func (n *Notifier) Close() {
 }
 
 func (n *Notifier) uploadStopwatchReport() error {
-	fmt.Printf("storageClinet = %v\n", n.storageClient)
 	if n.storageClient == nil {
 		return nil
 	}
