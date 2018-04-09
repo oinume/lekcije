@@ -234,7 +234,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	//}
 
 	newAvailableLessons := n.lessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
-	n.stopwatch.Mark(fmt.Sprintf("essonService.GetNewAvailableLessons:%d", teacherID))
+	n.stopwatch.Mark(fmt.Sprintf("lessonService.GetNewAvailableLessons:%d", teacherID))
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
