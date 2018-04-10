@@ -76,6 +76,6 @@ func startHTTPServer(grpcPort, httpPort int) error {
 	}
 	routes := route.Create(gatewayMux)
 
-	fmt.Printf("Listening on %v\n", httpPort)
+	fmt.Printf("Starting HTTP server on %v\n", httpPort)
 	return http.ListenAndServe(fmt.Sprintf(":%d", httpPort), routes)
 }
