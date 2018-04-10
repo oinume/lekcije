@@ -8,7 +8,7 @@ Follow your favorite teachers in DMM Eikaiwa and receive notification when favor
 
 ```bash
 brew cask install dockertoolbox
-brew install fswatch
+brew install dep fswatch
 make setup
 npm install
 ```
@@ -23,8 +23,37 @@ brew install chromedriver
 ### Run MySQL server
 
 ```
+docker-machine start default
 eval "$(docker-machine env default)"
 docker-compose up
+```
+
+OR Use `Docker for Mac`.
+```
+docker-compose up
+```
+
+### Migrate DB
+```
+goose -env=local up
+```
+
+### Define environmental variables
+```
+cp .envrc.local .envrc
+```
+
+Replace `192.168.99.100` to `127.0.0.1` on your .envrc if you use `Docker for Mac`.
+
+And then, load environmental variables with `direnv`.
+
+```
+direnv allow
+```
+
+Or just use source.
+```
+source .envrc
 ```
 
 ### Run server
@@ -37,8 +66,15 @@ make watch
 npm start
 ```
 
-### Connect to mysql on Docker
+### Connect to MySQL on Docker
 
+Use `docker-machine ip default` on docker-machine
 ```
 mysql -uroot -proot -h $(docker-machine ip default) -P 13306 lekcije
+```
+
+Or `127.0.0.1` on Docker for Mac.
+
+```
+mysql -uroot -proot -h 127.0.0.1 -P 13306 lekcije
 ```
