@@ -19,6 +19,7 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
+	"github.com/stvp/rollbar"
 	"go.uber.org/zap"
 )
 
@@ -308,6 +309,9 @@ func (n *Notifier) sendNotificationToUser(
 				"Failed to sendNotificationToUser",
 				zap.String("email", user.Email), zap.Error(err),
 			)
+			if rollbar.Token != "" {
+				rollbar.Error(rollbar.ERR, err)
+			}
 		}
 	}(email)
 
@@ -358,6 +362,9 @@ func (n *Notifier) Close() {
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 					)
+					if rollbar.Token != "" {
+						rollbar.Error(rollbar.ERR, err)
+					}
 				}
 			}
 			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
@@ -365,6 +372,9 @@ func (n *Notifier) Close() {
 					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 				)
+				if rollbar.Token != "" {
+					rollbar.Error(rollbar.ERR, err)
+				}
 			}
 		}
 	}()

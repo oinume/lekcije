@@ -74,7 +74,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 	rowsAffected := 0
 	for _, lesson := range lessons {
 		lesson.Status = strings.ToLower(lesson.Status)
-		if l, ok := existingLessons[lesson.Datetime.Format(lessonTimeFormat)]; ok {
+		if l, ok := existingLessons[lesson.Datetime.Format(lessonTimeFormat)]; ok || lesson.ID != 0 {
 			if lesson.Status == l.Status {
 				continue
 			}
