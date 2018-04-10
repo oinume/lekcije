@@ -75,7 +75,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 	now := time.Now().UTC()
 	for _, lesson := range lessons {
 		lesson.Status = strings.ToLower(lesson.Status)
-		if l, ok := existingLessons[lesson.Datetime.Format(lessonTimeFormat)]; ok || lesson.ID != 0 {
+		if l, ok := existingLessons[lesson.Datetime.Format(lessonTimeFormat)]; ok {
 			if lesson.Status == l.Status {
 				continue
 			}
@@ -100,7 +100,8 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 			// INSERT
 			dt := lesson.Datetime
 			lesson.Datetime = time.Date(dt.Year(), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
-			if err := s.db.Create(lesson).Error; err != nil {
+			where := Lesson{TeacherID: lesson.TeacherID, Datetime: lesson.Datetime}
+			if err := s.db.Where(where).FirstOrCreate(lesson).Error; err != nil {
 				return 0, errors.NewInternalError(
 					errors.WithError(err),
 					errors.WithMessage("FirstOrCreate failed"),
