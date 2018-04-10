@@ -362,6 +362,9 @@ func (n *Notifier) Close() {
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 					)
+					if rollbar.Token != "" {
+						rollbar.Error(rollbar.ERR, err)
+					}
 				}
 			}
 			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
@@ -369,6 +372,9 @@ func (n *Notifier) Close() {
 					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 				)
+				if rollbar.Token != "" {
+					rollbar.Error(rollbar.ERR, err)
+				}
 			}
 		}
 	}()
