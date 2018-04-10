@@ -72,6 +72,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 	}
 
 	rowsAffected := 0
+	now := time.Now().UTC()
 	for _, lesson := range lessons {
 		lesson.Status = strings.ToLower(lesson.Status)
 		if l, ok := existingLessons[lesson.Datetime.Format(lessonTimeFormat)]; ok || lesson.ID != 0 {
@@ -79,7 +80,7 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 				continue
 			}
 			// UPDATE
-			values := &Lesson{Status: lesson.Status}
+			values := &Lesson{Status: lesson.Status, UpdatedAt: now}
 			if err := s.db.Model(lesson).Where("id = ?", l.ID).Updates(values).Error; err != nil {
 				return 0, errors.NewInternalError(
 					errors.WithError(err),
@@ -88,8 +89,9 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 			rowsAffected++
 
 			log := &LessonStatusLog{
-				LessonID: l.ID,
-				Status:   lesson.Status,
+				LessonID:  l.ID,
+				Status:    lesson.Status,
+				CreatedAt: now,
 			}
 			if err := NewLessonStatusLogService(s.db).Create(log); err != nil {
 				return 0, err
@@ -114,8 +116,9 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 			rowsAffected++
 
 			log := &LessonStatusLog{
-				LessonID: lesson.ID,
-				Status:   lesson.Status,
+				LessonID:  lesson.ID,
+				Status:    lesson.Status,
+				CreatedAt: now,
 			}
 			if err := NewLessonStatusLogService(s.db).Create(log); err != nil {
 				return 0, err
