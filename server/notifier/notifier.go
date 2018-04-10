@@ -143,7 +143,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
 		go func(teacherID uint32) {
-			defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
+			//defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
 			defer wg.Done()
 			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(teacherID)
 			if err != nil {
@@ -199,10 +199,13 @@ func (n *Notifier) SendNotification(user *model.User) error {
 
 // Returns teacher, fetchedLessons, newAvailableLessons, error
 func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
-	*model.TeacherLessons, *model.TeacherLessons, error,
+	*model.TeacherLessons,
+	*model.TeacherLessons,
+	error,
 ) {
 	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
+		n.stopwatch.Mark(fmt.Sprintf("fetcher.Fetch(error):%d", teacherID))
 		return nil, nil, err
 	}
 	logger.App.Debug(
@@ -210,6 +213,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 		zap.Uint("teacherID", uint(teacher.ID)),
 		zap.Int("lessons", len(fetchedLessons)),
 	)
+	n.stopwatch.Mark(fmt.Sprintf("fetcher.Fetch:%d", teacherID))
 
 	//fmt.Printf("fetchedLessons ---\n")
 	//for _, l := range fetchedLessons {
@@ -223,12 +227,14 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	if err != nil {
 		return nil, nil, err
 	}
+	n.stopwatch.Mark(fmt.Sprintf("lessonService.FindLessons:%d", teacherID))
 	//fmt.Printf("lastFetchedLessons ---\n")
 	//for _, l := range lastFetchedLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
 	newAvailableLessons := n.lessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
+	n.stopwatch.Mark(fmt.Sprintf("lessonService.GetNewAvailableLessons:%d", teacherID))
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
@@ -375,7 +381,6 @@ func (n *Notifier) Close() {
 }
 
 func (n *Notifier) uploadStopwatchReport() error {
-	fmt.Printf("storageClinet = %v\n", n.storageClient)
 	if n.storageClient == nil {
 		return nil
 	}

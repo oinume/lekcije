@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/goenum"
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/util"
 )
 
 const (
@@ -15,9 +16,10 @@ const (
 )
 
 type Lesson struct {
-	TeacherID uint32    `gorm:"primary_key"`
-	Datetime  time.Time `gorm:"primary_key"`
-	Status    string    // TODO: enum
+	ID        uint64 `gorm:"primary_key"`
+	TeacherID uint32
+	Datetime  time.Time
+	Status    string // TODO: enum
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -64,29 +66,107 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 		return 0, nil
 	}
 
-	updatedAt := time.Now().UTC()
-	sql := fmt.Sprintf("INSERT INTO %s VALUES", s.TableName())
-	values := []interface{}{}
+	existingLessons, err := s.FindLessonsByTeacherIDAndDatetimeAsMap(lessons[0].TeacherID, lessons)
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected := 0
+	for _, lesson := range lessons {
+		lesson.Status = strings.ToLower(lesson.Status)
+		if l, ok := existingLessons[lesson.Datetime.Format(lessonTimeFormat)]; ok {
+			if lesson.Status == l.Status {
+				continue
+			}
+			// UPDATE
+			values := &Lesson{Status: lesson.Status}
+			if err := s.db.Model(lesson).Where("id = ?", l.ID).Updates(values).Error; err != nil {
+				return 0, errors.NewInternalError(
+					errors.WithError(err),
+				)
+			}
+			rowsAffected++
+
+			log := &LessonStatusLog{
+				LessonID: l.ID,
+				Status:   lesson.Status,
+			}
+			if err := NewLessonStatusLogService(s.db).Create(log); err != nil {
+				return 0, err
+			}
+		} else {
+			// INSERT
+			dt := lesson.Datetime
+			lesson.Datetime = time.Date(dt.Year(), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
+			if err := s.db.Create(lesson).Error; err != nil {
+				return 0, errors.NewInternalError(
+					errors.WithError(err),
+					errors.WithMessage("FirstOrCreate failed"),
+					errors.WithResource(errors.NewResourceWithEntries(
+						s.TableName(),
+						[]errors.ResourceEntry{
+							{"teacherID", lesson.TeacherID},
+							{"datetime", lesson.Datetime},
+						},
+					)),
+				)
+			}
+			rowsAffected++
+
+			log := &LessonStatusLog{
+				LessonID: lesson.ID,
+				Status:   lesson.Status,
+			}
+			if err := NewLessonStatusLogService(s.db).Create(log); err != nil {
+				return 0, err
+			}
+		}
+	}
+
+	return int64(rowsAffected), nil
+}
+
+func (s *LessonService) FindLessonsByTeacherIDAndDatetimeAsMap(
+	teacherID uint32,
+	lessonsArgs []*Lesson,
+) (map[string]*Lesson, error) {
+	if len(lessonsArgs) == 0 {
+		return nil, nil
+	}
+
+	datetimes := make([]string, len(lessonsArgs))
+	for i, l := range lessonsArgs {
+		datetimes[i] = l.Datetime.Format(dbDatetimeFormat)
+	}
+
+	placeholder := Placeholders(util.StringToInterfaceSlice(datetimes...))
+	lessons := make([]*Lesson, 0, len(lessonsArgs))
+	sql := strings.TrimSpace(fmt.Sprintf(`
+SELECT * FROM %s
+WHERE
+  teacher_id = ?
+  AND datetime IN (%s)
+`, s.TableName(), placeholder))
+
+	values := []interface{}{teacherID}
+	values = append(values, util.StringToInterfaceSlice(datetimes...)...)
+	result := s.db.Raw(sql, values...).Scan(&lessons)
+	if result.Error != nil {
+		if result.RecordNotFound() {
+			return nil, nil
+		}
+		return nil, errors.NewInternalError(
+			errors.WithError(result.Error),
+			errors.WithMessage("Failed to find lessonsArgs"),
+			errors.WithResource(errors.NewResource(s.TableName(), "teacherID", teacherID)),
+		)
+	}
+
+	ret := make(map[string]*Lesson, len(lessons))
 	for _, l := range lessons {
-		sql += " (?, ?, ?, ?, ?),"
-		values = append(
-			values,
-			l.TeacherID, l.Datetime.Format(dbDatetimeFormat), strings.ToLower(l.Status), // TODO: enum?
-			updatedAt.Format(dbDatetimeFormat), updatedAt.Format(dbDatetimeFormat),
-		)
+		ret[l.Datetime.Format(lessonTimeFormat)] = l
 	}
-	sql = strings.TrimSuffix(sql, ",")
-	sql += " ON DUPLICATE KEY UPDATE status=VALUES(status), updated_at=VALUES(updated_at)"
-
-	result := s.db.Exec(sql, values...)
-	if err := result.Error; err != nil {
-		return 0, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to update lessons"),
-		)
-	}
-
-	return result.RowsAffected, nil
+	return ret, nil
 }
 
 func (s *LessonService) FindLessons(teacherID uint32, fromDate, toDate time.Time) ([]*Lesson, error) {
