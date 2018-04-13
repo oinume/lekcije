@@ -47,11 +47,6 @@ OR with `Docker for Mac`.
 docker-compose up
 ```
 
-### Migrate DB
-```
-goose -env=local up
-```
-
 ### Define environmental variables
 ```
 cp .envrc.local .envrc
@@ -68,6 +63,11 @@ direnv allow
 OR just use `source` command.
 ```
 source .envrc
+```
+
+### Migrate DB
+```
+goose -env=local up
 ```
 
 ### Run server
