@@ -6,14 +6,27 @@ Follow your favorite teachers in DMM Eikaiwa and receive notification when favor
 
 # Install dependencies
 
+### Install docker
+
 ```bash
 brew cask install dockertoolbox
-brew install dep fswatch
+```
+
+OR 
+
+```bash
+brew cask install docker
+```
+
+### Install other tools
+
+```bash
+brew install dep fswatch node
 make setup
 npm install
 ```
 
-## For developers
+### For developers
 ```bash
 brew install chromedriver
 ```
@@ -22,20 +35,16 @@ brew install chromedriver
 
 ### Run MySQL server
 
+with docker-machine
 ```
 docker-machine start default
 eval "$(docker-machine env default)"
 docker-compose up
 ```
 
-OR Use `Docker for Mac`.
+OR with `Docker for Mac`.
 ```
 docker-compose up
-```
-
-### Migrate DB
-```
-goose -env=local up
 ```
 
 ### Define environmental variables
@@ -51,9 +60,14 @@ And then, load environmental variables with `direnv`.
 direnv allow
 ```
 
-Or just use source.
+OR just use `source` command.
 ```
 source .envrc
+```
+
+### Migrate DB
+```
+goose -env=local up
 ```
 
 ### Run server
@@ -61,10 +75,14 @@ source .envrc
 make watch
 ```
 
-### Run frontend
+### Run frontend dev server
 ```
 npm start
 ```
+
+### Access to the web
+
+http://localhost:4000/
 
 ### Connect to MySQL on Docker
 
@@ -73,7 +91,7 @@ Use `docker-machine ip default` on docker-machine
 mysql -uroot -proot -h $(docker-machine ip default) -P 13306 lekcije
 ```
 
-Or `127.0.0.1` on Docker for Mac.
+OR `127.0.0.1` on Docker for Mac.
 
 ```
 mysql -uroot -proot -h 127.0.0.1 -P 13306 lekcije
