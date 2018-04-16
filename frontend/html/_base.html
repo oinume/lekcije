@@ -35,35 +35,26 @@
 </head>
 <body>
 <div>
-  <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/">lekcije</a>
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        {{ $currentURL := .CurrentURL -}}
-        {{ if ne $currentURL "/" -}}
-        <ul class="nav navbar-nav">
-          {{ range $item := .NavigationItems }}
-          <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}><a href="{{ $item.URL }}">{{ $item.Text }}</a></li>
-          {{ end }}
-        </ul>
-        {{ end -}}
-        {{ if eq $currentURL "/" -}}
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="/oauth/google">ログイン</a></li>
-          <li><a href="/signup">新規登録</a></li>
-        </ul>
-        {{ end -}}
-      </div>
+  <nav class="navbar navbar-expand-lg navbar-light navbar-dark bg-primary">
+    <a class="navbar-brand" href="/">lekcije</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/oauth/google">ログイン</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/signup">新規登録</a>
+        </li>
+      </ul>
     </div>
   </nav>
+
   {{- block "content" . }}
   <div>
     default block
