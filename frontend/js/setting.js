@@ -284,7 +284,7 @@ class NotificationTimeSpanForm extends React.Component {
           value={timeSpan.fromHour}
           onChange={this.onChange}
           options={hourOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />時
         &nbsp;
         <Select
@@ -292,7 +292,7 @@ class NotificationTimeSpanForm extends React.Component {
           value={timeSpan.fromMinute}
           onChange={this.onChange}
           options={minuteOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />分
 
         &nbsp; 〜 &nbsp;&nbsp;
@@ -302,7 +302,7 @@ class NotificationTimeSpanForm extends React.Component {
           value={timeSpan.toHour}
           onChange={this.onChange}
           options={hourOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />時
         &nbsp;
         <Select
@@ -310,7 +310,7 @@ class NotificationTimeSpanForm extends React.Component {
           value={timeSpan.toMinute}
           onChange={this.onChange}
           options={minuteOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />分
 
         <button type="button" className="btn btn-link button-plus" onClick={() => this.onClickPlus(event)}>
