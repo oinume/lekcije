@@ -358,7 +358,7 @@ class NotificationTimeSpanForm extends React.Component {
     } else {
       updateButton =
         <button
-          type="button" className="btn btn-default"
+          type="button" className="btn btn-outline-primary"
           onClick={() => this.props.dispatch('setTimeSpanEditable', true)}
         >
           編集
