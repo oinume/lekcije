@@ -314,10 +314,10 @@ class NotificationTimeSpanForm extends React.Component {
         />分
 
         <button type="button" className="btn btn-link button-plus" onClick={() => this.onClickPlus(event)}>
-          <span className="glyphicon glyphicon-plus-sign"/>
+          <i className="fas fa-plus-circle"></i>
         </button>
         <button type="button" className="btn btn-link button-plus" onClick={() => this.onClickMinus(event, index)}>
-          <span className="glyphicon glyphicon-minus-sign"/>
+          <i className="fas fa-minus-circle"></i>
         </button>
       </p>
     );
