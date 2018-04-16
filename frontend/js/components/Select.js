@@ -19,6 +19,7 @@ export default class Select extends React.Component {
         value={this.props.value}
         className={this.props.className}
         onChange={this.props.onChange}
+        style={{width:"auto"}}
       >
         {options}
       </select>
