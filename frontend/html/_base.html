@@ -35,23 +35,36 @@
 </head>
 <body>
 <div>
-  <nav class="navbar navbar-expand-lg navbar-light navbar-dark bg-primary">
-    <a class="navbar-brand" href="/">lekcije</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/oauth/google">ログイン</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/signup">新規登録</a>
-        </li>
-      </ul>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <div class="row">
+        <div class="col order-first"><a class="navbar-brand" href="/">lekcije</a></div>
+      </div>
+      <div class="row">
+        <div class="col order-last">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          {{ $currentURL := .CurrentURL -}}
+          {{ if ne $currentURL "/" -}}
+            <ul class="navbar-nav mr-auto">
+            {{ range $item := .NavigationItems }}
+              <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}>
+                <a class="nav-link" href="{{ $item.URL }}">{{ $item.Text }}</a>
+              </li>
+            {{ end }}
+            </ul>
+          {{ end -}}
+          {{ if eq $currentURL "/" -}}
+            <ul class="navbar-nav">
+              <li><a class="nav-link" href="/oauth/google">ログイン</a></li>
+              <li><a class="nav-link" href="/signup">新規登録</a></li>
+            </ul>
+          {{ end -}}
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 
