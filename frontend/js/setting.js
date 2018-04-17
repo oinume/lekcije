@@ -278,7 +278,8 @@ class NotificationTimeSpanForm extends React.Component {
     }
 
     return (
-      <p>
+      // TODO: Use <ul><li>
+      <p style={{marginBottom:"0px"}}>
         <Select
           name={'fromHour_' + index}
           value={timeSpan.fromHour}
@@ -314,10 +315,10 @@ class NotificationTimeSpanForm extends React.Component {
         />分
 
         <button type="button" className="btn btn-link button-plus" onClick={() => this.onClickPlus(event)}>
-          <i className="fas fa-plus-circle"></i>
+          <i className="fas fa-plus-circle button-plus" aria-hidden="true"></i>
         </button>
         <button type="button" className="btn btn-link button-plus" onClick={() => this.onClickMinus(event, index)}>
-          <i className="fas fa-minus-circle"></i>
+          <i className="fas fa-minus-circle button-plus" aria-hidden="true"></i>
         </button>
       </p>
     );
@@ -371,7 +372,7 @@ class NotificationTimeSpanForm extends React.Component {
           <div className="col-sm-2">
             <label htmlFor="notificationTimeSpan" className="control-label">レッスン希望時間帯</label>
             <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
-              <span className="glyphicon glyphicon-question-sign button-help" aria-hidden="true"></span>
+              <i className="fas fa-question-circle button-help" aria-hidden="true"></i>
             </a>
           </div>
           <div className="col-sm-8">
