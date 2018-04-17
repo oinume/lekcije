@@ -2,17 +2,6 @@ html {
   font-family: 'Roboto', sans-serif;
 }
 
-/*
-body {
-  font-size: 13px;
-  line-height: 20px;
-}
-*/
-
-body {
-    /* padding-top: 50px; */
-}
-
 .container-narrow {
     max-width: 800px;
 }
