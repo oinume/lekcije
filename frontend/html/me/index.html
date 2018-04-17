@@ -54,11 +54,14 @@
     <form method="POST" action="/me/followingTeachers/delete">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th><button type="submit" class="btn btn-default btn-xs">削除</button></th><th>講師</th></tr>
+          <tr class="d-flex">
+            <th class="col-md-1"><button type="submit" class="btn btn-primary btn-sm">削除</button></th>
+            <th class="col-md-11">講師</th>
+          </tr>
         </thead>
         <tbody>
         {{ range $teacher := .Teachers }}
-          <tr>
+          <tr class="d-flex">
             <td class="col-md-1"><input type="checkbox" name="teacherIds" value="{{ $teacher.ID }}"></td>
             <td class="col-md-8"><a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacher.ID }}/" target="_blank">{{ $teacher.Name }}</a></td>
           </tr>
