@@ -1,7 +1,7 @@
 {{ define "content" }}
 <div class="container">
   <div id="followingForm">
-    <h3>講師をフォローしよう</h3>
+    <h3 class="header-padding">講師をフォローしよう</h3>
     {{ template "_flashMessage.html" . }}
 
     {{ if .ShowTutorial }}
@@ -20,7 +20,7 @@
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
         <p>
-          講師のURLまたはIDを入力して下さい<a href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}" target="_blank"><span class="glyphicon glyphicon-question-sign button-help" aria-hidden="true"></span></a><br>
+          講師のURLまたはIDを入力して下さい<a href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}" target="_blank"><i class="fas fa-question-circle button-help" aria-hidden="true"></i></a><br>
           <small><a href="http://eikaiwa.dmm.com/" target="_blank">DMM英会話で講師を検索</a></small>
         </p>
         <input id="teacherIdsOrUrl"
@@ -54,11 +54,14 @@
     <form method="POST" action="/me/followingTeachers/delete">
       <table class="table table-striped table-hover">
         <thead>
-          <tr><th><button type="submit" class="btn btn-default btn-xs">削除</button></th><th>講師</th></tr>
+          <tr class="d-flex">
+            <th class="col-md-1"><button type="submit" class="btn btn-primary btn-sm">削除</button></th>
+            <th class="col-md-11">講師</th>
+          </tr>
         </thead>
         <tbody>
         {{ range $teacher := .Teachers }}
-          <tr>
+          <tr class="d-flex">
             <td class="col-md-1"><input type="checkbox" name="teacherIds" value="{{ $teacher.ID }}"></td>
             <td class="col-md-8"><a href="http://eikaiwa.dmm.com/teacher/index/{{ $teacher.ID }}/" target="_blank">{{ $teacher.Name }}</a></td>
           </tr>

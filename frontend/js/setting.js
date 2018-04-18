@@ -278,13 +278,14 @@ class NotificationTimeSpanForm extends React.Component {
     }
 
     return (
-      <p>
+      // TODO: Use <ul><li>
+      <p style={{marginBottom:"0px"}}>
         <Select
           name={'fromHour_' + index}
           value={timeSpan.fromHour}
           onChange={this.onChange}
           options={hourOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />時
         &nbsp;
         <Select
@@ -292,7 +293,7 @@ class NotificationTimeSpanForm extends React.Component {
           value={timeSpan.fromMinute}
           onChange={this.onChange}
           options={minuteOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />分
 
         &nbsp; 〜 &nbsp;&nbsp;
@@ -302,7 +303,7 @@ class NotificationTimeSpanForm extends React.Component {
           value={timeSpan.toHour}
           onChange={this.onChange}
           options={hourOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />時
         &nbsp;
         <Select
@@ -310,14 +311,14 @@ class NotificationTimeSpanForm extends React.Component {
           value={timeSpan.toMinute}
           onChange={this.onChange}
           options={minuteOptions}
-          className="custom-select mr-sm-2"
+          className="custom-select custom-select-sm"
         />分
 
         <button type="button" className="btn btn-link button-plus" onClick={() => this.onClickPlus(event)}>
-          <span className="glyphicon glyphicon-plus-sign"/>
+          <i className="fas fa-plus-circle button-plus" aria-hidden="true"></i>
         </button>
         <button type="button" className="btn btn-link button-plus" onClick={() => this.onClickMinus(event, index)}>
-          <span className="glyphicon glyphicon-minus-sign"/>
+          <i className="fas fa-minus-circle button-plus" aria-hidden="true"></i>
         </button>
       </p>
     );
@@ -358,7 +359,7 @@ class NotificationTimeSpanForm extends React.Component {
     } else {
       updateButton =
         <button
-          type="button" className="btn btn-default"
+          type="button" className="btn btn-outline-primary"
           onClick={() => this.props.dispatch('setTimeSpanEditable', true)}
         >
           編集
@@ -371,7 +372,7 @@ class NotificationTimeSpanForm extends React.Component {
           <div className="col-sm-2">
             <label htmlFor="notificationTimeSpan" className="control-label">レッスン希望時間帯</label>
             <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
-              <span className="glyphicon glyphicon-question-sign button-help" aria-hidden="true"></span>
+              <i className="fas fa-question-circle button-help" aria-hidden="true"></i>
             </a>
           </div>
           <div className="col-sm-8">

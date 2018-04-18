@@ -17,7 +17,7 @@ var plugins = [
     { context: 'frontend', from: '**/*.jpg' },
     { context: 'frontend', from: '**/*.svg' },
     { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
-    { context: nodeModulesPath, from: 'bootswatch/**', to: 'lib' },
+    { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
     { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
     { context: nodeModulesPath, from: 'react/umd/**', to: 'lib' },
     { context: nodeModulesPath, from: 'react-dom/umd/**', to: 'lib' },
