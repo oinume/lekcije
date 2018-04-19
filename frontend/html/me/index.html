@@ -1,7 +1,7 @@
 {{ define "content" }}
 <div class="container">
   <div id="followingForm">
-    <h3 class="header-padding">講師をフォローしよう</h3>
+    <h1 class="page-title">フォローしている講師</h1>
     {{ template "_flashMessage.html" . }}
 
     {{ if .ShowTutorial }}
@@ -20,7 +20,7 @@
     <form method="POST" action="/me/followingTeachers/create">
       <div class="form-group">
         <p>
-          講師のURLまたはIDを入力して下さい<a href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}" target="_blank"><i class="fas fa-question-circle button-help" aria-hidden="true"></i></a><br>
+          講師のURLまたはIDを入力してフォローします <a href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}" target="_blank"><i class="fas fa-question-circle button-help" aria-hidden="true"></i></a><br>
           <small><a href="http://eikaiwa.dmm.com/" target="_blank">DMM英会話で講師を検索</a></small>
         </p>
         <input id="teacherIdsOrUrl"
