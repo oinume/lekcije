@@ -46,6 +46,7 @@ class SettingView extends MicroContainer {
   render() {
     return (
       <div>
+        <h1 className="page-title">設定</h1>
         <Alert dispatch={this.dispatch} {...this.state.alert}/>
         <EmailForm dispatch={this.dispatch} value={this.state.email}/>
         <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
@@ -214,10 +215,10 @@ class EmailForm extends React.Component {
     return (
       <form className="form-horizontal">
         <div className="form-group">
-          <div className="col-sm-2">
+          <div className="col-sm-3">
             <label htmlFor="email" className="control-label">Email</label>
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-7">
             <input
               type="email" className="form-control" name="email" id="email"
               placeholder="Email" required autoFocus autoComplete="on"
@@ -369,13 +370,13 @@ class NotificationTimeSpanForm extends React.Component {
     return (
       <form className="form-horizontal">
         <div className="form-group">
-          <div className="col-sm-2">
+          <div className="col-sm-3">
             <label htmlFor="notificationTimeSpan" className="control-label">レッスン希望時間帯</label>
             <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
               <i className="fas fa-question-circle button-help" aria-hidden="true"></i>
             </a>
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-7">
             {content}
           </div>
         </div>

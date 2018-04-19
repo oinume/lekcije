@@ -14,6 +14,12 @@ html {
     border-bottom:1px solid #007196;
 }
 
+.page-title {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-size: 1.785rem;
+}
+
 .starter-template {
     padding: 15px 15px;
     text-align: center;
@@ -28,7 +34,7 @@ html {
 }
 
 .control-label {
-    font-size: 14px;
+    font-size: 1em;
     font-weight: bold;
 }
 
