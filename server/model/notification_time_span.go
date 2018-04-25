@@ -42,8 +42,16 @@ func (s *NotificationTimeSpan) Within(t time.Time) bool {
 	if err := s.ParseTime(); err != nil {
 		return false
 	}
-	if (t.After(s.from) || t.Equal(s.from)) && (t.Before(s.to) || t.Equal(s.to)) {
-		return true
+	if s.from.Before(s.to) {
+		if (t.After(s.from) || t.Equal(s.from)) && (t.Before(s.to) || t.Equal(s.to)) {
+			return true
+		}
+	} else {
+		toTime := s.to
+		toTime = toTime.Add(time.Hour * 24)
+		if (t.After(s.from) || t.Equal(s.from)) && (t.Before(toTime) || t.Equal(toTime)) {
+			return true
+		}
 	}
 	return false
 }
