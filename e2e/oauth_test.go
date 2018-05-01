@@ -25,56 +25,56 @@ func TestOAuthGoogleLogin(t *testing.T) {
 		t.Skipf("Skip because it can't render Google login page.")
 	}
 	a := assert.New(t)
-	require := require.New(t)
+	r := require.New(t)
 	driver := newWebDriver()
 	err := driver.Start()
-	a.Nil(err)
+	r.NoError(err)
 	defer driver.Stop()
 
 	page, err := driver.NewPage()
-	require.Nil(err)
-	require.Nil(page.Navigate(server.URL))
+	r.NoError(err)
+	r.NoError(page.Navigate(server.URL))
 	//time.Sleep(15 * time.Second)
 
 	// Check trackingId is set
 	cookies, err := page.GetCookies()
-	a.Nil(err)
+	r.NoError(err)
 	trackingIDCookie, err := getCookie(cookies, controller.TrackingIDCookieName)
 	fmt.Printf("trackingId = %v\n", trackingIDCookie.Value)
-	a.Nil(err)
+	r.NoError(err)
 	a.NotEmpty(trackingIDCookie.Value)
 
 	signupButton := page.FindByXPath("//a[contains(@class, 'button-signup')]")
 	signupURL, err := signupButton.Attribute("href")
-	require.Nil(err)
+	r.NoError(err)
 
-	require.Nil(page.Navigate(signupURL))
+	r.NoError(page.Navigate(signupURL))
 	buttonGoogle := page.FindByXPath("//button[contains(@class, 'button-google')]")
-	require.Nil(buttonGoogle.Click())
+	r.NoError(buttonGoogle.Click())
 	//time.Sleep(15 * time.Second)
 
 	time.Sleep(time.Second * 1)
 	googleAccount := os.Getenv("E2E_GOOGLE_ACCOUNT")
 	err = page.FindByXPath("//input[@name='identifier']").Fill(googleAccount)
-	require.Nil(err)
+	r.NoError(err)
 	err = page.FindByXPath("//div[@id='identifierNext']/content/span").Click()
-	require.Nil(err)
+	r.NoError(err)
 
 	time.Sleep(time.Second * 1)
 	err = page.FindByXPath("//input[@name='password']").Fill(os.Getenv("E2E_GOOGLE_PASSWORD"))
-	require.Nil(err)
+	r.NoError(err)
 	err = page.FindByXPath("//div[@id='passwordNext']/content/span").Click()
-	require.Nil(err)
+	r.NoError(err)
 
 	time.Sleep(time.Second * 3)
 
 	cookies, err = page.GetCookies()
-	require.Nil(err)
+	r.NoError(err)
 	apiToken := getAPIToken(cookies)
 	a.NotEmpty(apiToken)
 
 	user, err := model.NewUserService(db).FindByUserAPIToken(apiToken)
-	require.Nil(err)
+	r.NoError(err)
 	a.Equal(googleAccount, user.Email)
 
 	// TODO: Check HTML content
