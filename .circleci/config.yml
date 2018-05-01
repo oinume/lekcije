@@ -11,7 +11,9 @@ jobs:
           MYSQL_HOST: "127.0.0.1"
           MYSQL_PORT: "3306"
           MYSQL_DATABASE: "lekcije_test"
+          NODE_ENV: "test"
           REDIS_URL: "redis://h:@127.0.0.1:6379"
+          VERSION_HASH: "_version_"
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true
@@ -124,7 +126,9 @@ jobs:
           MYSQL_HOST: "127.0.0.1"
           MYSQL_PORT: "3306"
           MYSQL_DATABASE: "lekcije_test"
+          NODE_ENV: "test"
           REDIS_URL: "redis://h:@127.0.0.1:6379"
+          VERSION_HASH: "_version_"
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true
