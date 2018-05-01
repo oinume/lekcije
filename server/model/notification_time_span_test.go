@@ -12,21 +12,28 @@ func TestNotificationTimeSpan_Within(t *testing.T) {
 		fromTime string
 		toTime   string
 		target   string
-		want     bool
+		within   bool
 	}{
 		{
 			name:     "normal true",
 			fromTime: "08:30:00",
 			toTime:   "09:30:00",
 			target:   "09:30:00",
-			want:     true,
+			within:   true,
 		},
 		{
 			name:     "normal false",
 			fromTime: "08:30:00",
 			toTime:   "09:30:00",
 			target:   "10:00:00",
-			want:     false,
+			within:   false,
+		},
+		{
+			name:     "fromTime > toTime",
+			fromTime: "23:00:00",
+			toTime:   "01:00:00",
+			target:   "23:30:00",
+			within:   true,
 		},
 	}
 
@@ -40,8 +47,10 @@ func TestNotificationTimeSpan_Within(t *testing.T) {
 			t.Fatalf("timeSpan.ParseTime() failed: err=%v", err)
 		}
 		target, _ := time.Parse("15:04:05", tt.target)
-		if got := timeSpan.Within(target); got != tt.want {
-			t.Errorf("%v: unpexpected value from Within: got=%v, want=%v", tt.name, got, tt.want)
+		if got := timeSpan.Within(target); got != tt.within {
+			t.Errorf("%v: unpexpected value from Within: target=%v, fromTime=%v, toTime=%v: got=%v, want=%v",
+				tt.name, tt.target, tt.fromTime, tt.toTime, got, tt.within,
+			)
 		}
 	}
 }
