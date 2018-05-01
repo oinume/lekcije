@@ -21,9 +21,6 @@ var _ = time.UTC
 var _ = fmt.Print
 
 func TestOAuthGoogleLogin(t *testing.T) {
-	if os.Getenv("CIRCLECI") != "" {
-		t.Skipf("Skip because it can't render Google login page.")
-	}
 	a := assert.New(t)
 	r := require.New(t)
 	driver := newWebDriver()
@@ -81,10 +78,6 @@ func TestOAuthGoogleLogin(t *testing.T) {
 }
 
 func TestOAuthGoogleLogout(t *testing.T) {
-	if os.Getenv("CIRCLECI") != "" {
-		t.Skipf("Skip because PhantomJS can't SetCookie.")
-	}
-
 	a := assert.New(t)
 	r := require.New(t)
 
