@@ -60,13 +60,13 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	err = page.FindByXPath("//div[@id='identifierNext']/content/span").Click()
 	r.NoError(err)
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 3)
 	err = page.FindByXPath("//input[@name='password']").Fill(os.Getenv("E2E_GOOGLE_PASSWORD"))
 	r.NoError(err)
 	err = page.FindByXPath("//div[@id='passwordNext']/content/span").Click()
 	r.NoError(err)
 
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 4)
 
 	cookies, err = page.GetCookies()
 	r.NoError(err)
