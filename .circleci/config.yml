@@ -1,5 +1,96 @@
 version: 2
 jobs:
+  e2e:
+    working_directory: /go/src/github.com/oinume/lekcije
+    docker:
+      - image: golang:1.10-stretch
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_USER: "root"
+          MYSQL_PASSWORD: "lekcije"
+          MYSQL_HOST: "127.0.0.1"
+          MYSQL_PORT: "3306"
+          MYSQL_DATABASE: "lekcije_test"
+          REDIS_URL: "redis://h:@127.0.0.1:6379"
+      - image: circleci/mysql:5.7
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - image: redis:3.2-alpine
+    steps:
+      - checkout
+      - run:
+          name: "Set .gitconfig"
+          command: |
+            echo "" > ~/.gitconfig
+            git config --global url."https://github.com".insteadOf git://github.com
+            git config --global http.https://gopkg.in.followRedirects true
+      - run:
+          name: "Install packages"
+          command: |
+            set -eu
+            apt-get update -qq
+            apt-get install -y mysql-client net-tools
+      - run:
+          name: "Wait MySQL is up"
+          command: |
+            set -u
+            timeout 10 bash -c "while ! mysqladmin ping -u ${MYSQL_USER} -h ${MYSQL_HOST} --silent; do sleep 0.5; done"
+      - run:
+          name: "Setup database"
+          command: |
+            set -eu
+            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
+            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
+      # TODO: Skip this task
+      - run:
+          name: "Install dep"
+          command: |
+            go get github.com/golang/dep/cmd/dep
+      - restore_cache:
+          key: go-dep-{{ checksum "Gopkg.toml" }}
+      - run:
+          name: "Install dependencies"
+          command: |
+            if [ ! -e "/go/src/github.com/oinume/lekcije/vendor" ]; then
+              make install-dep
+            fi
+      - save_cache:
+          key: go-dep-{{ checksum "Gopkg.toml" }}
+          paths:
+            - "/go/src/github.com/oinume/lekcije/vendor"
+      - restore_cache:
+          key: go-commands-{{ checksum "Gopkg.toml" }}
+      - run:
+          name: "Install commands"
+          command: |
+            if [ ! -e "/go/bin/unused" ]; then
+              make install-commands
+            fi
+      - save_cache:
+          key: go-commands-{{ checksum "Gopkg.toml" }}
+          paths:
+            - "/go/bin"
+      - run:
+          name: "Apply database migrations"
+          command: |
+            goose -env=circle_ci up
+      - run:
+          name: "Install node"
+          command: |
+            curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+            apt-get install -y nodejs
+      - run:
+          name: "Build frontend"
+          command: |
+            set -eu
+            npm install
+            npm run build
+      - run:
+          name: "Run e2e-test"
+          command: |
+            export MYSQL_USER=lekcije
+            make e2e-test
+
   frontend:
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
@@ -114,11 +205,15 @@ workflows:
   version: 2
   build-workflow:
     jobs:
-      - server:
+      - e2e:
           filters:
             branches:
               only: /.*/
       - frontend:
+          filters:
+            branches:
+              only: /.*/
+      - server:
           filters:
             branches:
               only: /.*/
