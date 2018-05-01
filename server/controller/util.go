@@ -101,18 +101,20 @@ type commonTemplateData struct {
 }
 
 type navigationItem struct {
-	Text string
-	URL  string
+	Text      string
+	URL       string
+	NewWindow bool
 }
 
 var loggedInNavigationItems = []navigationItem{
-	{"ホーム", "/me"},
-	{"設定", "/me/setting"},
-	{"ログアウト", "/me/logout"},
+	{"ホーム", "/me", false},
+	{"設定", "/me/setting", false},
+	{"お問い合わせ", "https://docs.google.com/forms/d/1dWIRO6btfPcYHutU42qlNR0EU4IFHxmkaK5YV8q9gqY/edit?c=0&w=1", true},
+	{"ログアウト", "/me/logout", false},
 }
 
 var loggedOutNavigationItems = []navigationItem{
-	{"ホーム", "/"},
+	{"ホーム", "/", false},
 }
 
 func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) commonTemplateData {

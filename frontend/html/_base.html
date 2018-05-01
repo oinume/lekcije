@@ -52,7 +52,7 @@
             <ul class="navbar-nav mr-auto">
             {{ range $item := .NavigationItems }}
               <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}>
-                <a class="nav-link" href="{{ $item.URL }}">{{ $item.Text }}</a>
+                <a class="nav-link" href="{{ $item.URL }}" {{ if $item.NewWindow }} target="_blank"{{ end }}>{{ $item.Text }}</a>
               </li>
             {{ end }}
             </ul>
