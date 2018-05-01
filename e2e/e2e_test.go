@@ -78,12 +78,16 @@ func newWebDriver() *agouti.WebDriver {
 	e2eWebDriver := os.Getenv("E2E_WEB_DRIVER")
 	var driver *agouti.WebDriver
 	switch strings.ToLower(e2eWebDriver) {
-	case "chromedriver":
-		driver = agouti.ChromeDriver()
-	case "phantomjs":
-		driver = agouti.PhantomJS()
+	case "chromedriver_headless":
+		driver = agouti.ChromeDriver(
+			agouti.ChromeOptions("args", []string{
+				"--headless",             // headlessモードの指定
+				"--window-size=1280,800", // ウィンドウサイズの指定
+			}),
+			agouti.Debug,
+		)
 	default:
-		driver = agouti.PhantomJS()
+		driver = agouti.ChromeDriver()
 	}
 	driver.HTTPClient = client
 	return driver
