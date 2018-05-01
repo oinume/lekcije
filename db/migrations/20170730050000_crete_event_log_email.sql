@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS event_log_email (
   url VARCHAR(255) NOT NULL DEFAULT '',
   KEY (`datetime`, `event`),
   KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPRESSED;
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
