@@ -4,6 +4,7 @@ PROTO_GEN_DIR = proto-gen
 GRPC_GATEWAY_REPO = github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
 GO_GET ?= go get
 GO_TEST ?= go test -v -race -p=1 # To avoid database operations conflict
+GO_TEST_E2E ?= go test -v -p=1
 GO_TEST_PACKAGES = $(shell go list ./... | grep -v vendor | grep -v e2e)
 DB_HOST = 192.168.99.100
 LINT_PACKAGES = $(shell go list ./...)
@@ -59,7 +60,7 @@ test: go-test e2e-test
 
 .PHONY: e2e-test
 e2e-test: minify-static-development
-	$(GO_TEST) github.com/oinume/lekcije/e2e
+	$(GO_TEST_E2E) github.com/oinume/lekcije/e2e
 
 .PHONY: go-test
 go-test:
