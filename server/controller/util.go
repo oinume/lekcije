@@ -108,6 +108,7 @@ type navigationItem struct {
 var loggedInNavigationItems = []navigationItem{
 	{"ホーム", "/me"},
 	{"設定", "/me/setting"},
+	{"お問い合わせ", "https://docs.google.com/forms/d/1dWIRO6btfPcYHutU42qlNR0EU4IFHxmkaK5YV8q9gqY/edit?c=0&w=1"},
 	{"ログアウト", "/me/logout"},
 }
 
