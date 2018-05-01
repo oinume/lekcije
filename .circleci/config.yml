@@ -77,7 +77,7 @@ jobs:
       - run:
           name: "Install node"
           command: |
-            curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_8.x | bash -
             apt-get install -y nodejs
       - run:
           name: "Build frontend"
