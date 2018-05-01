@@ -47,6 +47,7 @@ func (s *NotificationTimeSpan) Within(t time.Time) bool {
 			return true
 		}
 	} else {
+		// Add 24 hour to s.to if from > to. from=04:00, to=03:00 -> from=04:00, to=27:00
 		toTime := s.to
 		toTime = toTime.Add(time.Hour * 24)
 		if (t.After(s.from) || t.Equal(s.from)) && (t.Before(toTime) || t.Equal(toTime)) {
