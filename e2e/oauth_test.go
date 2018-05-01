@@ -86,19 +86,20 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	}
 
 	a := assert.New(t)
+	r := require.New(t)
 
 	_, apiToken, err := createUserAndLogin("oinume", randomEmail("oinume"), util.RandomString(16))
-	a.Nil(err)
+	r.NoError(err)
 
 	driver := newWebDriver()
-	a.Nil(driver.Start())
+	r.NoError(driver.Start())
 	defer driver.Stop()
 
 	page, err := driver.NewPage()
-	a.Nil(err)
-	a.Nil(page.Navigate(server.URL))
+	r.NoError(err)
+	r.NoError(page.Navigate(server.URL))
 	u, err := url.Parse(server.URL)
-	a.Nil(err)
+	r.NoError(err)
 	cookie := &http.Cookie{
 		Name:     controller.APITokenCookieName,
 		Domain:   strings.Split(u.Host, ":")[0], // Remove port
@@ -107,11 +108,13 @@ func TestOAuthGoogleLogout(t *testing.T) {
 		Expires:  time.Now().Add(model.UserAPITokenExpiration),
 		HttpOnly: false,
 	}
-	a.Nil(page.SetCookie(cookie))
-	a.Nil(page.Navigate(server.URL + "/me"))
-	//time.Sleep(time.Second * 5)
+	r.NoError(page.SetCookie(cookie))
+	r.NoError(page.Navigate(server.URL + "/me"))
+	time.Sleep(2 * time.Second)
 
-	a.Nil(page.Navigate(server.URL + "/me/logout"))
+	r.NoError(page.Navigate(server.URL + "/me/logout"))
+	time.Sleep(2 * time.Second)
+
 	userAPITokenService := model.NewUserAPITokenService(db)
 	_, err = userAPITokenService.FindByPK(apiToken)
 	a.True(errors.IsNotFound(err))
