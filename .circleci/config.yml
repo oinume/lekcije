@@ -5,6 +5,8 @@ jobs:
     docker:
       - image: golang:1.10-stretch
         environment:
+          GRPC_PORT: 4002
+          E2E_WEB_DRIVER: "chromedriver_headless"
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_USER: "root"
           MYSQL_PASSWORD: "lekcije"
