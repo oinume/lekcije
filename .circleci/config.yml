@@ -46,13 +46,24 @@ jobs:
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
       - run:
-          name: "Install chrome"
+          name: "Install chrome and chromedriver"
           command: |
-            apt-get install -y fonts-liberation libasound2 libnspr4 libnss3 libxss1 libappindicator3-1 lsb-release xdg-utils
-            curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-            dpkg -i google-chrome.deb
-            sed -i 's|HERE/chrome"|HERE/chrome" --no-sandbox|g' /opt/google/chrome/google-chrome
-            rm google-chrome.deb
+            curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
+            echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+            apt-get -y update
+            apt-get -y install google-chrome-stable
+            apt-get -y install openjdk-8-jre-headless xvfb libxi6 libgconf-2-4 wget unzip
+            wget -N https://chromedriver.storage.googleapis.com/2.38/chromedriver_linux64.zip -P ~/
+            unzip ~/chromedriver_linux64.zip -d ~/
+            rm ~/chromedriver_linux64.zip
+            mv -f ~/chromedriver /usr/local/bin/chromedriver
+            chown root:root /usr/local/bin/chromedriver
+            chmod 0755 /usr/local/bin/chromedriver
+#            apt-get install -y fonts-liberation libasound2 libnspr4 libnss3 libxss1 libappindicator3-1 lsb-release xdg-utils
+#            curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+#            dpkg -i google-chrome.deb
+#            sed -i 's|HERE/chrome"|HERE/chrome" --no-sandbox|g' /opt/google/chrome/google-chrome
+#            rm google-chrome.deb
       # TODO: Skip this task
       - run:
           name: "Install dep"
