@@ -102,6 +102,12 @@
   revision = "14b04e0594ef6a9fd943363b135656f0ec8c9d0e"
 
 [[projects]]
+  name = "github.com/kelseyhightower/envconfig"
+  packages = ["."]
+  revision = "f611eb38b3875cc3bd991ca91c51d06446afa14c"
+  version = "v1.3.0"
+
+[[projects]]
   name = "github.com/newrelic/go-agent"
   packages = [
     ".",
@@ -398,6 +404,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "87c12e93cc6486794e25e92ff2db69fb27926919730f9eac2eb66e1ecb3b91b9"
+  inputs-digest = "465a0d88f13c19c8d622d6ec9160337ad721736b96f5138092f440c91cb21ef9"
   solver-name = "gps-cdcl"
   solver-version = 1
