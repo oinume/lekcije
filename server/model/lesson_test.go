@@ -16,7 +16,7 @@ func TestLessonService_UpdateLessons(t *testing.T) {
 	r := require.New(t)
 
 	teacherID := uint32(util.RandomInt(999999))
-	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.DefaultVars.LocalLocation)
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons := createLessons(teacherID, datetime, "Reserved", 5)
 
 	affected, err := lessonService.UpdateLessons(lessons)
@@ -43,7 +43,7 @@ func TestLessonService_UpdateLessonsOverwrite(t *testing.T) {
 	r := require.New(t)
 
 	teacherID := uint32(util.RandomInt(999999))
-	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.DefaultVars.LocalLocation)
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons := createLessons(teacherID, datetime, "Available", 5)
 	affected, err := lessonService.UpdateLessons(lessons)
 	r.NoError(err)
@@ -69,7 +69,7 @@ func TestLessonService_UpdateLessonsNoChange(t *testing.T) {
 	r := require.New(t)
 
 	teacherID := uint32(util.RandomInt(999999))
-	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.DefaultVars.LocalLocation)
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons := createLessons(teacherID, datetime, "Available", 5)
 	affected, err := lessonService.UpdateLessons(lessons)
 	r.NoError(err)
@@ -91,7 +91,7 @@ func TestLessonService_UpdateLessonsNoChange(t *testing.T) {
 func TestLessonService_GetNewAvailableLessons1(t *testing.T) {
 	a := assert.New(t)
 
-	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.DefaultVars.LocalLocation)
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons1 := createLessons(1, datetime, "Reserved", 3)
 	lessons2 := createLessons(1, datetime, "Reserved", 3)
 	lessons2[1].Status = "Available"
@@ -104,7 +104,7 @@ func TestLessonService_GetNewAvailableLessons1(t *testing.T) {
 func TestLessonService_GetNewAvailableLessons2(t *testing.T) {
 	a := assert.New(t)
 
-	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.DefaultVars.LocalLocation)
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons1 := createLessons(1, datetime, "Reserved", 3)
 	lessons2 := createLessons(1, datetime, "Reserved", 3)
 	lessons1[0].Status = "Available"

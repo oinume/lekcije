@@ -211,6 +211,6 @@ func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	if host == "" {
 		host = r.Host
 	}
-	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.WebURLScheme(r), host)
+	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.DefaultVars.WebURLScheme(r), host)
 	return c
 }

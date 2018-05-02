@@ -68,9 +68,9 @@ func MustProcessDefault() {
 }
 
 func (v *Vars) StaticURL() string {
-	if IsProductionEnv() {
+	if v.IsProductionEnv() {
 		return "https://asset.lekcije.com/static/" + v.VersionHash
-	} else if IsDevelopmentEnv() {
+	} else if v.IsDevelopmentEnv() {
 		return "http://asset.local.lekcije.com/static/" + v.VersionHash
 	} else {
 		return "/static/" + v.VersionHash
@@ -78,9 +78,9 @@ func (v *Vars) StaticURL() string {
 }
 
 func (v *Vars) WebURL() string {
-	if IsProductionEnv() {
+	if v.IsProductionEnv() {
 		return "https://www.lekcije.com"
-	} else if IsDevelopmentEnv() {
+	} else if v.IsDevelopmentEnv() {
 		return "http://www.local.lekcije.com"
 	} else {
 		return "http://localhost:4000"
@@ -109,38 +109,30 @@ func (v *Vars) WebURLScheme(r *http.Request) string {
 	return "http"
 }
 
+func StaticURL() string {
+	return DefaultVars.StaticURL()
+}
+
 func WebURL() string {
-	if IsProductionEnv() {
-		return "https://www.lekcije.com"
-	} else if IsDevelopmentEnv() {
-		return "http://www.local.lekcije.com"
-	} else {
-		return "http://localhost:4000"
-	}
-}
-
-func EnvString() string {
-	return os.Getenv("NODE_ENV")
-}
-
-func IsProductionEnv() bool {
-	return EnvString() == "production"
-}
-
-func IsDevelopmentEnv() bool {
-	return EnvString() == "development"
-}
-
-func IsLocalEnv() bool {
-	return EnvString() == "local"
+	return DefaultVars.WebURL()
 }
 
 func WebURLScheme(r *http.Request) string {
-	if IsProductionEnv() {
-		return "https"
-	}
-	if r != nil && r.Header.Get("X-Forwarded-Proto") == "https" {
-		return "https"
-	}
-	return "http"
+	return DefaultVars.WebURLScheme(r)
+}
+
+func LocalLocation() *time.Location {
+	return DefaultVars.LocalLocation
+}
+
+func IsDevelopmentEnv() bool {
+	return DefaultVars.IsDevelopmentEnv()
+}
+
+func IsLocalEnv() bool {
+	return DefaultVars.IsLocalEnv()
+}
+
+func IsProductionEnv() bool {
+	return DefaultVars.IsProductionEnv()
 }

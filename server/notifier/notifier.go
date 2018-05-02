@@ -221,8 +221,8 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	now := time.Now().In(config.DefaultVars.LocalLocation)
-	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.DefaultVars.LocalLocation)
+	now := time.Now().In(config.LocalLocation())
+	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalLocation())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
 	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.ID, fromDate, toDate)
 	if err != nil {
