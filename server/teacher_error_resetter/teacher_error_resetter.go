@@ -6,6 +6,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
@@ -23,7 +24,7 @@ type Main struct {
 }
 
 func (m *Main) Run() error {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
 	logger.App.Info("teacher_error_resetter started")
 	defer func() {

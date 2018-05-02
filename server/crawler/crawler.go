@@ -26,7 +26,7 @@ type Main struct {
 }
 
 func (m *Main) Run() error {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	if *m.Followed && *m.SpecifiedIDs != "" {
 		return fmt.Errorf("can't specify -followed and -ids flags both")
 	}

@@ -2,12 +2,12 @@ package model
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/util"
 )
 
@@ -25,10 +25,9 @@ func (h *TestHelper) DB() *gorm.DB {
 	if h.db != nil {
 		return h.db
 	}
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	h.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
-	debugSQL := os.Getenv("DEBUG_SQL")
-	db, err := OpenDB(h.dbURL, 1, debugSQL == "true")
+	db, err := OpenDB(h.dbURL, 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to OpenDB(): err=%v", err))
 	}

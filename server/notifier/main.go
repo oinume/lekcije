@@ -11,6 +11,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
@@ -53,7 +54,7 @@ func (m *Main) Run() error {
 		}
 	}
 
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
 	//if *m.LogLevel != "" {
 	//	//logger.App.SetLevel(logger.NewLevel(*m.LogLevel))

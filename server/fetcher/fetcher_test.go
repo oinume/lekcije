@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	testDBURL := model.ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
 	var err error
 	db, err := model.OpenDB(testDBURL, 1, true) // TODO: env

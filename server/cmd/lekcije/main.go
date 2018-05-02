@@ -9,7 +9,6 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/grpc_server"
 	"github.com/oinume/lekcije/server/grpc_server/interceptor"
@@ -17,10 +16,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
-
-func init() {
-	bootstrap.CheckServerEnvVars()
-}
 
 func main() {
 	config.MustProcessDefault()

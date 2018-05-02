@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/model"
 )
@@ -13,7 +13,7 @@ import (
 var helper *model.TestHelper
 
 func TestMain(m *testing.M) {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	helper = model.NewTestHelper()
 	// NOTE: Avoid "Failed to FindByPK: id=1: record not found"
 	helper.TruncateAllTables(helper.DB())

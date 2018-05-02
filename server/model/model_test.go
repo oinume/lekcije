@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,7 +27,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	db := helper.DB()
 	defer db.Close()
 

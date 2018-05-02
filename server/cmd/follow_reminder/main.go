@@ -33,7 +33,7 @@ func main() {
 }
 
 func run() error {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
 	//if *logLevel != "" {
 	//	logger.App.SetLevel(logger.NewLevel(*logLevel))

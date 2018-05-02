@@ -3,6 +3,7 @@ package config
 import (
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
@@ -32,6 +33,7 @@ type Vars struct {
 	GRPCPort           int    `envconfig:"GRPC_PORT" default:"4002"`
 	RollbarAccessToken string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
 	VersionHash        string `envconfig:"VERSION_HASH"`
+	DebugSQL           bool   `envconfig:"DEBUG_SQL"`
 	LocalLocation      *time.Location
 }
 
@@ -62,9 +64,12 @@ func MustProcess() *Vars {
 }
 
 var DefaultVars = &Vars{}
+var once sync.Once
 
 func MustProcessDefault() {
-	DefaultVars = MustProcess()
+	once.Do(func() {
+		DefaultVars = MustProcess()
+	})
 }
 
 func (v *Vars) StaticURL() string {

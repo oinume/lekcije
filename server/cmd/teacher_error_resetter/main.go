@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/teacher_error_resetter"
 	"github.com/oinume/lekcije/server/util"
@@ -17,7 +18,7 @@ func main() {
 	m.LogLevel = flag.String("log-level", "info", "Log level")
 	flag.Parse()
 
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	dbLogging := *m.LogLevel == "debug"
 	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
 	if err != nil {
