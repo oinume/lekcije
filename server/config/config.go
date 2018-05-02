@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	jst         = time.FixedZone("Asia/Tokyo", 9*60*60)
+	asiaTokyo   = time.FixedZone("Asia/Tokyo", 9*60*60)
 	versionHash = os.Getenv("VERSION_HASH")
 	timestamp   = time.Now().UTC()
 )
@@ -32,7 +32,7 @@ type Vars struct {
 	GRPCPort           int    `envconfig:"GRPC_PORT" default:"4002"`
 	RollbarAccessToken string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
 	VersionHash        string `envconfig:"VERSION_HASH"`
-	LocalTimeZone      *time.Location
+	LocalLocation      *time.Location
 }
 
 func Process() (*Vars, error) {
@@ -41,7 +41,7 @@ func Process() (*Vars, error) {
 		return nil, err
 	}
 
-	vars.LocalTimeZone = jst
+	vars.LocalLocation = asiaTokyo
 	if vars.VersionHash == "" {
 		vars.VersionHash = timestamp.Format("20060102150405")
 	}
@@ -143,8 +143,4 @@ func WebURLScheme(r *http.Request) string {
 		return "https"
 	}
 	return "http"
-}
-
-func LocalTimezone() *time.Location {
-	return jst
 }

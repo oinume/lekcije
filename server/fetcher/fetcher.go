@@ -198,8 +198,8 @@ func (fetcher *LessonFetcher) parseHTML(
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
 	lessons := make([]*model.Lesson, 0, 1000)
-	now := time.Now().In(config.LocalTimezone())
-	originalDate := time.Now().In(config.LocalTimezone()).Truncate(24 * time.Hour)
+	now := time.Now().In(config.DefaultVars.LocalLocation)
+	originalDate := time.Now().In(config.DefaultVars.LocalLocation).Truncate(24 * time.Hour)
 	date := originalDate
 	// lessons
 	for iter := lessonXPath.Iter(root); iter.Next(); {
@@ -226,7 +226,7 @@ func (fetcher *LessonFetcher) parseHTML(
 				originalDate = time.Date(
 					year, time.Month(month), int(day),
 					0, 0, 0, 0,
-					config.LocalTimezone(),
+					config.DefaultVars.LocalLocation,
 				)
 				date = originalDate
 			}
@@ -244,7 +244,7 @@ func (fetcher *LessonFetcher) parseHTML(
 			dt := time.Date(
 				date.Year(), date.Month(), date.Day(),
 				hour, minute, 0, 0,
-				config.LocalTimezone(),
+				config.DefaultVars.LocalLocation,
 			)
 			status := model.LessonStatuses.MustValueForAlias(text)
 			fetcher.logger.Debug(
