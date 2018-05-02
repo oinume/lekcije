@@ -121,8 +121,8 @@ func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) comm
 	canonicalURL := fmt.Sprintf("%s://%s%s", config.WebURLScheme(req), req.Host, req.RequestURI)
 	canonicalURL = (strings.SplitN(canonicalURL, "?", 2))[0] // TODO: use url.Parse
 	data := commonTemplateData{
-		StaticURL:         config.StaticURL(),
-		GoogleAnalyticsID: config.GoogleAnalyticsID(),
+		StaticURL:         config.DefaultVars.StaticURL(),
+		GoogleAnalyticsID: config.DefaultVars.GoogleAnalyticsID,
 		CurrentURL:        req.RequestURI,
 		CanonicalURL:      canonicalURL,
 		IsUserAgentPC:     util.IsUserAgentPC(req),

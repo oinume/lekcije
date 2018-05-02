@@ -27,6 +27,7 @@ type Vars struct {
 	RedisURL           string `envconfig:"REDIS_URL"`
 	GoogleClientID     string `envconfig:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `envconfig:"GOOGLE_CLIENT_SECRET"`
+	GoogleAnalyticsID  string `envconfig:"GOOGLE_ANALYTICS_ID"`
 	HTTPPort           int    `envconfig:"PORT" default:"4001"`
 	GRPCPort           int    `envconfig:"GRPC_PORT" default:"4002"`
 	RollbarAccessToken string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
@@ -41,6 +42,9 @@ func Process() (*Vars, error) {
 	}
 
 	vars.LocalTimeZone = jst
+	if vars.VersionHash == "" {
+		vars.VersionHash = timestamp.Format("20060102150405")
+	}
 	// TODO: Make it optional
 	rollbar.Token = vars.RollbarAccessToken
 	rollbar.Endpoint = "https://api.rollbar.com/api/1/item/"
@@ -65,11 +69,11 @@ func MustProcessDefault() {
 
 func (v *Vars) StaticURL() string {
 	if IsProductionEnv() {
-		return "https://asset.lekcije.com/static/" + VersionHash()
+		return "https://asset.lekcije.com/static/" + v.VersionHash
 	} else if IsDevelopmentEnv() {
-		return "http://asset.local.lekcije.com/static/" + VersionHash()
+		return "http://asset.local.lekcije.com/static/" + v.VersionHash
 	} else {
-		return "/static/" + VersionHash()
+		return "/static/" + v.VersionHash
 	}
 }
 
@@ -105,16 +109,6 @@ func (v *Vars) WebURLScheme(r *http.Request) string {
 	return "http"
 }
 
-func StaticURL() string {
-	if IsProductionEnv() {
-		return "https://asset.lekcije.com/static/" + VersionHash()
-	} else if IsDevelopmentEnv() {
-		return "http://asset.local.lekcije.com/static/" + VersionHash()
-	} else {
-		return "/static/" + VersionHash()
-	}
-}
-
 func WebURL() string {
 	if IsProductionEnv() {
 		return "https://www.lekcije.com"
@@ -123,10 +117,6 @@ func WebURL() string {
 	} else {
 		return "http://localhost:4000"
 	}
-}
-
-func GoogleAnalyticsID() string {
-	return os.Getenv("GOOGLE_ANALYTICS_ID")
 }
 
 func EnvString() string {
@@ -157,12 +147,4 @@ func WebURLScheme(r *http.Request) string {
 
 func LocalTimezone() *time.Location {
 	return jst
-}
-
-func VersionHash() string {
-	if versionHash == "" {
-		return timestamp.Format("20060102150405")
-	} else {
-		return versionHash
-	}
 }
