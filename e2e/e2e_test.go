@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
@@ -27,13 +26,14 @@ var db *gorm.DB
 var helper = model.NewTestHelper()
 
 func TestMain(m *testing.M) {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
+	//bootstrap.CheckCLIEnvVars()
 	db = helper.DB()
 	if err := os.Setenv("MYSQL_DATABASE", "lekcije_test"); err != nil {
 		// TODO: Not use panic
 		panic(err)
 	}
-	bootstrap.CheckServerEnvVars()
+	//bootstrap.CheckServerEnvVars()
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
 	logger.InitializeAccessLogger(&accessLogBuffer)
@@ -45,7 +45,7 @@ func TestMain(m *testing.M) {
 
 	helper.TruncateAllTables(helper.DB())
 
-	port := config.ListenPort()
+	port := config.DefaultVars.HTTPPort
 	routes := route.Create(nil) // TODO: grpc-gateway
 	port += 1
 	server = newTestServer(routes, port)

@@ -3,8 +3,10 @@ package config
 import (
 	"net/http"
 	"os"
-	"strconv"
 	"time"
+
+	"github.com/kelseyhightower/envconfig"
+	"github.com/stvp/rollbar"
 )
 
 var (
@@ -12,6 +14,96 @@ var (
 	versionHash = os.Getenv("VERSION_HASH")
 	timestamp   = time.Now().UTC()
 )
+
+type Vars struct {
+	MySQLUser          string `envconfig:"MYSQL_USER"`
+	MySQLPassword      string `envconfig:"MYSQL_PASSWORD"`
+	MySQLHost          string `envconfig:"MYSQL_HOST"`
+	MySQLPort          string `envconfig:"MYSQL_PORT"`
+	MySQLDatabase      string `envconfig:"MYSQL_DATABASE"`
+	EncryptionKey      string `envconfig:"ENCRYPTION_KEY"`
+	NodeEnv            string `envconfig:"NODE_ENV"`
+	ServiceEnv         string `envconfig:"LEKCIJE_ENV" required:"true"`
+	RedisURL           string `envconfig:"REDIS_URL"`
+	GoogleClientID     string `envconfig:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string `envconfig:"GOOGLE_CLIENT_SECRET"`
+	HTTPPort           int    `envconfig:"PORT" default:"4001"`
+	GRPCPort           int    `envconfig:"GRPC_PORT" default:"4002"`
+	RollbarAccessToken string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
+	VersionHash        string `envconfig:"VERSION_HASH"`
+	LocalTimeZone      *time.Location
+}
+
+func Process() (*Vars, error) {
+	var vars Vars
+	if err := envconfig.Process("", &vars); err != nil {
+		return nil, err
+	}
+
+	vars.LocalTimeZone = jst
+	// TODO: Make it optional
+	rollbar.Token = vars.RollbarAccessToken
+	rollbar.Endpoint = "https://api.rollbar.com/api/1/item/"
+	rollbar.Environment = vars.NodeEnv // TODO: lekcije_env
+
+	return &vars, nil
+}
+
+func MustProcess() *Vars {
+	vars, err := Process()
+	if err != nil {
+		panic(err)
+	}
+	return vars
+}
+
+var DefaultVars = &Vars{}
+
+func MustProcessDefault() {
+	DefaultVars = MustProcess()
+}
+
+func (v *Vars) StaticURL() string {
+	if IsProductionEnv() {
+		return "https://asset.lekcije.com/static/" + VersionHash()
+	} else if IsDevelopmentEnv() {
+		return "http://asset.local.lekcije.com/static/" + VersionHash()
+	} else {
+		return "/static/" + VersionHash()
+	}
+}
+
+func (v *Vars) WebURL() string {
+	if IsProductionEnv() {
+		return "https://www.lekcije.com"
+	} else if IsDevelopmentEnv() {
+		return "http://www.local.lekcije.com"
+	} else {
+		return "http://localhost:4000"
+	}
+}
+
+func (v *Vars) IsProductionEnv() bool {
+	return v.ServiceEnv == "production"
+}
+
+func (v *Vars) IsDevelopmentEnv() bool {
+	return v.ServiceEnv == "development"
+}
+
+func (v *Vars) IsLocalEnv() bool {
+	return v.ServiceEnv == "local"
+}
+
+func (v *Vars) WebURLScheme(r *http.Request) string {
+	if v.IsProductionEnv() {
+		return "https"
+	}
+	if r != nil && r.Header.Get("X-Forwarded-Proto") == "https" {
+		return "https"
+	}
+	return "http"
+}
 
 func StaticURL() string {
 	if IsProductionEnv() {
@@ -63,30 +155,6 @@ func WebURLScheme(r *http.Request) string {
 	return "http"
 }
 
-func ListenPort() int {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "4001"
-	}
-	p, err := strconv.ParseInt(port, 10, 32)
-	if err != nil {
-		return -1
-	}
-	return int(p)
-}
-
-func GRPCListenPort() int {
-	port := os.Getenv("GPRC_PORT")
-	if port == "" {
-		port = "4002"
-	}
-	p, err := strconv.ParseInt(port, 10, 32)
-	if err != nil {
-		return -1
-	}
-	return int(p)
-}
-
 func LocalTimezone() *time.Location {
 	return jst
 }
@@ -97,8 +165,4 @@ func VersionHash() string {
 	} else {
 		return versionHash
 	}
-}
-
-func SetVersionHash(version string) {
-	versionHash = version
 }

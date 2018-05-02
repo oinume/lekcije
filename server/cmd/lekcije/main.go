@@ -23,8 +23,9 @@ func init() {
 }
 
 func main() {
-	port := config.ListenPort()
-	grpcPort := config.GRPCListenPort()
+	config.MustProcessDefault()
+	port := config.DefaultVars.HTTPPort
+	grpcPort := config.DefaultVars.GRPCPort
 	if port == grpcPort {
 		log.Fatalf("Can't specify same port for a server.")
 	}
