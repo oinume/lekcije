@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"sync"
@@ -70,6 +71,13 @@ func MustProcessDefault() {
 	once.Do(func() {
 		DefaultVars = MustProcess()
 	})
+}
+
+func (v *Vars) DBURL() string {
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s",
+		v.MySQLUser, v.MySQLPassword, v.MySQLHost, v.MySQLPort, v.MySQLDatabase,
+	)
 }
 
 func (v *Vars) StaticURL() string {

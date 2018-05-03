@@ -33,12 +33,12 @@ type CLIEnvVarsType struct {
 	RedisURL      string `env:"REDIS_URL"`
 }
 
-func (t CLIEnvVarsType) DBURL() string {
-	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s",
-		t.MySQLUser, t.MySQLPassword, t.MySQLHost, t.MySQLPort, t.MySQLDatabase,
-	)
-}
+//func (t CLIEnvVarsType) DBURL() string {
+//	return fmt.Sprintf(
+//		"%s:%s@tcp(%s:%s)/%s",
+//		t.MySQLUser, t.MySQLPassword, t.MySQLHost, t.MySQLPort, t.MySQLDatabase,
+//	)
+//}
 
 type HTTPServerEnvVarsType struct {
 	MySQLUser          string `env:"MYSQL_USER"`
@@ -54,12 +54,12 @@ type HTTPServerEnvVarsType struct {
 	GRPCPort           string `env:"GRPC_PORT"`
 }
 
-func (t HTTPServerEnvVarsType) DBURL() string {
-	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s",
-		t.MySQLUser, t.MySQLPassword, t.MySQLHost, t.MySQLPort, t.MySQLDatabase,
-	)
-}
+//func (t HTTPServerEnvVarsType) DBURL() string {
+//	return fmt.Sprintf(
+//		"%s:%s@tcp(%s:%s)/%s",
+//		t.MySQLUser, t.MySQLPassword, t.MySQLHost, t.MySQLPort, t.MySQLDatabase,
+//	)
+//}
 
 var _ = fmt.Print
 var CLIEnvVars = CLIEnvVarsType{}

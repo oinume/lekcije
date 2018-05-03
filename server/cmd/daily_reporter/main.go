@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/daily_reporter"
 	"github.com/oinume/lekcije/server/model"
@@ -19,8 +18,7 @@ func main() {
 	flag.Parse()
 
 	config.MustProcessDefault()
-	dbLogging := *m.LogLevel == "debug"
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
+	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		util.WriteError(os.Stderr, err)
 		os.Exit(1)

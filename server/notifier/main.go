@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/errors"
@@ -68,8 +67,7 @@ func (m *Main) Run() error {
 		)
 	}()
 
-	dbLogging := *m.LogLevel == "debug"
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, dbLogging)
+	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		return err
 	}

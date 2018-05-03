@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/util"
 )
@@ -26,7 +25,7 @@ func (h *TestHelper) DB() *gorm.DB {
 		return h.db
 	}
 	config.MustProcessDefault()
-	h.dbURL = ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
+	h.dbURL = ReplaceToTestDBURL(config.DefaultVars.DBURL())
 	db, err := OpenDB(h.dbURL, 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to OpenDB(): err=%v", err))

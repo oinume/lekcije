@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/model"
 )
@@ -29,7 +28,7 @@ func main() {
 	}
 
 	config.MustProcessDefault()
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, true)
+	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		log.Fatal(err)
 	}
