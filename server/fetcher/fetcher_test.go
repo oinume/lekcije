@@ -10,7 +10,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
@@ -24,10 +24,10 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	bootstrap.CheckCLIEnvVars()
-	testDBURL := model.ReplaceToTestDBURL(bootstrap.CLIEnvVars.DBURL())
+	config.MustProcessDefault()
+	testDBURL := model.ReplaceToTestDBURL(config.DefaultVars.DBURL())
 	var err error
-	db, err := model.OpenDB(testDBURL, 1, true) // TODO: env
+	db, err := model.OpenDB(testDBURL, 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		panic(err)
 	}

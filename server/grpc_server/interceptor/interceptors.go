@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
@@ -79,9 +78,9 @@ const maxDBConnections = 5
 func DBUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		db, err := model.OpenDB(
-			bootstrap.ServerEnvVars.DBURL(),
+			config.DefaultVars.DBURL(),
 			maxDBConnections,
-			!config.IsProductionEnv(),
+			config.DefaultVars.DebugSQL,
 		)
 		if err != nil {
 			return handler(ctx, req)

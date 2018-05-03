@@ -83,7 +83,7 @@ func (t *LoggingHTTPTransport) RoundTrip(req *http.Request) (*http.Response, err
 		fmt.Fprintln(&out, s)
 	}
 
-	if !config.IsProductionEnv() {
+	if !config.DefaultVars.IsProductionEnv() {
 		fmt.Println(out.String())
 	}
 

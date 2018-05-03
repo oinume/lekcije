@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/logger"
@@ -33,7 +32,7 @@ func main() {
 }
 
 func run() error {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
 	//if *logLevel != "" {
 	//	logger.App.SetLevel(logger.NewLevel(*logLevel))
@@ -44,7 +43,7 @@ func run() error {
 		logger.App.Info("follow_reminder finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, !config.IsProductionEnv())
+	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		return err
 	}

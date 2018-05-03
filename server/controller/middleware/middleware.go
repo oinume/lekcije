@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/newrelic/go-agent"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/controller"
@@ -118,9 +117,9 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 		}
 
 		db, err := model.OpenDB(
-			bootstrap.ServerEnvVars.DBURL(),
+			config.DefaultVars.DBURL(),
 			maxDBConnections,
-			!config.IsProductionEnv(),
+			config.DefaultVars.DebugSQL,
 		)
 		if err != nil {
 			controller.InternalServerError(w, err)
@@ -129,7 +128,7 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 		defer db.Close()
 		ctx = context_data.SetDB(ctx, db)
 
-		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, os.Getenv("REDIS_URL"))
+		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, config.DefaultVars.RedisURL)
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return

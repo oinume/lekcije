@@ -122,7 +122,7 @@ func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) comm
 	canonicalURL = (strings.SplitN(canonicalURL, "?", 2))[0] // TODO: use url.Parse
 	data := commonTemplateData{
 		StaticURL:         config.StaticURL(),
-		GoogleAnalyticsID: config.GoogleAnalyticsID(),
+		GoogleAnalyticsID: config.DefaultVars.GoogleAnalyticsID,
 		CurrentURL:        req.RequestURI,
 		CanonicalURL:      canonicalURL,
 		IsUserAgentPC:     util.IsUserAgentPC(req),

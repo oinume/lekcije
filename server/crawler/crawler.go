@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
@@ -26,7 +25,7 @@ type Main struct {
 }
 
 func (m *Main) Run() error {
-	bootstrap.CheckCLIEnvVars()
+	config.MustProcessDefault()
 	if *m.Followed && *m.SpecifiedIDs != "" {
 		return fmt.Errorf("can't specify -followed and -ids flags both")
 	}
@@ -41,7 +40,7 @@ func (m *Main) Run() error {
 		logger.App.Info("crawler finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, !config.IsProductionEnv())
+	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		return err
 	}

@@ -37,6 +37,7 @@ jobs:
           E2E_WEB_DRIVER: "PhantomJS"
           VERSION_HASH: "_version_"
           NODE_ENV: "test"
+          LEKCIJE_ENV: "test"
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true

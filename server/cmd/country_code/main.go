@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/oinume/lekcije/server/bootstrap"
+	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/model"
 )
 
@@ -27,8 +27,8 @@ func main() {
 		log.Fatalf("File open error: path=%v, err=%v", *file, err)
 	}
 
-	bootstrap.CheckCLIEnvVars()
-	db, err := model.OpenDB(bootstrap.CLIEnvVars.DBURL(), 1, true)
+	config.MustProcessDefault()
+	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		log.Fatal(err)
 	}

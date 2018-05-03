@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/oinume/lekcije/server/bootstrap"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
@@ -18,7 +17,7 @@ func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 		"redis": true,
 	}
 
-	db, err := model.OpenDB(bootstrap.ServerEnvVars.DBURL(), 1, !config.IsProductionEnv())
+	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err == nil {
 		defer db.Close()
 		if err := db.DB().Ping(); err != nil {
@@ -28,7 +27,7 @@ func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 		data["db"] = false
 	}
 
-	redis, err := model.OpenRedis(bootstrap.ServerEnvVars.RedisURL)
+	redis, err := model.OpenRedis(config.DefaultVars.RedisURL)
 	if err == nil {
 		defer redis.Close()
 		if redis.Ping().Err() != nil {
