@@ -26,11 +26,7 @@ const (
 )
 
 func TemplateDir() string {
-	if util.IsProductionEnv() {
-		return "static"
-	} else {
-		return "frontend/html"
-	}
+	return "frontend/html"
 }
 
 func TemplatePath(file string) string {
