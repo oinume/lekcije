@@ -128,7 +128,7 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 		defer db.Close()
 		ctx = context_data.SetDB(ctx, db)
 
-		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, os.Getenv("REDIS_URL"))
+		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, config.DefaultVars.RedisURL)
 		if err != nil {
 			controller.InternalServerError(w, err)
 			return
