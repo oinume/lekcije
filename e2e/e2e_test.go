@@ -27,13 +27,11 @@ var helper = model.NewTestHelper()
 
 func TestMain(m *testing.M) {
 	config.MustProcessDefault()
-	//bootstrap.CheckCLIEnvVars()
 	db = helper.DB()
 	if err := os.Setenv("MYSQL_DATABASE", "lekcije_test"); err != nil {
 		// TODO: Not use panic
 		panic(err)
 	}
-	//bootstrap.CheckServerEnvVars()
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
 	logger.InitializeAccessLogger(&accessLogBuffer)
