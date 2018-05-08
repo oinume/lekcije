@@ -38,7 +38,7 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 		YearsOfExperience: 2,
 		FavoriteCount:     100,
 		ReviewCount:       50,
-		Rating:            5.0,
+		Rating:            4.75,
 		LastLessonAt:      time.Date(2018, 3, 1, 11, 10, 0, 0, time.UTC),
 	}
 	err := teacherService.CreateOrUpdate(teacher)
@@ -47,6 +47,7 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	actual, err := teacherService.FindByPK(teacher.ID)
 	r.NoError(err)
 	a.Equal(teacher.Name, actual.Name)
+	a.Equal(teacher.Rating, actual.Rating)
 	a.Equal(teacher.LastLessonAt, actual.LastLessonAt)
 
 	newLastLessonAt := time.Date(2018, 4, 1, 11, 10, 0, 0, time.UTC)
