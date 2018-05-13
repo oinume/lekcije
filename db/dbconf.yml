@@ -1,6 +1,3 @@
-production:
-    driver: mysql
-    open: frug55zm4157vufy:z54008e4voq6spgd@tcp(zagreb.lampetty.net:3306)/lekcije?charset=utf8mb4&parseTime=true&loc=UTC
 local:
     driver: mysql
     open: $MYSQL_USER:$MYSQL_PASSWORD@tcp($MYSQL_HOST:$MYSQL_PORT)/lekcije?charset=utf8mb4&parseTime=true&loc=UTC
