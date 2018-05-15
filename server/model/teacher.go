@@ -69,6 +69,10 @@ func (t *Teacher) URL() string {
 	return fmt.Sprintf(teacherUrlBase, t.ID)
 }
 
+func (t *Teacher) IsJapanese() bool {
+	return t.CountryID == 392
+}
+
 type TeacherLessons struct {
 	Teacher *Teacher
 	Lessons []*Lesson
