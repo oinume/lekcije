@@ -85,3 +85,7 @@ GROUP BY s.event
 	}
 	return values, nil
 }
+
+func (s *EventLogEmailService) FindStatDailyUserNotificationEvent(date time.Time) ([]*StatDailyUserNotificationEvent, error) {
+	return nil, nil
+}
