@@ -191,8 +191,10 @@ func (fetcher *LessonFetcher) parseHTML(
 
 	// Nationality, birthday, etc...
 	fetcher.parseTeacherAttribute(teacher, root)
-	// FavoriteCount
-	fetcher.parseTeacherFavoriteCount(teacher, root)
+	if !teacher.IsJapanese() { // Japanese teachers don't have favorite count
+		// FavoriteCount
+		fetcher.parseTeacherFavoriteCount(teacher, root)
+	}
 	// Rating
 	fetcher.parseTeacherRating(teacher, root)
 
