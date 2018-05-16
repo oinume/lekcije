@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -9,9 +10,10 @@ import (
 )
 
 type StatDailyUserNotificationEvent struct {
-	Date    time.Time
-	Event   string
-	Count   uint32
+	Date  time.Time
+	Event string
+	Count uint32
+
 	UUCount uint32
 }
 
@@ -27,19 +29,26 @@ func NewStatDailyUserNotificationEventService(db *gorm.DB) *StatDailyUserNotific
 	return &StatDailyUserNotificationEventService{db}
 }
 
-func (s *StatDailyUserNotificationEventService) CreateOrUpdate(v *StatDailyUserNotificationEvent) error {
-	date := v.Date.Format("2006-01-02")
-	sql := fmt.Sprintf(`INSERT INTO %s VALUES (?, ?, ?, ?)`, v.TableName())
-	sql += " ON DUPLICATE KEY UPDATE"
-	sql += " count=?, uu_count=?"
+func (s *StatDailyUserNotificationEventService) CreateOrUpdate(date time.Time) error {
+	tableName := (&StatDailyUserNotificationEvent{}).TableName()
+	sql := fmt.Sprintf(`
+INSERT INTO %s (date, user_id, event, count)
+SELECT DATE(ele.datetime) AS date, ele.user_id, ele.event, COUNT(*) AS count
+FROM event_log_email AS ele
+WHERE
+  ele.datetime BETWEEN ? AND ?
+  AND ele.event='open'
+GROUP BY ele.user_id
+ON DUPLICATE KEY UPDATE count = ele.count 
+`, tableName)
 	values := []interface{}{
-		date, v.Event, v.Count, v.UUCount,
-		v.Count, v.UUCount,
+		date.Format("2006-01-02 00:00:00"),
+		date.Format("2006-01-02 23:59:59"),
 	}
-	if err := s.db.Exec(sql, values...).Error; err != nil {
+	if err := s.db.Exec(strings.TrimSpace(sql), values...).Error; err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
-			errors.WithResource(errors.NewResource(v.TableName(), "date", date)),
+			errors.WithResource(errors.NewResource(tableName, "date", date)),
 		)
 	}
 	return nil
