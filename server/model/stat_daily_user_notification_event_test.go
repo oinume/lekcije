@@ -11,6 +11,7 @@ import (
 func TestStatDailyUserNotificationEventService_CreateOrUpdate(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
+	helper.TruncateAllTables(helper.DB())
 
 	user1 := helper.CreateUser("test1", "test1@gmail.com")
 	user2 := helper.CreateUser("test2", "test2@gmail.com")
