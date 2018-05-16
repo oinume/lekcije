@@ -32,15 +32,25 @@ func (s *StatDailyUserNotificationEventService) CreateOrUpdate(date time.Time) e
 	tableName := (&StatDailyUserNotificationEvent{}).TableName()
 	sql := fmt.Sprintf(`
 INSERT INTO %s (date, user_id, event, count)
-SELECT DATE(ele.datetime) AS date, ele.user_id, ele.event, COUNT(*) AS count
-FROM event_log_email AS ele
-WHERE
-  ele.datetime BETWEEN ? AND ?
-  AND ele.event='open'
-GROUP BY date, ele.user_id, ele.event
-ON DUPLICATE KEY UPDATE count = count 
+SELECT
+  IFNULL(ele.date, ?) AS date
+  , u.id AS user_id
+  , IFNULL(ele.event, 'open') AS event
+  , IFNULL(ele.count, 0) AS count
+FROM user AS u
+LEFT JOIN (
+  SELECT DATE(datetime) AS date, user_id, event, COUNT(*) AS count
+  FROM event_log_email
+  WHERE
+    datetime BETWEEN ? AND ?
+    AND event='open'
+    GROUP BY date, user_id, event
+) AS ele ON u.id = ele.user_id
+ORDER BY user_id ASC
+ON DUPLICATE KEY UPDATE count = IFNULL(ele.count, 0) 
 `, tableName)
 	values := []interface{}{
+		date.Format("2006-01-02"),
 		date.Format("2006-01-02 00:00:00"),
 		date.Format("2006-01-02 23:59:59"),
 	}
