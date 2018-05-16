@@ -37,7 +37,7 @@ FROM event_log_email AS ele
 WHERE
   ele.datetime BETWEEN ? AND ?
   AND ele.event='open'
-GROUP BY ele.user_id
+GROUP BY date, ele.user_id, ele.event
 ON DUPLICATE KEY UPDATE count = count 
 `, tableName)
 	values := []interface{}{
