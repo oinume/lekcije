@@ -1,4 +1,4 @@
-package controller
+package http
 
 import (
 	"net/http"
@@ -15,7 +15,7 @@ func TestIndex(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	err := os.Chdir("../..")
+	err := os.Chdir("../../..")
 	r.NoError(err)
 
 	req, err := http.NewRequest("GET", "/", nil)

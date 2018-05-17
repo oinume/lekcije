@@ -1,4 +1,4 @@
-package controller
+package http
 
 import (
 	"fmt"
@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/context_data"
-	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/fetcher"
+	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
@@ -19,7 +19,6 @@ import (
 const (
 	followedMessage                = "フォローしました！"
 	unfollowedMessage              = "削除しました！"
-	updatedMessage                 = "設定を更新しました！"
 	emptyTeacherURLMessage         = "講師のURLまたはIDを入力して下さい"
 	invalidTeacherURLMessage       = "正しい講師のURLまたはIDを入力して下さい"
 	reachedMaxFollowTeacherMessage = "フォロー可能な上限数(%d)を超えました"

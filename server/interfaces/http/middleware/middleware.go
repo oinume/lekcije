@@ -11,10 +11,10 @@ import (
 	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
-	"github.com/oinume/lekcije/server/controller"
-	"github.com/oinume/lekcije/server/controller/flash_message"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
+	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
+	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -38,7 +38,7 @@ func PanicHandler(h http.Handler) http.Handler {
 				default:
 					err = fmt.Errorf("unknown error type: %v", errorType)
 				}
-				controller.InternalServerError(w, errors.NewInternalError(
+				interfaces_http.InternalServerError(w, errors.NewInternalError(
 					errors.WithError(err),
 					errors.WithMessage("panic ocurred"),
 				))
@@ -53,7 +53,7 @@ func PanicHandler(h http.Handler) http.Handler {
 func AccessLogger(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		writerProxy := controller.WrapWriter(w)
+		writerProxy := interfaces_http.WrapWriter(w)
 		h.ServeHTTP(writerProxy, r)
 		func() {
 			end := time.Now()
@@ -74,7 +74,7 @@ func AccessLogger(h http.Handler) http.Handler {
 				zap.String("url", r.URL.String()),
 				zap.Int("status", status),
 				zap.Int("bytes", writerProxy.BytesWritten()),
-				zap.String("remoteAddr", controller.GetRemoteAddress(r)),
+				zap.String("remoteAddr", interfaces_http.GetRemoteAddress(r)),
 				zap.String("userAgent", r.Header.Get("User-Agent")),
 				zap.String("referer", r.Referer()),
 				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
@@ -122,7 +122,7 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 			config.DefaultVars.DebugSQL,
 		)
 		if err != nil {
-			controller.InternalServerError(w, err)
+			interfaces_http.InternalServerError(w, err)
 			return
 		}
 		defer db.Close()
@@ -130,7 +130,7 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 
 		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, config.DefaultVars.RedisURL)
 		if err != nil {
-			controller.InternalServerError(w, err)
+			interfaces_http.InternalServerError(w, err)
 			return
 		}
 		defer redisClient.Close()
@@ -148,7 +148,7 @@ func SetLoggedInUser(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		cookie, err := r.Cookie(controller.APITokenCookieName)
+		cookie, err := r.Cookie(interfaces_http.APITokenCookieName)
 		if err != nil {
 			h.ServeHTTP(w, r)
 			return
@@ -180,7 +180,7 @@ func SetTrackingID(h http.Handler) http.Handler {
 			}
 		}
 
-		cookie, err := r.Cookie(controller.TrackingIDCookieName)
+		cookie, err := r.Cookie(interfaces_http.TrackingIDCookieName)
 		var trackingID string
 		if err == nil {
 			trackingID = cookie.Value
@@ -189,7 +189,7 @@ func SetTrackingID(h http.Handler) http.Handler {
 			domain := strings.Replace(r.Host, "www.", "", 1)
 			domain = strings.Replace(domain, ":4000", "", 1) // TODO: local only
 			c := &http.Cookie{
-				Name:     controller.TrackingIDCookieName,
+				Name:     interfaces_http.TrackingIDCookieName,
 				Value:    trackingID,
 				Path:     "/",
 				Domain:   domain,
@@ -233,7 +233,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		cookie, err := r.Cookie(controller.APITokenCookieName)
+		cookie, err := r.Cookie(interfaces_http.APITokenCookieName)
 		if err != nil {
 			logger.App.Debug("Not logged in")
 			http.Redirect(w, r, config.WebURL(), http.StatusFound)
@@ -249,7 +249,7 @@ func LoginRequiredFilter(h http.Handler) http.Handler {
 				http.Redirect(w, r, config.WebURL(), http.StatusFound)
 				return
 			}
-			controller.InternalServerError(w, err)
+			interfaces_http.InternalServerError(w, err)
 			return
 		}
 		logger.App.Debug("Logged in user", zap.String("name", user.Name))

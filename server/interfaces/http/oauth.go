@@ -1,4 +1,4 @@
-package controller
+package http
 
 // TOOD: Create package 'oauth'
 

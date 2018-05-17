@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oinume/lekcije/server/controller"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
@@ -39,7 +38,7 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	// Check trackingId is set
 	cookies, err := page.GetCookies()
 	r.NoError(err)
-	trackingIDCookie, err := getCookie(cookies, controller.TrackingIDCookieName)
+	trackingIDCookie, err := getCookie(cookies, http.TrackingIDCookieName)
 	fmt.Printf("trackingId = %v\n", trackingIDCookie.Value)
 	r.NoError(err)
 	a.NotEmpty(trackingIDCookie.Value)
@@ -101,7 +100,7 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	u, err := url.Parse(server.URL)
 	r.NoError(err)
 	cookie := &http.Cookie{
-		Name:     controller.APITokenCookieName,
+		Name:     http.APITokenCookieName,
 		Domain:   strings.Split(u.Host, ":")[0], // Remove port
 		Value:    apiToken,
 		Path:     "/",

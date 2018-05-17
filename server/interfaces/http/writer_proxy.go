@@ -1,5 +1,5 @@
 // Copied from https://github.com/zenazn/goji/blob/master/web/mutil/writer_proxy.go
-package controller
+package http
 
 import (
 	"bufio"
