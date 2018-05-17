@@ -18,10 +18,7 @@ func TestIndex(t *testing.T) {
 	err := os.Chdir("../..")
 	r.NoError(err)
 
-	server := httptest.NewServer(http.HandlerFunc(Index))
-	defer server.Close()
-
-	req, err := http.NewRequest("GET", server.URL, nil)
+	req, err := http.NewRequest("GET", "/", nil)
 	r.NoError(err)
 	ctx := context_data.SetTrackingID(req.Context(), "a")
 	req = req.WithContext(ctx)
