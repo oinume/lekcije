@@ -51,8 +51,8 @@ ON DUPLICATE KEY UPDATE count = IFNULL(ele.count, 0)
 `, tableName)
 	values := []interface{}{
 		date.Format("2006-01-02"),
-		date.Format("2006-01-02 00:00:00"),
-		date.Format("2006-01-02 23:59:59"),
+		date.Format("2006-01-02") + " 00:00:00",
+		date.Format("2006-01-02") + " 23:59:59",
 	}
 	if err := s.db.Exec(strings.TrimSpace(sql), values...).Error; err != nil {
 		return errors.NewInternalError(
