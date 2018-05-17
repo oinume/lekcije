@@ -36,6 +36,16 @@ func TestGet(t *testing.T) {
 			code:     http.StatusOK,
 			keywords: []string{"Allow: /"},
 		},
+		{
+			path:    "/sitemap.xml",
+			handler: http.HandlerFunc(SitemapXML),
+			code:    http.StatusOK,
+			keywords: []string{
+				`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+				"/signup",
+				"/terms",
+			},
+		},
 	}
 
 	for _, tc := range testCases {
