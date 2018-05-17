@@ -13,6 +13,7 @@ type MPlan struct {
 	ID                   uint8 `gorm:"primary_key"`
 	Name                 string
 	InternalName         string
+	StripeTestProductID  string
 	Price                int16
 	NotificationInterval uint8
 	ShowAd               bool
