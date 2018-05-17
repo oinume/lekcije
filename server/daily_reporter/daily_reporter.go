@@ -23,12 +23,22 @@ func (m *Main) Run() error {
 		return fmt.Errorf("invalid date format: %s", *m.TargetDate)
 	}
 
-	eventLogEmailService := model.NewEventLogEmailService(m.DB)
-	stats, err := eventLogEmailService.FindStatsNewLessonNotifierByDate(date)
+	if err := m.createStatNewLessonNotifier(date); err != nil {
+		return err
+	}
+	if err := m.createStatDailyUserNotificationEvent(date); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Main) createStatNewLessonNotifier(date time.Time) error {
+	service := model.NewEventLogEmailService(m.DB)
+	stats, err := service.FindStatsNewLessonNotifierByDate(date)
 	if err != nil {
 		return err
 	}
-	statUUs, err := eventLogEmailService.FindStatsNewLessonNotifierUUCountByDate(date)
+	statUUs, err := service.FindStatsNewLessonNotifierUUCountByDate(date)
 	if err != nil {
 		return err
 	}
@@ -45,6 +55,14 @@ func (m *Main) Run() error {
 		if err := statsNewLessonNotifierService.CreateOrUpdate(v); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (m *Main) createStatDailyUserNotificationEvent(date time.Time) error {
+	service := model.NewStatDailyUserNotificationEventService(m.DB)
+	if err := service.CreateOrUpdate(date); err != nil {
+		return err
 	}
 	return nil
 }
