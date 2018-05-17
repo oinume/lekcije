@@ -13,9 +13,9 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
+	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/route"
 	"github.com/sclevine/agouti"
 	"go.uber.org/zap/zapcore"
 )
@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 	helper.TruncateAllTables(helper.DB())
 
 	port := config.DefaultVars.HTTPPort
-	routes := route.Create(nil) // TODO: grpc-gateway
+	routes := interfaces_http.CreateMux(nil) // TODO: grpc-gateway
 	port += 1
 	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)

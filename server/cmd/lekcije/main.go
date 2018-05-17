@@ -12,7 +12,7 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	interfaces_grpc "github.com/oinume/lekcije/server/interfaces/grpc"
 	"github.com/oinume/lekcije/server/interfaces/grpc/interceptor"
-	"github.com/oinume/lekcije/server/route"
+	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -70,8 +70,8 @@ func startHTTPServer(grpcPort, httpPort int) error {
 	if err := api_v1.RegisterAPIHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {
 		return err
 	}
-	routes := route.Create(gatewayMux)
+	mux := interfaces_http.CreateMux(gatewayMux)
 
 	fmt.Printf("Starting HTTP server on %v\n", httpPort)
-	return http.ListenAndServe(fmt.Sprintf(":%d", httpPort), routes)
+	return http.ListenAndServe(fmt.Sprintf(":%d", httpPort), mux)
 }
