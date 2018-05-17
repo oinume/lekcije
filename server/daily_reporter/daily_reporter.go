@@ -61,8 +61,5 @@ func (m *Main) createStatNewLessonNotifier(date time.Time) error {
 
 func (m *Main) createStatDailyUserNotificationEvent(date time.Time) error {
 	service := model.NewStatDailyUserNotificationEventService(m.DB)
-	if err := service.CreateOrUpdate(date); err != nil {
-		return err
-	}
-	return nil
+	return service.CreateOrUpdate(date)
 }
