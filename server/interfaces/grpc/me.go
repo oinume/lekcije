@@ -1,4 +1,4 @@
-package grpc_server
+package grpc
 
 import (
 	"fmt"
