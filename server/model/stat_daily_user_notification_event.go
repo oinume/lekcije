@@ -37,7 +37,7 @@ SELECT
   , u.id AS user_id
   , IFNULL(ele.event, 'open') AS event
   , IFNULL(ele.count, 0) AS count
-FROM user AS u
+FROM user AS u /* Select from user to insert zero count users */
 LEFT JOIN (
   SELECT DATE(datetime) AS date, user_id, event, COUNT(*) AS count
   FROM event_log_email
