@@ -11,20 +11,45 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIndex(t *testing.T) {
+func TestGet(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
 	err := os.Chdir("../../..")
 	r.NoError(err)
 
-	req, err := http.NewRequest("GET", "/", nil)
-	r.NoError(err)
-	ctx := context_data.SetTrackingID(req.Context(), "a")
-	req = req.WithContext(ctx)
+	testCases := []struct {
+		path     string
+		handler  http.HandlerFunc
+		code     int
+		keywords []string
+	}{
+		{
+			path:     "/",
+			handler:  http.HandlerFunc(Index),
+			code:     http.StatusOK,
+			keywords: []string{"<title>lekcije - DMM英会話のお気に入り講師をフォローしよう</title>"},
+		},
+		{
+			path:     "/robots.txt",
+			handler:  http.HandlerFunc(RobotsTxt),
+			code:     http.StatusOK,
+			keywords: []string{"Allow: /"},
+		},
+	}
 
-	rr := httptest.NewRecorder()
-	http.HandlerFunc(Index).ServeHTTP(rr, req)
-	a.Equal(http.StatusOK, rr.Code)
-	a.Contains(rr.Body.String(), "<title>lekcije - DMM英会話のお気に入り講師をフォローしよう</title>")
+	for _, tc := range testCases {
+		req, err := http.NewRequest("GET", tc.path, nil)
+		r.NoError(err)
+
+		ctx := context_data.SetTrackingID(req.Context(), "a")
+		req = req.WithContext(ctx)
+
+		rr := httptest.NewRecorder()
+		tc.handler.ServeHTTP(rr, req)
+		a.Equal(tc.code, rr.Code)
+		for _, keyword := range tc.keywords {
+			a.Contains(rr.Body.String(), keyword)
+		}
+	}
 }
