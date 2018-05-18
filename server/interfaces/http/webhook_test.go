@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -16,13 +15,6 @@ import (
 var (
 	helper = model.NewTestHelper()
 )
-
-func TestMain(m *testing.M) {
-	db := helper.DB()
-	defer db.Close()
-	helper.TruncateAllTables(db)
-	os.Exit(m.Run())
-}
 
 func TestPostAPISendGridEventWebhook(t *testing.T) {
 	a := assert.New(t)

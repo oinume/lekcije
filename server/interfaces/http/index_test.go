@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/oinume/lekcije/server/context_data"
@@ -15,8 +14,6 @@ func TestIndex(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	err := os.Chdir("../../..")
-	r.NoError(err)
 
 	s := NewServer()
 	testCases := []struct {
