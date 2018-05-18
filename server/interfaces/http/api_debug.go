@@ -6,8 +6,14 @@ import (
 	"strings"
 )
 
+func (s *server) getAPIDebugEnvVarHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.getAPIDebugEnvVar(w, r)
+	}
+}
+
 // GET /api/debug/envVar
-func GetAPIDebugEnvVar(w http.ResponseWriter, r *http.Request) {
+func (s *server) getAPIDebugEnvVar(w http.ResponseWriter, r *http.Request) {
 	debugKey := r.FormValue("debugKey")
 	envDebugKey := os.Getenv("DEBUG_KEY")
 	if debugKey != "" && debugKey == envDebugKey {
@@ -25,8 +31,14 @@ func GetAPIDebugEnvVar(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *server) getAPIDebugHTTPHeaderHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.getAPIDebugHTTPHeader(w, r)
+	}
+}
+
 // GET /api/debug/httpHeader
-func GetAPIDebugHTTPHeader(w http.ResponseWriter, r *http.Request) {
+func (s *server) getAPIDebugHTTPHeader(w http.ResponseWriter, r *http.Request) {
 	debugKey := r.FormValue("debugKey")
 	envDebugKey := os.Getenv("DEBUG_KEY")
 	if debugKey != "" && debugKey == envDebugKey {
