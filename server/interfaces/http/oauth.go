@@ -51,7 +51,13 @@ func (e oauthError) Error() string {
 	return fmt.Sprintf("oauthError: invalid: %v", e)
 }
 
-func OAuthGoogle(w http.ResponseWriter, r *http.Request) {
+func (s *server) oauthGoogleHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.oauthGoogle(w, r)
+	}
+}
+
+func (s *server) oauthGoogle(w http.ResponseWriter, r *http.Request) {
 	state := util.RandomString(32)
 	cookie := &http.Cookie{
 		Name:     "oauthState",
@@ -65,7 +71,13 @@ func OAuthGoogle(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
 }
 
-func OAuthGoogleCallback(w http.ResponseWriter, r *http.Request) {
+func (s *server) oauthGoogleCallbackHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.oauthGoogleCallback(w, r)
+	}
+}
+
+func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if err := checkState(r); err != nil {
 		InternalServerError(w, err)
