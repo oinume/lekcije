@@ -8,6 +8,7 @@ import (
 )
 
 func CreateMux(gatewayMux *runtime.ServeMux) *goji.Mux {
+	s := NewServer()
 	mux := goji.NewMux()
 	mux.Use(SetTrackingID)
 	mux.Use(AccessLogger)
@@ -21,14 +22,14 @@ func CreateMux(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux.Use(SetGRPCMetadata)
 	mux.Use(SetGAMeasurementEventValues)
 
-	mux.HandleFunc(pat.Get("/static/*"), Static)
-	mux.HandleFunc(pat.Get("/"), Index)
-	mux.HandleFunc(pat.Get("/signup"), Signup)
+	mux.HandleFunc(pat.Get("/static/*"), s.static)
+	mux.HandleFunc(pat.Get("/"), s.index)
+	mux.HandleFunc(pat.Get("/signup"), s.signup)
 	mux.HandleFunc(pat.Get("/oauth/google"), OAuthGoogle)
 	mux.HandleFunc(pat.Get("/oauth/google/callback"), OAuthGoogleCallback)
-	mux.HandleFunc(pat.Get("/robots.txt"), RobotsTxt)
-	mux.HandleFunc(pat.Get("/sitemap.xml"), SitemapXML)
-	mux.HandleFunc(pat.Get("/terms"), Terms)
+	mux.HandleFunc(pat.Get("/robots.txt"), s.robotsTxt)
+	mux.HandleFunc(pat.Get("/sitemap.xml"), s.sitemapXML)
+	mux.HandleFunc(pat.Get("/terms"), s.terms)
 	mux.HandleFunc(pat.Get("/me"), GetMe)
 	mux.HandleFunc(pat.Post("/me/followingTeachers/create"), PostMeFollowingTeachersCreate)
 	mux.HandleFunc(pat.Post("/me/followingTeachers/delete"), PostMeFollowingTeachersDelete)

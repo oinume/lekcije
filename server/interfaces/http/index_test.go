@@ -18,6 +18,7 @@ func TestGet(t *testing.T) {
 	err := os.Chdir("../../..")
 	r.NoError(err)
 
+	s := NewServer()
 	testCases := []struct {
 		path     string
 		handler  http.HandlerFunc
@@ -26,19 +27,19 @@ func TestGet(t *testing.T) {
 	}{
 		{
 			path:     "/",
-			handler:  http.HandlerFunc(Index),
+			handler:  s.indexHandler(),
 			code:     http.StatusOK,
 			keywords: []string{"<title>lekcije - DMM英会話のお気に入り講師をフォローしよう</title>"},
 		},
 		{
 			path:     "/robots.txt",
-			handler:  http.HandlerFunc(RobotsTxt),
+			handler:  s.robotsTxtHandler(),
 			code:     http.StatusOK,
 			keywords: []string{"Allow: /"},
 		},
 		{
 			path:    "/sitemap.xml",
-			handler: http.HandlerFunc(SitemapXML),
+			handler: s.sitemapXMLHandler(),
 			code:    http.StatusOK,
 			keywords: []string{
 				`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
