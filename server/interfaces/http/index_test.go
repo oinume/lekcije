@@ -26,16 +26,26 @@ func TestGet(t *testing.T) {
 		keywords []string
 	}{
 		{
-			path:     "/",
-			handler:  s.indexHandler(),
-			code:     http.StatusOK,
-			keywords: []string{"<title>lekcije - DMM英会話のお気に入り講師をフォローしよう</title>"},
+			path:    "/",
+			handler: s.indexHandler(),
+			code:    http.StatusOK,
+			keywords: []string{
+				`<title>lekcije - DMM英会話のお気に入り講師をフォローしよう</title>`,
+			},
 		},
 		{
 			path:     "/robots.txt",
 			handler:  s.robotsTxtHandler(),
 			code:     http.StatusOK,
-			keywords: []string{"Allow: /"},
+			keywords: []string{`Allow: /`},
+		},
+		{
+			path:    "/signup",
+			handler: s.signupHandler(),
+			code:    http.StatusOK,
+			keywords: []string{
+				`<title>新規登録 | lekcije</title>`,
+			},
 		},
 		{
 			path:    "/sitemap.xml",
@@ -47,6 +57,14 @@ func TestGet(t *testing.T) {
 				"/terms",
 			},
 		},
+		{
+			path:    "/terms",
+			handler: s.termsHandler(),
+			code:    http.StatusOK,
+			keywords: []string{
+				`<title>利用規約 | lekcije</title>`,
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -56,11 +74,12 @@ func TestGet(t *testing.T) {
 		ctx := context_data.SetTrackingID(req.Context(), "a")
 		req = req.WithContext(ctx)
 
-		rr := httptest.NewRecorder()
-		tc.handler.ServeHTTP(rr, req)
-		a.Equal(tc.code, rr.Code)
+		w := httptest.NewRecorder()
+		tc.handler.ServeHTTP(w, req)
+
+		a.Equal(tc.code, w.Code)
 		for _, keyword := range tc.keywords {
-			a.Contains(rr.Body.String(), keyword)
+			a.Contains(w.Body.String(), keyword)
 		}
 	}
 }
