@@ -105,7 +105,7 @@ type navigationItem struct {
 var loggedInNavigationItems = []navigationItem{
 	{"ホーム", "/me", false},
 	{"設定", "/me/setting", false},
-	{"お問い合わせ", "https://docs.google.com/forms/d/1dWIRO6btfPcYHutU42qlNR0EU4IFHxmkaK5YV8q9gqY/edit?c=0&w=1", true},
+	{"お問い合わせ", "https://goo.gl/forms/CIGO3kpiQCGjtFD42", true},
 	{"ログアウト", "/me/logout", false},
 }
 
