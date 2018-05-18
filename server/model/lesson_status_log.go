@@ -31,10 +31,7 @@ func (s *LessonStatusLogService) TableName() string {
 }
 
 func (s *LessonStatusLogService) Create(log *LessonStatusLog) error {
-	if err := s.db.Create(log).Error; err != nil {
-		return err
-	}
-	return nil
+	return s.db.Create(log).Error
 }
 
 func (s *LessonStatusLogService) FindAllByLessonID(lessonID uint64) ([]*LessonStatusLog, error) {

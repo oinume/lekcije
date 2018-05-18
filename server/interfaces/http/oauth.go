@@ -1,6 +1,6 @@
-package controller
+package http
 
-// TOOD: Create package 'oauth'
+// TOOD: CreateMux package 'oauth'
 
 import (
 	"context"
