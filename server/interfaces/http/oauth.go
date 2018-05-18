@@ -1,7 +1,5 @@
 package http
 
-// TOOD: CreateMux package 'oauth'
-
 import (
 	"context"
 	"fmt"
