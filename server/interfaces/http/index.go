@@ -12,13 +12,9 @@ import (
 
 var _ = fmt.Print
 
-func (s *server) static(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, r.URL.Path[1:])
-}
-
 func (s *server) staticHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.static(w, r)
+		http.ServeFile(w, r, r.URL.Path[1:])
 	}
 }
 
@@ -26,11 +22,39 @@ func Static(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
+func (s *server) indexHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
+			http.Redirect(w, r, "/me", http.StatusFound)
+		} else {
+			s.indexLogout(w, r)
+		}
+	}
+}
+
 func Index(w http.ResponseWriter, r *http.Request) {
 	if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
 		http.Redirect(w, r, "/me", http.StatusFound)
 	} else {
 		indexLogout(w, r)
+	}
+}
+
+func (s *server) indexLogout(w http.ResponseWriter, r *http.Request) {
+	t := ParseHTMLTemplates(TemplatePath("index.html"))
+	type Data struct {
+		commonTemplateData
+	}
+	data := &Data{
+		commonTemplateData: getCommonTemplateData(r, false, 0),
+	}
+
+	if err := t.Execute(w, data); err != nil {
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		))
+		return
 	}
 }
 
@@ -49,6 +73,29 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 			errors.WithMessage("Failed to template.Execute()"),
 		))
 		return
+	}
+}
+
+func (s *server) signupHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
+			http.Redirect(w, r, "/me", http.StatusFound)
+			return
+		}
+
+		t := ParseHTMLTemplates(TemplatePath("signup.html"))
+		data := struct {
+			commonTemplateData
+		}{
+			commonTemplateData: getCommonTemplateData(r, false, 0),
+		}
+		if err := t.Execute(w, &data); err != nil {
+			InternalServerError(w, errors.NewInternalError(
+				errors.WithError(err),
+				errors.WithMessage("Failed to template.Execute()"),
+			))
+			return
+		}
 	}
 }
 
