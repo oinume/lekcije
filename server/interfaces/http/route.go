@@ -7,8 +7,7 @@ import (
 	"goji.io/pat"
 )
 
-func CreateMux(gatewayMux *runtime.ServeMux) *goji.Mux {
-	s := NewServer()
+func CreateMux(s *server, gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux := goji.NewMux()
 	mux.Use(SetTrackingID)
 	mux.Use(AccessLogger)
