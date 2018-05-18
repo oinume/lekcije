@@ -76,7 +76,13 @@ func (v *SendGridEventValues) LogToDB(db *gorm.DB) error {
 	return model.NewEventLogEmailService(db).Create(eventLogEmail)
 }
 
-func PostAPISendGridEventWebhook(w http.ResponseWriter, r *http.Request) {
+func (s *server) postAPISendGridEventWebhookHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.postAPISendGridEventWebhook(w, r)
+	}
+}
+
+func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Request) {
 	values := make([]SendGridEventValues, 0, 1000)
 	if err := json.NewDecoder(r.Body).Decode(&values); err != nil {
 		InternalServerError(w, err)

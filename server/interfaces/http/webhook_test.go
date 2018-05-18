@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -16,13 +15,6 @@ import (
 var (
 	helper = model.NewTestHelper()
 )
-
-func TestMain(m *testing.M) {
-	db := helper.DB()
-	defer db.Close()
-	helper.TruncateAllTables(db)
-	os.Exit(m.Run())
-}
 
 func TestPostAPISendGridEventWebhook(t *testing.T) {
 	a := assert.New(t)
@@ -45,14 +37,15 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 ]
 	`)
 	req, err := http.NewRequest("POST", "/api/sendGrid/eventWebhook", reqBody)
-	r.Nil(err)
+	r.NoError(err)
 	ctx := context_data.SetDB(req.Context(), helper.DB())
 	req = req.WithContext(ctx)
 
-	resp := httptest.NewRecorder()
-	handler := http.HandlerFunc(PostAPISendGridEventWebhook)
-	handler.ServeHTTP(resp, req)
+	w := httptest.NewRecorder()
+	s := NewServer()
+	handler := s.postAPISendGridEventWebhookHandler()
+	handler.ServeHTTP(w, req)
 
-	a.Equal(http.StatusOK, resp.Code)
+	a.Equal(http.StatusOK, w.Code)
 	// TODO: more assertions
 }

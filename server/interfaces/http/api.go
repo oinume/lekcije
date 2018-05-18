@@ -9,8 +9,14 @@ import (
 	"github.com/oinume/lekcije/server/model"
 )
 
+func (s *server) getAPIStatusHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.getAPIStatus(w, r)
+	}
+}
+
 // GET /api/status
-func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
+func (s *server) getAPIStatus(w http.ResponseWriter, r *http.Request) {
 	// TODO: Include connection statistics
 	data := map[string]bool{
 		"db":    true,
@@ -46,8 +52,14 @@ func GetAPIStatus(w http.ResponseWriter, r *http.Request) {
 	JSON(w, http.StatusOK, data)
 }
 
+func (s *server) getAPIMeFollowingTeachersHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.getAPIMeFollowingTeachers(w, r)
+	}
+}
+
 // GET /api/me/followingTeachers
-func GetAPIMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
+func (s *server) getAPIMeFollowingTeachers(w http.ResponseWriter, r *http.Request) {
 	// SELECT t.id, t.name FROM following_teachers AS ft
 	// INNER JOIN teachers AS t ON ft.teacher_id = t.id
 	// WHERE ft.user_id = ?

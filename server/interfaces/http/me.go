@@ -26,7 +26,13 @@ const (
 
 var _ = fmt.Printf
 
-func GetMe(w http.ResponseWriter, r *http.Request) {
+func (s *server) getMeHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.getMe(w, r)
+	}
+}
+
+func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
 	t := ParseHTMLTemplates(TemplatePath("me/index.html"))
@@ -67,7 +73,13 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
+func (s *server) postMeFollowingTeachersCreateHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.postMeFollowingTeachersCreate(w, r)
+	}
+}
+
+func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
 	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
@@ -174,7 +186,13 @@ func PostMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
-func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
+func (s *server) postMeFollowingTeachersDeleteHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.postMeFollowingTeachersDelete(w, r)
+	}
+}
+
+func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
 	if err := r.ParseForm(); err != nil {
@@ -215,7 +233,13 @@ func PostMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
-func GetMeSetting(w http.ResponseWriter, r *http.Request) {
+func (s *server) getMeSettingHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.getMeSetting(w, r)
+	}
+}
+
+func (s *server) getMeSetting(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
 	t := ParseHTMLTemplates(TemplatePath("me/setting.html"))
@@ -237,7 +261,13 @@ func GetMeSetting(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetMeLogout(w http.ResponseWriter, r *http.Request) {
+func (s *server) getMeLogoutHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.getMeLogout(w, r)
+	}
+}
+
+func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := context_data.GetLoggedInUser(ctx)
 	if err != nil {
@@ -273,9 +303,4 @@ func GetMeLogout(w http.ResponseWriter, r *http.Request) {
 	)
 
 	http.Redirect(w, r, "/", http.StatusFound)
-}
-
-func validateEmail(email string) bool {
-	// TODO: better validation
-	return strings.Contains(email, "@")
 }

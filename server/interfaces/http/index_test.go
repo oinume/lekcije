@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/oinume/lekcije/server/context_data"
@@ -11,13 +10,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGet(t *testing.T) {
+func TestIndex(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	err := os.Chdir("../../..")
-	r.NoError(err)
 
+	s := NewServer()
 	testCases := []struct {
 		path     string
 		handler  http.HandlerFunc
@@ -25,25 +23,43 @@ func TestGet(t *testing.T) {
 		keywords []string
 	}{
 		{
-			path:     "/",
-			handler:  http.HandlerFunc(Index),
-			code:     http.StatusOK,
-			keywords: []string{"<title>lekcije - DMM英会話のお気に入り講師をフォローしよう</title>"},
+			path:    "/",
+			handler: s.indexHandler(),
+			code:    http.StatusOK,
+			keywords: []string{
+				`<title>lekcije - DMM英会話のお気に入り講師をフォローしよう</title>`,
+			},
 		},
 		{
 			path:     "/robots.txt",
-			handler:  http.HandlerFunc(RobotsTxt),
+			handler:  s.robotsTxtHandler(),
 			code:     http.StatusOK,
-			keywords: []string{"Allow: /"},
+			keywords: []string{`Allow: /`},
+		},
+		{
+			path:    "/signup",
+			handler: s.signupHandler(),
+			code:    http.StatusOK,
+			keywords: []string{
+				`<title>新規登録 | lekcije</title>`,
+			},
 		},
 		{
 			path:    "/sitemap.xml",
-			handler: http.HandlerFunc(SitemapXML),
+			handler: s.sitemapXMLHandler(),
 			code:    http.StatusOK,
 			keywords: []string{
 				`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
 				"/signup",
 				"/terms",
+			},
+		},
+		{
+			path:    "/terms",
+			handler: s.termsHandler(),
+			code:    http.StatusOK,
+			keywords: []string{
+				`<title>利用規約 | lekcije</title>`,
 			},
 		},
 	}
@@ -55,11 +71,12 @@ func TestGet(t *testing.T) {
 		ctx := context_data.SetTrackingID(req.Context(), "a")
 		req = req.WithContext(ctx)
 
-		rr := httptest.NewRecorder()
-		tc.handler.ServeHTTP(rr, req)
-		a.Equal(tc.code, rr.Code)
+		w := httptest.NewRecorder()
+		tc.handler.ServeHTTP(w, req)
+
+		a.Equal(tc.code, w.Code)
 		for _, keyword := range tc.keywords {
-			a.Contains(rr.Body.String(), keyword)
+			a.Contains(w.Body.String(), keyword)
 		}
 	}
 }

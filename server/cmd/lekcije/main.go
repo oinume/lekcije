@@ -70,8 +70,8 @@ func startHTTPServer(grpcPort, httpPort int) error {
 	if err := api_v1.RegisterAPIHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {
 		return err
 	}
-	mux := interfaces_http.CreateMux(gatewayMux)
-
+	server := interfaces_http.NewServer()
+	mux := server.CreateRoutes(gatewayMux)
 	fmt.Printf("Starting HTTP server on %v\n", httpPort)
 	return http.ListenAndServe(fmt.Sprintf(":%d", httpPort), mux)
 }

@@ -12,15 +12,49 @@ import (
 
 var _ = fmt.Print
 
-func Static(w http.ResponseWriter, r *http.Request) {
+func (s *server) staticHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.static(w, r)
+	}
+}
+
+func (s *server) static(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
-func Index(w http.ResponseWriter, r *http.Request) {
+func (s *server) indexHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
+			http.Redirect(w, r, "/me", http.StatusFound)
+		} else {
+			s.indexLogout(w, r)
+		}
+	}
+}
+
+func (s *server) index(w http.ResponseWriter, r *http.Request) {
 	if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
 		http.Redirect(w, r, "/me", http.StatusFound)
 	} else {
 		indexLogout(w, r)
+	}
+}
+
+func (s *server) indexLogout(w http.ResponseWriter, r *http.Request) {
+	t := ParseHTMLTemplates(TemplatePath("index.html"))
+	type Data struct {
+		commonTemplateData
+	}
+	data := &Data{
+		commonTemplateData: getCommonTemplateData(r, false, 0),
+	}
+
+	if err := t.Execute(w, data); err != nil {
+		InternalServerError(w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		))
+		return
 	}
 }
 
@@ -42,7 +76,13 @@ func indexLogout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Signup(w http.ResponseWriter, r *http.Request) {
+func (s *server) signupHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.signup(w, r)
+	}
+}
+
+func (s *server) signup(w http.ResponseWriter, r *http.Request) {
 	if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
 		http.Redirect(w, r, "/me", http.StatusFound)
 		return
@@ -63,7 +103,13 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RobotsTxt(w http.ResponseWriter, r *http.Request) {
+func (s *server) robotsTxtHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.robotsTxt(w, r)
+	}
+}
+
+func (s *server) robotsTxt(w http.ResponseWriter, r *http.Request) {
 	content := fmt.Sprintf(`
 User-agent: *
 Allow: /
@@ -74,7 +120,13 @@ Sitemap: %s/sitemap.xml
 	fmt.Fprintln(w, strings.TrimSpace(content))
 }
 
-func SitemapXML(w http.ResponseWriter, r *http.Request) {
+func (s *server) sitemapXMLHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.sitemapXML(w, r)
+	}
+}
+
+func (s *server) sitemapXML(w http.ResponseWriter, r *http.Request) {
 	// TODO: Move to an external file
 	content := fmt.Sprintf(`
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -97,7 +149,13 @@ func SitemapXML(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, strings.TrimSpace(content))
 }
 
-func Terms(w http.ResponseWriter, r *http.Request) {
+func (s *server) termsHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.terms(w, r)
+	}
+}
+
+func (s *server) terms(w http.ResponseWriter, r *http.Request) {
 	t := ParseHTMLTemplates(TemplatePath("terms.html"))
 	type Data struct {
 		commonTemplateData
