@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGet(t *testing.T) {
+func TestIndex(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
