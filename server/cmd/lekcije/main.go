@@ -53,7 +53,7 @@ func main() {
 	}
 	errors := make(chan error)
 	go func() {
-		errors <- startGRPCServer(grpcPort)
+		errors <- startGRPCServer(grpcPort, args)
 	}()
 
 	go func() {
@@ -65,7 +65,7 @@ func main() {
 	}
 }
 
-func startGRPCServer(port int) error {
+func startGRPCServer(port int, args *interfaces.ServerArgs) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -74,7 +74,7 @@ func startGRPCServer(port int) error {
 	var opts []grpc.ServerOption
 	opts = append(opts, interceptor.WithUnaryServerInterceptors())
 	server := grpc.NewServer(opts...)
-	interfaces_grpc.RegisterAPIV1Server(server)
+	interfaces_grpc.RegisterAPIV1Server(server, args) // TODO: RegisterAPIV1Service
 	// Register reflection service on gRPC server.
 	reflection.Register(server)
 	fmt.Printf("Starting gRPC server on %d\n", port)

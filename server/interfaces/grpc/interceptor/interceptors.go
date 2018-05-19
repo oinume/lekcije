@@ -19,7 +19,6 @@ func WithUnaryServerInterceptors() grpc.ServerOption {
 	interceptors := []grpc.UnaryServerInterceptor{}
 	interceptors = append(
 		interceptors,
-		DBUnaryServerInterceptor(),
 		APITokenUnaryServerInterceptor(),
 		GAMeasurementEventInterceptor(),
 	)

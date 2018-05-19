@@ -1,34 +1,43 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
+	"github.com/oinume/lekcije/server/interfaces"
 	"github.com/oinume/lekcije/server/model"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gopkg.in/redis.v4"
 )
 
-type apiV1Server struct{}
+type apiV1Server struct {
+	db    *gorm.DB
+	redis *redis.Client
+}
 
-func RegisterAPIV1Server(server *grpc.Server) {
-	api_v1.RegisterAPIServer(server, &apiV1Server{})
+func RegisterAPIV1Server(server *grpc.Server, args *interfaces.ServerArgs) {
+	api_v1.RegisterAPIServer(server, &apiV1Server{
+		db:    args.DB,
+		redis: args.RedisClient,
+	})
 }
 
 func (s *apiV1Server) GetMe(
 	ctx context.Context, in *api_v1.GetMeRequest,
 ) (*api_v1.GetMeResponse, error) {
-	user, err := authenticateFromContext(ctx)
+	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
 	}
 
-	timeSpansService := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
+	timeSpansService := model.NewNotificationTimeSpanService(s.db)
 	timeSpans, err := timeSpansService.FindByUserID(user.ID)
 	if err != nil {
 		return nil, err
@@ -48,7 +57,7 @@ func (s *apiV1Server) GetMe(
 func (s *apiV1Server) GetMeEmail(
 	ctx context.Context, in *api_v1.GetMeEmailRequest,
 ) (*api_v1.GetMeEmailResponse, error) {
-	user, err := authenticateFromContext(ctx)
+	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +67,7 @@ func (s *apiV1Server) GetMeEmail(
 func (s *apiV1Server) UpdateMeEmail(
 	ctx context.Context, in *api_v1.UpdateMeEmailRequest,
 ) (*api_v1.UpdateMeEmailResponse, error) {
-	user, err := authenticateFromContext(ctx)
+	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +78,7 @@ func (s *apiV1Server) UpdateMeEmail(
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid Email")
 	}
 
-	userService := model.NewUserService(context_data.MustDB(ctx))
+	userService := model.NewUserService(s.db)
 	if err := userService.UpdateEmail(user, in.Email); err != nil {
 		return nil, err
 	}
@@ -81,13 +90,13 @@ func (s *apiV1Server) UpdateMeEmail(
 func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 	ctx context.Context, in *api_v1.UpdateMeNotificationTimeSpanRequest,
 ) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
-	user, err := authenticateFromContext(ctx)
+	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: validation
-	timeSpanService := model.NewNotificationTimeSpanService(context_data.MustDB(ctx))
+	timeSpanService := model.NewNotificationTimeSpanService(s.db)
 	timeSpans := timeSpanService.NewNotificationTimeSpansFromPB(user.ID, in.NotificationTimeSpans)
 	if err := timeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
 		return nil, err
@@ -98,12 +107,12 @@ func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
 }
 
-func authenticateFromContext(ctx context.Context) (*model.User, error) {
+func authenticateFromContext(ctx context.Context, db *gorm.DB) (*model.User, error) {
 	apiToken, err := context_data.GetAPIToken(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "No api token found")
 	}
-	userService := model.NewUserService(context_data.MustDB(ctx))
+	userService := model.NewUserService(db)
 	user, err := userService.FindLoggedInUser(apiToken)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "No user found")
