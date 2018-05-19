@@ -47,8 +47,7 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	}
 	data.ShowTutorial = !user.FollowedTeacherAt.Valid
 
-	db := context_data.MustDB(ctx)
-	mPlanService := model.NewMPlanService(db)
+	mPlanService := model.NewMPlanService(s.db)
 	plan, err := mPlanService.FindByPK(user.PlanID)
 	if err != nil {
 		InternalServerError(w, err)
@@ -56,7 +55,7 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	}
 	data.MPlan = plan
 
-	followingTeacherService := model.NewFollowingTeacherService(db)
+	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
