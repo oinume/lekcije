@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
@@ -223,6 +224,41 @@ func SetGAMeasurementEventValues(h http.Handler) http.Handler {
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
+}
+
+func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			if !strings.HasPrefix(r.RequestURI, "/me") {
+				h.ServeHTTP(w, r)
+				return
+			}
+			cookie, err := r.Cookie(APITokenCookieName)
+			if err != nil {
+				logger.App.Debug("Not logged in")
+				http.Redirect(w, r, config.WebURL(), http.StatusFound)
+				return
+			}
+
+			// TODO: Use context_data.MustLoggedInUser(ctx)
+			userService := model.NewUserService(db)
+			user, err := userService.FindLoggedInUser(cookie.Value)
+			if err != nil {
+				if errors.IsNotFound(err) {
+					logger.App.Debug("not logged in")
+					http.Redirect(w, r, config.WebURL(), http.StatusFound)
+					return
+				}
+				InternalServerError(w, err)
+				return
+			}
+			logger.App.Debug("Logged in user", zap.String("name", user.Name))
+			c := context_data.SetLoggedInUser(ctx, user)
+			h.ServeHTTP(w, r.WithContext(c))
+		}
+		return http.HandlerFunc(fn)
+	}
 }
 
 func LoginRequiredFilter(h http.Handler) http.Handler {

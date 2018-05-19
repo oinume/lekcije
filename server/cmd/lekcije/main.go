@@ -97,7 +97,7 @@ func startHTTPServer(grpcPort, httpPort int, args *interfaces.ServerArgs) error 
 		return err
 	}
 	server := interfaces_http.NewServer(args)
-	mux := server.CreateRoutes(gatewayMux)
+	mux := server.CreateRoutes(gatewayMux, args)
 	fmt.Printf("Starting HTTP server on %v\n", httpPort)
 	return http.ListenAndServe(fmt.Sprintf(":%d", httpPort), mux)
 }
