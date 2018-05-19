@@ -13,6 +13,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
@@ -44,7 +45,11 @@ func TestMain(m *testing.M) {
 	helper.TruncateAllTables(helper.DB())
 
 	port := config.DefaultVars.HTTPPort
-	s := interfaces_http.NewServer()
+	args := &interfaces.ServerArgs{
+		DB: db,
+		//RedisClient: redis
+	}
+	s := interfaces_http.NewServer(args)
 	routes := s.CreateRoutes(nil) // TODO: grpc-gateway
 	port += 1
 	server = newTestServer(routes, port)
