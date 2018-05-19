@@ -23,7 +23,7 @@ func RegisterAPIV1Server(server *grpc.Server) {
 func (s *apiV1Server) GetMe(
 	ctx context.Context, in *api_v1.GetMeRequest,
 ) (*api_v1.GetMeResponse, error) {
-	user, err := authorizeFromContext(ctx)
+	user, err := authenticateFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (s *apiV1Server) GetMe(
 func (s *apiV1Server) GetMeEmail(
 	ctx context.Context, in *api_v1.GetMeEmailRequest,
 ) (*api_v1.GetMeEmailResponse, error) {
-	user, err := authorizeFromContext(ctx)
+	user, err := authenticateFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (s *apiV1Server) GetMeEmail(
 func (s *apiV1Server) UpdateMeEmail(
 	ctx context.Context, in *api_v1.UpdateMeEmailRequest,
 ) (*api_v1.UpdateMeEmailResponse, error) {
-	user, err := authorizeFromContext(ctx)
+	user, err := authenticateFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (s *apiV1Server) UpdateMeEmail(
 func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 	ctx context.Context, in *api_v1.UpdateMeNotificationTimeSpanRequest,
 ) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
-	user, err := authorizeFromContext(ctx)
+	user, err := authenticateFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
 }
 
-func authorizeFromContext(ctx context.Context) (*model.User, error) {
+func authenticateFromContext(ctx context.Context) (*model.User, error) {
 	apiToken, err := context_data.GetAPIToken(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "No api token found")
