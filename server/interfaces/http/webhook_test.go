@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/oinume/lekcije/server/context_data"
+	"github.com/oinume/lekcije/server/interfaces"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -42,7 +43,9 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	req = req.WithContext(ctx)
 
 	w := httptest.NewRecorder()
-	s := NewServer()
+	s := NewServer(&interfaces.ServerArgs{
+		DB: helper.DB(),
+	})
 	handler := s.postAPISendGridEventWebhookHandler()
 	handler.ServeHTTP(w, req)
 

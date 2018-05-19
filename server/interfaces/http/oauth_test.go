@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/oinume/lekcije/server/context_data"
+	"github.com/oinume/lekcije/server/interfaces"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,7 +16,9 @@ func TestOAuth(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	s := NewServer()
+	s := NewServer(&interfaces.ServerArgs{
+		DB: helper.DB(),
+	})
 	testCases := []struct {
 		path        string
 		handler     http.HandlerFunc
