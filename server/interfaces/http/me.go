@@ -103,8 +103,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	db := context_data.MustDB(ctx)
-	followingTeacherService := model.NewFollowingTeacherService(db)
+	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	reachesLimit, err := followingTeacherService.ReachesFollowingTeacherLimit(user.ID, len(teachers))
 	if err != nil {
 		InternalServerError(w, err)
@@ -127,7 +126,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	// the column is used for showing tutorial or not.
 	updateFollowedTeacherAt := false
 	if !user.FollowedTeacherAt.Valid {
-		userService := model.NewUserService(db)
+		userService := model.NewUserService(s.db)
 		if err := userService.UpdateFollowedTeacherAt(user); err != nil {
 			InternalServerError(w, err)
 			return
@@ -135,7 +134,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 		updateFollowedTeacherAt = true
 	}
 
-	mCountryService := model.NewMCountryService(db)
+	mCountryService := model.NewMCountryService(s.db)
 	// TODO: preload
 	mCountries, err := mCountryService.LoadAll()
 	if err != nil {
@@ -204,7 +203,7 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	followingTeacherService := model.NewFollowingTeacherService(context_data.MustDB(ctx))
+	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	_, err := followingTeacherService.DeleteTeachersByUserIDAndTeacherIDs(
 		user.ID,
 		util.StringToUint32Slice(teacherIDs...),
@@ -291,7 +290,7 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))
+	userAPITokenService := model.NewUserAPITokenService(s.db)
 	if err := userAPITokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
 		InternalServerError(w, err)
 		return

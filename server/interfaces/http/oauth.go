@@ -9,7 +9,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
-	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
@@ -76,7 +75,6 @@ func (s *server) oauthGoogleCallbackHandler() http.HandlerFunc {
 }
 
 func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	if err := checkState(r); err != nil {
 		InternalServerError(w, err)
 		return
@@ -96,8 +94,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db := context_data.MustDB(ctx)
-	userService := model.NewUserService(db)
+	userService := model.NewUserService(s.db)
 	user, err := userService.FindByGoogleID(googleID)
 	if err == nil {
 		go event_logger.SendGAMeasurementEvent2(
@@ -111,7 +108,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Couldn't find user for the googleID, so create a new user
-		errTx := model.GORMTransaction(db, "OAuthGoogleCallback", func(tx *gorm.DB) error {
+		errTx := model.GORMTransaction(s.db, "OAuthGoogleCallback", func(tx *gorm.DB) error {
 			var errCreate error
 			user, _, errCreate = userService.CreateWithGoogle(name, email, googleID)
 			return errCreate
@@ -127,7 +124,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
-	userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))
+	userAPITokenService := model.NewUserAPITokenService(s.db)
 	userAPIToken, err := userAPITokenService.Create(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
