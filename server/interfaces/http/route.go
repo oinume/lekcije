@@ -16,7 +16,7 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux, args *interfaces.Ser
 	mux.Use(PanicHandler)
 	mux.Use(NewRelic)
 	mux.Use(SetDBAndRedis)
-	mux.Use(SetLoggedInUser)
+	mux.Use(setLoggedInUser(args.DB))
 	mux.Use(loginRequiredFilter(args.DB))
 	mux.Use(CORS)
 	mux.Use(SetGRPCMetadata)

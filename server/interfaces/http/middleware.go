@@ -40,7 +40,7 @@ func PanicHandler(h http.Handler) http.Handler {
 				}
 				InternalServerError(w, errors.NewInternalError(
 					errors.WithError(err),
-					errors.WithMessage("panic ocurred"),
+					errors.WithMessage("panic occurred"),
 				))
 				return
 			}
@@ -141,29 +141,31 @@ func SetDBAndRedis(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetLoggedInUser(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		if r.RequestURI == "/api/status" {
-			h.ServeHTTP(w, r)
-			return
-		}
-		cookie, err := r.Cookie(APITokenCookieName)
-		if err != nil {
-			h.ServeHTTP(w, r)
-			return
-		}
+func setLoggedInUser(db *gorm.DB) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			if r.RequestURI == "/api/status" {
+				h.ServeHTTP(w, r)
+				return
+			}
+			cookie, err := r.Cookie(APITokenCookieName)
+			if err != nil {
+				h.ServeHTTP(w, r)
+				return
+			}
 
-		userService := model.NewUserService(context_data.MustDB(ctx))
-		user, err := userService.FindLoggedInUser(cookie.Value)
-		if err != nil {
-			h.ServeHTTP(w, r)
-			return
+			userService := model.NewUserService(db)
+			user, err := userService.FindLoggedInUser(cookie.Value)
+			if err != nil {
+				h.ServeHTTP(w, r)
+				return
+			}
+			c := context_data.SetLoggedInUser(ctx, user)
+			h.ServeHTTP(w, r.WithContext(c))
 		}
-		c := context_data.SetLoggedInUser(ctx, user)
-		h.ServeHTTP(w, r.WithContext(c))
+		return http.HandlerFunc(fn)
 	}
-	return http.HandlerFunc(fn)
 }
 
 func SetTrackingID(h http.Handler) http.Handler {
