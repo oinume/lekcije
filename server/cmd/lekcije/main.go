@@ -14,6 +14,7 @@ import (
 	interfaces_grpc "github.com/oinume/lekcije/server/interfaces/grpc"
 	"github.com/oinume/lekcije/server/interfaces/grpc/interceptor"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
+	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -38,18 +39,17 @@ func main() {
 		log.Fatalf("model.OpenDB failed: %v", err)
 	}
 	defer db.Close()
-	//ctx = context_data.SetDB(ctx, db)
 
-	redisClient, err := model.OpenRedis(config.DefaultVars.RedisURL)
+	redis, err := model.OpenRedis(config.DefaultVars.RedisURL)
 	if err != nil {
 		log.Fatalf("model.OpenRedis failed: %v", err)
 	}
-	defer redisClient.Close()
-	//_, c = flash_message.NewStoreRedisAndSetToContext(c, redisClient)
+	defer redis.Close()
 
 	args := &interfaces.ServerArgs{
-		DB:          db,
-		RedisClient: redisClient,
+		DB:                db,
+		FlashMessageStore: flash_message.NewStoreRedis(redis),
+		Redis:             redis,
 	}
 	errors := make(chan error)
 	go func() {

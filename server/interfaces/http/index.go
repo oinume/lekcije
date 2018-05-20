@@ -36,7 +36,7 @@ func (s *server) index(w http.ResponseWriter, r *http.Request) {
 	if _, err := context_data.GetLoggedInUser(r.Context()); err == nil {
 		http.Redirect(w, r, "/me", http.StatusFound)
 	} else {
-		indexLogout(w, r)
+		s.indexLogout(w, r)
 	}
 }
 
@@ -46,25 +46,7 @@ func (s *server) indexLogout(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, false, 0),
-	}
-
-	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to template.Execute()"),
-		))
-		return
-	}
-}
-
-func indexLogout(w http.ResponseWriter, r *http.Request) {
-	t := ParseHTMLTemplates(TemplatePath("index.html"))
-	type Data struct {
-		commonTemplateData
-	}
-	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, false, 0),
+		commonTemplateData: s.getCommonTemplateData(r, false, 0),
 	}
 
 	if err := t.Execute(w, data); err != nil {
@@ -92,7 +74,7 @@ func (s *server) signup(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		commonTemplateData
 	}{
-		commonTemplateData: getCommonTemplateData(r, false, 0),
+		commonTemplateData: s.getCommonTemplateData(r, false, 0),
 	}
 	if err := t.Execute(w, &data); err != nil {
 		InternalServerError(w, errors.NewInternalError(
@@ -166,7 +148,7 @@ func (s *server) terms(w http.ResponseWriter, r *http.Request) {
 		userID = user.ID
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, false, userID),
+		commonTemplateData: s.getCommonTemplateData(r, false, userID),
 	}
 
 	if err := t.Execute(w, data); err != nil {

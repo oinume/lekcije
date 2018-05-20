@@ -25,7 +25,7 @@ type apiV1Server struct {
 func RegisterAPIV1Server(server *grpc.Server, args *interfaces.ServerArgs) {
 	api_v1.RegisterAPIServer(server, &apiV1Server{
 		db:    args.DB,
-		redis: args.RedisClient,
+		redis: args.Redis,
 	})
 }
 

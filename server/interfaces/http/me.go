@@ -43,7 +43,7 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 		MPlan        *model.MPlan
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true, user.ID),
+		commonTemplateData: s.getCommonTemplateData(r, true, user.ID),
 	}
 	data.ShowTutorial = !user.FollowedTeacherAt.Valid
 
@@ -84,7 +84,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
 	if teacherIDsOrUrl == "" {
 		e := flash_message.New(flash_message.KindWarning, emptyTeacherURLMessage)
-		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+		if err := s.flashMessageStore.Save(e); err != nil {
 			InternalServerError(w, err)
 			return
 		}
@@ -95,7 +95,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	teachers, err := model.NewTeachersFromIDsOrURL(teacherIDsOrUrl)
 	if err != nil {
 		e := flash_message.New(flash_message.KindWarning, invalidTeacherURLMessage)
-		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+		if err := s.flashMessageStore.Save(e); err != nil {
 			InternalServerError(w, err)
 			return
 		}
@@ -114,7 +114,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 			flash_message.KindWarning,
 			fmt.Sprintf(reachedMaxFollowTeacherMessage, model.MaxFollowTeacherCount),
 		)
-		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+		if err := s.flashMessageStore.Save(e); err != nil {
 			InternalServerError(w, err)
 			return
 		}
@@ -176,7 +176,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	}
 
 	successMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
-	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
+	if err := s.flashMessageStore.Save(successMessage); err != nil {
 		InternalServerError(w, err)
 		return
 	}
@@ -223,7 +223,7 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 	)
 
 	successMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
-	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
+	if err := s.flashMessageStore.Save(successMessage); err != nil {
 		InternalServerError(w, err)
 		return
 	}
@@ -246,7 +246,7 @@ func (s *server) getMeSetting(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true, user.ID),
+		commonTemplateData: s.getCommonTemplateData(r, true, user.ID),
 		Email:              user.Email,
 	}
 

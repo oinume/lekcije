@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 	port := config.DefaultVars.HTTPPort
 	args := &interfaces.ServerArgs{
 		DB: db,
-		//RedisClient: redis
+		//Redis: redis
 	}
 	s := interfaces_http.NewServer(args)
 	routes := s.CreateRoutes(nil, args) // TODO: grpc-gateway
