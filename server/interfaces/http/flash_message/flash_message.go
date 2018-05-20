@@ -7,7 +7,6 @@ import (
 
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
-	"golang.org/x/net/context"
 	"gopkg.in/redis.v4"
 )
 
@@ -51,8 +50,6 @@ func (k Kind) ViewStyle() string {
 		return ""
 	}
 }
-
-type contextKey struct{}
 
 type FlashMessage struct {
 	Kind     Kind     `json:"kind"`
@@ -98,23 +95,6 @@ type StoreRedis struct {
 
 func NewStoreRedis(client *redis.Client) *StoreRedis {
 	return &StoreRedis{client: client}
-}
-
-func NewStoreRedisAndSetToContext(
-	ctx context.Context, client *redis.Client,
-) (Store, context.Context) {
-	store := NewStoreRedis(client)
-	c := context.WithValue(ctx, contextKey{}, store)
-	return store, c
-}
-
-func MustStore(ctx context.Context) Store {
-	value := ctx.Value(contextKey{})
-	if store, ok := value.(Store); ok {
-		return store
-	} else {
-		panic("Failed to get Store from context")
-	}
 }
 
 func (s *StoreRedis) Load(key string) (*FlashMessage, error) {

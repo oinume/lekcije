@@ -14,7 +14,6 @@ import (
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
-	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -22,8 +21,6 @@ import (
 )
 
 var _ = fmt.Print
-
-const maxDBConnections = 5
 
 func PanicHandler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -101,42 +98,6 @@ func NewRelic(h http.Handler) http.Handler {
 		tx := app.StartTransaction(r.URL.Path, w, r)
 		defer tx.End()
 		h.ServeHTTP(tx, r)
-	}
-	return http.HandlerFunc(fn)
-}
-
-func SetDBAndRedis(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		if r.RequestURI == "/api/status" {
-			h.ServeHTTP(w, r)
-			return
-		}
-		if config.IsLocalEnv() {
-			fmt.Printf("%s %s\n", r.Method, r.RequestURI)
-		}
-
-		db, err := model.OpenDB(
-			config.DefaultVars.DBURL(),
-			maxDBConnections,
-			config.DefaultVars.DebugSQL,
-		)
-		if err != nil {
-			InternalServerError(w, err)
-			return
-		}
-		defer db.Close()
-		ctx = context_data.SetDB(ctx, db)
-
-		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, config.DefaultVars.RedisURL)
-		if err != nil {
-			InternalServerError(w, err)
-			return
-		}
-		defer redisClient.Close()
-		_, c = flash_message.NewStoreRedisAndSetToContext(c, redisClient)
-
-		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
 }
