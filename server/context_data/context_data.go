@@ -17,22 +17,6 @@ func SetDB(ctx context.Context, db *gorm.DB) context.Context {
 	return context.WithValue(ctx, dbKey{}, db)
 }
 
-func GetDB(ctx context.Context) (*gorm.DB, error) {
-	value := ctx.Value(dbKey{})
-	if db, ok := value.(*gorm.DB); ok {
-		return db, nil
-	}
-	return nil, errors.NewNotFoundError(errors.WithMessage("Failed to get *gorm.DB from context"))
-}
-
-func MustDB(ctx context.Context) *gorm.DB {
-	db, err := GetDB(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
 func GetLoggedInUser(ctx context.Context) (*model.User, error) {
 	value := ctx.Value(loggedInUserKey{})
 	if user, ok := value.(*model.User); ok {

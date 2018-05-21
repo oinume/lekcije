@@ -3,20 +3,20 @@ package http
 import (
 	"github.com/fukata/golang-stats-api-handler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/oinume/lekcije/server/interfaces"
 	"goji.io"
 	"goji.io/pat"
 )
 
-func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
+func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux, args *interfaces.ServerArgs) *goji.Mux {
 	mux := goji.NewMux()
 	mux.Use(SetTrackingID)
 	mux.Use(AccessLogger)
 	mux.Use(Redirecter)
 	mux.Use(PanicHandler)
 	mux.Use(NewRelic)
-	mux.Use(SetDBAndRedis)
-	mux.Use(SetLoggedInUser)
-	mux.Use(LoginRequiredFilter)
+	mux.Use(setLoggedInUser(args.DB))
+	mux.Use(loginRequiredFilter(args.DB))
 	mux.Use(CORS)
 	mux.Use(SetGRPCMetadata)
 	mux.Use(SetGAMeasurementEventValues)

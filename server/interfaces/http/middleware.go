@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
-	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -21,8 +21,6 @@ import (
 )
 
 var _ = fmt.Print
-
-const maxDBConnections = 5
 
 func PanicHandler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +37,7 @@ func PanicHandler(h http.Handler) http.Handler {
 				}
 				InternalServerError(w, errors.NewInternalError(
 					errors.WithError(err),
-					errors.WithMessage("panic ocurred"),
+					errors.WithMessage("panic occurred"),
 				))
 				return
 			}
@@ -104,65 +102,31 @@ func NewRelic(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetDBAndRedis(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		if r.RequestURI == "/api/status" {
-			h.ServeHTTP(w, r)
-			return
-		}
-		if config.IsLocalEnv() {
-			fmt.Printf("%s %s\n", r.Method, r.RequestURI)
-		}
+func setLoggedInUser(db *gorm.DB) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			if r.RequestURI == "/api/status" {
+				h.ServeHTTP(w, r)
+				return
+			}
+			cookie, err := r.Cookie(APITokenCookieName)
+			if err != nil {
+				h.ServeHTTP(w, r)
+				return
+			}
 
-		db, err := model.OpenDB(
-			config.DefaultVars.DBURL(),
-			maxDBConnections,
-			config.DefaultVars.DebugSQL,
-		)
-		if err != nil {
-			InternalServerError(w, err)
-			return
+			userService := model.NewUserService(db)
+			user, err := userService.FindLoggedInUser(cookie.Value)
+			if err != nil {
+				h.ServeHTTP(w, r)
+				return
+			}
+			c := context_data.SetLoggedInUser(ctx, user)
+			h.ServeHTTP(w, r.WithContext(c))
 		}
-		defer db.Close()
-		ctx = context_data.SetDB(ctx, db)
-
-		redisClient, c, err := model.OpenRedisAndSetToContext(ctx, config.DefaultVars.RedisURL)
-		if err != nil {
-			InternalServerError(w, err)
-			return
-		}
-		defer redisClient.Close()
-		_, c = flash_message.NewStoreRedisAndSetToContext(c, redisClient)
-
-		h.ServeHTTP(w, r.WithContext(c))
+		return http.HandlerFunc(fn)
 	}
-	return http.HandlerFunc(fn)
-}
-
-func SetLoggedInUser(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		if r.RequestURI == "/api/status" {
-			h.ServeHTTP(w, r)
-			return
-		}
-		cookie, err := r.Cookie(APITokenCookieName)
-		if err != nil {
-			h.ServeHTTP(w, r)
-			return
-		}
-
-		userService := model.NewUserService(context_data.MustDB(ctx))
-		user, err := userService.FindLoggedInUser(cookie.Value)
-		if err != nil {
-			h.ServeHTTP(w, r)
-			return
-		}
-		c := context_data.SetLoggedInUser(ctx, user)
-		h.ServeHTTP(w, r.WithContext(c))
-	}
-	return http.HandlerFunc(fn)
 }
 
 func SetTrackingID(h http.Handler) http.Handler {
@@ -225,37 +189,39 @@ func SetGAMeasurementEventValues(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func LoginRequiredFilter(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		if !strings.HasPrefix(r.RequestURI, "/me") {
-			h.ServeHTTP(w, r)
-			return
-		}
-		cookie, err := r.Cookie(APITokenCookieName)
-		if err != nil {
-			logger.App.Debug("Not logged in")
-			http.Redirect(w, r, config.WebURL(), http.StatusFound)
-			return
-		}
-
-		// TODO: Use context_data.MustLoggedInUser(ctx)
-		userService := model.NewUserService(context_data.MustDB(ctx))
-		user, err := userService.FindLoggedInUser(cookie.Value)
-		if err != nil {
-			if errors.IsNotFound(err) {
-				logger.App.Debug("not logged in")
+func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			if !strings.HasPrefix(r.RequestURI, "/me") {
+				h.ServeHTTP(w, r)
+				return
+			}
+			cookie, err := r.Cookie(APITokenCookieName)
+			if err != nil {
+				logger.App.Debug("Not logged in")
 				http.Redirect(w, r, config.WebURL(), http.StatusFound)
 				return
 			}
-			InternalServerError(w, err)
-			return
+
+			// TODO: Use context_data.MustLoggedInUser(ctx)
+			userService := model.NewUserService(db)
+			user, err := userService.FindLoggedInUser(cookie.Value)
+			if err != nil {
+				if errors.IsNotFound(err) {
+					logger.App.Debug("not logged in")
+					http.Redirect(w, r, config.WebURL(), http.StatusFound)
+					return
+				}
+				InternalServerError(w, err)
+				return
+			}
+			logger.App.Debug("Logged in user", zap.String("name", user.Name))
+			c := context_data.SetLoggedInUser(ctx, user)
+			h.ServeHTTP(w, r.WithContext(c))
 		}
-		logger.App.Debug("Logged in user", zap.String("name", user.Name))
-		c := context_data.SetLoggedInUser(ctx, user)
-		h.ServeHTTP(w, r.WithContext(c))
+		return http.HandlerFunc(fn)
 	}
-	return http.HandlerFunc(fn)
 }
 
 func CORS(h http.Handler) http.Handler {

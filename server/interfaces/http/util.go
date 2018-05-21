@@ -113,7 +113,7 @@ var loggedOutNavigationItems = []navigationItem{
 	{"ホーム", "/", false},
 }
 
-func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) commonTemplateData {
+func (s *server) getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) commonTemplateData {
 	canonicalURL := fmt.Sprintf("%s://%s%s", config.WebURLScheme(req), req.Host, req.RequestURI)
 	canonicalURL = (strings.SplitN(canonicalURL, "?", 2))[0] // TODO: use url.Parse
 	data := commonTemplateData{
@@ -132,7 +132,7 @@ func getCommonTemplateData(req *http.Request, loggedIn bool, userID uint32) comm
 		data.NavigationItems = loggedOutNavigationItems
 	}
 	if flashMessageKey := req.FormValue("flashMessageKey"); flashMessageKey != "" {
-		flashMessage, _ := flash_message.MustStore(req.Context()).Load(flashMessageKey)
+		flashMessage, _ := s.flashMessageStore.Load(flashMessageKey)
 		data.FlashMessage = flashMessage
 	}
 	data.TrackingID = context_data.MustTrackingID(req.Context())

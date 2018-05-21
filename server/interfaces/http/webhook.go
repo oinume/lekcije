@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
 	"go.uber.org/zap"
@@ -93,7 +92,7 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 
 	for _, v := range values {
 		v.LogToFile()
-		v.LogToDB(context_data.MustDB(r.Context()))
+		v.LogToDB(s.db)
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")

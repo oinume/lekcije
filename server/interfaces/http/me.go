@@ -43,12 +43,11 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 		MPlan        *model.MPlan
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true, user.ID),
+		commonTemplateData: s.getCommonTemplateData(r, true, user.ID),
 	}
 	data.ShowTutorial = !user.FollowedTeacherAt.Valid
 
-	db := context_data.MustDB(ctx)
-	mPlanService := model.NewMPlanService(db)
+	mPlanService := model.NewMPlanService(s.db)
 	plan, err := mPlanService.FindByPK(user.PlanID)
 	if err != nil {
 		InternalServerError(w, err)
@@ -56,7 +55,7 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	}
 	data.MPlan = plan
 
-	followingTeacherService := model.NewFollowingTeacherService(db)
+	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
 	if err != nil {
 		InternalServerError(w, err)
@@ -85,7 +84,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
 	if teacherIDsOrUrl == "" {
 		e := flash_message.New(flash_message.KindWarning, emptyTeacherURLMessage)
-		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+		if err := s.flashMessageStore.Save(e); err != nil {
 			InternalServerError(w, err)
 			return
 		}
@@ -96,7 +95,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	teachers, err := model.NewTeachersFromIDsOrURL(teacherIDsOrUrl)
 	if err != nil {
 		e := flash_message.New(flash_message.KindWarning, invalidTeacherURLMessage)
-		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+		if err := s.flashMessageStore.Save(e); err != nil {
 			InternalServerError(w, err)
 			return
 		}
@@ -104,8 +103,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	db := context_data.MustDB(ctx)
-	followingTeacherService := model.NewFollowingTeacherService(db)
+	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	reachesLimit, err := followingTeacherService.ReachesFollowingTeacherLimit(user.ID, len(teachers))
 	if err != nil {
 		InternalServerError(w, err)
@@ -116,7 +114,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 			flash_message.KindWarning,
 			fmt.Sprintf(reachedMaxFollowTeacherMessage, model.MaxFollowTeacherCount),
 		)
-		if err := flash_message.MustStore(ctx).Save(e); err != nil {
+		if err := s.flashMessageStore.Save(e); err != nil {
 			InternalServerError(w, err)
 			return
 		}
@@ -128,7 +126,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	// the column is used for showing tutorial or not.
 	updateFollowedTeacherAt := false
 	if !user.FollowedTeacherAt.Valid {
-		userService := model.NewUserService(db)
+		userService := model.NewUserService(s.db)
 		if err := userService.UpdateFollowedTeacherAt(user); err != nil {
 			InternalServerError(w, err)
 			return
@@ -136,7 +134,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 		updateFollowedTeacherAt = true
 	}
 
-	mCountryService := model.NewMCountryService(db)
+	mCountryService := model.NewMCountryService(s.db)
 	// TODO: preload
 	mCountries, err := mCountryService.LoadAll()
 	if err != nil {
@@ -178,7 +176,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	}
 
 	successMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
-	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
+	if err := s.flashMessageStore.Save(successMessage); err != nil {
 		InternalServerError(w, err)
 		return
 	}
@@ -205,7 +203,7 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	followingTeacherService := model.NewFollowingTeacherService(context_data.MustDB(ctx))
+	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	_, err := followingTeacherService.DeleteTeachersByUserIDAndTeacherIDs(
 		user.ID,
 		util.StringToUint32Slice(teacherIDs...),
@@ -225,7 +223,7 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 	)
 
 	successMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
-	if err := flash_message.MustStore(ctx).Save(successMessage); err != nil {
+	if err := s.flashMessageStore.Save(successMessage); err != nil {
 		InternalServerError(w, err)
 		return
 	}
@@ -248,7 +246,7 @@ func (s *server) getMeSetting(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data := &Data{
-		commonTemplateData: getCommonTemplateData(r, true, user.ID),
+		commonTemplateData: s.getCommonTemplateData(r, true, user.ID),
 		Email:              user.Email,
 	}
 
@@ -292,7 +290,7 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	userAPITokenService := model.NewUserAPITokenService(context_data.MustDB(ctx))
+	userAPITokenService := model.NewUserAPITokenService(s.db)
 	if err := userAPITokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
 		InternalServerError(w, err)
 		return
