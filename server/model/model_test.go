@@ -20,6 +20,7 @@ var (
 	mCountryService                       *MCountryService
 	mPlanService                          *MPlanService
 	notificationTimeSpanService           *NotificationTimeSpanService
+	statDailyNotificationEventService     *StatDailyNotificationEventService
 	statDailyUserNotificationEventService *StatDailyUserNotificationEventService
 	teacherService                        *TeacherService
 	userService                           *UserService
