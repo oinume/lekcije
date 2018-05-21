@@ -44,3 +44,16 @@ func (s *StatDailyNotificationEventService) CreateOrUpdate(v *StatDailyNotificat
 	}
 	return nil
 }
+
+func (s *StatDailyNotificationEventService) FindAllByDate(date time.Time) ([]*StatDailyNotificationEvent, error) {
+	events := make([]*StatDailyNotificationEvent, 0, 1000)
+	sql := fmt.Sprintf(`SELECT * FROM %s WHERE date = ?`, (&StatDailyNotificationEvent{}).TableName())
+	if err := s.db.Raw(sql, date.Format("2006-01-02")).Scan(&events).Error; err != nil {
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to FindAllByDate"),
+		)
+	}
+	return events, nil
+
+}
