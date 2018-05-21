@@ -28,7 +28,7 @@ func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	)
 	db.SetMaxOpenConns(maxConnections)
 	db.SetMaxIdleConns(maxConnections)
-	db.SetConnMaxLifetime(10 * time.Minute)
+	db.SetConnMaxLifetime(30 * time.Second)
 	if err != nil {
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
