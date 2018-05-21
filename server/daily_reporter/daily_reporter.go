@@ -34,28 +34,37 @@ func (m *Main) Run() error {
 
 func (m *Main) createStatNewLessonNotifier(date time.Time) error {
 	service := model.NewEventLogEmailService(m.DB)
-	stats, err := service.FindStatsNewLessonNotifierByDate(date)
+	stats, err := service.FindStatDailyNotificationEventByDate(date)
 	if err != nil {
 		return err
 	}
-	statUUs, err := service.FindStatsNewLessonNotifierUUCountByDate(date)
+	statUUs, err := service.FindStatDailyNotificationEventUUCountByDate(date)
 	if err != nil {
 		return err
 	}
 
-	values := make(map[string]*model.StatNewLessonNotifier, 100)
+	values := make(map[string]*model.StatDailyNotificationEvent, 100)
 	for _, s := range stats {
 		values[s.Event] = s
 	}
 
-	statsNewLessonNotifierService := model.NewStatsNewLessonNotifierService(m.DB)
+	statDailyNotificationEventService := model.NewStatDailyNotificationEventService(m.DB)
 	for _, s := range statUUs {
 		v := values[s.Event]
 		v.UUCount = s.UUCount
-		if err := statsNewLessonNotifierService.CreateOrUpdate(v); err != nil {
+		if err := statDailyNotificationEventService.CreateOrUpdate(v); err != nil {
 			return err
 		}
 	}
+
+	//statsNewLessonNotifierService := model.NewStatsNewLessonNotifierService(m.DB)
+	//for _, s := range statUUs {
+	//	v := values[s.Event]
+	//	v.UUCount = s.UUCount
+	//	if err := statsNewLessonNotifierService.CreateOrUpdate(v); err != nil {
+	//		return err
+	//	}
+	//}
 	return nil
 }
 

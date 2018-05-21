@@ -54,8 +54,8 @@ func createEventLogEmails(userID uint32, datetime time.Time, num int) error {
 			Event:      "open",
 			EmailType:  EmailTypeNewLessonNotifier,
 			UserID:     userID,
-			UserAgent:  "",
-			TeacherIDs: "",
+			UserAgent:  "test",
+			TeacherIDs: "1",
 			URL:        "",
 		})
 		if err != nil {
