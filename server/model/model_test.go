@@ -41,6 +41,7 @@ func TestMain(m *testing.M) {
 	mCountryService = NewMCountryService(db)
 	mPlanService = NewMPlanService(db)
 	notificationTimeSpanService = NewNotificationTimeSpanService(db)
+	statDailyNotificationEventService = NewStatDailyNotificationEventService(db)
 	statDailyUserNotificationEventService = NewStatDailyUserNotificationEventService(db)
 	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
