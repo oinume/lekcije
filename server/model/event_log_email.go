@@ -93,7 +93,7 @@ FROM event_log_email
 WHERE
   datetime BETWEEN ? AND ?
   AND email_type = 'new_lesson_notifier'
-GROUP BY event;
+GROUP BY date, event;
 `
 	d := date.Format("2006-01-02")
 	values := make([]*StatDailyNotificationEvent, 0, 100)
@@ -116,9 +116,9 @@ FROM (
   WHERE
     datetime BETWEEN ? AND ?
     AND email_type = 'new_lesson_notifier'
-  GROUP BY event, user_id
+  GROUP BY date, event, user_id
 ) AS s
-GROUP BY s.event
+GROUP BY s.date, s.event
 `
 	d := date.Format("2006-01-02")
 	values := make([]*StatDailyNotificationEvent, 0, 1000)
