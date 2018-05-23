@@ -51,4 +51,5 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 
 	a.Equal(http.StatusOK, w.Code)
 	// TODO: more assertions
+	a.Equal(u.OpenNotificationAt)
 }
