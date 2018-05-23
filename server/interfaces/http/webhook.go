@@ -98,11 +98,18 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 	defer r.Body.Close()
 	// datetime, user_id, event(enum), event_id(varchar), text
 
+	userService := model.NewUserService(s.db)
 	for _, v := range values {
 		v.LogToFile()
-		v.LogToDB(s.db)
+		if err := v.LogToDB(s.db); err != nil {
+			InternalServerError(w, err)
+			return
+		}
 		if v.IsEventOpen() {
-			// TODO: UPDATE user
+			if err := userService.UpdateOpenNotificationAt(v.GetUserID()); err != nil {
+				InternalServerError(w, err)
+				return
+			}
 		}
 	}
 
