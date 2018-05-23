@@ -34,6 +34,14 @@ func (v *SendGridEventValues) GetUserID() uint32 {
 	return 0
 }
 
+func (v *SendGridEventValues) IsEventClick() bool {
+	return v.Event == "click"
+}
+
+func (v *SendGridEventValues) IsEventOpen() bool {
+	return v.Event == "open"
+}
+
 func (v *SendGridEventValues) LogToFile() {
 	fields := []zapcore.Field{
 		zap.Time("timestamp", time.Unix(v.Timestamp, 0)),
@@ -49,10 +57,10 @@ func (v *SendGridEventValues) LogToFile() {
 		fields = append(fields, zap.String("teacherIDs", v.TeacherIDs))
 	}
 
-	if v.Event == "open" || v.Event == "click" {
+	if v.IsEventOpen() || v.IsEventClick() {
 		fields = append(fields, zap.String("userAgent", v.UserAgent))
 	}
-	if v.Event == "click" {
+	if v.IsEventClick() {
 		fields = append(fields, zap.String("url", v.URL))
 	}
 
@@ -90,9 +98,19 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 	defer r.Body.Close()
 	// datetime, user_id, event(enum), event_id(varchar), text
 
+	userService := model.NewUserService(s.db)
 	for _, v := range values {
 		v.LogToFile()
-		v.LogToDB(s.db)
+		if err := v.LogToDB(s.db); err != nil {
+			InternalServerError(w, err)
+			return
+		}
+		if v.IsEventOpen() {
+			if err := userService.UpdateOpenNotificationAt(v.GetUserID()); err != nil {
+				InternalServerError(w, err)
+				return
+			}
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")

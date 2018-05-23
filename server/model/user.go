@@ -11,14 +11,15 @@ import (
 )
 
 type User struct {
-	ID                uint32 `gorm:"primary_key;AUTO_INCREMENT"`
-	Name              string
-	Email             string
-	EmailVerified     bool
-	PlanID            uint8
-	FollowedTeacherAt mysql.NullTime
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID                 uint32 `gorm:"primary_key;AUTO_INCREMENT"`
+	Name               string
+	Email              string
+	EmailVerified      bool
+	PlanID             uint8
+	FollowedTeacherAt  mysql.NullTime
+	OpenNotificationAt mysql.NullTime
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
 }
 
 func (*User) TableName() string {
@@ -225,6 +226,18 @@ func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
 			errors.WithError(err),
 			errors.WithMessage("Failed to update followed_teacher_at"),
 			errors.WithResource(errors.NewResource(user.TableName(), "id", user.ID)),
+		)
+	}
+	return nil
+}
+
+func (s *UserService) UpdateOpenNotificationAt(userID uint32) error {
+	sql := "UPDATE user SET open_notification_at = NOW() WHERE id = ?"
+	if err := s.db.Exec(sql, userID).Error; err != nil {
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update open_notification_at"),
+			errors.WithResource(errors.NewResource((&User{}).TableName(), "id", userID)),
 		)
 	}
 	return nil
