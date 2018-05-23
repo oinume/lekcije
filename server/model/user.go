@@ -118,6 +118,7 @@ func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*U
 	WHERE
 	  u.email_verified = 1
 	  AND mp.notification_interval = ?
+	ORDER BY u.open_notification_at DESC
 	`
 	result := s.db.Raw(strings.TrimSpace(sql), notificationInterval).Scan(&users)
 	if result.Error != nil && !result.RecordNotFound() {
