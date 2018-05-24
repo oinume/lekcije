@@ -94,8 +94,15 @@ func (m *Main) Run() error {
 		sender = &emailer.NoSender{}
 	}
 
+	statNotifier := &model.StatNotifier{
+		Datetime:             time.Now().UTC(),
+		Interval:             uint8(*m.NotificationInterval),
+		Elapsed:              0,
+		UserCount:            uint32(len(users)),
+		FollowedTeacherCount: 0,
+	}
 	n := NewNotifier(db, fetcher, *m.DryRun, sender, sw, storageClient)
-	defer n.Close()
+	defer n.Close(statNotifier)
 	for _, user := range users {
 		if err := n.SendNotification(user); err != nil {
 			return err

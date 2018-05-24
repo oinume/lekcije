@@ -347,7 +347,7 @@ PR ────────────────
 	`)
 }
 
-func (n *Notifier) Close() {
+func (n *Notifier) Close(stat *model.StatNotifier) {
 	n.senderWaitGroup.Wait()
 	defer n.fetcher.Close()
 	defer func() {
@@ -388,6 +388,9 @@ func (n *Notifier) Close() {
 			}
 		}
 	}()
+	if err := model.NewStatNotifierService(n.db).CreateOrUpdate(stat); err != nil {
+		logger.App.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
+	}
 }
 
 func (n *Notifier) uploadStopwatchReport() error {
