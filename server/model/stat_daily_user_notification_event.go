@@ -50,9 +50,9 @@ ORDER BY user_id ASC
 ON DUPLICATE KEY UPDATE count = IFNULL(ele.count, 0) 
 `, tableName)
 	values := []interface{}{
-		date.Format("2006-01-02"),
-		date.Format("2006-01-02") + " 00:00:00",
-		date.Format("2006-01-02") + " 23:59:59",
+		date.Format(dbDateFormat),
+		date.Format(dbDateFormat) + " 00:00:00",
+		date.Format(dbDateFormat) + " 23:59:59",
 	}
 	if err := s.db.Exec(strings.TrimSpace(sql), values...).Error; err != nil {
 		return errors.NewInternalError(
@@ -66,7 +66,7 @@ ON DUPLICATE KEY UPDATE count = IFNULL(ele.count, 0)
 func (s *StatDailyUserNotificationEventService) FindAllByDate(date time.Time) ([]*StatDailyUserNotificationEvent, error) {
 	events := make([]*StatDailyUserNotificationEvent, 0, 1000)
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE date = ?`, (&StatDailyUserNotificationEvent{}).TableName())
-	if err := s.db.Raw(sql, date.Format("2006-01-02")).Scan(&events).Error; err != nil {
+	if err := s.db.Raw(sql, date.Format(dbDateFormat)).Scan(&events).Error; err != nil {
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to FindAllByDate"),
