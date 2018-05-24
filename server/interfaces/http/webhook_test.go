@@ -22,12 +22,13 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	r := require.New(t)
 
 	user := helper.CreateRandomUser()
+	const timestamp = 1492528264
 	reqBody := strings.NewReader(fmt.Sprintf(`
 [
   {
     "email": "oinume@gmail.com",
     "email_type": "new_lesson_notifier",
-    "timestamp": 1492528264,
+    "timestamp": %d,
     "teacher_ids": "16944",
     "ip": "10.43.18.4",
     "sg_event_id": "MzJiZWY5YjYtZjQ5Mi00OWM1LTliYWItNzE2ZTZhZDAxYWFm",
@@ -37,7 +38,7 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
     "event": "open"
   }
 ]
-	`, user.ID))
+	`, timestamp, user.ID))
 	req, err := http.NewRequest("POST", "/api/sendGrid/eventWebhook", reqBody)
 	r.NoError(err)
 
@@ -54,5 +55,5 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	u, err := model.NewUserService(helper.DB()).FindByPK(user.ID)
 	r.NoError(err)
 	r.True(u.OpenNotificationAt.Valid)
-	a.False(u.OpenNotificationAt.Time.IsZero())
+	a.Equal(int64(timestamp), u.OpenNotificationAt.Time.Unix())
 }

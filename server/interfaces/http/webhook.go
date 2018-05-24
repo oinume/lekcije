@@ -106,7 +106,7 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 			return
 		}
 		if v.IsEventOpen() {
-			if err := userService.UpdateOpenNotificationAt(v.GetUserID(), time.Unix(v.Timestamp, 0)); err != nil {
+			if err := userService.UpdateOpenNotificationAt(v.GetUserID(), time.Unix(v.Timestamp, 0).UTC()); err != nil {
 				InternalServerError(w, err)
 				return
 			}
