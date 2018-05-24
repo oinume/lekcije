@@ -354,6 +354,8 @@ func (n *Notifier) Close() {
 		if n.dryRun {
 			return
 		}
+
+		n.stopwatch.Mark("lessonService.UpdateLessons")
 		teacherService := model.NewTeacherService(n.db)
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
