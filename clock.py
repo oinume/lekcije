@@ -4,7 +4,11 @@ import logging
 import subprocess
 
 logging.basicConfig()
-scheduler = BlockingScheduler()
+job_defaults = {
+    'coalesce': False,
+    'max_instances': 2
+}
+scheduler = BlockingScheduler(job_defaults=job_defaults)
 
 
 @scheduler.scheduled_job('interval', minutes=1)
