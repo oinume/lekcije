@@ -232,9 +232,9 @@ func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
 	return nil
 }
 
-func (s *UserService) UpdateOpenNotificationAt(userID uint32) error {
-	sql := "UPDATE user SET open_notification_at = NOW() WHERE id = ?"
-	if err := s.db.Exec(sql, userID).Error; err != nil {
+func (s *UserService) UpdateOpenNotificationAt(userID uint32, t time.Time) error {
+	sql := "UPDATE user SET open_notification_at = ? WHERE id = ?"
+	if err := s.db.Exec(sql, t.Format(dbDatetimeFormat), userID).Error; err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to update open_notification_at"),
