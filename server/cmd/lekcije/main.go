@@ -20,7 +20,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-const maxDBConnections = 5
+const maxDBConnections = 10
 
 func main() {
 	config.MustProcessDefault()
