@@ -28,7 +28,7 @@ func NewStatDailyNotificationEventService(db *gorm.DB) *StatDailyNotificationEve
 }
 
 func (s *StatDailyNotificationEventService) CreateOrUpdate(v *StatDailyNotificationEvent) error {
-	date := v.Date.Format("2006-01-02")
+	date := v.Date.Format(dbDateFormat)
 	sql := fmt.Sprintf(`INSERT INTO %s VALUES (?, ?, ?, ?)`, v.TableName())
 	sql += " ON DUPLICATE KEY UPDATE"
 	sql += " count=?, uu_count=?"
@@ -48,7 +48,7 @@ func (s *StatDailyNotificationEventService) CreateOrUpdate(v *StatDailyNotificat
 func (s *StatDailyNotificationEventService) FindAllByDate(date time.Time) ([]*StatDailyNotificationEvent, error) {
 	events := make([]*StatDailyNotificationEvent, 0, 1000)
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE date = ?`, (&StatDailyNotificationEvent{}).TableName())
-	if err := s.db.Raw(sql, date.Format("2006-01-02")).Scan(&events).Error; err != nil {
+	if err := s.db.Raw(sql, date.Format(dbDateFormat)).Scan(&events).Error; err != nil {
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to FindAllByDate"),

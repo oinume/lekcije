@@ -167,7 +167,14 @@ func TestNotifier_SendNotification(t *testing.T) {
 				t.Fatalf("SendNotification failed: err=%v", err)
 			}
 		}
-		n.Close() // Wait all async requests are done
+		// Wait all async requests are done
+		n.Close(&model.StatNotifier{
+			Datetime:             time.Now().UTC(),
+			Interval:             10,
+			Elapsed:              1000,
+			UserCount:            uint32(len(users)),
+			FollowedTeacherCount: uint32(len(users)),
+		})
 
 		//if got, want := senderTransport.called, numOfUsers; got <= want {
 		//	t.Errorf("unexpected senderTransport.called: got=%v, want=%v", got, want)
@@ -199,7 +206,13 @@ func TestNotifier_SendNotification(t *testing.T) {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
 
-		n.Close() // Wait all async requests are done before reading request body
+		n.Close(&model.StatNotifier{
+			Datetime:             time.Now().UTC(),
+			Interval:             10,
+			Elapsed:              1000,
+			UserCount:            1,
+			FollowedTeacherCount: 1,
+		}) // Wait all async requests are done before reading request body
 		content := senderTransport.requestBody
 		// TODO: table drive test
 		if !strings.Contains(content, "02:30") {
@@ -241,7 +254,13 @@ func TestNotifier_Close(t *testing.T) {
 	n := NewNotifier(db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
 	err = n.SendNotification(user)
 	r.NoError(err, "SendNotification failed")
-	n.Close()
+	n.Close(&model.StatNotifier{
+		Datetime:             time.Now().UTC(),
+		Interval:             10,
+		Elapsed:              1000,
+		UserCount:            1,
+		FollowedTeacherCount: 1,
+	})
 
 	teacherService := model.NewTeacherService(db)
 	updatedTeacher, err := teacherService.FindByPK(teacher.ID)

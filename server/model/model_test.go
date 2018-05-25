@@ -22,6 +22,7 @@ var (
 	notificationTimeSpanService           *NotificationTimeSpanService
 	statDailyNotificationEventService     *StatDailyNotificationEventService
 	statDailyUserNotificationEventService *StatDailyUserNotificationEventService
+	statNotifierService                   *StatNotifierService
 	teacherService                        *TeacherService
 	userService                           *UserService
 	userGoogleService                     *UserGoogleService
@@ -43,6 +44,7 @@ func TestMain(m *testing.M) {
 	notificationTimeSpanService = NewNotificationTimeSpanService(db)
 	statDailyNotificationEventService = NewStatDailyNotificationEventService(db)
 	statDailyUserNotificationEventService = NewStatDailyUserNotificationEventService(db)
+	statNotifierService = NewStatNotifierService(db)
 	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
