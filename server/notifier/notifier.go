@@ -388,8 +388,10 @@ func (n *Notifier) Close(stat *model.StatNotifier) {
 			}
 		}
 	}()
-	if err := model.NewStatNotifierService(n.db).CreateOrUpdate(stat); err != nil {
-		logger.App.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
+	if stat.Interval == 10 {
+		if err := model.NewStatNotifierService(n.db).CreateOrUpdate(stat); err != nil {
+			logger.App.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
+		}
 	}
 }
 
