@@ -390,13 +390,13 @@ func (n *Notifier) Close(stat *model.StatNotifier) {
 			}
 		}
 	}()
-	//if stat.Interval == 10 {
-	stat.Elapsed = uint32(time.Now().UTC().Sub(stat.Datetime) / time.Millisecond)
-	stat.FollowedTeacherCount = uint32(len(n.teachers))
-	if err := model.NewStatNotifierService(n.db).CreateOrUpdate(stat); err != nil {
-		logger.App.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
+	if stat.Interval == 10 {
+		stat.Elapsed = uint32(time.Now().UTC().Sub(stat.Datetime) / time.Millisecond)
+		stat.FollowedTeacherCount = uint32(len(n.teachers))
+		if err := model.NewStatNotifierService(n.db).CreateOrUpdate(stat); err != nil {
+			logger.App.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
+		}
 	}
-	//}
 }
 
 func (n *Notifier) uploadStopwatchReport() error {
