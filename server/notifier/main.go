@@ -95,7 +95,7 @@ func (m *Main) Run() error {
 	}
 
 	statNotifier := &model.StatNotifier{
-		Datetime:             time.Now().UTC(),
+		Datetime:             startedAt,
 		Interval:             uint8(*m.NotificationInterval),
 		Elapsed:              0,
 		UserCount:            uint32(len(users)),
