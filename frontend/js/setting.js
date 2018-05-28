@@ -5,6 +5,7 @@ import {createHttpClient} from './http';
 import Alert from './components/Alert';
 import Select from './components/Select';
 import {sprintf} from 'sprintf-js';
+import Loadable from 'react-loading-overlay';
 
 class SettingView extends MicroContainer {
 
@@ -47,9 +48,15 @@ class SettingView extends MicroContainer {
     return (
       <div>
         <h1 className="page-title">設定</h1>
-        <Alert dispatch={this.dispatch} {...this.state.alert}/>
-        <EmailForm dispatch={this.dispatch} value={this.state.email}/>
-        <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+        <Loadable
+          active={true}
+          spinner={true}
+          text='Loading...'
+        >
+          <Alert dispatch={this.dispatch} {...this.state.alert}/>
+          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+          <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+        </Loadable>
       </div>
     );
   }
