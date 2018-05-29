@@ -12,6 +12,7 @@ class SettingView extends MicroContainer {
   constructor(props) {
     super(props);
     this.state = {
+      loading: false,
       alert: {
         visible: false,
         kind: '',
@@ -41,6 +42,9 @@ class SettingView extends MicroContainer {
       onChangeTimeSpan: this.handleOnChangeTimeSpan,
     });
 
+    this.setState({
+      loading: true,
+    });
     this.fetch();
   }
 
@@ -49,7 +53,7 @@ class SettingView extends MicroContainer {
       <div>
         <h1 className="page-title">設定</h1>
         <Loadable
-          active={true}
+          active={this.state.loading}
           spinner={true}
           text='Loading...'
         >
@@ -68,6 +72,7 @@ class SettingView extends MicroContainer {
         console.log(response.data);
         const timeSpans = response.data['notificationTimeSpans'] ? response.data['notificationTimeSpans'] : [];
         this.setState({
+          loading: false,
           userId: response.data['userId'],
           email: response.data['email'],
           timeSpan: {
@@ -78,6 +83,9 @@ class SettingView extends MicroContainer {
       })
       .catch((error) => {
         console.log(error);
+        this.setState({
+          loading: false,
+        });
         this.handleShowAlert('danger', 'システムエラーが発生しました');
       });
   }
