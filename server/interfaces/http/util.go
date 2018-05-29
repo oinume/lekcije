@@ -42,7 +42,7 @@ func ParseHTMLTemplates(files ...string) *template.Template {
 	return template.Must(template.ParseFiles(f...))
 }
 
-func InternalServerError(w http.ResponseWriter, err error) {
+func internalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
@@ -59,7 +59,7 @@ func InternalServerError(w http.ResponseWriter, err error) {
 		}
 		fields = append(fields, zap.String("stacktrace", b.String()))
 	}
-	logger.App.Error("InternalServerError", fields...)
+	logger.App.Error("internalServerError", fields...)
 
 	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
 	if !config.IsProductionEnv() {
@@ -72,12 +72,12 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	}
 }
 
-func JSON(w http.ResponseWriter, code int, body interface{}) {
+func writeJSON(w http.ResponseWriter, code int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	//w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
 	if err := json.NewEncoder(w).Encode(body); err != nil {
-		http.Error(w, `{ "status": "Failed to Encode as JSON" }`, http.StatusInternalServerError)
+		http.Error(w, `{ "status": "Failed to Encode as writeJSON" }`, http.StatusInternalServerError)
 		return
 	}
 }
@@ -143,7 +143,7 @@ func (s *server) getCommonTemplateData(req *http.Request, loggedIn bool, userID 
 	return data
 }
 
-func GetRemoteAddress(req *http.Request) string {
+func getRemoteAddress(req *http.Request) string {
 	xForwardedFor := req.Header.Get("X-Forwarded-For")
 	if xForwardedFor == "" {
 		return (strings.Split(req.RemoteAddr, ":"))[0]

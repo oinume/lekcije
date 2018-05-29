@@ -50,7 +50,7 @@ func (s *server) indexLogout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.NewInternalError(
+		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
 		))
@@ -77,7 +77,7 @@ func (s *server) signup(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData: s.getCommonTemplateData(r, false, 0),
 	}
 	if err := t.Execute(w, &data); err != nil {
-		InternalServerError(w, errors.NewInternalError(
+		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
 		))
@@ -152,7 +152,7 @@ func (s *server) terms(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		InternalServerError(w, errors.NewInternalError(
+		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
 		))

@@ -35,7 +35,7 @@ func PanicHandler(h http.Handler) http.Handler {
 				default:
 					err = fmt.Errorf("unknown error type: %v", errorType)
 				}
-				InternalServerError(w, errors.NewInternalError(
+				internalServerError(w, errors.NewInternalError(
 					errors.WithError(err),
 					errors.WithMessage("panic occurred"),
 				))
@@ -71,7 +71,7 @@ func AccessLogger(h http.Handler) http.Handler {
 				zap.String("url", r.URL.String()),
 				zap.Int("status", status),
 				zap.Int("bytes", writerProxy.BytesWritten()),
-				zap.String("remoteAddr", GetRemoteAddress(r)),
+				zap.String("remoteAddr", getRemoteAddress(r)),
 				zap.String("userAgent", r.Header.Get("User-Agent")),
 				zap.String("referer", r.Referer()),
 				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
@@ -213,7 +213,7 @@ func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
 					http.Redirect(w, r, config.WebURL(), http.StatusFound)
 					return
 				}
-				InternalServerError(w, err)
+				internalServerError(w, err)
 				return
 			}
 			logger.App.Debug("Logged in user", zap.String("name", user.Name))
@@ -249,12 +249,4 @@ func Redirecter(h http.Handler) http.Handler {
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
-}
-
-func getRemoteAddress(req *http.Request) string {
-	xForwardedFor := req.Header.Get("X-Forwarded-For")
-	if xForwardedFor == "" {
-		return (strings.Split(req.RemoteAddr, ":"))[0]
-	}
-	return strings.TrimSpace((strings.Split(xForwardedFor, ","))[0])
 }
