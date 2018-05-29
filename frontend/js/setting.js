@@ -5,12 +5,14 @@ import {createHttpClient} from './http';
 import Alert from './components/Alert';
 import Select from './components/Select';
 import {sprintf} from 'sprintf-js';
+import Loadable from 'react-loading-overlay';
 
 class SettingView extends MicroContainer {
 
   constructor(props) {
     super(props);
     this.state = {
+      loading: false,
       alert: {
         visible: false,
         kind: '',
@@ -40,6 +42,9 @@ class SettingView extends MicroContainer {
       onChangeTimeSpan: this.handleOnChangeTimeSpan,
     });
 
+    this.setState({
+      loading: true,
+    });
     this.fetch();
   }
 
@@ -47,9 +52,17 @@ class SettingView extends MicroContainer {
     return (
       <div>
         <h1 className="page-title">設定</h1>
-        <Alert dispatch={this.dispatch} {...this.state.alert}/>
-        <EmailForm dispatch={this.dispatch} value={this.state.email}/>
-        <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+        <Loadable
+          active={this.state.loading}
+          background='rgba(255, 255, 255, 0)'
+          color='rgba(0, 0, 0, 1)'
+          spinner={true}
+          text='Loading data ...'
+        >
+          <Alert dispatch={this.dispatch} {...this.state.alert}/>
+          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+          <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+        </Loadable>
       </div>
     );
   }
@@ -61,6 +74,7 @@ class SettingView extends MicroContainer {
         console.log(response.data);
         const timeSpans = response.data['notificationTimeSpans'] ? response.data['notificationTimeSpans'] : [];
         this.setState({
+          loading: false,
           userId: response.data['userId'],
           email: response.data['email'],
           timeSpan: {
@@ -71,6 +85,9 @@ class SettingView extends MicroContainer {
       })
       .catch((error) => {
         console.log(error);
+        this.setState({
+          loading: false,
+        });
         this.handleShowAlert('danger', 'システムエラーが発生しました');
       });
   }

@@ -85,13 +85,22 @@ const config = {
         test: /\.(js|jsx)$/,
         //include: paths.appSrc,
         loader: require.resolve('babel-loader'),
+        exclude: /node_modules/,
         options: {
           // This is a feature of `babel-loader` for Webpack (not Babel itself).
           // It enables caching results in ./node_modules/.cache/babel-loader/
           // directory for faster rebuilds.
           cacheDirectory: true,
           //plugins: ['react-hot-loader/babel'],
-        },
+          presets: [
+            ['@babel/react'],
+            ['@babel/env', {
+                "targets": {
+                  "browsers": ["last 2 versions", "safari >= 7"]
+                }
+            }]
+          ]
+        }
       },
       {
         test: /\.css$/,
