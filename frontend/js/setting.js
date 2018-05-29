@@ -54,9 +54,10 @@ class SettingView extends MicroContainer {
         <h1 className="page-title">設定</h1>
         <Loadable
           active={this.state.loading}
-          background='rgba(0, 0, 0, 0.7)'
+          background='rgba(255, 255, 255, 0)'
+          color='rgba(0, 0, 0, 1)'
           spinner={true}
-          text='Loading...'
+          text='Loading data ...'
         >
           <Alert dispatch={this.dispatch} {...this.state.alert}/>
           <EmailForm dispatch={this.dispatch} value={this.state.email}/>
