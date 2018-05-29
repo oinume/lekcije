@@ -54,6 +54,7 @@ class SettingView extends MicroContainer {
         <h1 className="page-title">設定</h1>
         <Loadable
           active={this.state.loading}
+          background='rgba(0, 0, 0, 0.7)'
           spinner={true}
           text='Loading...'
         >
