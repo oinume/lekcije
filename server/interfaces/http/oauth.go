@@ -76,7 +76,7 @@ func (s *server) oauthGoogleCallbackHandler() http.HandlerFunc {
 
 func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	if err := checkState(r); err != nil {
-		InternalServerError(w, err)
+		internalServerError(w, err)
 		return
 	}
 	token, idToken, err := exchange(r)
@@ -85,12 +85,12 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
-		InternalServerError(w, err)
+		internalServerError(w, err)
 		return
 	}
 	googleID, name, email, err := getGoogleUserInfo(token, idToken)
 	if err != nil {
-		InternalServerError(w, err)
+		internalServerError(w, err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		)
 	} else {
 		if !errors.IsNotFound(err) {
-			InternalServerError(w, err)
+			internalServerError(w, err)
 			return
 		}
 		// Couldn't find user for the googleID, so create a new user
@@ -114,7 +114,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			return errCreate
 		})
 		if errTx != nil {
-			InternalServerError(w, errTx)
+			internalServerError(w, errTx)
 			return
 		}
 		go event_logger.SendGAMeasurementEvent2(
@@ -127,7 +127,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	userAPITokenService := model.NewUserAPITokenService(s.db)
 	userAPIToken, err := userAPITokenService.Create(user.ID)
 	if err != nil {
-		InternalServerError(w, err)
+		internalServerError(w, err)
 		return
 	}
 
@@ -150,7 +150,7 @@ func checkState(r *http.Request) error {
 			errors.WithError(err),
 			errors.WithMessage(fmt.Sprintf(
 				"Failed to get cookie oauthState: userAgent=%v, remoteAddr=%v",
-				r.UserAgent(), GetRemoteAddress(r),
+				r.UserAgent(), getRemoteAddress(r),
 			)),
 		)
 	}

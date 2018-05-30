@@ -45,11 +45,11 @@ func (s *server) getAPIStatus(w http.ResponseWriter, r *http.Request) {
 
 	for _, status := range data {
 		if !status {
-			JSON(w, http.StatusInternalServerError, data)
+			writeJSON(w, http.StatusInternalServerError, data)
 			return
 		}
 	}
-	JSON(w, http.StatusOK, data)
+	writeJSON(w, http.StatusOK, data)
 }
 
 func (s *server) getAPIMeFollowingTeachersHandler() http.HandlerFunc {
@@ -71,7 +71,7 @@ func (s *server) getAPIMeFollowingTeachers(w http.ResponseWriter, r *http.Reques
 	}
 	if err := json.NewEncoder(w).Encode(teachers); err != nil {
 		// TODO: JSON
-		InternalServerError(w, errors.NewInternalError(
+		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to encode JSON"),
 		))

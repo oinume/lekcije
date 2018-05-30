@@ -92,7 +92,7 @@ func (s *server) postAPISendGridEventWebhookHandler() http.HandlerFunc {
 func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Request) {
 	values := make([]SendGridEventValues, 0, 1000)
 	if err := json.NewDecoder(r.Body).Decode(&values); err != nil {
-		InternalServerError(w, err)
+		internalServerError(w, err)
 		return
 	}
 	defer r.Body.Close()
@@ -102,12 +102,12 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 	for _, v := range values {
 		v.LogToFile()
 		if err := v.LogToDB(s.db); err != nil {
-			InternalServerError(w, err)
+			internalServerError(w, err)
 			return
 		}
 		if v.IsEventOpen() {
 			if err := userService.UpdateOpenNotificationAt(v.GetUserID(), time.Unix(v.Timestamp, 0).UTC()); err != nil {
-				InternalServerError(w, err)
+				internalServerError(w, err)
 				return
 			}
 		}

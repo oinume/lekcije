@@ -25,9 +25,9 @@ func (s *server) getAPIDebugEnvVar(w http.ResponseWriter, r *http.Request) {
 			}
 			vars[kv[0]] = kv[1]
 		}
-		JSON(w, http.StatusOK, vars)
+		writeJSON(w, http.StatusOK, vars)
 	} else {
-		JSON(w, http.StatusOK, struct{}{})
+		writeJSON(w, http.StatusOK, struct{}{})
 	}
 }
 
@@ -46,8 +46,8 @@ func (s *server) getAPIDebugHTTPHeader(w http.ResponseWriter, r *http.Request) {
 		for name := range r.Header {
 			headers[name] = r.Header.Get(name)
 		}
-		JSON(w, http.StatusOK, headers)
+		writeJSON(w, http.StatusOK, headers)
 	} else {
-		JSON(w, http.StatusOK, struct{}{})
+		writeJSON(w, http.StatusOK, struct{}{})
 	}
 }
