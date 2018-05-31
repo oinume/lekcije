@@ -12,10 +12,12 @@ test('<NotificationTimeSpanForm>', () => {
   class Container extends MicroContainer {}
   let container = new Container();
   container.subscribe({
-    onChangeEmail: () => {},
-    updateEmail: () => {},
+    addTimeSpan: () => {},
+    deleteTimeSpan: () => {},
+    updateTimeSpan: () => {},
+    onChangeTimeSpan: () => {},
+    setTimeSpanEditable: () => {},
   });
- // container.dispatch('onChangeEmail', 'updateEmail');
 
   let timeSpans = [];
   const wrapper = shallow(
