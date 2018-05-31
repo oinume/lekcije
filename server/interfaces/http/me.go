@@ -127,7 +127,12 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	updateFollowedTeacherAt := false
 	if !user.FollowedTeacherAt.Valid {
 		userService := model.NewUserService(s.db)
+		// TODO: 1回でまとめて更新する
 		if err := userService.UpdateFollowedTeacherAt(user); err != nil {
+			internalServerError(w, err)
+			return
+		}
+		if err := userService.UpdateOpenNotificationAt(user.ID, time.Now().UTC()); err != nil {
 			internalServerError(w, err)
 			return
 		}
