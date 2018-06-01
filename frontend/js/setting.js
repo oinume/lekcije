@@ -4,6 +4,7 @@ import MicroContainer from 'react-micro-container';
 import {createHttpClient} from './http';
 import Alert from './components/Alert';
 import EmailForm from './components/setting/EmailForm';
+import MPlanForm from './components/setting/MPlanForm';
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
 
@@ -24,9 +25,9 @@ class SettingView extends MicroContainer {
         editable: false,
         timeSpans: [], // {fromHour:23, fromMinute:0, toHour:23, toMinute:30}
       },
-      plan: {
-        id: 1,
-        name: 'フリー',
+      mPlan: {
+        id: 0,
+        name: '',
       }
     };
   }
@@ -66,7 +67,7 @@ class SettingView extends MicroContainer {
           <Alert dispatch={this.dispatch} {...this.state.alert}/>
           <EmailForm dispatch={this.dispatch} value={this.state.email}/>
           <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
-          <PlanForm {...this.state.plan}/>
+          <MPlanForm {...this.state.mPlan}/>
         </Loadable>
       </div>
     );
@@ -86,6 +87,7 @@ class SettingView extends MicroContainer {
             editable: this.state.timeSpan.editable,
             timeSpans: timeSpans,
           },
+          mPlan: response.data['mPlan'],
         })
       })
       .catch((error) => {
@@ -220,40 +222,6 @@ class SettingView extends MicroContainer {
       }
     });
   }
-}
-
-class PlanForm extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <form className="form-horizontal">
-        <div className="form-group">
-          <div className="col-sm-3">
-            <label htmlFor="plan" className="control-label">プラン</label>
-          </div>
-          <div className="col-sm-7">
-            <p>{this.props.name}</p>
-          </div>
-        </div>
-        <div className="form-group">
-          <div className="col-sm-offset-2 col-sm-8">
-            <button
-              type="button"
-              disabled={!this.props.value}
-              className="btn btn-primary"
-              onClick={() => {}}
-            >
-              変更
-            </button>
-          </div>
-        </div>
-      </form>
-    );
-  }
-
 }
 
 ReactDOM.render(
