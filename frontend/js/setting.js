@@ -4,6 +4,7 @@ import MicroContainer from 'react-micro-container';
 import {createHttpClient} from './http';
 import Alert from './components/Alert';
 import EmailForm from './components/setting/EmailForm';
+import MPlanForm from './components/setting/MPlanForm';
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
 
@@ -24,6 +25,10 @@ class SettingView extends MicroContainer {
         editable: false,
         timeSpans: [], // {fromHour:23, fromMinute:0, toHour:23, toMinute:30}
       },
+      mPlan: {
+        id: 0,
+        name: '',
+      }
     };
   }
 
@@ -62,6 +67,7 @@ class SettingView extends MicroContainer {
           <Alert dispatch={this.dispatch} {...this.state.alert}/>
           <EmailForm dispatch={this.dispatch} value={this.state.email}/>
           <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+          <MPlanForm {...this.state.mPlan}/>
         </Loadable>
       </div>
     );
@@ -81,6 +87,7 @@ class SettingView extends MicroContainer {
             editable: this.state.timeSpan.editable,
             timeSpans: timeSpans,
           },
+          mPlan: response.data['mPlan'],
         })
       })
       .catch((error) => {
@@ -216,6 +223,7 @@ class SettingView extends MicroContainer {
     });
   }
 }
+
 ReactDOM.render(
   <SettingView/>,
   document.getElementById('root')

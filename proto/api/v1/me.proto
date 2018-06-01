@@ -41,10 +41,16 @@ message NotificationTimeSpan {
     int32 toMinute = 4;
 }
 
+message MPlan {
+    int32 id = 1;
+    string name = 2;
+}
+
 message GetMeResponse {
     int32 userId = 1;
     string email = 2;
     repeated NotificationTimeSpan notificationTimeSpans = 3;
+    MPlan mPlan = 4;
 }
 
 message GetMeEmailRequest {}

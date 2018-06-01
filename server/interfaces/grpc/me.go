@@ -30,7 +30,8 @@ func RegisterAPIV1Server(server *grpc.Server, args *interfaces.ServerArgs) {
 }
 
 func (s *apiV1Server) GetMe(
-	ctx context.Context, in *api_v1.GetMeRequest,
+	ctx context.Context,
+	in *api_v1.GetMeRequest,
 ) (*api_v1.GetMeResponse, error) {
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
@@ -47,10 +48,19 @@ func (s *apiV1Server) GetMe(
 		return nil, err
 	}
 
+	mPlan, err := model.NewMPlanService(s.db).FindByPK(user.PlanID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &api_v1.GetMeResponse{
 		UserId: int32(user.ID),
 		Email:  user.Email,
 		NotificationTimeSpans: timeSpansPB,
+		MPlan: &api_v1.MPlan{
+			Id:   int32(mPlan.ID),
+			Name: mPlan.Name,
+		},
 	}, nil
 }
 
