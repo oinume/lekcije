@@ -1,6 +1,8 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/interfaces"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
@@ -13,6 +15,7 @@ type server struct {
 	db                *gorm.DB
 	flashMessageStore flash_message.Store
 	redis             *redis.Client
+	senderHTTPClient  *http.Client
 }
 
 func NewServer(args *interfaces.ServerArgs) *server {
@@ -20,6 +23,7 @@ func NewServer(args *interfaces.ServerArgs) *server {
 		db:                args.DB,
 		flashMessageStore: args.FlashMessageStore,
 		redis:             args.Redis,
+		senderHTTPClient:  args.SenderHTTPClient,
 	}
 }
 
