@@ -11,17 +11,23 @@ import (
 	"github.com/oinume/lekcije/server/model"
 )
 
-var httpClient = &http.Client{}
-var sender = emailer.NewSendGridSender(httpClient)
+type emailSender struct {
+	sender emailer.Sender
+}
 
-func Send(user *model.User) error {
+func NewEmailSender(httpClient *http.Client) *emailSender {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	return &emailSender{
+		sender: emailer.NewSendGridSender(httpClient),
+	}
+}
+
+func (s *emailSender) Send(user *model.User) error {
 	t := emailer.NewTemplate("notifier", getEmailTemplate())
 	data := struct {
 		To                string
-		TeacherNames      string
-		TeacherIDs        []uint32
-		Teachers          map[uint32]*model.Teacher
-		LessonsPerTeacher map[uint32]*model.TeacherLessons
 		WebURL            string
 	}{
 		To:                user.Email,
@@ -37,7 +43,7 @@ func Send(user *model.User) error {
 	email.SetCustomArg("email_type", model.EmailTypeNewLessonNotifier)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 
-	return sender.Send(email)
+	return s.sender.Send(email)
 }
 
 func getEmailTemplate() string {
@@ -48,9 +54,10 @@ Subject: lekcijeの登録が完了しました
 Body: text/html
 lekcijeにご登録いただきありがとうござます。
 
-● DMM英会話の講師をフォローしてみましょう
-<a href="{{ .WebURL }}/me">こちら</a>からDMM英会話のお気に入りの講師をフォローしてみましょう。フォローすると講師が空きレッスンを登録した時にメールで通知がくるようになります。
+● 次のステップ：DMM英会話の講師をフォローしてみましょう
+<a href="{{ .WebURL }}/me">こちら</a>からDMM英会話のお気に入りの講師をフォローしてみましょう。フォローすると講師が空きレッスンを登録した時にメールで通知が来るようになります。
 
-<a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">お問い合わせ</a>
+ご質問などがございましたら、<a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">こちら</a>からお問い合わせ頂ければと思います。
+lekcijeをよろしくお願いいたします。
 	`)
 }
