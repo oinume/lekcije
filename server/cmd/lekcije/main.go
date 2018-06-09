@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
@@ -50,6 +51,9 @@ func main() {
 		DB:                db,
 		FlashMessageStore: flash_message.NewStoreRedis(redis),
 		Redis:             redis,
+		SenderHTTPClient: &http.Client{
+			Timeout: 5 * time.Second,
+		},
 	}
 	errors := make(chan error)
 	go func() {

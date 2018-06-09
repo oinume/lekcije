@@ -11,8 +11,12 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/registration_email"
 	"github.com/oinume/lekcije/server/util"
+	"github.com/stvp/rollbar"
+	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
@@ -130,6 +134,20 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		internalServerError(w, err)
 		return
 	}
+
+	// Send registration email
+	go func(user *model.User) {
+		sender := registration_email.NewEmailSender(s.senderHTTPClient)
+		if err := sender.Send(user); err != nil {
+			logger.App.Error(
+				"Failed to send registration email",
+				zap.String("email", user.Email), zap.Error(err),
+			)
+			if rollbar.Token != "" {
+				rollbar.Error(rollbar.ERR, err)
+			}
+		}
+	}(user)
 
 	cookie := &http.Cookie{
 		Name:     APITokenCookieName,
