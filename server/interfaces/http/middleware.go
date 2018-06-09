@@ -3,13 +3,11 @@ package http
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
-	"github.com/newrelic/go-agent"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
@@ -22,7 +20,7 @@ import (
 
 var _ = fmt.Print
 
-func PanicHandler(h http.Handler) http.Handler {
+func panicHandler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -47,7 +45,7 @@ func PanicHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func AccessLogger(h http.Handler) http.Handler {
+func accessLogger(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		writerProxy := WrapWriter(w)
@@ -82,26 +80,6 @@ func AccessLogger(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func NewRelic(h http.Handler) http.Handler {
-	key := os.Getenv("NEW_RELIC_LICENSE_KEY")
-	if key == "" {
-		return h
-	}
-
-	c := newrelic.NewConfig("lekcije", key)
-	app, err := newrelic.NewApplication(c)
-	if err != nil {
-		logger.App.Error("Failed to newrelic.NewApplication()", zap.Error(err))
-		return h
-	}
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		tx := app.StartTransaction(r.URL.Path, w, r)
-		defer tx.End()
-		h.ServeHTTP(tx, r)
-	}
-	return http.HandlerFunc(fn)
-}
-
 func setLoggedInUser(db *gorm.DB) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +107,7 @@ func setLoggedInUser(db *gorm.DB) func(http.Handler) http.Handler {
 	}
 }
 
-func SetTrackingID(h http.Handler) http.Handler {
+func setTrackingID(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ignoreURLs := []string{
 			"/api/status",
@@ -168,7 +146,7 @@ func SetTrackingID(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetGRPCMetadata(h http.Handler) http.Handler {
+func setGRPCMetadata(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		r.Header.Set("Grpc-Metadata-Http-User-Agent", r.UserAgent())
 		r.Header.Set("Grpc-Metadata-Http-Referer", r.Referer())
@@ -180,7 +158,7 @@ func SetGRPCMetadata(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func SetGAMeasurementEventValues(h http.Handler) http.Handler {
+func setGAMeasurementEventValues(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		v := event_logger.NewGAMeasurementEventValuesFromRequest(r)
 		c := event_logger.WithGAMeasurementEventValues(r.Context(), v)
@@ -224,7 +202,7 @@ func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
 	}
 }
 
-func CORS(h http.Handler) http.Handler {
+func setCORS(h http.Handler) http.Handler {
 	origins := []string{}
 	if strings.HasPrefix(config.StaticURL(), "http") {
 		origins = append(origins, strings.TrimSuffix(config.StaticURL(), "/static"))
@@ -240,7 +218,7 @@ func CORS(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func Redirecter(h http.Handler) http.Handler {
+func redirecter(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		if r.Host == "lekcije.herokuapp.com" {
 			http.Redirect(w, r, config.WebURL()+r.RequestURI, http.StatusMovedPermanently)

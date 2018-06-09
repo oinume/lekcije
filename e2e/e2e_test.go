@@ -50,7 +50,7 @@ func TestMain(m *testing.M) {
 		//Redis: redis
 	}
 	s := interfaces_http.NewServer(args)
-	routes := s.CreateRoutes(nil, args) // TODO: grpc-gateway
+	routes := s.CreateRoutes(nil) // TODO: grpc-gateway
 	port += 1
 	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
