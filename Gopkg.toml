@@ -64,10 +64,6 @@
   branch = "master"
 
 [[constraint]]
-  name = "github.com/newrelic/go-agent"
-  branch = "master"
-
-[[constraint]]
   name = "github.com/oinume/goenum"
   branch = "master"
 

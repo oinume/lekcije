@@ -12,6 +12,7 @@ import (
 const (
 	EmailTypeNewLessonNotifier = "new_lesson_notifier"
 	EmailTypeFollowReminder    = "follow_reminder"
+	EmailTypeRegistration      = "registration"
 )
 
 type EventLogEmail struct {
