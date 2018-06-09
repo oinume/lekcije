@@ -27,11 +27,11 @@ func NewEmailSender(httpClient *http.Client) *emailSender {
 func (s *emailSender) Send(user *model.User) error {
 	t := emailer.NewTemplate("notifier", getEmailTemplate())
 	data := struct {
-		To                string
-		WebURL            string
+		To     string
+		WebURL string
 	}{
-		To:                user.Email,
-		WebURL:            config.WebURL(),
+		To:     user.Email,
+		WebURL: config.WebURL(),
 	}
 	email, err := emailer.NewEmailFromTemplate(t, data)
 	if err != nil {
@@ -54,7 +54,6 @@ Subject: lekcijeの登録が完了しました
 Body: text/html
 lekcijeにご登録いただきありがとうござます。
 
-● 次のステップ：DMM英会話の講師をフォローしてみましょう
 <a href="{{ .WebURL }}/me">こちら</a>からDMM英会話のお気に入りの講師をフォローしてみましょう。フォローすると講師が空きレッスンを登録した時にメールで通知が来るようになります。
 
 ご質問などがございましたら、<a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">こちら</a>からお問い合わせ頂ければと思います。
