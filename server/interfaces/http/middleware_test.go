@@ -10,6 +10,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestAccessLogger(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+
+	req, err := http.NewRequest("GET", "/", nil)
+	r.NoError(err)
+	w := httptest.NewRecorder()
+	middleware := accessLogger(http.HandlerFunc(dummyHandler))
+	middleware.ServeHTTP(w, req)
+
+	a.Equal(http.StatusOK, w.Code)
+}
+
 func TestSeTrackingID(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
