@@ -40,7 +40,7 @@ func (s *emailSender) Send(user *model.User) error {
 			errors.WithMessagef("Failed to create emailer.Email from template: to=%v", user.Email),
 		)
 	}
-	email.SetCustomArg("email_type", model.EmailTypeNewLessonNotifier)
+	email.SetCustomArg("email_type", model.EmailTypeRegistration)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 
 	return s.sender.Send(email)

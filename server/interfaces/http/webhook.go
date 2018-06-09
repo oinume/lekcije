@@ -53,10 +53,12 @@ func (v *SendGridEventValues) LogToFile() {
 	if id, err := strconv.ParseUint(v.UserID, 10, 32); err == nil {
 		userID = uint32(id)
 	}
+	if v.EmailType != "" {
+		fields = append(fields, zap.String("emailType", v.EmailType))
+	}
 	if v.TeacherIDs != "" {
 		fields = append(fields, zap.String("teacherIDs", v.TeacherIDs))
 	}
-
 	if v.IsEventOpen() || v.IsEventClick() {
 		fields = append(fields, zap.String("userAgent", v.UserAgent))
 	}
@@ -105,7 +107,7 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 			internalServerError(w, err)
 			return
 		}
-		if v.IsEventOpen() {
+		if v.EmailType == model.EmailTypeNewLessonNotifier && v.IsEventOpen() {
 			if err := userService.UpdateOpenNotificationAt(v.GetUserID(), time.Unix(v.Timestamp, 0).UTC()); err != nil {
 				internalServerError(w, err)
 				return
