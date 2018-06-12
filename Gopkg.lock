@@ -10,6 +10,7 @@
     "internal/optional",
     "internal/trace",
     "internal/version",
+    "profiler",
     "storage"
   ]
   revision = "0fd7230b2a7505833d5f69b75cbd6c9582401479"
@@ -53,6 +54,12 @@
     "ptypes/timestamp"
   ]
   revision = "bbd03ef6da3a115852eaf24c8a1c46aeb39aa175"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/google/pprof"
+  packages = ["profile"]
+  revision = "8b03ce837f3401233d4e32de3a5f0ea3ff1c13c2"
 
 [[projects]]
   branch = "master"
@@ -295,6 +302,7 @@
     "oauth2/v2",
     "option",
     "storage/v1",
+    "transport/grpc",
     "transport/http"
   ]
   revision = "c7a403bb5fe12fe4644bb956edd5cd677626120a"
@@ -311,7 +319,9 @@
     "internal/log",
     "internal/modules",
     "internal/remote_api",
+    "internal/socket",
     "internal/urlfetch",
+    "socket",
     "urlfetch"
   ]
   revision = "a2c54d2174c17540446e0ced57d9d459af61bc1c"
@@ -321,8 +331,10 @@
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
+    "googleapis/devtools/cloudprofiler/v2",
     "googleapis/iam/v1",
     "googleapis/rpc/code",
+    "googleapis/rpc/errdetails",
     "googleapis/rpc/status"
   ]
   revision = "2b5a72b8730b0b16380010cfe5286c42108d88e7"
@@ -337,6 +349,7 @@
     "codes",
     "connectivity",
     "credentials",
+    "credentials/oauth",
     "encoding",
     "encoding/proto",
     "grpclb/grpc_lb_v1/messages",
@@ -390,6 +403,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bb4f5f970ba16772bfbf1284331a802a27bcd292e216b593682e4327251a0020"
+  inputs-digest = "867886486599e999fc420e9e2c1f2238aac29e778ca162c39b2dfe3c36653dc2"
   solver-name = "gps-cdcl"
   solver-version = 1

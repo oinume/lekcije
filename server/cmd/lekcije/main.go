@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"cloud.google.com/go/profiler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/config"
@@ -29,6 +30,14 @@ func main() {
 	grpcPort := config.DefaultVars.GRPCPort
 	if port == grpcPort {
 		log.Fatalf("Can't specify same port for a server.")
+	}
+
+	if err := profiler.Start(profiler.Config{
+		ProjectID:      config.DefaultVars.GCPProjectID,
+		Service:        "lekcije",
+		ServiceVersion: "1.0.0", // TODO: release version?
+	}); err != nil {
+		log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 	}
 
 	db, err := model.OpenDB(

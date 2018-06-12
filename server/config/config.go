@@ -27,6 +27,7 @@ type Vars struct {
 	NodeEnv            string `envconfig:"NODE_ENV"`
 	ServiceEnv         string `envconfig:"LEKCIJE_ENV" required:"true"`
 	RedisURL           string `envconfig:"REDIS_URL"`
+	GCPProjectID       string `envconfig:"GCP_PROJECT_ID"`
 	GoogleClientID     string `envconfig:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `envconfig:"GOOGLE_CLIENT_SECRET"`
 	GoogleAnalyticsID  string `envconfig:"GOOGLE_ANALYTICS_ID"`
