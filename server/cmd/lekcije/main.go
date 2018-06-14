@@ -32,12 +32,14 @@ func main() {
 		log.Fatalf("Can't specify same port for a server.")
 	}
 
-	if err := profiler.Start(profiler.Config{
-		ProjectID:      config.DefaultVars.GCPProjectID,
-		Service:        "lekcije",
-		ServiceVersion: "1.0.0", // TODO: release version?
-	}); err != nil {
-		log.Fatalf("Stackdriver profiler.Start failed: %v", err)
+	if config.DefaultVars.EnableStackdriverProfiler {
+		if err := profiler.Start(profiler.Config{
+			ProjectID:      config.DefaultVars.GCPProjectID,
+			Service:        "lekcije",
+			ServiceVersion: "1.0.0", // TODO: release version?
+		}); err != nil {
+			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
+		}
 	}
 
 	db, err := model.OpenDB(

@@ -18,25 +18,26 @@ var (
 )
 
 type Vars struct {
-	MySQLUser          string `envconfig:"MYSQL_USER"`
-	MySQLPassword      string `envconfig:"MYSQL_PASSWORD"`
-	MySQLHost          string `envconfig:"MYSQL_HOST"`
-	MySQLPort          string `envconfig:"MYSQL_PORT"`
-	MySQLDatabase      string `envconfig:"MYSQL_DATABASE"`
-	EncryptionKey      string `envconfig:"ENCRYPTION_KEY"`
-	NodeEnv            string `envconfig:"NODE_ENV"`
-	ServiceEnv         string `envconfig:"LEKCIJE_ENV" required:"true"`
-	RedisURL           string `envconfig:"REDIS_URL"`
-	GCPProjectID       string `envconfig:"GCP_PROJECT_ID"`
-	GoogleClientID     string `envconfig:"GOOGLE_CLIENT_ID"`
-	GoogleClientSecret string `envconfig:"GOOGLE_CLIENT_SECRET"`
-	GoogleAnalyticsID  string `envconfig:"GOOGLE_ANALYTICS_ID"`
-	HTTPPort           int    `envconfig:"PORT" default:"4001"`
-	GRPCPort           int    `envconfig:"GRPC_PORT" default:"4002"`
-	RollbarAccessToken string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
-	VersionHash        string `envconfig:"VERSION_HASH"`
-	DebugSQL           bool   `envconfig:"DEBUG_SQL"`
-	LocalLocation      *time.Location
+	MySQLUser                 string `envconfig:"MYSQL_USER"`
+	MySQLPassword             string `envconfig:"MYSQL_PASSWORD"`
+	MySQLHost                 string `envconfig:"MYSQL_HOST"`
+	MySQLPort                 string `envconfig:"MYSQL_PORT"`
+	MySQLDatabase             string `envconfig:"MYSQL_DATABASE"`
+	EncryptionKey             string `envconfig:"ENCRYPTION_KEY"`
+	NodeEnv                   string `envconfig:"NODE_ENV"`
+	ServiceEnv                string `envconfig:"LEKCIJE_ENV" required:"true"`
+	RedisURL                  string `envconfig:"REDIS_URL"`
+	GCPProjectID              string `envconfig:"GCP_PROJECT_ID"`
+	EnableStackdriverProfiler bool   `envconfig:"ENABLE_STACKDRIVER_PROFILER"`
+	GoogleClientID            string `envconfig:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret        string `envconfig:"GOOGLE_CLIENT_SECRET"`
+	GoogleAnalyticsID         string `envconfig:"GOOGLE_ANALYTICS_ID"`
+	HTTPPort                  int    `envconfig:"PORT" default:"4001"`
+	GRPCPort                  int    `envconfig:"GRPC_PORT" default:"4002"`
+	RollbarAccessToken        string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
+	VersionHash               string `envconfig:"VERSION_HASH"`
+	DebugSQL                  bool   `envconfig:"DEBUG_SQL"`
+	LocalLocation             *time.Location
 }
 
 func Process() (*Vars, error) {
