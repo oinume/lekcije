@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/server/errors"
+	"github.com/stvp/rollbar"
 )
 
 var (
@@ -143,5 +144,23 @@ func WriteError(w io.Writer, err error) {
 		}
 	default:
 		fmt.Fprintf(w, "%+v", err)
+	}
+}
+
+func SendErrorToRollbar(err error) {
+	if rollbar.Token == "" {
+		return
+	}
+
+	if e, ok := err.(*errors.AnnotatedError); ok && e.OutputStackTrace() {
+		stackTrace := e.StackTrace()
+		frames := make([]uintptr, 0, len(stackTrace))
+		for _, frame := range stackTrace {
+			frames = append(frames, uintptr(frame))
+		}
+		stack := rollbar.BuildStackWithCallers(frames)
+		rollbar.ErrorWithStack(rollbar.ERR, err, stack)
+	} else {
+		rollbar.Error(rollbar.ERR, err)
 	}
 }
