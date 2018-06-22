@@ -15,7 +15,6 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/registration_email"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/stvp/rollbar"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -143,9 +142,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 				"Failed to send registration email",
 				zap.String("email", user.Email), zap.Error(err),
 			)
-			if rollbar.Token != "" {
-				rollbar.Error(rollbar.ERR, err)
-			}
+			util.SendErrorToRollbar(err)
 		}
 	}(user)
 
