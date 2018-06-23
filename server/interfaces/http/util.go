@@ -15,7 +15,6 @@ import (
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
-	"github.com/stvp/rollbar"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -46,9 +45,7 @@ func internalServerError(w http.ResponseWriter, err error) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
-	if rollbar.Token != "" {
-		rollbar.Error(rollbar.ERR, err)
-	}
+	util.SendErrorToRollbar(err)
 	fields := []zapcore.Field{
 		zap.Error(err),
 	}
