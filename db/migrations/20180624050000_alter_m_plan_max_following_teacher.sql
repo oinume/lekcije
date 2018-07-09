@@ -5,5 +5,4 @@ ALTER TABLE m_plan
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
-ALTER TABLE event_log_email
-  DROP COLUMN `max_following_teacher`;
+ALTER TABLE m_plan DROP COLUMN `max_following_teacher`;
