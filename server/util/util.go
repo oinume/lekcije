@@ -147,9 +147,19 @@ func WriteError(w io.Writer, err error) {
 	}
 }
 
-func SendErrorToRollbar(err error) {
+func SendErrorToRollbar(err error, id string) {
 	if rollbar.Token == "" {
 		return
+	}
+
+	fields := make([]*rollbar.Field, 0, 10)
+	if id != "" {
+		fields = append(fields, &rollbar.Field{
+			Name: "person",
+			Data: map[string]string{
+				"id": id,
+			},
+		})
 	}
 
 	if e, ok := err.(*errors.AnnotatedError); ok && e.OutputStackTrace() {
@@ -159,8 +169,8 @@ func SendErrorToRollbar(err error) {
 			frames = append(frames, uintptr(frame))
 		}
 		stack := rollbar.BuildStackWithCallers(frames)
-		rollbar.ErrorWithStack(rollbar.ERR, err, stack)
+		rollbar.ErrorWithStack(rollbar.ERR, err, stack, fields...)
 	} else {
-		rollbar.Error(rollbar.ERR, err)
+		rollbar.Error(rollbar.ERR, err, fields...)
 	}
 }

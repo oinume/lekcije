@@ -53,7 +53,7 @@ func (s *server) indexLogout(w http.ResponseWriter, r *http.Request) {
 		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
-		))
+		), 0)
 		return
 	}
 }
@@ -80,7 +80,7 @@ func (s *server) signup(w http.ResponseWriter, r *http.Request) {
 		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
-		))
+		), 0)
 		return
 	}
 }
@@ -155,7 +155,7 @@ func (s *server) terms(w http.ResponseWriter, r *http.Request) {
 		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
-		))
+		), 0)
 		return
 	}
 }

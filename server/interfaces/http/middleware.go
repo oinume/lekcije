@@ -36,7 +36,7 @@ func panicHandler(h http.Handler) http.Handler {
 				internalServerError(w, errors.NewInternalError(
 					errors.WithError(err),
 					errors.WithMessage("panic occurred"),
-				))
+				), 0)
 				return
 			}
 		}()
@@ -191,7 +191,7 @@ func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
 					http.Redirect(w, r, config.WebURL(), http.StatusFound)
 					return
 				}
-				internalServerError(w, err)
+				internalServerError(w, err, 0)
 				return
 			}
 			logger.App.Debug("Logged in user", zap.String("name", user.Name))
