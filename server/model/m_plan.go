@@ -17,6 +17,7 @@ type MPlan struct {
 	Price                int16
 	NotificationInterval uint8
 	ShowAd               bool
+	MaxFollowingTeacher  uint8
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
 }
