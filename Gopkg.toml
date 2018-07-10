@@ -27,6 +27,11 @@
   ensure = "true"
 #  additional-tools = ["github.com/mattes/migrate"]
 
+required = [
+  "github.com/onsi/ginkgo",
+  "github.com/onsi/gomega"
+]
+
 [[constraint]]
   name = "github.com/Songmu/retry"
   branch = "master"
