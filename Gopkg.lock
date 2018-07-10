@@ -13,8 +13,8 @@
     "profiler",
     "storage"
   ]
-  revision = "0fd7230b2a7505833d5f69b75cbd6c9582401479"
-  version = "v0.23.0"
+  revision = "777200caa7fb8936aed0f12b1fd79af64cc83ec9"
+  version = "v0.24.0"
 
 [[projects]]
   branch = "master"
@@ -403,6 +403,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "867886486599e999fc420e9e2c1f2238aac29e778ca162c39b2dfe3c36653dc2"
+  inputs-digest = "e481b987a64094a5725465602ab90e89ccdba26165cabe3d2343e42bcdf27568"
   solver-name = "gps-cdcl"
   solver-version = 1
