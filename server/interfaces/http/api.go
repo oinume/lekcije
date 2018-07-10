@@ -74,7 +74,7 @@ func (s *server) getAPIMeFollowingTeachers(w http.ResponseWriter, r *http.Reques
 		internalServerError(w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to encode JSON"),
-		))
+		), 0)
 		return
 	}
 }

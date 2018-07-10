@@ -41,11 +41,15 @@ func ParseHTMLTemplates(files ...string) *template.Template {
 	return template.Must(template.ParseFiles(f...))
 }
 
-func internalServerError(w http.ResponseWriter, err error) {
+func internalServerError(w http.ResponseWriter, err error, userID uint32) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
-	util.SendErrorToRollbar(err)
+	sUserID := ""
+	if userID == 0 {
+		sUserID = fmt.Sprint(userID)
+	}
+	util.SendErrorToRollbar(err, sUserID)
 	fields := []zapcore.Field{
 		zap.Error(err),
 	}

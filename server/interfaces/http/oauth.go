@@ -79,7 +79,7 @@ func (s *server) oauthGoogleCallbackHandler() http.HandlerFunc {
 
 func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	if err := checkState(r); err != nil {
-		internalServerError(w, err)
+		internalServerError(w, err, 0)
 		return
 	}
 	token, idToken, err := exchange(r)
@@ -88,12 +88,12 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
-		internalServerError(w, err)
+		internalServerError(w, err, 0)
 		return
 	}
 	googleID, name, email, err := getGoogleUserInfo(token, idToken)
 	if err != nil {
-		internalServerError(w, err)
+		internalServerError(w, err, 0)
 		return
 	}
 
@@ -107,7 +107,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		)
 	} else {
 		if !errors.IsNotFound(err) {
-			internalServerError(w, err)
+			internalServerError(w, err, 0)
 			return
 		}
 		// Couldn't find user for the googleID, so create a new user
@@ -117,7 +117,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			return errCreate
 		})
 		if errTx != nil {
-			internalServerError(w, errTx)
+			internalServerError(w, errTx, 0)
 			return
 		}
 		go event_logger.SendGAMeasurementEvent2(
@@ -130,7 +130,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	userAPITokenService := model.NewUserAPITokenService(s.db)
 	userAPIToken, err := userAPITokenService.Create(user.ID)
 	if err != nil {
-		internalServerError(w, err)
+		internalServerError(w, err, user.ID)
 		return
 	}
 
@@ -142,7 +142,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 				"Failed to send registration email",
 				zap.String("email", user.Email), zap.Error(err),
 			)
-			util.SendErrorToRollbar(err)
+			util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
 		}
 	}(user)
 

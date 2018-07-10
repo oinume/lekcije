@@ -308,7 +308,7 @@ func (n *Notifier) sendNotificationToUser(
 				"Failed to sendNotificationToUser",
 				zap.String("email", user.Email), zap.Error(err),
 			)
-			util.SendErrorToRollbar(err)
+			util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
 		}
 	}(email)
 
@@ -361,7 +361,7 @@ func (n *Notifier) Close(stat *model.StatNotifier) {
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 					)
-					util.SendErrorToRollbar(err)
+					util.SendErrorToRollbar(err, "")
 				}
 			}
 			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
@@ -369,7 +369,7 @@ func (n *Notifier) Close(stat *model.StatNotifier) {
 					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 				)
-				util.SendErrorToRollbar(err)
+				util.SendErrorToRollbar(err, "")
 			}
 		}
 	}()
