@@ -81,8 +81,8 @@ func (s *server) postMeFollowingTeachersCreateHandler() http.HandlerFunc {
 func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
-	teacherIDsOrUrl := r.FormValue("teacherIdsOrUrl")
-	if teacherIDsOrUrl == "" {
+	teacherIDsOrURL := r.FormValue("teacherIdsOrUrl")
+	if teacherIDsOrURL == "" {
 		e := flash_message.New(flash_message.KindWarning, emptyTeacherURLMessage)
 		if err := s.flashMessageStore.Save(e); err != nil {
 			internalServerError(w, err, user.ID)
@@ -92,7 +92,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	teachers, err := model.NewTeachersFromIDsOrURL(teacherIDsOrUrl)
+	teachers, err := model.NewTeachersFromIDsOrURL(teacherIDsOrURL)
 	if err != nil {
 		e := flash_message.New(flash_message.KindWarning, invalidTeacherURLMessage)
 		if err := s.flashMessageStore.Save(e); err != nil {

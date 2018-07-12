@@ -11,12 +11,12 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
-const teacherUrlBase = "http://eikaiwa.dmm.com/teacher/index/%v/"
+const teacherUrlBase = "https://eikaiwa.dmm.com/teacher/index/%v/"
 
 var (
 	defaultLastLessonAt = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 	idsRegexp           = regexp.MustCompile(`^[\d,]+$`)
-	teacherUrlRegexp    = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
+	teacherURLRegexp    = regexp.MustCompile(`https?://eikaiwa.dmm.com/teacher/index/([\d]+)`)
 )
 
 type Teacher struct {
@@ -55,7 +55,7 @@ func NewTeachersFromIDsOrURL(idsOrURL string) ([]*Teacher, error) {
 			}
 		}
 		return teachers, nil
-	} else if group := teacherUrlRegexp.FindStringSubmatch(idsOrURL); len(group) > 0 {
+	} else if group := teacherURLRegexp.FindStringSubmatch(idsOrURL); len(group) > 0 {
 		id, _ := strconv.ParseUint(group[1], 10, 32)
 		return []*Teacher{NewTeacher(uint32(id))}, nil
 	}

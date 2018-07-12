@@ -93,7 +93,7 @@ func (l *scrapingTeacherIDLoader) GetInitialCursor() string {
 	return "data%5Btab2%5D%5Bgender%5D=0&data%5Btab2%5D%5Bage%5D=%E5%B9%B4%E9%BD%A2&data%5Btab2%5D%5Bfree_word%5D=&tab=1&sort=4"
 }
 
-// http://eikaiwa.dmm.com/list/?<cursor>
+// https://eikaiwa.dmm.com/list/?<cursor>
 func (l *scrapingTeacherIDLoader) Load(cursor string) ([]uint32, string, error) {
 	url := scrapingURLPrefix + cursor
 	req, err := http.NewRequest("GET", url, nil)
