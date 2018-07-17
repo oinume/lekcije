@@ -99,6 +99,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	userService := model.NewUserService(s.db)
 	user, err := userService.FindByGoogleID(googleID)
+	userCreated := false
 	if err == nil {
 		go event_logger.SendGAMeasurementEvent2(
 			event_logger.MustGAMeasurementEventValues(r.Context()),
@@ -120,6 +121,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			internalServerError(w, errTx, 0)
 			return
 		}
+		userCreated = true
 		go event_logger.SendGAMeasurementEvent2(
 			event_logger.MustGAMeasurementEventValues(r.Context()),
 			event_logger.CategoryUser, "create",
@@ -134,17 +136,19 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Send registration email
-	go func(user *model.User) {
-		sender := registration_email.NewEmailSender(s.senderHTTPClient)
-		if err := sender.Send(user); err != nil {
-			logger.App.Error(
-				"Failed to send registration email",
-				zap.String("email", user.Email), zap.Error(err),
-			)
-			util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
-		}
-	}(user)
+	if userCreated {
+		// Send registration email
+		go func(user *model.User) {
+			sender := registration_email.NewEmailSender(s.senderHTTPClient)
+			if err := sender.Send(user); err != nil {
+				logger.App.Error(
+					"Failed to send registration email",
+					zap.String("email", user.Email), zap.Error(err),
+				)
+				util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
+			}
+		}(user)
+	}
 
 	cookie := &http.Cookie{
 		Name:     APITokenCookieName,
