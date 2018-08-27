@@ -148,7 +148,7 @@
 
 [[constraint]]
   name = "cloud.google.com/go"
-  version = "v0.24.0"
+  version = "v0.26.0"
 
 [[override]]
   name = "github.com/googleapis/gax-go"
