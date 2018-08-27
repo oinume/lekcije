@@ -33,10 +33,14 @@ func main() {
 	}
 
 	if config.DefaultVars.EnableStackdriverProfiler {
+		// TODO: profiler.Start(..., ) with credential file
+		// Define env GCLOUD_SERVICE_KEY_PROFILER
+		// https://github.com/oinume/lekcije/blob/799e23675e151e7b20112a6bceb8a1d49fc47177/server/notifier/main.go#L115
 		if err := profiler.Start(profiler.Config{
 			ProjectID:      config.DefaultVars.GCPProjectID,
 			Service:        "lekcije",
 			ServiceVersion: "1.0.0", // TODO: release version?
+			DebugLogging:   true,
 		}); err != nil {
 			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 		}
