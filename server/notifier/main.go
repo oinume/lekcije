@@ -2,9 +2,7 @@ package notifier
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -17,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
+	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/profile"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
@@ -117,17 +116,10 @@ func newStorageClient() (*storage.Client, error) {
 	if gcloudServiceKey == "" {
 		return nil, errors.NewInternalError(errors.WithMessage("Env not found"))
 	}
-	b, err := base64.StdEncoding.DecodeString(gcloudServiceKey)
+	f, err := util.GenerateTempFileFromBase64String("", "gcloud-", gcloudServiceKey)
 	if err != nil {
-		return nil, errors.NewInternalError(errors.WithError(err))
-	}
-	f, err := ioutil.TempFile("", "gcloud-")
-	if err != nil {
-		return nil, errors.NewInternalError(errors.WithError(err))
+		return nil, err
 	}
 	defer os.Remove(f.Name())
-	if _, err := f.Write(b); err != nil {
-		return nil, errors.NewInternalError(errors.WithError(err))
-	}
 	return storage.NewClient(context.Background(), option.WithCredentialsFile(f.Name()))
 }
