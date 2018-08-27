@@ -100,9 +100,9 @@ jobs:
           name: "Apply database migrations"
           command: |
             goose -env=circle_ci up
-#      - run:
-#          name: "Run go-lint"
-#          command: make go-lint
+      - run:
+          name: "Run go-lint"
+          command: make go-lint
       - run:
           name: "Run go-test"
           command: |
