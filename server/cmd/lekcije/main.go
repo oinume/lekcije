@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"cloud.google.com/go/profiler"
@@ -18,6 +19,8 @@ import (
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/util"
+	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -33,15 +36,21 @@ func main() {
 	}
 
 	if config.DefaultVars.EnableStackdriverProfiler {
-		// TODO: profiler.Start(..., ) with credential file
-		// Define env GCLOUD_SERVICE_KEY_PROFILER
-		// https://github.com/oinume/lekcije/blob/799e23675e151e7b20112a6bceb8a1d49fc47177/server/notifier/main.go#L115
+		// TODO: Move to gcp package
+		f, err := util.GenerateTempFileFromBase64String("", "gcloud-", config.DefaultVars.GcloudServiceKey)
+		if err != nil {
+			log.Fatalf("Failed to generate temp file: %v", err)
+		}
+		defer func() {
+			f.Close()
+			os.Remove(f.Name())
+		}()
 		if err := profiler.Start(profiler.Config{
 			ProjectID:      config.DefaultVars.GCPProjectID,
 			Service:        "lekcije",
 			ServiceVersion: "1.0.0", // TODO: release version?
 			DebugLogging:   true,
-		}); err != nil {
+		}, option.WithCredentialsFile(f.Name())); err != nil {
 			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 		}
 	}

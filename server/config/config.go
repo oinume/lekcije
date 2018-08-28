@@ -28,6 +28,8 @@ type Vars struct {
 	ServiceEnv                string `envconfig:"LEKCIJE_ENV" required:"true"`
 	RedisURL                  string `envconfig:"REDIS_URL"`
 	GCPProjectID              string `envconfig:"GCP_PROJECT_ID"`
+	GCPServiceAccountKey      string `envconfig:"GCP_SERVICE_ACCOUNT_KEY"`
+	GcloudServiceKey          string `envconfig:"GCLOUD_SERVICE_KEY"`
 	EnableStackdriverProfiler bool   `envconfig:"ENABLE_STACKDRIVER_PROFILER"`
 	GoogleClientID            string `envconfig:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret        string `envconfig:"GOOGLE_CLIENT_SECRET"`
