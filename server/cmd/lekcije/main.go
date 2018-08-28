@@ -42,7 +42,6 @@ func main() {
 			log.Fatalf("Failed to generate temp file: %v", err)
 		}
 		defer func() {
-			f.Close()
 			os.Remove(f.Name())
 		}()
 		if err := profiler.Start(profiler.Config{

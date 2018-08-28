@@ -121,7 +121,6 @@ func newStorageClient() (*storage.Client, error) {
 		return nil, err
 	}
 	defer func() {
-		f.Close()
 		os.Remove(f.Name())
 	}()
 	return storage.NewClient(context.Background(), option.WithCredentialsFile(f.Name()))
