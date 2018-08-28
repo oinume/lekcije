@@ -3,11 +3,14 @@ package util
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/ioutil"
 	mrand "math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -173,4 +176,19 @@ func SendErrorToRollbar(err error, id string) {
 	} else {
 		rollbar.Error(rollbar.ERR, err, fields...)
 	}
+}
+
+func GenerateTempFileFromBase64String(dir, prefix, source string) (*os.File, error) {
+	b, err := base64.StdEncoding.DecodeString(source)
+	if err != nil {
+		return nil, errors.NewInternalError(errors.WithError(err))
+	}
+	f, err := ioutil.TempFile(dir, prefix)
+	if err != nil {
+		return nil, errors.NewInternalError(errors.WithError(err))
+	}
+	if _, err := f.Write(b); err != nil {
+		return nil, errors.NewInternalError(errors.WithError(err))
+	}
+	return f, nil
 }
