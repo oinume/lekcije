@@ -73,7 +73,7 @@ jobs:
           command: |
             go get github.com/golang/dep/cmd/dep
       - restore_cache:
-          key: go-dep-{{ checksum "Gopkg.toml" }}
+          key: go-vendor-{{ checksum "Gopkg.lock" }}
       - run:
           name: "Install dependencies"
           command: |
@@ -81,11 +81,11 @@ jobs:
               make install-dep
             fi
       - save_cache:
-          key: go-dep-{{ checksum "Gopkg.toml" }}
+          key: go-vendor-{{ checksum "Gopkg.lock" }}
           paths:
             - "/go/src/github.com/oinume/lekcije/vendor"
       - restore_cache:
-          key: go-commands-{{ checksum "Gopkg.toml" }}
+          key: go-commands-{{ checksum "Gopkg.lock" }}
       - run:
           name: "Install commands"
           command: |
@@ -93,7 +93,7 @@ jobs:
               make install-commands
             fi
       - save_cache:
-          key: go-commands-{{ checksum "Gopkg.toml" }}
+          key: go-commands-{{ checksum "Gopkg.lock" }}
           paths:
             - "/go/bin"
       - run:
