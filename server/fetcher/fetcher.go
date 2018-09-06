@@ -185,7 +185,7 @@ func (fetcher *LessonFetcher) parseHTML(
 		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
 	} else {
 		return nil, nil, errors.NewInternalError(
-			errors.WithMessagef("failed to fetch teacher's name: url=%v", teacher.URL),
+			errors.WithMessagef("failed to fetch teacher's name: url=%v", teacher.URL()),
 		)
 	}
 

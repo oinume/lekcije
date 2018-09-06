@@ -79,7 +79,7 @@ go-vet:
 
 .PHONY: go-staticcheck
 go-staticcheck:
-	staticcheck $(LINT_PACKAGES)
+	staticcheck -ignore "github.com/oinume/lekcije/proto-gen/go/proto/api/v1/*.go:SA1019" $(LINT_PACKAGES)
 
 .PHONY: go-simple
 go-simple:
