@@ -31,13 +31,12 @@ type WriterProxy interface {
 // WrapWriter wraps an http.ResponseWriter, returning a proxy that allows you to
 // hook into various parts of the response process.
 func WrapWriter(w http.ResponseWriter) WriterProxy {
-	_, cn := w.(http.CloseNotifier)
 	_, fl := w.(http.Flusher)
 	_, hj := w.(http.Hijacker)
 	_, rf := w.(io.ReaderFrom)
 
 	bw := basicWriter{ResponseWriter: w}
-	if cn && fl && hj && rf {
+	if fl && hj && rf {
 		return &fancyWriter{bw}
 	}
 	if fl {
@@ -102,10 +101,6 @@ type fancyWriter struct {
 	basicWriter
 }
 
-func (f *fancyWriter) CloseNotify() <-chan bool {
-	cn := f.basicWriter.ResponseWriter.(http.CloseNotifier)
-	return cn.CloseNotify()
-}
 func (f *fancyWriter) Flush() {
 	fl := f.basicWriter.ResponseWriter.(http.Flusher)
 	fl.Flush()
@@ -123,7 +118,6 @@ func (f *fancyWriter) ReadFrom(r io.Reader) (int64, error) {
 	return rf.ReadFrom(r)
 }
 
-var _ http.CloseNotifier = &fancyWriter{}
 var _ http.Flusher = &fancyWriter{}
 var _ http.Hijacker = &fancyWriter{}
 var _ io.ReaderFrom = &fancyWriter{}
