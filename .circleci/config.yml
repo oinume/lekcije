@@ -25,7 +25,7 @@ jobs:
   server:
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
-      - image: golang:1.10-stretch
+      - image: golang:1.11-stretch
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_USER: "root"
