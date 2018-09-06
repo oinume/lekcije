@@ -90,7 +90,7 @@ jobs:
           name: "Install commands"
           command: |
             if [ ! -e "/go/bin/unused" ]; then
-              make install-commands
+              make install-commands GO_GET="go get -u"
             fi
       - save_cache:
           key: go-commands-{{ checksum "Gopkg.lock" }}
