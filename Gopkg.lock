@@ -241,6 +241,7 @@
   digest = "1:45c87f621a308ef93b624a6931b9b698f88a1a96d8b1a439c9ebd45aa5308a79"
   name = "go.opencensus.io"
   packages = [
+    ".",
     "internal",
     "trace",
   ]
@@ -522,6 +523,7 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "github.com/stvp/rollbar",
+    "go.opencensus.io",
     "go.uber.org/zap",
     "go.uber.org/zap/zapcore",
     "goji.io",

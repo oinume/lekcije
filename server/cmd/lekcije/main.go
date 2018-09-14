@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
+
 	"cloud.google.com/go/profiler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
@@ -20,6 +22,10 @@ import (
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
+	"go.opencensus.io/exporter/stackdriver"
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -52,6 +58,37 @@ func main() {
 		}, option.WithCredentialsFile(f.Name())); err != nil {
 			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 		}
+	}
+
+	if config.DefaultVars.EnableStackdriverTrace {
+		exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: config.DefaultVars.GCPProjectID})
+		if err != nil {
+			log.Fatalf("stackdriver.NewExporter failed: %v", err)
+		}
+		// Export to Stackdriver Monitoring.
+		view.RegisterExporter(exporter)
+
+		// Subscribe views to see stats in Stackdriver Monitoring.
+		if err := view.Register(
+			ochttp.ClientLatencyView,
+			ochttp.ClientResponseBytesView,
+		); err != nil {
+			log.Fatalf("view.Register failed: %v", err)
+		}
+
+		// Export to Stackdriver Trace.
+		trace.RegisterExporter(exporter)
+
+		// Automatically add a Stackdriver trace header to outgoing requests:
+		client := &http.Client{
+			Transport: &ochttp.Transport{
+				Propagation: &tracecontext.HTTPFormat{},
+			},
+		}
+		_ = client // use client
+
+		// All outgoing requests from client will include a Stackdriver Trace header.
+		// See the ochttp package for how to handle incoming requests.
 	}
 
 	db, err := model.OpenDB(

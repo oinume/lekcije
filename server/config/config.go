@@ -31,6 +31,7 @@ type Vars struct {
 	GCPServiceAccountKey      string `envconfig:"GCP_SERVICE_ACCOUNT_KEY"`
 	GcloudServiceKey          string `envconfig:"GCLOUD_SERVICE_KEY"`
 	EnableStackdriverProfiler bool   `envconfig:"ENABLE_STACKDRIVER_PROFILER"`
+	EnableStackdriverTrace    bool   `envconfig:"ENABLE_STACKDRIVER_TRACE"`
 	GoogleClientID            string `envconfig:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret        string `envconfig:"GOOGLE_CLIENT_SECRET"`
 	GoogleAnalyticsID         string `envconfig:"GOOGLE_ANALYTICS_ID"`
