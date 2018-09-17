@@ -130,7 +130,7 @@
 
 [[constraint]]
   name = "google.golang.org/genproto"
-  branch = "master"
+  revision = "4b56f30a1fd96a133a036b62cdd2a249883dd89b"
 
 [[constraint]]
   name = "google.golang.org/grpc"
@@ -148,7 +148,7 @@
 
 [[constraint]]
   name = "cloud.google.com/go"
-  version = "v0.26.0"
+  version = "v0.27.0"
 
 [[override]]
   name = "github.com/googleapis/gax-go"

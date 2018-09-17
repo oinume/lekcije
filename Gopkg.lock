@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:8b95956b70e181b19025c7ba3578fdfd8efbec4ce916490700488afb9218972c"
+  digest = "1:972f38a9c879a4920d1e3a3d3438104b6c06163bfa3e6f4064adb00468d40587"
   name = "cloud.google.com/go"
   packages = [
     "compute/metadata",
@@ -11,12 +11,14 @@
     "internal/optional",
     "internal/trace",
     "internal/version",
+    "monitoring/apiv3",
     "profiler",
     "storage",
+    "trace/apiv2",
   ]
   pruneopts = ""
-  revision = "64a2037ec6be8a4b0c1d1f706ed35b428b989239"
-  version = "v0.26.0"
+  revision = "c728a003b238b26cef9ab6753a5dc424b331c3ad"
+  version = "v0.27.0"
 
 [[projects]]
   branch = "master"
@@ -60,8 +62,10 @@
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/empty",
     "ptypes/struct",
     "ptypes/timestamp",
+    "ptypes/wrappers",
   ]
   pruneopts = ""
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
@@ -241,9 +245,18 @@
   digest = "1:45c87f621a308ef93b624a6931b9b698f88a1a96d8b1a439c9ebd45aa5308a79"
   name = "go.opencensus.io"
   packages = [
-    ".",
+    "exporter/stackdriver",
     "internal",
+    "internal/tagencoding",
+    "plugin/ochttp",
+    "plugin/ochttp/propagation/b3",
+    "plugin/ochttp/propagation/tracecontext",
+    "stats",
+    "stats/internal",
+    "stats/view",
+    "tag",
     "trace",
+    "trace/propagation",
   ]
   pruneopts = ""
   revision = "076344b67ac19bcb8096c4b12440c3cf92ac3927"
@@ -330,7 +343,10 @@
   branch = "master"
   digest = "1:8aad4e360d6645abe564e925bd6d8d3b94975e52ce68af0c28f91b5aedb0637f"
   name = "golang.org/x/sync"
-  packages = ["errgroup"]
+  packages = [
+    "errgroup",
+    "semaphore",
+  ]
   pruneopts = ""
   revision = "fd80eb99c8f653c847d294a001bdf2a3a6f768f5"
 
@@ -380,6 +396,8 @@
     "oauth2/v2",
     "option",
     "storage/v1",
+    "support/bundler",
+    "transport",
     "transport/grpc",
     "transport/http",
   ]
@@ -408,19 +426,25 @@
   revision = "a2c54d2174c17540446e0ced57d9d459af61bc1c"
 
 [[projects]]
-  branch = "master"
-  digest = "1:2d833b53e432cd69645da559b822661ebc5c0a13c571dee1c1f80fb1a0241330"
+  digest = "1:b5eb34042d1d82e055da36ad49c74b362be8d857a140239cdfc7ddca1f41019f"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
+    "googleapis/api/distribution",
+    "googleapis/api/label",
+    "googleapis/api/metric",
+    "googleapis/api/monitoredres",
     "googleapis/devtools/cloudprofiler/v2",
+    "googleapis/devtools/cloudtrace/v2",
     "googleapis/iam/v1",
+    "googleapis/monitoring/v3",
     "googleapis/rpc/code",
     "googleapis/rpc/errdetails",
     "googleapis/rpc/status",
+    "protobuf/field_mask",
   ]
   pruneopts = ""
-  revision = "2b5a72b8730b0b16380010cfe5286c42108d88e7"
+  revision = "4b56f30a1fd96a133a036b62cdd2a249883dd89b"
 
 [[projects]]
   digest = "1:ca75b3775a5d4e5d1fb48f57ef0865b4aaa8b3f00e6b52be68db991c4594e0a7"
@@ -523,7 +547,11 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "github.com/stvp/rollbar",
-    "go.opencensus.io",
+    "go.opencensus.io/exporter/stackdriver",
+    "go.opencensus.io/plugin/ochttp",
+    "go.opencensus.io/plugin/ochttp/propagation/tracecontext",
+    "go.opencensus.io/stats/view",
+    "go.opencensus.io/trace",
     "go.uber.org/zap",
     "go.uber.org/zap/zapcore",
     "goji.io",
