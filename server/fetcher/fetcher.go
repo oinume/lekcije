@@ -19,6 +19,8 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/text/width"
@@ -34,23 +36,8 @@ var redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
 }
 
 var (
-	_                 = fmt.Print
-	defaultHTTPClient = &http.Client{
-		Timeout:       5 * time.Second,
-		CheckRedirect: redirectErrorFunc,
-		Transport: &http.Transport{
-			MaxIdleConns:        100,
-			MaxIdleConnsPerHost: 10, // TODO: use `concurrency`
-			Proxy:               http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
-		},
-	}
+	_               = fmt.Print
+	httpClient      *http.Client
 	titleXPath      = xmlpath.MustCompile(`//title`)
 	attributesXPath = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
 	lessonXPath     = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
@@ -72,12 +59,44 @@ type LessonFetcher struct {
 	mCountries *model.MCountries
 }
 
+func defaultHTTPClient(c *config.Vars) *http.Client {
+	if httpClient != nil {
+		return httpClient
+	}
+	base := &http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 10, // TODO: use `concurrency`
+		Proxy:               http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+	var transport http.RoundTripper
+	if c.EnableStackdriverTrace {
+		transport = &ochttp.Transport{
+			Base:        base,
+			Propagation: &tracecontext.HTTPFormat{},
+		}
+	} else {
+		transport = base
+	}
+
+	httpClient = &http.Client{
+		Transport: transport,
+	}
+	return httpClient
+}
+
 func NewLessonFetcher(
 	httpClient *http.Client, concurrency int, caching bool,
 	mCountries *model.MCountries, log *zap.Logger,
 ) *LessonFetcher {
 	if httpClient == nil {
-		httpClient = defaultHTTPClient
+		httpClient = defaultHTTPClient(config.DefaultVars)
 	}
 	if concurrency < 1 {
 		concurrency = 1

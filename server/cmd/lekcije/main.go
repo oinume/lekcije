@@ -72,6 +72,8 @@ func main() {
 
 		// All outgoing requests from client will include a Stackdriver Trace header.
 		// See the ochttp package for how to handle incoming requests.
+
+		gcp.EnableHTTPClientTrace()
 	}
 
 	db, err := model.OpenDB(
