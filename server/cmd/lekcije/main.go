@@ -18,11 +18,6 @@ import (
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/model"
-	"go.opencensus.io/exporter/stackdriver"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -39,41 +34,13 @@ func main() {
 
 	if config.DefaultVars.EnableStackdriverProfiler {
 		if err := gcp.StartStackdriverProfiler(config.DefaultVars, "lekcije", "1.0.0"); err != nil {
-			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
+			log.Fatalf("StartStackdriverProfiler failed: %v", err)
 		}
 	}
-
 	if config.DefaultVars.EnableStackdriverTrace {
-		exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: config.DefaultVars.GCPProjectID})
-		if err != nil {
-			log.Fatalf("stackdriver.NewExporter failed: %v", err)
+		if err := gcp.EnableStackdriverTrace(config.DefaultVars); err != nil {
+			log.Fatalf("EnableStackdriverTrace failed: %v", err)
 		}
-		// Export to Stackdriver Monitoring.
-		view.RegisterExporter(exporter)
-
-		// Subscribe views to see stats in Stackdriver Monitoring.
-		if err := view.Register(
-			ochttp.ClientLatencyView,
-			ochttp.ClientResponseBytesView,
-		); err != nil {
-			log.Fatalf("view.Register failed: %v", err)
-		}
-
-		// Export to Stackdriver Trace.
-		trace.RegisterExporter(exporter)
-
-		// Automatically add a Stackdriver trace header to outgoing requests:
-		client := &http.Client{
-			Transport: &ochttp.Transport{
-				Propagation: &tracecontext.HTTPFormat{},
-			},
-		}
-		_ = client // use client
-
-		// All outgoing requests from client will include a Stackdriver Trace header.
-		// See the ochttp package for how to handle incoming requests.
-
-		gcp.EnableHTTPClientTrace()
 	}
 
 	db, err := model.OpenDB(
