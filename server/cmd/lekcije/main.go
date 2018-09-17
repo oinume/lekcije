@@ -6,27 +6,23 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
-	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
-
-	"cloud.google.com/go/profiler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/gcp"
 	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_grpc "github.com/oinume/lekcije/server/interfaces/grpc"
 	"github.com/oinume/lekcije/server/interfaces/grpc/interceptor"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
 	"go.opencensus.io/exporter/stackdriver"
 	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
-	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -42,20 +38,7 @@ func main() {
 	}
 
 	if config.DefaultVars.EnableStackdriverProfiler {
-		// TODO: Move to gcp package
-		f, err := util.GenerateTempFileFromBase64String("", "gcloud-", config.DefaultVars.GcloudServiceKey)
-		if err != nil {
-			log.Fatalf("Failed to generate temp file: %v", err)
-		}
-		defer func() {
-			os.Remove(f.Name())
-		}()
-		if err := profiler.Start(profiler.Config{
-			ProjectID:      config.DefaultVars.GCPProjectID,
-			Service:        "lekcije",
-			ServiceVersion: "1.0.0", // TODO: release version?
-			DebugLogging:   false,
-		}, option.WithCredentialsFile(f.Name())); err != nil {
+		if err := gcp.StartStackdriverProfiler(config.DefaultVars, "lekcije", "1.0.0"); err != nil {
 			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 		}
 	}
