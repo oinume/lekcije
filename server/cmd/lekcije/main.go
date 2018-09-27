@@ -48,7 +48,7 @@ func main() {
 			ProjectID:      config.DefaultVars.GCPProjectID,
 			Service:        "lekcije",
 			ServiceVersion: "1.0.0", // TODO: release version?
-			DebugLogging:   true,
+			DebugLogging:   false,
 		}, option.WithCredentialsFile(f.Name())); err != nil {
 			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 		}
