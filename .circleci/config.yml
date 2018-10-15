@@ -3,7 +3,7 @@ jobs:
   frontend:
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
-      - image: node:9.10-stretch
+      - image: node:10.12-stretch
     steps:
       - checkout
       - run:
