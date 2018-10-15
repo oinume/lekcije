@@ -23,7 +23,7 @@ def timed_job_min1():
 def timed_job_min10():
     print("Run notifier (interval=10)")
     subprocess.check_call(
-        "notifier -concurrency=9 -fetcher-cache=true -notification-interval=10 -profile-mode=stopwatch && curl -sS https://nosnch.in/c411a3a685",
+        "notifier -concurrency=9 -fetcher-cache=true -notification-interval=10 && curl -sS https://nosnch.in/c411a3a685",
         shell=True)
 
 
