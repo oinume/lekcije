@@ -157,7 +157,9 @@ jobs:
           name: "Deploy to GCS"
           command: |
             HASH=$(make print-version-hash)
+            # Deploying to two buckets because test origin and real domain
             gsutil -m rsync -d -r static/$HASH gs://origin-gcs-us.asset.lekcije.com/static/$HASH
+            gsutil -m rsync -d -r static/$HASH gs://asset.lekcije.com/static/$HASH
       - run:
           name: "Install heroku command"
           command: |
