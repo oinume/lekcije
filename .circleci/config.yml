@@ -158,6 +158,15 @@ jobs:
           command: |
             HASH=$(make print-version-hash)
             gsutil -m rsync -d -r static/$HASH gs://origin-gcs-us.asset.lekcije.com/static/$HASH
+      - run:
+          name: "Install heroku command"
+          command: |
+            ./ci/install-heroku-cli.sh
+      - run:
+          name: "Set VERSION_HASH on heroku"
+          command: |
+            HASH=$(make print-version-hash)
+            heroku config:set VERSION_HASH=$HASH
 
 
 # TODO: Run e2e-test
