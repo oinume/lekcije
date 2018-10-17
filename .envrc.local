@@ -17,4 +17,5 @@ export E2E_WEB_DRIVER=ChromeDriver
 export DEBUG_KEY=hoge
 export VERSION_HASH=_version_
 export ROLLBAR_ACCESS_TOKEN=...
-export GCLOUD_SERVICE_KEY=...
+export GCP_SERVICE_ACCOUNT_KEY=<ask code owner>
+export ENABLE_STACKDRIVER_PROFILER=false
