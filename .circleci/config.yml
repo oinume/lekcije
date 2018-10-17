@@ -2,7 +2,7 @@ version: 2
 
 env: &env
   environment:
-    GOOGLE_CLOUD_SDK_VERSION: 206.0.0
+    GOOGLE_CLOUD_SDK_VERSION: 221.0.0
     GOOGLE_CLOUD_SDK_DOWNLOAD_PATH: /google-cloud-sdk
 
 gitconfig: &gitconfig
@@ -119,6 +119,47 @@ jobs:
           name: "Upload to codecov"
           command: |
             bash <(curl -s https://codecov.io/bash)
+  deploy-frontend:
+    working_directory: /go/src/github.com/oinume/lekcije
+    docker:
+      - image: node:10.12-stretch
+        <<: *env
+    steps:
+      - checkout
+      - run:
+          <<: *gitconfig
+      - run:
+          name: "Install packages"
+          command: |
+            set -eu
+            npm install
+      - run:
+          name: "Minify"
+          command: |
+            rm -rf static
+            make minify-static
+      - restore_cache:
+          key: google-cloud-sdk-221.0.0
+      - run:
+          name: "Install google-cloud-sdk"
+          command: |
+            ./ci/install-google-cloud-sdk
+      - save_cache:
+          key: google-cloud-sdk-221.0.0
+          paths:
+          - /google-cloud-sdk
+      - run:
+          name: "Activate GCP service account"
+          command: |
+            echo $GCP_SERVICE_ACCOUNT_KEY | base64 --decode > ./service-account-key.json
+            gcloud auth activate-service-account --key-file ./service-account-key.json
+      - run:
+          name: "Deploy to GCS"
+          command: |
+            HASH=$(make print-version-hash)
+            gsutil -m rsync -d -r static/$(HASH) gs://lekcije-static-production-us-east1/$(HASH)
+
+
 # TODO: Run e2e-test
 
 workflows:
@@ -133,3 +174,7 @@ workflows:
           filters:
             branches:
               only: /.*/
+      - deploy-frontend:
+          filters:
+            branches:
+              only: /deploy-frontend.*/
