@@ -14,12 +14,10 @@ import (
 const apiTokenMetadataKey = "api-token"
 
 func WithUnaryServerInterceptors() grpc.ServerOption {
-	interceptors := []grpc.UnaryServerInterceptor{}
-	interceptors = append(
-		interceptors,
+	interceptors := []grpc.UnaryServerInterceptor{
 		APITokenUnaryServerInterceptor(),
 		GAMeasurementEventInterceptor(),
-	)
+	}
 	return grpc_middleware.WithUnaryServerChain(interceptors...)
 }
 
