@@ -14,7 +14,7 @@ gitconfig: &gitconfig
     git config --global http.https://gopkg.in.followRedirects true
 
 node_modules_cache_key: &node_modules_cache_key
-  key: node_modules-v1-{{ checksum "package-lock.json" }}
+  key: node_modules-v1-{{ checksum "package.json" }}
 
 install_npm_packages: &install_npm_packages
   name: "Install npm packages"
