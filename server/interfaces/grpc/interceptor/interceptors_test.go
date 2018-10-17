@@ -21,17 +21,17 @@ func TestAPITokenUnaryServerInterceptor(t *testing.T) {
 		Server:     nil,
 		FullMethod: "FooService.FooMethod",
 	}
-	var gotAPIToken string
+
+	called := false
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		called = true
 		v, err := context_data.GetAPIToken(ctx)
-		if err != nil {
-			return nil, err
-		}
-		gotAPIToken = v
+		r.NoError(err)
+		r.Equal(apiToken, v)
 		return "ok", nil
 	}
 
 	_, err := APITokenUnaryServerInterceptor()(ctx, nil, info, handler)
 	r.NoError(err)
-	a.Equal(apiToken, gotAPIToken)
+	a.True(called)
 }
