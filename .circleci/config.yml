@@ -1,10 +1,9 @@
 version: 2
 
 env: &env
-  environment:
-    CACHE_VERSION: "v1"
-    GOOGLE_CLOUD_SDK_VERSION: 221.0.0
-    GOOGLE_CLOUD_SDK_DOWNLOAD_PATH: /google-cloud-sdk
+  CACHE_VERSION: "v1"
+  GOOGLE_CLOUD_SDK_VERSION: 221.0.0
+  GOOGLE_CLOUD_SDK_DOWNLOAD_PATH: /google-cloud-sdk
 
 gitconfig: &gitconfig
   name: "Set .gitconfig"
@@ -26,7 +25,8 @@ install_npm_packages: &install_npm_packages
 
 jobs:
   frontend:
-    <<: *env
+    environment:
+      <<: *env
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: node:10.12-stretch
@@ -48,11 +48,13 @@ jobs:
             npm test
 
   server:
-    <<: *env
+    environment:
+      <<: *env
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: golang:1.11-stretch
         environment:
+          <<: *env
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_USER: "root"
           MYSQL_PASSWORD: "lekcije"
@@ -135,7 +137,8 @@ jobs:
           command: |
             bash <(curl -s https://codecov.io/bash)
   deploy-frontend:
-    <<: *env
+    environment:
+      <<: *env
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: node:10.12-stretch
