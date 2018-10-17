@@ -5,10 +5,8 @@ import (
 	"strings"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
-	"github.com/oinume/lekcije/server/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -69,23 +67,5 @@ func GAMeasurementEventInterceptor() grpc.UnaryServerInterceptor {
 		}
 		c := event_logger.WithGAMeasurementEventValues(ctx, eventValues)
 		return handler(c, req)
-	}
-}
-
-const maxDBConnections = 5
-
-func DBUnaryServerInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		db, err := model.OpenDB(
-			config.DefaultVars.DBURL(),
-			maxDBConnections,
-			config.DefaultVars.DebugSQL,
-		)
-		if err != nil {
-			return handler(ctx, req)
-		}
-		defer db.Close()
-		// TODO: redis
-		return handler(context_data.SetDB(ctx, db), req)
 	}
 }
