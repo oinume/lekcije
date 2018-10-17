@@ -26,10 +26,10 @@ install_npm_packages: &install_npm_packages
 
 jobs:
   frontend:
+    <<: *env
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: node:10.12-stretch
-        <<: *env
     steps:
       - checkout
       - run:
@@ -48,8 +48,8 @@ jobs:
             npm test
 
   server:
-    working_directory: /go/src/github.com/oinume/lekcije
     <<: *env
+    working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: golang:1.11-stretch
         environment:
@@ -135,10 +135,10 @@ jobs:
           command: |
             bash <(curl -s https://codecov.io/bash)
   deploy-frontend:
+    <<: *env
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: node:10.12-stretch
-        <<: *env
     steps:
       - checkout
       - run:
