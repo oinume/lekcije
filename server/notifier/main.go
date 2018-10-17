@@ -112,11 +112,11 @@ func (m *Main) Run() error {
 }
 
 func newStorageClient() (*storage.Client, error) {
-	gcloudServiceKey := os.Getenv("GCLOUD_SERVICE_KEY")
-	if gcloudServiceKey == "" {
+	serviceAccountKey := os.Getenv("GCP_SERVICE_ACCOUNT_KEY")
+	if serviceAccountKey == "" {
 		return nil, errors.NewInternalError(errors.WithMessage("Env not found"))
 	}
-	f, err := util.GenerateTempFileFromBase64String("", "gcloud-", gcloudServiceKey)
+	f, err := util.GenerateTempFileFromBase64String("", "gcp-", serviceAccountKey)
 	if err != nil {
 		return nil, err
 	}
