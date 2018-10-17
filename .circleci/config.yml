@@ -177,4 +177,6 @@ workflows:
       - deploy-frontend:
           filters:
             branches:
-              only: /deploy-frontend.*/
+              only:
+                - master
+                - /public-.*/
