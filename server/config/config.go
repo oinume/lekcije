@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"sync"
 	"time"
 
@@ -12,9 +11,8 @@ import (
 )
 
 var (
-	asiaTokyo   = time.FixedZone("Asia/Tokyo", 9*60*60)
-	versionHash = os.Getenv("VERSION_HASH")
-	timestamp   = time.Now().UTC()
+	asiaTokyo = time.FixedZone("Asia/Tokyo", 9*60*60)
+	timestamp = time.Now().UTC()
 )
 
 type Vars struct {
@@ -29,7 +27,6 @@ type Vars struct {
 	RedisURL                  string `envconfig:"REDIS_URL"`
 	GCPProjectID              string `envconfig:"GCP_PROJECT_ID"`
 	GCPServiceAccountKey      string `envconfig:"GCP_SERVICE_ACCOUNT_KEY"`
-	GcloudServiceKey          string `envconfig:"GCLOUD_SERVICE_KEY"`
 	EnableStackdriverProfiler bool   `envconfig:"ENABLE_STACKDRIVER_PROFILER"`
 	GoogleClientID            string `envconfig:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret        string `envconfig:"GOOGLE_CLIENT_SECRET"`

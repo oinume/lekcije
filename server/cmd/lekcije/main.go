@@ -37,7 +37,7 @@ func main() {
 
 	if config.DefaultVars.EnableStackdriverProfiler {
 		// TODO: Move to gcp package
-		f, err := util.GenerateTempFileFromBase64String("", "gcloud-", config.DefaultVars.GcloudServiceKey)
+		f, err := util.GenerateTempFileFromBase64String("", "gcp-", config.DefaultVars.GCPServiceAccountKey)
 		if err != nil {
 			log.Fatalf("Failed to generate temp file: %v", err)
 		}

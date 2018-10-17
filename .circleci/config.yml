@@ -151,8 +151,8 @@ jobs:
       - run:
           name: "Activate GCP service account"
           command: |
-            echo $GCP_SERVICE_ACCOUNT_KEY | base64 --decode > ./service-account-key.json
-            gcloud auth activate-service-account --key-file ./service-account-key.json
+            echo $GCP_SERVICE_ACCOUNT_KEY | base64 --decode > ./gcp-service-account-key.json
+            gcloud auth activate-service-account --key-file ./gcp-service-account-key.json
       - run:
           name: "Deploy to GCS"
           command: |
