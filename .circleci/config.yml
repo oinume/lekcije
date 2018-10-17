@@ -1,7 +1,6 @@
 version: 2
 
 env: &env
-  CACHE_VERSION: "v1"
   GOOGLE_CLOUD_SDK_VERSION: 221.0.0
   GOOGLE_CLOUD_SDK_DOWNLOAD_PATH: /google-cloud-sdk
 
@@ -13,7 +12,7 @@ gitconfig: &gitconfig
     git config --global http.https://gopkg.in.followRedirects true
 
 node_modules_cache_key: &node_modules_cache_key
-  key: node_modules-v1-{{ checksum "package.json" }}
+  key: node_modules-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "package.json" }}
 
 install_npm_packages: &install_npm_packages
   name: "Install npm packages"
@@ -97,7 +96,7 @@ jobs:
           command: |
             go get github.com/golang/dep/cmd/dep
       - restore_cache:
-          key: go-vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "Gopkg.lock" }}
+          key: go-vendor-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "Gopkg.lock" }}
       - run:
           name: "Install dependencies"
           command: |
@@ -105,11 +104,11 @@ jobs:
               make install-dep
             fi
       - save_cache:
-          key: go-vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "Gopkg.lock" }}
+          key: go-vendor-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "Gopkg.lock" }}
           paths:
             - "/go/src/github.com/oinume/lekcije/vendor"
       - restore_cache:
-          key: go-commands-{{ .Environment.CACHE_VERSION }}-{{ checksum "Gopkg.lock" }}
+          key: go-commands-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "Gopkg.lock" }}
       - run:
           name: "Install commands"
           command: |
@@ -117,7 +116,7 @@ jobs:
               make install-commands GO_GET="go get -u"
             fi
       - save_cache:
-          key: go-commands-{{ .Environment.CACHE_VERSION }}-{{ checksum "Gopkg.lock" }}
+          key: go-commands-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "Gopkg.lock" }}
           paths:
             - "/go/bin"
       - run:
