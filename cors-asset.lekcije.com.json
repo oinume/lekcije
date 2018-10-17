@@ -1,0 +1,20 @@
+[
+    {
+      "origin": ["https://www.lekcije.com"],
+      "responseHeader": [
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "Origin",
+        "User-Agent",
+        "DNT",
+        "Cache-Control",
+        "Keep-Alive",
+        "X-Requested-With",
+        "If-Modified-Since",
+        "X-Api-Token"
+      ],
+      "method": ["GET", "HEAD", "DELETE"],
+      "maxAgeSeconds": 3600
+    }
+]
