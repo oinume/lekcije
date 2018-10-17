@@ -12,6 +12,17 @@ gitconfig: &gitconfig
     git config --global url."https://github.com".insteadOf git://github.com
     git config --global http.https://gopkg.in.followRedirects true
 
+node_modules_cache_key: &node_modules_cache_key
+  key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package-lock.json" }}
+
+install_npm_packages: &install_npm_packages
+  name: "Install npm packages"
+  command: |
+    if [ ! -e "/go/src/github.com/oinume/lekcije/node_modules" ]; then
+      set -eu
+      npm install
+    fi
+
 jobs:
   frontend:
     working_directory: /go/src/github.com/oinume/lekcije
@@ -21,11 +32,16 @@ jobs:
       - checkout
       - run:
           <<: *gitconfig
+      - restore_cache:
+          <<: *node_modules_cache_key
+          #key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package-lock.json" }}
       - run:
-          name: "Install packages"
-          command: |
-            set -eu
-            npm install
+          <<: *install_npm_packages
+      - save_cache:
+          <<: *node_modules_cache_key
+          #key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package-lock.json" }}
+          paths:
+            - "/go/src/github.com/oinume/lekcije/node_modules"
       - run:
           name: "Run tests"
           command: |
@@ -128,11 +144,16 @@ jobs:
       - checkout
       - run:
           <<: *gitconfig
+      - restore_cache:
+          <<: *node_modules_cache_key
+          #key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package-lock.json" }}
       - run:
-          name: "Install packages"
-          command: |
-            set -eu
-            npm install
+          <<: *install_npm_packages
+      - save_cache:
+          <<: *node_modules_cache_key
+          #key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package-lock.json" }}
+          paths:
+            - "/go/src/github.com/oinume/lekcije/node_modules"
       - run:
           name: "Minify"
           command: |
