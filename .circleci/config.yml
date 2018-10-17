@@ -2,6 +2,7 @@ version: 2
 
 env: &env
   environment:
+    CACHE_VERSION: "v1"
     GOOGLE_CLOUD_SDK_VERSION: 221.0.0
     GOOGLE_CLOUD_SDK_DOWNLOAD_PATH: /google-cloud-sdk
 
@@ -28,6 +29,7 @@ jobs:
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: node:10.12-stretch
+        <<: *env
     steps:
       - checkout
       - run:
@@ -49,8 +51,7 @@ jobs:
 
   server:
     working_directory: /go/src/github.com/oinume/lekcije
-    environment:
-      CACHE_VERSION: "v1"
+    <<: *env
     docker:
       - image: golang:1.11-stretch
         environment:
