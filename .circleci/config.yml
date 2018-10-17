@@ -175,6 +175,8 @@ workflows:
             branches:
               only: /.*/
       - deploy-frontend:
+          requires:
+            - frontend
           filters:
             branches:
               only:
