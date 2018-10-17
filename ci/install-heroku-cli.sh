@@ -6,7 +6,7 @@ if [ -z "$HEROKU_LOGIN" -o -z "$HEROKU_API_KEY" ]; then
 fi
 
 curl -L -o /tmp/heroku-linux-amd64.tar.gz https://cli-assets.heroku.com/branches/stable/heroku-linux-amd64.tar.gz
-tar -xz -C /opt -f /tmp/google-cloud-sdk-$GOOGLE_CLOUD_SDK_VERSION-linux-x86_64.tar.gz
+tar -xz -C /opt -f /tmp/heroku-linux-amd64.tar.gz
 ln -s /opt/heroku/bin/heroku /usr/local/bin/heroku
 
 cat > ~/.netrc << EOF
