@@ -1,4 +1,17 @@
 version: 2
+
+env: &env
+  environment:
+    GOOGLE_CLOUD_SDK_VERSION: 206.0.0
+    GOOGLE_CLOUD_SDK_DOWNLOAD_PATH: /google-cloud-sdk
+
+gitconfig: &gitconfig
+  name: "Set .gitconfig"
+  command: |
+    echo "" > ~/.gitconfig
+    git config --global url."https://github.com".insteadOf git://github.com
+    git config --global http.https://gopkg.in.followRedirects true
+
 jobs:
   frontend:
     working_directory: /go/src/github.com/oinume/lekcije
@@ -7,11 +20,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Set .gitconfig"
-          command: |
-            echo "" > ~/.gitconfig
-            git config --global url."https://github.com".insteadOf git://github.com
-            git config --global http.https://gopkg.in.followRedirects true
+          <<: *gitconfig
       - run:
           name: "Install packages"
           command: |
@@ -47,11 +56,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Set .gitconfig"
-          command: |
-            echo "" > ~/.gitconfig
-            git config --global url."https://github.com".insteadOf git://github.com
-            git config --global http.https://gopkg.in.followRedirects true
+          <<: *gitconfig
       - run:
           name: "Install packages"
           command: |
