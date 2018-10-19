@@ -13,7 +13,7 @@ RUN make all
 FROM alpine
 COPY --from=builder /go/src/github.com/oinume/lekcije/bin/lekcije /lekcije
 
-ENV GCP_PROJECT_ID oinume-lekcije
+ENV GCP_PROJECT_ID dummy
 ENV PORT 4001
 ENV GRPC_PORT 4002
 ENV GOOGLE_CLIENT_ID dummy
