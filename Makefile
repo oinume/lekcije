@@ -1,4 +1,5 @@
 APP = lekcije
+BASE_DIR = github.com/oinume/lekcije
 VENDOR_DIR = vendor
 PROTO_GEN_DIR = proto-gen
 GRPC_GATEWAY_REPO = github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
@@ -11,7 +12,8 @@ LINT_PACKAGES = $(shell go list ./...)
 VERSION_HASH_VALUE = $(shell git rev-parse HEAD | cut -c-7)
 PID = $(APP).pid
 
-all: install
+
+all: build
 
 .PHONY: setup
 setup: install-dep install-commands
@@ -33,11 +35,19 @@ install-commands:
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
-build:
-	go build -o bin/$(APP) github.com/oinume/lekcije/server/cmd/lekcije
+.PHONY: build
+build: build/$(APP) build/notifier
+
+build/$(APP):
+	go build -o bin/$(APP) $(BASE_DIR)/server/cmd/lekcije
+
+build/notifier:
+	go build -o bin/notifier $(BASE_DIR)/server/cmd/notifier
+
+# TODO: build/xxx
 
 clean:
-	${RM} bin/$(APP)
+	${RM} bin/$(APP) bin/notifier
 
 .PHONY: proto/go
 proto/go:
