@@ -16,7 +16,7 @@ COPY --from=builder /go/src/github.com/oinume/lekcije/bin/lekcije /lekcije
 RUN set -eux \
 	&& apk --update add --no-cache ca-certificates
 
-EXPOSE ${HTTP_PORT:-4001}
+EXPOSE ${PORT:-4001} # HTTP
 EXPOSE ${GRPC_PORT:-4002}
 
 ENTRYPOINT ["/lekcije"]
