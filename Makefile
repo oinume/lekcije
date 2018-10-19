@@ -118,7 +118,7 @@ reset-db:
 kill:
 	kill `cat $(PID)` 2> /dev/null || true
 
-restart: kill clean build
+restart: kill clean build/$(APP)
 	bin/$(APP) & echo $$! > $(PID)
 
 watch: restart
