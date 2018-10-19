@@ -38,13 +38,10 @@ install:
 .PHONY: build
 build: build/$(APP) build/notifier
 
-build/$(APP):
-	go build -o bin/$(APP) $(BASE_DIR)/server/cmd/lekcije
-
-build/notifier:
-	go build -o bin/notifier $(BASE_DIR)/server/cmd/notifier
-
-# TODO: build/xxx
+# TODO: find server/cmd -type d | xargs basename
+# OR CLIENTS=hoge fuga proto: $(foreach var,$(CLIENTS),proto/$(var))
+build/%:
+	go build -o bin/$* $(BASE_DIR)/server/cmd/$*
 
 clean:
 	${RM} bin/$(APP) bin/notifier
