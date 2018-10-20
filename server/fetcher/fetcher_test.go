@@ -154,7 +154,7 @@ func TestFetchInternalServerError(t *testing.T) {
 	_, _, err := fetcher.Fetch(5982)
 	a.Error(err)
 	a.Contains(err.Error(), "Unknown error in fetchContent")
-	a.Contains(err.Error(), "status=500")
+	a.Contains(err.Error(), "statusCode=500")
 }
 
 func TestFetchConcurrency(t *testing.T) {

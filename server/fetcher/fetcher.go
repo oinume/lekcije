@@ -160,13 +160,15 @@ func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 	case http.StatusMovedPermanently, http.StatusFound:
 		_ = resp.Body.Close()
 		return nopCloser, errors.NewNotFoundError(
-			errors.WithMessagef("Teacher not found: url=%v, status=%v", url, resp.StatusCode),
+			errors.WithMessagef("Teacher not found: url=%v, statusCode=%v", url, resp.StatusCode),
 		)
 	default:
-		body, _ := ioutil.ReadAll(resp.Body)
 		_ = resp.Body.Close()
 		return nopCloser, errors.NewInternalError(
-			errors.WithMessagef("Unknown error in fetchContent: url=%v, status=%v, body=%v", url, resp.StatusCode, string(body)),
+			errors.WithMessagef(
+				"Unknown error in fetchContent: url=%v, statusCode=%v, status=%v",
+				url, resp.StatusCode, resp.Status,
+			),
 		)
 	}
 }
