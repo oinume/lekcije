@@ -1,2 +1,2 @@
-web: lekcije
+web: server
 clock: python clock.py
