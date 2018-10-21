@@ -42,10 +42,10 @@ build: $(foreach command,$(COMMANDS),build/$(command))
 # TODO: find server/cmd -type d | xargs basename
 # OR CLIENTS=hoge fuga proto: $(foreach var,$(CLIENTS),proto/$(var))
 build/%:
-	go build -o bin/$* $(BASE_DIR)/server/cmd/$*
+	go build -o bin/lekcije_$* $(BASE_DIR)/server/cmd/$*
 
 clean:
-	${RM} $(foreach command,$(COMMANDS),bin/$(command))
+	${RM} $(foreach command,$(COMMANDS),bin/lekcije_$(command))
 
 .PHONY: proto/go
 proto/go:
@@ -116,8 +116,8 @@ reset-db:
 kill:
 	kill `cat $(PID)` 2> /dev/null || true
 
-restart: kill clean build/$(APP)
-	bin/$(APP) & echo $$! > $(PID)
+restart: kill clean build/server
+	bin/$(APP)_server & echo $$! > $(PID)
 
 watch: restart
 	fswatch -o -e ".*" -e vendor -e node_modules -e .venv -i "\\.go$$" . | xargs -n1 -I{} make restart || make kill
