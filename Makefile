@@ -1,4 +1,5 @@
 APP = lekcije
+COMMANDS = crawler daily_reporter follow_reminder lekcije notifier teacher_error_resetter
 BASE_DIR = github.com/oinume/lekcije
 VENDOR_DIR = vendor
 PROTO_GEN_DIR = proto-gen
@@ -36,7 +37,7 @@ install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
 .PHONY: build
-build: build/$(APP) build/notifier
+build: $(foreach command,$(COMMANDS),build/$(command))
 
 # TODO: find server/cmd -type d | xargs basename
 # OR CLIENTS=hoge fuga proto: $(foreach var,$(CLIENTS),proto/$(var))
@@ -44,7 +45,7 @@ build/%:
 	go build -o bin/$* $(BASE_DIR)/server/cmd/$*
 
 clean:
-	${RM} bin/$(APP) bin/notifier
+	${RM} $(foreach command,$(COMMANDS),bin/$(command))
 
 .PHONY: proto/go
 proto/go:
