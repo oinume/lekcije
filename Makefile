@@ -1,5 +1,5 @@
 APP = lekcije
-COMMANDS = crawler daily_reporter follow_reminder lekcije notifier teacher_error_resetter
+COMMANDS = crawler daily_reporter follow_reminder notifier server teacher_error_resetter
 BASE_DIR = github.com/oinume/lekcije
 VENDOR_DIR = vendor
 PROTO_GEN_DIR = proto-gen
