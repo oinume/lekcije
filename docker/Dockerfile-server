@@ -19,4 +19,4 @@ RUN set -eux \
 EXPOSE ${PORT:-4001} # HTTP
 EXPOSE ${GRPC_PORT:-4002}
 
-ENTRYPOINT ["/lekcije"]
+ENTRYPOINT ["/lekcije_server"]
