@@ -127,6 +127,9 @@ jobs:
           name: "Run go-lint"
           command: make go-lint
       - run:
+          name: "Build"
+          command: make build
+      - run:
           name: "Run go-test"
           command: |
             export MYSQL_USER=lekcije

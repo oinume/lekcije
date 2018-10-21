@@ -1,4 +1,6 @@
 APP = lekcije
+COMMANDS = crawler daily_reporter follow_reminder lekcije notifier teacher_error_resetter
+BASE_DIR = github.com/oinume/lekcije
 VENDOR_DIR = vendor
 PROTO_GEN_DIR = proto-gen
 GRPC_GATEWAY_REPO = github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
@@ -11,7 +13,8 @@ LINT_PACKAGES = $(shell go list ./...)
 VERSION_HASH_VALUE = $(shell git rev-parse HEAD | cut -c-7)
 PID = $(APP).pid
 
-all: install
+
+all: build
 
 .PHONY: setup
 setup: install-dep install-commands
@@ -33,11 +36,16 @@ install-commands:
 install:
 	go install github.com/oinume/lekcije/server/cmd/lekcije
 
-build:
-	go build -o bin/$(APP) github.com/oinume/lekcije/server/cmd/lekcije
+.PHONY: build
+build: $(foreach command,$(COMMANDS),build/$(command))
+
+# TODO: find server/cmd -type d | xargs basename
+# OR CLIENTS=hoge fuga proto: $(foreach var,$(CLIENTS),proto/$(var))
+build/%:
+	go build -o bin/$* $(BASE_DIR)/server/cmd/$*
 
 clean:
-	${RM} bin/$(APP)
+	${RM} $(foreach command,$(COMMANDS),bin/$(command))
 
 .PHONY: proto/go
 proto/go:
@@ -108,7 +116,7 @@ reset-db:
 kill:
 	kill `cat $(PID)` 2> /dev/null || true
 
-restart: kill clean build
+restart: kill clean build/$(APP)
 	bin/$(APP) & echo $$! > $(PID)
 
 watch: restart

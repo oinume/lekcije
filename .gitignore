@@ -14,7 +14,7 @@ __pycache__/
 *.iml
 
 /vendor
-.envrc
+.env
 
 # DB
 db/dbconf-production.yml
@@ -29,3 +29,4 @@ deploy.sh
 .ipynb_checkpoints
 /*.pid
 bin/lekcije
+
