@@ -10,6 +10,7 @@ GO_TEST_E2E ?= go test -v -p=1
 GO_TEST_PACKAGES = $(shell go list ./... | grep -v vendor | grep -v e2e)
 DB_HOST = 192.168.99.100
 LINT_PACKAGES = $(shell go list ./...)
+IMAGE_TAG ?= latest
 VERSION_HASH_VALUE = $(shell git rev-parse HEAD | cut -c-7)
 PID = $(APP).pid
 
@@ -92,6 +93,11 @@ go-staticcheck:
 .PHONY: go-simple
 go-simple:
 	gosimple $(LINT_PACKAGES)
+
+.PHONY: docker/build/server
+docker/build/server:
+	docker build --pull -f docker/Dockerfile-server \
+	--tag asia.gcr.io/oinume-lekcije/server:$(IMAGE_TAG) .
 
 .PHONY: minify-static-development
 minify-static-development:
