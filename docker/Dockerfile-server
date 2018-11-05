@@ -7,7 +7,7 @@ RUN set -eux \
 
 WORKDIR /go/src/github.com/oinume/lekcije
 ADD . /go/src/github.com/oinume/lekcije
-RUN make build/server
+RUN make install-commands install-dep build/server
 
 
 FROM alpine
