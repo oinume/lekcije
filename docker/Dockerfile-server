@@ -13,7 +13,8 @@ RUN echo "" > ~/.gitconfig \
 
 WORKDIR /go/src/github.com/oinume/lekcije
 ADD . /go/src/github.com/oinume/lekcije
-RUN make install-commands install-dep build/server
+RUN go get -u github.com/golang/dep/cmd/dep
+RUN make install-dep build/server
 
 
 FROM alpine
