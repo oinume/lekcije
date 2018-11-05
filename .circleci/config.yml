@@ -235,6 +235,7 @@ jobs:
           name: "Deploy docker image to GCR"
           command: |
             TAG=$(echo "${CIRCLE_BRANCH}" | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-"${CIRCLE_BUILD_NUM}"
+            echo ${TAG}
             make docker/build/server IMAGE_TAG=latest
             docker tag asia.gcr.io/oinume-lekcije/server:latest asia.gcr.io/oinume-lekcije/server:${TAG}
             gcloud docker -- push asia.gcr.io/oinume-lekcije/server:latest
