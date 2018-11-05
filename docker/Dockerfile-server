@@ -1,4 +1,4 @@
-FROM golang:1.11.0-alpine AS builder
+FROM golang:1.11.1-alpine AS builder
 
 RUN set -eux \
 	&& apk --update add --no-cache \
@@ -7,16 +7,16 @@ RUN set -eux \
 
 WORKDIR /go/src/github.com/oinume/lekcije
 ADD . /go/src/github.com/oinume/lekcije
-RUN make build/lekcije
+RUN make build/server
 
 
 FROM alpine
-COPY --from=builder /go/src/github.com/oinume/lekcije/bin/lekcije /lekcije
+COPY --from=builder /go/src/github.com/oinume/lekcije/bin/lekcije_server /lekcije_server
 
 RUN set -eux \
 	&& apk --update add --no-cache ca-certificates
 
-EXPOSE ${PORT:-4001} # HTTP
+EXPOSE ${PORT:-4001}
 EXPOSE ${GRPC_PORT:-4002}
 
-ENTRYPOINT ["/lekcije"]
+ENTRYPOINT ["/lekcije_server"]
