@@ -3,6 +3,7 @@ FROM golang:1.11.1-alpine AS builder
 RUN set -eux \
 	&& apk --update add --no-cache \
 		bash \
+		gcc \
 		git \
 		make
 
