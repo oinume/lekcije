@@ -194,7 +194,51 @@ jobs:
           command: |
             HASH=$(make print-version-hash)
             heroku config:set VERSION_HASH=$HASH -a lekcije
-
+  deploy-server-image:
+    environment:
+      <<: *env
+    working_directory: /go/src/github.com/oinume/lekcije
+    docker:
+      - image: docker:17.11.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+          docker_layer_caching: true
+      - run:
+          <<: *gitconfig
+      - run:
+          name: Install dependency apk packages
+          command: |
+            apk --no-cache add \
+              bash \
+              curl \
+              curl-dev \
+              make \
+              python
+      - restore_cache:
+          key: google-cloud-sdk-221.0.0
+      - run:
+          name: "Install google-cloud-sdk"
+          command: |
+            ./ci/install-google-cloud-sdk.sh
+      - save_cache:
+          key: google-cloud-sdk-221.0.0
+          paths:
+            - /google-cloud-sdk
+      - run:
+          name: "Activate GCP service account" # TODO: common
+          command: |
+            echo $GCP_SERVICE_ACCOUNT_KEY | base64 --decode > ./gcp-service-account-key.json
+            gcloud auth activate-service-account --key-file ./gcp-service-account-key.json
+      - run:
+          name: "Deploy docker image to GCR"
+          command: |
+            TAG=$(echo "${CIRCLE_BRANCH}" | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-"${CIRCLE_BUILD_NUM}"
+            make docker/build/server IMAGE_TAG=latest
+            docker tag asia.gcr.io/oinume-lekcije/server:latest asia.gcr.io/oinume-lekcije/server:${TAG}
+            gcloud docker -- push asia.gcr.io/oinume-lekcije/server:latest
+            gcloud docker -- push asia.gcr.io/oinume-lekcije/server:${TAG}
 
 # TODO: Run e2e-test
 
@@ -213,6 +257,14 @@ workflows:
       - deploy-frontend:
           requires:
             - frontend
+          filters:
+            branches:
+              only:
+                - master
+                - /public-.*/
+      - deploy-server-image:
+          requires:
+            - server
           filters:
             branches:
               only:
