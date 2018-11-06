@@ -3,7 +3,6 @@ FROM golang:1.11.1-alpine AS builder
 RUN set -eux \
 	&& apk --update add --no-cache \
 		bash \
-		gcc \
 		git \
 		make
 
@@ -12,7 +11,7 @@ RUN echo "" > ~/.gitconfig \
     && git config --global http.https://gopkg.in.followRedirects true
 
 WORKDIR /go/src/github.com/oinume/lekcije
-ADD . /go/src/github.com/oinume/lekcije
+Add . /go/src/github.com/oinume/lekcije
 RUN go get -u github.com/golang/dep/cmd/dep
 RUN make install-dep build/server
 
