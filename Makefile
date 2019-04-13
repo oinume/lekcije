@@ -18,11 +18,7 @@ PID = $(APP).pid
 all: build
 
 .PHONY: setup
-setup: install-dep install-commands
-
-.PHONY: install-dep
-install-dep:
-	dep ensure -v
+setup: install-commands
 
 .PHONY: install-commands
 install-commands:
@@ -32,6 +28,10 @@ install-commands:
 	$(GO_GET) honnef.co/go/tools/cmd/staticcheck
 	$(GO_GET) honnef.co/go/tools/cmd/gosimple
 	$(GO_GET) honnef.co/go/tools/cmd/unused
+
+.PHONY: vendor
+vendor:
+	go mode
 
 .PHONY: install
 install:
