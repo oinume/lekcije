@@ -43,7 +43,7 @@ build: $(foreach command,$(COMMANDS),build/$(command))
 # TODO: find server/cmd -type d | xargs basename
 # OR CLIENTS=hoge fuga proto: $(foreach var,$(CLIENTS),proto/$(var))
 build/%:
-	go build -o bin/lekcije_$* $(BASE_DIR)/server/cmd/$*
+	GOMODULE111=on go build -o bin/lekcije_$* $(BASE_DIR)/server/cmd/$*
 
 clean:
 	${RM} $(foreach command,$(COMMANDS),bin/lekcije_$(command))
