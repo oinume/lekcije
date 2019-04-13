@@ -1,4 +1,4 @@
-FROM golang:1.11.1-alpine AS builder
+FROM golang:1.12-alpine3.9 AS builder
 
 RUN set -eux \
 	&& apk --update add --no-cache \
@@ -12,8 +12,7 @@ RUN echo "" > ~/.gitconfig \
 
 WORKDIR /go/src/github.com/oinume/lekcije
 Add . /go/src/github.com/oinume/lekcije
-RUN go get -u github.com/golang/dep/cmd/dep
-RUN make install-dep build/server
+RUN make build/server
 
 
 FROM alpine
