@@ -1,0 +1,48 @@
+module github.com/oinume/lekcije
+
+go 1.12
+
+require (
+	cloud.google.com/go v0.26.0
+	github.com/Songmu/retry v0.0.0-20170110085223-3d913ef13826
+	github.com/davecgh/go-spew v1.1.0
+	github.com/fukata/golang-stats-api-handler v1.0.0
+	github.com/go-sql-driver/mysql v0.0.0-20180125054745-bc14601d1bd5
+	github.com/golang/protobuf v1.2.0
+	github.com/google/pprof v0.0.0-20180605153948-8b03ce837f34
+	github.com/google/uuid v0.0.0-20171129191014-dec09d789f3d
+	github.com/googleapis/gax-go v0.0.0-20180329000537-de2cc08e690b
+	github.com/grpc-ecosystem/go-grpc-middleware v0.0.0-20180108155640-d0c54e68681e
+	github.com/grpc-ecosystem/grpc-gateway v1.4.1
+	github.com/jinzhu/gorm v0.0.0-20180210142528-85774eb9dab4
+	github.com/jinzhu/inflection v0.0.0-20170102125226-1c35d901db3d
+	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
+	github.com/kelseyhightower/envconfig v1.3.0
+	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
+	github.com/pkg/errors v0.0.0-20180127015812-30136e27e2ac
+	github.com/pkg/profile v1.2.0
+	github.com/pmezard/go-difflib v1.0.0
+	github.com/rs/cors v1.3.0
+	github.com/sclevine/agouti v0.0.0-20171003013254-8cf0313221cb
+	github.com/sendgrid/rest v2.4.0+incompatible
+	github.com/sendgrid/sendgrid-go v3.4.1+incompatible
+	github.com/stretchr/testify v0.0.0-20180206082539-be8372ae8ec5
+	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
+	go.opencensus.io v0.7.0
+	go.uber.org/atomic v1.3.1
+	go.uber.org/multierr v1.1.0
+	go.uber.org/zap v1.7.1
+	goji.io v2.0.0+incompatible
+	golang.org/x/net v0.0.0-20180216171745-136a25c244d3
+	golang.org/x/oauth2 v0.0.0-20180207181906-543e37812f10
+	golang.org/x/sync v0.0.0-20171101214715-fd80eb99c8f6
+	golang.org/x/sys v0.0.0-20180905080454-ebe1bf3edb33
+	golang.org/x/text v0.0.0-20180208041248-4e4a3210bb54
+	google.golang.org/api v0.0.0-20180217000815-c7a403bb5fe1
+	google.golang.org/appengine v0.0.0-20170121000817-a2c54d2174c1
+	google.golang.org/genproto v0.0.0-20180206005123-2b5a72b8730b
+	google.golang.org/grpc v1.14.0
+	gopkg.in/bsm/ratelimit.v1 v1.0.0-20160220154919-db14e161995a
+	gopkg.in/redis.v4 v4.2.4
+	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
+)
