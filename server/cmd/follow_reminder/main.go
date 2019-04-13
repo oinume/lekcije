@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	dryRun     = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
-	logLevel   = flag.String("log-level", "info", "Log level")
+	dryRun = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
+	//logLevel   = flag.String("log-level", "info", "Log level")
 	targetDate = flag.String("target-date", "", "Specify registration date of users")
 )
 
@@ -55,7 +55,7 @@ func run() error {
 	} else {
 		date, err = time.Parse("2006-01-02", *targetDate)
 		if err != nil {
-			return fmt.Errorf("Failed to parse 'target-date': %v", *targetDate)
+			return fmt.Errorf("failed to parse 'target-date': %v", *targetDate)
 		}
 	}
 	users, err := model.NewUserService(db).FindAllFollowedTeacherAtIsNull(date)

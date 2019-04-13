@@ -75,7 +75,7 @@ func Uint32ToStringSlice(from ...uint32) []string {
 
 func EncryptString(plainText string, encryptionKey string) (string, error) {
 	if encryptionKey == "" {
-		return "", fmt.Errorf("encryptionKey is empty.")
+		return "", fmt.Errorf("argument encryptionKey is empty")
 	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
@@ -139,9 +139,8 @@ func IsUserAgentTablet(req *http.Request) bool {
 func WriteError(w io.Writer, err error) {
 	fmt.Fprintf(w, "%v", err.Error())
 	fmt.Fprint(w, "\n--- stacktrace ---")
-	switch err.(type) {
+	switch e := err.(type) {
 	case *errors.AnnotatedError:
-		e := err.(*errors.AnnotatedError)
 		if e.OutputStackTrace() {
 			fmt.Fprintf(w, "%+v\n", e.StackTrace())
 		}

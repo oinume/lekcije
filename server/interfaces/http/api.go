@@ -9,12 +9,6 @@ import (
 	"github.com/oinume/lekcije/server/model"
 )
 
-func (s *server) getAPIStatusHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.getAPIStatus(w, r)
-	}
-}
-
 // GET /api/status
 func (s *server) getAPIStatus(w http.ResponseWriter, r *http.Request) {
 	// TODO: Include connection statistics
@@ -50,12 +44,6 @@ func (s *server) getAPIStatus(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	writeJSON(w, http.StatusOK, data)
-}
-
-func (s *server) getAPIMeFollowingTeachersHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.getAPIMeFollowingTeachers(w, r)
-	}
 }
 
 // GET /api/me/followingTeachers

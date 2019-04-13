@@ -72,12 +72,6 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *server) postMeFollowingTeachersCreateHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.postMeFollowingTeachersCreate(w, r)
-	}
-}
-
 func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
@@ -189,12 +183,6 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
-func (s *server) postMeFollowingTeachersDeleteHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.postMeFollowingTeachersDelete(w, r)
-	}
-}
-
 func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
@@ -236,12 +224,6 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, "/me?"+successMessage.AsURLQueryString(), http.StatusFound)
 }
 
-func (s *server) getMeSettingHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.getMeSetting(w, r)
-	}
-}
-
 func (s *server) getMeSetting(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
@@ -261,12 +243,6 @@ func (s *server) getMeSetting(w http.ResponseWriter, r *http.Request) {
 			errors.WithMessage("Failed to template.Execute()"),
 		), user.ID)
 		return
-	}
-}
-
-func (s *server) getMeLogoutHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.getMeLogout(w, r)
 	}
 }
 

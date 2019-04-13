@@ -12,12 +12,6 @@ import (
 
 var _ = fmt.Print
 
-func (s *server) staticHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.static(w, r)
-	}
-}
-
 func (s *server) static(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, r.URL.Path[1:])
 }

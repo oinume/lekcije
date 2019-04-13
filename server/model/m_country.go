@@ -45,7 +45,7 @@ func (s *MCountryService) LoadAll() (*MCountries, error) {
 
 func (s *MCountryService) GetMCountryByNameJA(nameJA string) (*MCountry, error) {
 	if len(s.allCountries) == 0 {
-		return nil, fmt.Errorf("Not loaded")
+		return nil, fmt.Errorf("m_country not loaded")
 	}
 	if c, ok := s.allCountries[nameJA]; ok {
 		return c, nil

@@ -18,20 +18,20 @@ PID = $(APP).pid
 all: build
 
 .PHONY: setup
-setup: install-dep install-commands
-
-.PHONY: install-dep
-install-dep:
-	dep ensure -v
+setup: install-commands
 
 .PHONY: install-commands
 install-commands:
-	$(GO_GET) bitbucket.org/liamstask/goose/cmd/goose
-	$(GO_GET) github.com/golang/protobuf/protoc-gen-go
-	$(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	$(GO_GET) honnef.co/go/tools/cmd/staticcheck
-	$(GO_GET) honnef.co/go/tools/cmd/gosimple
-	$(GO_GET) honnef.co/go/tools/cmd/unused
+	GO111MODULE=off $(GO_GET) bitbucket.org/liamstask/goose/cmd/goose
+	GO111MODULE=off $(GO_GET) github.com/golang/protobuf/protoc-gen-go
+	GO111MODULE=off $(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/staticcheck
+	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/gosimple
+	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/unused
+
+.PHONY: vendor
+vendor:
+	go mod vendor
 
 .PHONY: install
 install:

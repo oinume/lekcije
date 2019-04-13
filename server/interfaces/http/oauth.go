@@ -19,6 +19,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
+	"google.golang.org/api/option"
 )
 
 var _ = fmt.Print
@@ -69,12 +70,6 @@ func (s *server) oauthGoogle(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 	c := getGoogleOAuthConfig(r)
 	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
-}
-
-func (s *server) oauthGoogleCallbackHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.oauthGoogleCallback(w, r)
-	}
 }
 
 func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
@@ -211,8 +206,15 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 
 // Returns userId, name, email, error
 func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, string, error) {
-	oauth2Client := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
-	service, err := google_auth2.New(oauth2Client)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	oauth2Client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(token))
+	service, err := google_auth2.NewService(
+		context.Background(),
+		// TODO: Not sure which is correct
+		//option.WithTokenSource(oauth2.StaticTokenSource(token)),
+		option.WithHTTPClient(oauth2Client),
+	)
 	if err != nil {
 		return "", "", "", errors.NewInternalError(
 			errors.WithError(err),
