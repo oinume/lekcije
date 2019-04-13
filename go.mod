@@ -1,3 +1,5 @@
+// +heroku goVersion go1.12
+// +heroku install ./server/cmd/...
 module github.com/oinume/lekcije
 
 go 1.12
