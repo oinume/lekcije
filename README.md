@@ -21,7 +21,7 @@ brew cask install docker
 ### Install other tools
 
 ```bash
-brew install dep fswatch node
+brew install go fswatch node
 make setup
 npm install
 ```
@@ -49,10 +49,10 @@ docker-compose up
 
 ### Define environmental variables
 ```
-cp .envrc.local .envrc
+cp .env.sample .env
 ```
 
-Replace `192.168.99.100` to `127.0.0.1` on your .envrc if you use `Docker for Mac`.
+Replace `192.168.99.100` to `127.0.0.1` on your .env if you use `Docker for Mac`.
 
 And then, load environmental variables with `direnv`.
 
@@ -62,7 +62,7 @@ direnv allow
 
 OR just use `source` command.
 ```
-source .envrc
+source .env
 ```
 
 ### Migrate DB
