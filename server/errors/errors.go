@@ -79,7 +79,6 @@ type AnnotatedError struct {
 	code             Code
 	message          string
 	wrapped          error
-	cause            error
 	stackTrace       errors.StackTrace
 	outputStackTrace bool
 	resources        []*Resource

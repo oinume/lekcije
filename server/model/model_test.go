@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	_                                     = fmt.Print
-	helper                                = NewTestHelper()
-	testDBURL                             string
+	_      = fmt.Print
+	helper = NewTestHelper()
+	//testDBURL                             string
 	eventLogEmailService                  *EventLogEmailService
 	followingTeacherService               *FollowingTeacherService
 	lessonService                         *LessonService

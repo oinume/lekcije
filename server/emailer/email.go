@@ -79,7 +79,7 @@ func (t *Template) parseLine(line string, lineNo int, email *Email) error {
 
 	colonIndex := strings.Index(line, ":")
 	if colonIndex == -1 {
-		return fmt.Errorf("Line:%v: Invalid email template", lineNo)
+		return fmt.Errorf("line:%v: Invalid email template", lineNo)
 	}
 
 	name := strings.ToLower(strings.TrimSpace(line[:colonIndex]))
@@ -89,26 +89,26 @@ func (t *Template) parseLine(line string, lineNo int, email *Email) error {
 	case "from":
 		from, err := mail.ParseAddress(value)
 		if err != nil {
-			return fmt.Errorf("Line:%v: Parse 'from' failed: %v", lineNo, err)
+			return fmt.Errorf("line:%v: Parse 'from' failed: %v", lineNo, err)
 		}
 		email.From = from
 	case "to":
 		tos, err := mail.ParseAddressList(value)
 		if err != nil {
-			return fmt.Errorf("Line:%v: Parse 'to' failed: %v", lineNo, err)
+			return fmt.Errorf("line:%v: Parse 'to' failed: %v", lineNo, err)
 		}
 		email.Tos = tos
 	case "subject":
 		email.Subject = value
 	case "body":
 		if value != "text/plain" && value != "text/html" {
-			return fmt.Errorf("Line:%v: Invalid body mime type: %v", lineNo, value)
+			return fmt.Errorf("line:%v: Invalid body mime type: %v", lineNo, value)
 		}
 		email.BodyMIMEType = value
 		t.inBody = true // TODO: goroutine safe
 	default:
 		// TODO: accept as extra header
-		return fmt.Errorf("Line:%v: Unknown header %q", lineNo, name)
+		return fmt.Errorf("line:%v: Unknown header %q", lineNo, name)
 	}
 	return nil
 }

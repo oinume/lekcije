@@ -11,9 +11,9 @@ import (
 )
 
 type TestHelper struct {
-	dbURL           string
-	db              *gorm.DB
-	mCountryService *MCountryService
+	dbURL string
+	db    *gorm.DB
+	//mCountryService *MCountryService
 }
 
 func NewTestHelper() *TestHelper {

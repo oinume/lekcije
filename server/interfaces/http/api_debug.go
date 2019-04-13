@@ -6,12 +6,6 @@ import (
 	"strings"
 )
 
-func (s *server) getAPIDebugEnvVarHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.getAPIDebugEnvVar(w, r)
-	}
-}
-
 // GET /api/debug/envVar
 func (s *server) getAPIDebugEnvVar(w http.ResponseWriter, r *http.Request) {
 	debugKey := r.FormValue("debugKey")
@@ -28,12 +22,6 @@ func (s *server) getAPIDebugEnvVar(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, vars)
 	} else {
 		writeJSON(w, http.StatusOK, struct{}{})
-	}
-}
-
-func (s *server) getAPIDebugHTTPHeaderHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.getAPIDebugHTTPHeader(w, r)
 	}
 }
 
