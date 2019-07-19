@@ -385,10 +385,13 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 	totalXPath := xmlpath.MustCompile(`//p[@id='total']`)
 	value, ok := totalXPath.String(rootNode)
 	if !ok {
-		fetcher.logger.Error(
-			fmt.Sprintf("Failed to parse teacher review count"),
-			zap.Uint("teacherID", uint(teacher.ID)),
-		)
+		newTeacherXPath := xmlpath.MustCompile(`//dl/dd/img[@class='new_teacher']`)
+		if _, ok := newTeacherXPath.String(rootNode); !ok {
+			fetcher.logger.Error(
+				fmt.Sprintf("Failed to parse teacher review count"),
+				zap.Uint("teacherID", uint(teacher.ID)),
+			)
+		}
 		return
 	}
 	matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
