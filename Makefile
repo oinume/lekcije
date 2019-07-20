@@ -26,8 +26,6 @@ install-commands:
 	GO111MODULE=off $(GO_GET) github.com/golang/protobuf/protoc-gen-go
 	GO111MODULE=off $(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/staticcheck
-	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/gosimple
-	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/unused
 
 .PHONY: vendor
 vendor:
