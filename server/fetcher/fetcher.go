@@ -392,6 +392,7 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 				zap.Uint("teacherID", uint(teacher.ID)),
 			)
 		}
+		// Give up to obtain review count and rating
 		return
 	}
 	matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
