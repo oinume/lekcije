@@ -9,7 +9,7 @@ GO_TEST ?= go test -v -race -p=1 # To avoid database operations conflict
 GO_TEST_E2E ?= go test -v -p=1
 GO_TEST_PACKAGES = $(shell go list ./... | grep -v vendor | grep -v e2e)
 DB_HOST = 192.168.99.100
-LINT_PACKAGES = $(shell go list ./...)
+LINT_PACKAGES = $(shell go list ./... | grep -v proto-gen/go)
 IMAGE_TAG ?= latest
 VERSION_HASH_VALUE = $(shell git rev-parse HEAD | cut -c-7)
 PID = $(APP).pid
@@ -26,8 +26,6 @@ install-commands:
 	GO111MODULE=off $(GO_GET) github.com/golang/protobuf/protoc-gen-go
 	GO111MODULE=off $(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/staticcheck
-	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/gosimple
-	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/unused
 
 .PHONY: vendor
 vendor:
@@ -80,7 +78,7 @@ goimports:
 	goimports -w ./server ./e2e
 
 .PHONY: go-lint
-go-lint: go-staticcheck go-simple
+go-lint: go-staticcheck 
 
 .PHONY: go-vet
 go-vet:
@@ -88,11 +86,7 @@ go-vet:
 
 .PHONY: go-staticcheck
 go-staticcheck:
-	staticcheck -ignore "github.com/oinume/lekcije/proto-gen/go/proto/api/v1/*.go:SA1019" $(LINT_PACKAGES)
-
-.PHONY: go-simple
-go-simple:
-	gosimple $(LINT_PACKAGES)
+	staticcheck $(LINT_PACKAGES)
 
 .PHONY: docker/build/server
 docker/build/server:
