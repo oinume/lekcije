@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -10,19 +11,44 @@ import (
 )
 
 func TestNewTeachersFromIDOrURL(t *testing.T) {
-	a := assert.New(t)
-	r := require.New(t)
-	teachers, err := NewTeachersFromIDsOrURL("1,2")
-	r.Nil(err)
-	a.Equal(2, len(teachers))
+	tests := map[string]struct {
+		ids       string
+		err       error
+		nTeachers int
+	}{
+		"normal": {
+			ids:       "1,2",
+			err:       nil,
+			nTeachers: 2,
+		},
+		"trailing_comma": {
+			ids:       "1,2,3,",
+			err:       nil,
+			nTeachers: 3,
+		},
+		"empty": {
+			ids:       "",
+			err:       fmt.Errorf("code.InvalidArgument: Failed to parse idsOrURL: "),
+			nTeachers: 0,
+		},
+	}
 
-	teachers2, err := NewTeachersFromIDsOrURL("1,2,3,")
-	r.Nil(err)
-	a.Equal(3, len(teachers2))
-
-	teachers3, err := NewTeachersFromIDsOrURL("")
-	r.Error(err)
-	a.Equal(0, len(teachers3))
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			teachers, err := NewTeachersFromIDsOrURL(test.ids)
+			if test.err == nil && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if test.err != nil {
+				if got, want := err.Error(), test.err.Error(); got != want {
+					t.Fatalf("unexpected error: got=%q, want=%q", got, want)
+				}
+			}
+			if got, want := len(teachers), test.nTeachers; got != want {
+				t.Errorf("unexpected teachers length: got=%v, want=%v", got, want)
+			}
+		})
+	}
 }
 
 func TestTeacherService_CreateOrUpdate(t *testing.T) {
