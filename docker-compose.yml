@@ -1,22 +1,19 @@
-version: "2"
+version: "3.3"
 services:
-  mysql_data:
-    image: busybox
-    volumes:
-      - "./db:/tmp/db"
-      - "./volume/mysql/etc/mysql:/etc/mysql"
-      #- "./volume/mysql/var/lib/mysql:/var/lib/mysql"
-    container_name: lekcije_mysql_data
-
   mysql:
     image: "mysql:5.7"
-    command: "mysqld --init-file=/tmp/db/create_database.sql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: "lekcije"
+      MYSQL_USER: "lekcije"
+      MYSQL_PASSWORD: "lekcije"
+      MYSQL_ROOT_PASSWORD: "root"
     ports:
       - "13306:3306"
-    volumes_from:
-      - mysql_data
-    environment:
-      MYSQL_ROOT_PASSWORD: "root"
+    volumes:
+      - "./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
+      - "./volume/mysql/etc/mysql:/etc/mysql"
+#      - ./log/mysql:/var/log/mysql
 
   redis:
     image: "redis:3.2-alpine"
