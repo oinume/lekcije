@@ -36,6 +36,7 @@ type Vars struct {
 	RollbarAccessToken        string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
 	VersionHash               string `envconfig:"VERSION_HASH"`
 	DebugSQL                  bool   `envconfig:"DEBUG_SQL"`
+	ZipkinReporterURL         string `envconfig:"ZIPKIN_REPORTER_URL"`
 	LocalLocation             *time.Location
 }
 
