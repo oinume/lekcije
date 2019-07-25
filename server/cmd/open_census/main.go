@@ -22,7 +22,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create the local zipkinEndpoint: %v", err)
 	}
-	reporter := zipkinHTTP.NewReporter(os.Getenv("ZIPKIN_REPORTER_URL"))
+	reporterURL := os.Getenv("ZIPKIN_REPORTER_URL")
+	//	fmt.Printf("reporterURL = %+v\n", reporterURL)
+	reporter := zipkinHTTP.NewReporter(reporterURL)
 	ze := zipkin.NewExporter(reporter, localEndpoint)
 	trace.RegisterExporter(ze)
 
