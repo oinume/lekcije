@@ -42,11 +42,11 @@ func main() {
 		log.Fatalf("Can't specify same port for a server.")
 	}
 
-	exporter, flusher, err := open_census.NewExporter(config.DefaultVars, serviceName)
+	exporter, flush, err := open_census.NewExporter(config.DefaultVars, serviceName)
 	if err != nil {
 		log.Fatalf("NewExporter failed: %v", err)
 	}
-	defer flusher()
+	defer flush()
 	trace.RegisterExporter(exporter)
 
 	if config.DefaultVars.EnableStackdriverProfiler {

@@ -1,8 +1,11 @@
 package notifier
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -14,9 +17,11 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/open_census"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/profile"
+	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
 )
@@ -66,12 +71,26 @@ func (m *Main) Run() error {
 		)
 	}()
 
+	const serviceName = "notifier"
+	exporter, flush, err := open_census.NewExporter(config.DefaultVars, serviceName)
+	if err != nil {
+		log.Fatalf("NewExporter failed: %v", err)
+	}
+	defer flush()
+	trace.RegisterExporter(exporter)
+
+	_, span := trace.StartSpan(context.Background(), "main")
+	defer span.End()
 	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 	sw.Mark("model.OpenDB")
+
+	//for i := 0; i < 5; i++ {
+	//	doWork(ctx)
+	//}
 
 	if *m.NotificationInterval == 0 {
 		return fmt.Errorf("-notification-interval is required")
@@ -124,4 +143,30 @@ func newStorageClient() (*storage.Client, error) {
 		os.Remove(f.Name())
 	}()
 	return storage.NewClient(context.Background(), option.WithCredentialsFile(f.Name()))
+}
+
+func doWork(ctx context.Context) {
+	// 4. Start a child span. This will be a child span because we've passed
+	// the parent span's ctx.
+	_, span := trace.StartSpan(ctx, "doWork")
+	// 5a. Make the span close at the end of this function.
+	defer span.End()
+
+	fmt.Println("doing busy work")
+	time.Sleep(80 * time.Millisecond)
+	buf := bytes.NewBuffer([]byte{0xFF, 0x00, 0x00, 0x00})
+	num, err := binary.ReadVarint(buf)
+	if err != nil {
+		// 6. Set status upon error
+		span.SetStatus(trace.Status{
+			Code:    trace.StatusCodeUnknown,
+			Message: err.Error(),
+		})
+	}
+
+	// 7. Annotate our span to capture metadata about our operation
+	span.Annotate([]trace.Attribute{
+		trace.Int64Attribute("bytes to int", num),
+	}, "Invoking doWork")
+	time.Sleep(20 * time.Millisecond)
 }

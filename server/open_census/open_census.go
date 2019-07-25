@@ -43,10 +43,12 @@ func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, err
 		}
 		reporter := zipkin_http.NewReporter(c.ZipkinReporterURL)
 		ze := zipkin.NewExporter(reporter, localEndpoint)
-		//trace.RegisterExporter(ze) // TODO: outside function
+		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
 		exporter = ze
-		flush = func() {}
+		flush = func() {
+			_ = reporter.Close()
+		}
 	}
 
 	return exporter, flush, nil
