@@ -6,27 +6,21 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"contrib.go.opencensus.io/exporter/zipkin"
+	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/open_census"
 	"go.opencensus.io/trace"
-
-	openzipkin "github.com/openzipkin/zipkin-go"
-	zipkinHTTP "github.com/openzipkin/zipkin-go/reporter/http"
 )
 
 func main() {
-	// 1. Configure exporter to export traces to Zipkin.
-	localEndpoint, err := openzipkin.NewEndpoint("go-quickstart", "192.168.1.5:5454")
+	config.MustProcessDefault()
+	exporter, flush, err := open_census.NewExporter(config.DefaultVars, "go-quickstart")
 	if err != nil {
-		log.Fatalf("Failed to create the local zipkinEndpoint: %v", err)
+		log.Fatalf("NewExporter failed: %v", err)
 	}
-	reporterURL := os.Getenv("ZIPKIN_REPORTER_URL")
-	//	fmt.Printf("reporterURL = %+v\n", reporterURL)
-	reporter := zipkinHTTP.NewReporter(reporterURL)
-	ze := zipkin.NewExporter(reporter, localEndpoint)
-	trace.RegisterExporter(ze)
+	defer flush()
+	trace.RegisterExporter(exporter)
 
 	// 2. Configure 100% sample rate, otherwise, few traces will be sampled.
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})

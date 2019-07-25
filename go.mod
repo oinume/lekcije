@@ -6,7 +6,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.43.0
-	contrib.go.opencensus.io/exporter/stackdriver v0.12.4 // indirect
+	contrib.go.opencensus.io/exporter/stackdriver v0.12.4
 	contrib.go.opencensus.io/exporter/zipkin v0.1.1
 	github.com/Songmu/retry v0.0.0-20170110085223-3d913ef13826
 	github.com/aws/aws-sdk-go v1.21.4 // indirect

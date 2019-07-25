@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
-
 	"contrib.go.opencensus.io/exporter/zipkin"
 	"github.com/oinume/lekcije/server/config"
 	open_zipkin "github.com/openzipkin/zipkin-go"
@@ -13,11 +12,15 @@ import (
 	"go.opencensus.io/trace"
 )
 
-func NewExporter(c *config.Vars, service string) (trace.Exporter, error) {
+type FlushFunc func()
+
+func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, error) {
 	var exporter trace.Exporter
+	var flush FlushFunc
+
 	if c.ZipkinReporterURL == "" {
 		if c.GCPProjectID == "" {
-			return nil, fmt.Errorf("no exporter configuration")
+			return nil, func() {}, fmt.Errorf("no exporter configuration")
 		}
 
 		sd, err := stackdriver.NewExporter(stackdriver.Options{
@@ -28,27 +31,23 @@ func NewExporter(c *config.Vars, service string) (trace.Exporter, error) {
 		if err != nil {
 			log.Fatalf("Failed to create the Stackdriver exporter: %v", err)
 		}
-		// It is imperative to invoke flush before your main function exits
-		defer sd.Flush() // TODO: outside function
 
-		// Register it as a trace exporter
-		trace.RegisterExporter(sd) // TODO: outside function
 		exporter = sd
+		// It is imperative to invoke flush before your main function exits
+		flush = sd.Flush
 	} else {
 		// 1. Configure exporter to export traces to Zipkin.
 		localEndpoint, err := open_zipkin.NewEndpoint(service, "192.168.1.5:5454")
 		if err != nil {
-			return nil, err
+			return nil, func() {}, err
 		}
 		reporter := zipkin_http.NewReporter(c.ZipkinReporterURL)
 		ze := zipkin.NewExporter(reporter, localEndpoint)
-		trace.RegisterExporter(ze) // TODO: outside function
-
-		// 2. Configure 100% sample rate, otherwise, few traces will be sampled.
-		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+		//trace.RegisterExporter(ze) // TODO: outside function
 
 		exporter = ze
+		flush = func() {}
 	}
 
-	return exporter, nil
+	return exporter, flush, nil
 }
