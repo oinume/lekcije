@@ -6,8 +6,9 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"time"
+
+	"github.com/oinume/lekcije/server/gcp"
 
 	"go.opencensus.io/trace"
 
@@ -23,8 +24,6 @@ import (
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
-	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -42,7 +41,11 @@ func main() {
 		log.Fatalf("Can't specify same port for a server.")
 	}
 
-	exporter, flush, err := open_census.NewExporter(config.DefaultVars, serviceName)
+	exporter, flush, err := open_census.NewExporter(
+		config.DefaultVars,
+		serviceName,
+		!config.DefaultVars.IsProductionEnv(),
+	)
 	if err != nil {
 		log.Fatalf("NewExporter failed: %v", err)
 	}
@@ -50,20 +53,19 @@ func main() {
 	trace.RegisterExporter(exporter)
 
 	if config.DefaultVars.EnableStackdriverProfiler {
-		// TODO: Move to gcp package
-		f, err := util.GenerateTempFileFromBase64String("", "gcp-", config.DefaultVars.GCPServiceAccountKey)
+		credential, cleaner, err := gcp.WithCredentialsFileFromBase64String(config.DefaultVars.GCPServiceAccountKey)
 		if err != nil {
-			log.Fatalf("Failed to generate temp file: %v", err)
+			log.Fatalf("WithCredentialsFileFromBase64String failed: %v", err)
 		}
-		defer func() {
-			os.Remove(f.Name())
-		}()
+		defer cleaner()
+
+		// TODO: Move to gcp package
 		if err := profiler.Start(profiler.Config{
 			ProjectID:      config.DefaultVars.GCPProjectID,
 			Service:        serviceName,
 			ServiceVersion: "1.0.0", // TODO: release version?
 			DebugLogging:   false,
-		}, option.WithCredentialsFile(f.Name())); err != nil {
+		}, credential); err != nil {
 			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 		}
 	}

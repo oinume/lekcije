@@ -15,7 +15,11 @@ import (
 
 func main() {
 	config.MustProcessDefault()
-	exporter, flush, err := open_census.NewExporter(config.DefaultVars, "go-quickstart")
+	exporter, flush, err := open_census.NewExporter(
+		config.DefaultVars,
+		"go-quickstart",
+		true,
+	)
 	if err != nil {
 		log.Fatalf("NewExporter failed: %v", err)
 	}
