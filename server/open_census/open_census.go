@@ -7,27 +7,33 @@ import (
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"contrib.go.opencensus.io/exporter/zipkin"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/gcp"
 	open_zipkin "github.com/openzipkin/zipkin-go"
 	zipkin_http "github.com/openzipkin/zipkin-go/reporter/http"
 	"go.opencensus.io/trace"
+	"google.golang.org/api/option"
 )
 
 type FlushFunc func()
 
-func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, error) {
+func NewExporter(c *config.Vars, service string, alwaysSample bool) (trace.Exporter, FlushFunc, error) {
 	var exporter trace.Exporter
 	var flush FlushFunc
 
 	if c.ZipkinReporterURL == "" {
 		if c.GCPProjectID == "" {
-			return nil, func() {}, fmt.Errorf("no exporter configuration")
+			return nil, nil, fmt.Errorf("no exporter configuration")
 		}
-
+		credential, cleaner, err := gcp.WithCredentialsFileFromBase64String(c.GCPServiceAccountKey)
+		if err != nil {
+			return nil, nil, err
+		}
+		defer cleaner()
 		e, err := stackdriver.NewExporter(stackdriver.Options{
 			ProjectID: c.GCPProjectID,
 			// MetricPrefix helps uniquely identify your metrics.
 			MetricPrefix:       service,
-			TraceClientOptions: nil, // TODO: Set credential
+			TraceClientOptions: []option.ClientOption{credential},
 		})
 		if err != nil {
 			log.Fatalf("Failed to create the Stackdriver exporter: %v", err)
@@ -36,7 +42,11 @@ func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, err
 		exporter = e
 		// It is imperative to invoke flush before your main function exits
 		flush = e.Flush
-		trace.ApplyConfig(trace.Config{DefaultSampler: trace.ProbabilitySampler(0.1)})
+		if alwaysSample {
+			trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+		} else {
+			trace.ApplyConfig(trace.Config{DefaultSampler: trace.ProbabilitySampler(0.1)})
+		}
 	} else {
 		// 1. Configure exporter to export traces to Zipkin.
 		localEndpoint, err := open_zipkin.NewEndpoint(service, "192.168.1.5:5454")

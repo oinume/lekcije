@@ -70,7 +70,11 @@ func (m *Main) Run() error {
 	}()
 
 	const serviceName = "notifier"
-	exporter, flush, err := open_census.NewExporter(config.DefaultVars, serviceName)
+	exporter, flush, err := open_census.NewExporter(
+		config.DefaultVars,
+		serviceName,
+		!config.DefaultVars.IsProductionEnv(),
+	)
 	if err != nil {
 		log.Fatalf("NewExporter failed: %v", err)
 	}
