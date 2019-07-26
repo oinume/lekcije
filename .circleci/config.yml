@@ -54,6 +54,8 @@ jobs:
       - image: golang:1.12-stretch
         environment:
           <<: *env
+          ENABLE_TRACE: "false"
+          GO111MODULE: "on"
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_USER: "root"
           MYSQL_PASSWORD: "lekcije"
@@ -65,7 +67,6 @@ jobs:
           VERSION_HASH: "_version_"
           NODE_ENV: "test"
           LEKCIJE_ENV: "test"
-          GO111MODULE: "on"
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true

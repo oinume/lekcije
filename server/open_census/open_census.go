@@ -16,10 +16,17 @@ import (
 
 type FlushFunc func()
 
+type nopExporter struct{}
+
+func (e *nopExporter) ExportSpan(s *trace.SpanData) {}
+
 func NewExporter(c *config.Vars, service string, alwaysSample bool) (trace.Exporter, FlushFunc, error) {
+	if !c.EnableTrace {
+		return &nopExporter{}, func() {}, nil
+	}
+
 	var exporter trace.Exporter
 	var flush FlushFunc
-
 	if c.ZipkinReporterURL == "" {
 		if c.GCPProjectID == "" {
 			return nil, nil, fmt.Errorf("no exporter configuration")
