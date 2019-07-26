@@ -23,7 +23,7 @@ func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, err
 			return nil, func() {}, fmt.Errorf("no exporter configuration")
 		}
 
-		sd, err := stackdriver.NewExporter(stackdriver.Options{
+		e, err := stackdriver.NewExporter(stackdriver.Options{
 			ProjectID: c.GCPProjectID,
 			// MetricPrefix helps uniquely identify your metrics.
 			MetricPrefix: service,
@@ -32,9 +32,10 @@ func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, err
 			log.Fatalf("Failed to create the Stackdriver exporter: %v", err)
 		}
 
-		exporter = sd
+		exporter = e
 		// It is imperative to invoke flush before your main function exits
-		flush = sd.Flush
+		flush = e.Flush
+		trace.ApplyConfig(trace.Config{DefaultSampler: trace.ProbabilitySampler(0.1)})
 	} else {
 		// 1. Configure exporter to export traces to Zipkin.
 		localEndpoint, err := open_zipkin.NewEndpoint(service, "192.168.1.5:5454")
@@ -42,13 +43,12 @@ func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, err
 			return nil, func() {}, err
 		}
 		reporter := zipkin_http.NewReporter(c.ZipkinReporterURL)
-		ze := zipkin.NewExporter(reporter, localEndpoint)
-		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
-
-		exporter = ze
+		e := zipkin.NewExporter(reporter, localEndpoint)
+		exporter = e
 		flush = func() {
 			_ = reporter.Close()
 		}
+		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 	}
 
 	return exporter, flush, nil
