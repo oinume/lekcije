@@ -28,5 +28,5 @@ deploy.sh
 .venv
 .ipynb_checkpoints
 /*.pid
-bin/lekcije_*
+bin/lekcije*
 

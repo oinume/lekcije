@@ -1,6 +1,7 @@
 package emailer
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	"go.opencensus.io/trace"
 )
 
 const (
@@ -19,7 +21,7 @@ const (
 )
 
 type Sender interface {
-	Send(email *Email) error
+	Send(ctx context.Context, email *Email) error
 }
 
 type SendGridSender struct {
@@ -38,7 +40,10 @@ func NewSendGridSender(httpClient *http.Client) Sender {
 	}
 }
 
-func (s *SendGridSender) Send(email *Email) error {
+func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
+	_, span := trace.StartSpan(ctx, "SendGridSender.Send")
+	defer span.End()
+
 	from := mail.NewEmail(email.From.Name, email.From.Address)
 	content := mail.NewContent("text/html", strings.Replace(email.BodyString(), "\n", "<br>", -1))
 	tos := make([]*mail.Email, len(email.Tos))
@@ -85,6 +90,8 @@ func (s *SendGridSender) Send(email *Email) error {
 
 type NoSender struct{}
 
-func (s *NoSender) Send(email *Email) error {
+var _ Sender = (*NoSender)(nil)
+
+func (s *NoSender) Send(ctx context.Context, email *Email) error {
 	return nil
 }

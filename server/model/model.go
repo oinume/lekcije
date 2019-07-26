@@ -26,15 +26,16 @@ func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 		"mysql",
 		dsn+"?charset=utf8mb4&parseTime=true&loc=UTC",
 	)
-	db.SetMaxOpenConns(maxConnections)
-	db.SetMaxIdleConns(maxConnections)
-	db.SetConnMaxLifetime(30 * time.Second)
 	if err != nil {
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to sql.Open()"),
 		)
 	}
+
+	db.SetMaxOpenConns(maxConnections)
+	db.SetMaxIdleConns(maxConnections)
+	db.SetConnMaxLifetime(30 * time.Second)
 
 	gormDB, err := gorm.Open("mysql", db)
 	if err != nil {

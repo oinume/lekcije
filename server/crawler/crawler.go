@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -30,6 +31,7 @@ func (m *Main) Run() error {
 		return fmt.Errorf("can't specify -followed and -ids flags both")
 	}
 
+	ctx := context.Background()
 	startedAt := time.Now().UTC()
 	//if *m.LogLevel != "" {
 	//	//logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
@@ -47,13 +49,13 @@ func (m *Main) Run() error {
 	defer db.Close()
 
 	mCountryService := model.NewMCountryService(db)
-	mCountries, err := mCountryService.LoadAll()
+	mCountries, err := mCountryService.LoadAll(ctx)
 	if err != nil {
 		return err
 	}
 
 	loader := m.createLoader(db)
-	fetcher := fetcher.NewLessonFetcher(nil, *m.Concurrency, false, mCountries, logger.App)
+	lessonFetcher := fetcher.NewLessonFetcher(nil, *m.Concurrency, false, mCountries, logger.App)
 	teacherService := model.NewTeacherService(db)
 	for cursor := loader.GetInitialCursor(); cursor != ""; {
 		var teacherIDs []uint32
@@ -68,7 +70,7 @@ func (m *Main) Run() error {
 		for _, id := range teacherIDs {
 			id := id
 			g.Go(func() error {
-				teacher, _, err := fetcher.Fetch(id)
+				teacher, _, err := lessonFetcher.Fetch(ctx, id)
 				if err != nil {
 					if *m.ContinueOnError {
 						logger.App.Error("Error during LessonFetcher.Fetch", zap.Error(err))

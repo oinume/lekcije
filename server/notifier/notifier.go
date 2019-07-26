@@ -19,6 +19,7 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
+	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 )
 
@@ -115,12 +116,15 @@ func NewNotifier(
 	}
 }
 
-func (n *Notifier) SendNotification(user *model.User) error {
+func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	n.lessonService = model.NewLessonService(n.db)
 	const maxFetchErrorCount = 5
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
-		user.ID, maxFetchErrorCount, time.Now().Add(-1*60*24*time.Hour), /* 2 months */
+		ctx,
+		user.ID,
+		maxFetchErrorCount,
+		time.Now().Add(-1*60*24*time.Hour), /* 2 months */
 	)
 	if err != nil {
 		return errors.NewInternalError(
@@ -145,7 +149,7 @@ func (n *Notifier) SendNotification(user *model.User) error {
 		go func(teacherID uint32) {
 			//defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
 			defer wg.Done()
-			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(teacherID)
+			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(ctx, teacherID)
 			if err != nil {
 				if errors.IsNotFound(err) {
 					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
@@ -181,13 +185,13 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	wg.Wait()
 
 	notificationTimeSpanService := model.NewNotificationTimeSpanService(n.db)
-	timeSpans, err := notificationTimeSpanService.FindByUserID(user.ID)
+	timeSpans, err := notificationTimeSpanService.FindByUserID(ctx, user.ID)
 	if err != nil {
 		return err
 	}
 	n.stopwatch.Mark(fmt.Sprintf("notificationTimeSpanService.FindByUserID:%d", user.ID))
 	filteredAvailable := availableTeachersAndLessons.FilterBy(model.NotificationTimeSpanList(timeSpans))
-	if err := n.sendNotificationToUser(user, filteredAvailable); err != nil {
+	if err := n.sendNotificationToUser(ctx, user, filteredAvailable); err != nil {
 		return err
 	}
 
@@ -198,12 +202,18 @@ func (n *Notifier) SendNotification(user *model.User) error {
 }
 
 // Returns teacher, fetchedLessons, newAvailableLessons, error
-func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
+func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teacherID uint32) (
 	*model.TeacherLessons,
 	*model.TeacherLessons,
 	error,
 ) {
-	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
+	_, span := trace.StartSpan(ctx, "Notifier.fetchAndExtractNewAvailableLessons")
+	defer span.End()
+	span.Annotatef([]trace.Attribute{
+		trace.Int64Attribute("teacherID", int64(teacherID)),
+	}, "teacherID:%d", teacherID)
+
+	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, teacherID)
 	if err != nil {
 		n.stopwatch.Mark(fmt.Sprintf("fetcher.Fetch(error):%d", teacherID))
 		return nil, nil, err
@@ -223,7 +233,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	now := time.Now().In(config.LocalLocation())
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalLocation())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.ID, fromDate, toDate)
+	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, teacher.ID, fromDate, toDate)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -233,7 +243,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	newAvailableLessons := n.lessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
+	newAvailableLessons := n.lessonService.GetNewAvailableLessons(ctx, lastFetchedLessons, fetchedLessons)
 	n.stopwatch.Mark(fmt.Sprintf("lessonService.GetNewAvailableLessons:%d", teacherID))
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
@@ -242,13 +252,16 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 	return model.NewTeacherLessons(teacher, fetchedLessons),
 		model.NewTeacherLessons(teacher, newAvailableLessons),
 		nil
-	//return teacher, fetchedLessons, newAvailableLessons, nil
 }
 
 func (n *Notifier) sendNotificationToUser(
+	ctx context.Context,
 	user *model.User,
 	lessonsPerTeacher *teachersAndLessons,
 ) error {
+	_, span := trace.StartSpan(ctx, "Notifier.sendNotificationToUser")
+	defer span.End()
+
 	lessonsCount := 0
 	var teacherIDs []int
 	for teacherID, l := range lessonsPerTeacher.data {
@@ -303,7 +316,7 @@ func (n *Notifier) sendNotificationToUser(
 	go func(email *emailer.Email) {
 		defer n.senderWaitGroup.Done()
 		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
-		if err := n.sender.Send(email); err != nil {
+		if err := n.sender.Send(ctx, email); err != nil {
 			logger.App.Error(
 				"Failed to sendNotificationToUser",
 				zap.String("email", user.Email), zap.Error(err),

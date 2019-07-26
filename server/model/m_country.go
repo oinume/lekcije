@@ -7,6 +7,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
+	"go.opencensus.io/trace"
+	"golang.org/x/net/context"
 )
 
 type MCountry struct {
@@ -31,7 +33,9 @@ func NewMCountryService(db *gorm.DB) *MCountryService {
 	return &MCountryService{db: db}
 }
 
-func (s *MCountryService) LoadAll() (*MCountries, error) {
+func (s *MCountryService) LoadAll(ctx context.Context) (*MCountries, error) {
+	_, span := trace.StartSpan(ctx, "MCountryService.LoadAll")
+	defer span.End()
 	values := make([]*MCountry, 0, 1000)
 	sql := `SELECT * FROM m_country ORDER BY name`
 	if err := s.db.Raw(sql).Scan(&values).Error; err != nil {

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -121,7 +122,7 @@ func (h *TestHelper) CreateRandomTeacher() *Teacher {
 func (h *TestHelper) LoadMCountries() *MCountries {
 	db := h.DB()
 	// TODO: cache
-	mCountries, err := NewMCountryService(db).LoadAll()
+	mCountries, err := NewMCountryService(db).LoadAll(context.Background())
 	if err != nil {
 		panic(fmt.Sprintf("Failed to MCountryService.LoadAll(): err=%v", err))
 	}

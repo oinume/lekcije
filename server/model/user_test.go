@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -32,7 +33,7 @@ func TestUserService_FindAllEmailVerifiedIsTrue(t *testing.T) {
 	teacher := helper.CreateRandomTeacher()
 	_ = helper.CreateFollowingTeacher(user.ID, teacher)
 
-	users, err := userService.FindAllEmailVerifiedIsTrue(10)
+	users, err := userService.FindAllEmailVerifiedIsTrue(context.Background(), 10)
 	r.NoError(err)
 	a.Equal(1, len(users))
 	a.Equal(user.ID, users[0].ID)

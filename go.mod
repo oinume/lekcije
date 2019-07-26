@@ -6,8 +6,10 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.43.0
+	contrib.go.opencensus.io/exporter/stackdriver v0.12.4
+	contrib.go.opencensus.io/exporter/zipkin v0.1.1
 	github.com/Songmu/retry v0.0.0-20170110085223-3d913ef13826
-	github.com/apache/thrift v0.12.0 // indirect
+	github.com/aws/aws-sdk-go v1.21.4 // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20190412130859-3b1d194e553a // indirect
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/fukata/golang-stats-api-handler v1.0.0
@@ -16,6 +18,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/google/pprof v0.0.0-20190723021845-34ac40c74b70 // indirect
 	github.com/google/uuid v0.0.0-20171129191014-dec09d789f3d
+	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v0.0.0-20180108155640-d0c54e68681e
 	github.com/grpc-ecosystem/grpc-gateway v1.5.0
 	github.com/jinzhu/gorm v0.0.0-20180210142528-85774eb9dab4
@@ -29,16 +32,17 @@ require (
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
-	github.com/openzipkin/zipkin-go v0.1.6 // indirect
+	github.com/openzipkin/zipkin-go v0.2.0
 	github.com/pkg/errors v0.8.0
-	github.com/pkg/profile v1.2.0
-	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829 // indirect
+	github.com/pkg/profile v1.2.1
 	github.com/rs/cors v1.3.0
 	github.com/sclevine/agouti v0.0.0-20171003013254-8cf0313221cb
 	github.com/sendgrid/rest v2.4.0+incompatible
 	github.com/sendgrid/sendgrid-go v3.4.1+incompatible
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.3.0
 	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
+	go.opencensus.io v0.22.0
 	go.uber.org/atomic v1.3.1 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.7.1
@@ -50,7 +54,6 @@ require (
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7 // indirect
 	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20190724185037-8aa4eac1a7c1 // indirect
 	google.golang.org/api v0.7.0

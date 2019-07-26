@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"testing"
 
 	"time"
@@ -42,7 +43,12 @@ func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 		user, teacher, err := followTeacher()
 		r.NoError(err)
 
-		teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5, defaultLastLessonAt)
+		teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
+			context.Background(),
+			user.ID,
+			5,
+			defaultLastLessonAt,
+		)
 		r.NoError(err)
 		a.Equal(1, len(teacherIDs))
 		a.Equal(teacher.ID, teacherIDs[0])
@@ -54,7 +60,12 @@ func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 
 		err = teacherService.IncrementFetchErrorCount(teacher.ID, 6)
 		r.NoError(err)
-		teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5, defaultLastLessonAt)
+		teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
+			context.Background(),
+			user.ID,
+			5,
+			defaultLastLessonAt,
+		)
 		r.NoError(err)
 		a.Equal(0, len(teacherIDs))
 	})
@@ -66,7 +77,12 @@ func TestFollowingTeacherService_FindTeacherIDsByUserID(t *testing.T) {
 		teacher.LastLessonAt = time.Now().Add(-1 * 3 * 24 * time.Hour)
 		err = teacherService.CreateOrUpdate(teacher)
 		r.NoError(err)
-		teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(user.ID, 5, time.Now())
+		teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
+			context.Background(),
+			user.ID,
+			5,
+			time.Now(),
+		)
 		r.NoError(err)
 		a.Equal(0, len(teacherIDs))
 	})

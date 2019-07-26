@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -19,6 +20,7 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/text/width"
@@ -98,7 +100,9 @@ func NewLessonFetcher(
 	}
 }
 
-func (fetcher *LessonFetcher) Fetch(teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
+func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
+	_, span := trace.StartSpan(ctx, "LessonFetcher.Fetch")
+	defer span.End()
 	fetcher.semaphore <- struct{}{}
 	defer func() {
 		<-fetcher.semaphore

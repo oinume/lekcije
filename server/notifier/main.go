@@ -3,6 +3,7 @@ package notifier
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -14,9 +15,11 @@ import (
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/open_census"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
 	"github.com/pkg/profile"
+	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
 )
@@ -66,6 +69,20 @@ func (m *Main) Run() error {
 		)
 	}()
 
+	const serviceName = "notifier"
+	exporter, flush, err := open_census.NewExporter(
+		config.DefaultVars,
+		serviceName,
+		!config.DefaultVars.IsProductionEnv(),
+	)
+	if err != nil {
+		log.Fatalf("NewExporter failed: %v", err)
+	}
+	defer flush()
+	trace.RegisterExporter(exporter)
+
+	ctx, span := trace.StartSpan(context.Background(), "main")
+	defer span.End()
 	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		return err
@@ -76,15 +93,15 @@ func (m *Main) Run() error {
 	if *m.NotificationInterval == 0 {
 		return fmt.Errorf("-notification-interval is required")
 	}
-	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue(*m.NotificationInterval)
+	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue(ctx, *m.NotificationInterval)
 	if err != nil {
 		return err
 	}
-	mCountries, err := model.NewMCountryService(db).LoadAll()
+	mCountries, err := model.NewMCountryService(db).LoadAll(ctx)
 	if err != nil {
 		return err
 	}
-	fetcher := fetcher.NewLessonFetcher(nil, *m.Concurrency, *m.FetcherCache, mCountries, logger.App)
+	lessonFetcher := fetcher.NewLessonFetcher(nil, *m.Concurrency, *m.FetcherCache, mCountries, logger.App)
 
 	var sender emailer.Sender
 	if *m.SendEmail {
@@ -100,10 +117,10 @@ func (m *Main) Run() error {
 		UserCount:            uint32(len(users)),
 		FollowedTeacherCount: 0,
 	}
-	n := NewNotifier(db, fetcher, *m.DryRun, sender, sw, storageClient)
+	n := NewNotifier(db, lessonFetcher, *m.DryRun, sender, sw, storageClient)
 	defer n.Close(statNotifier)
 	for _, user := range users {
-		if err := n.SendNotification(user); err != nil {
+		if err := n.SendNotification(ctx, user); err != nil {
 			return err
 		}
 	}

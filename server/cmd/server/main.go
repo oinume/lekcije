@@ -6,12 +6,17 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"time"
+
+	"github.com/oinume/lekcije/server/gcp"
+
+	"go.opencensus.io/trace"
+
+	"github.com/oinume/lekcije/server/open_census"
 
 	"cloud.google.com/go/profiler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_grpc "github.com/oinume/lekcije/server/interfaces/grpc"
@@ -19,13 +24,14 @@ import (
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
-	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-const maxDBConnections = 10
+const (
+	maxDBConnections = 10
+	serviceName      = "lekcije"
+)
 
 func main() {
 	config.MustProcessDefault()
@@ -35,21 +41,31 @@ func main() {
 		log.Fatalf("Can't specify same port for a server.")
 	}
 
+	exporter, flush, err := open_census.NewExporter(
+		config.DefaultVars,
+		serviceName,
+		!config.DefaultVars.IsProductionEnv(),
+	)
+	if err != nil {
+		log.Fatalf("NewExporter failed: %v", err)
+	}
+	defer flush()
+	trace.RegisterExporter(exporter)
+
 	if config.DefaultVars.EnableStackdriverProfiler {
-		// TODO: Move to gcp package
-		f, err := util.GenerateTempFileFromBase64String("", "gcp-", config.DefaultVars.GCPServiceAccountKey)
+		credential, cleaner, err := gcp.WithCredentialsFileFromBase64String(config.DefaultVars.GCPServiceAccountKey)
 		if err != nil {
-			log.Fatalf("Failed to generate temp file: %v", err)
+			log.Fatalf("WithCredentialsFileFromBase64String failed: %v", err)
 		}
-		defer func() {
-			os.Remove(f.Name())
-		}()
+		defer cleaner()
+
+		// TODO: Move to gcp package
 		if err := profiler.Start(profiler.Config{
 			ProjectID:      config.DefaultVars.GCPProjectID,
-			Service:        "lekcije",
+			Service:        serviceName,
 			ServiceVersion: "1.0.0", // TODO: release version?
 			DebugLogging:   false,
-		}, option.WithCredentialsFile(f.Name())); err != nil {
+		}, credential); err != nil {
 			log.Fatalf("Stackdriver profiler.Start failed: %v", err)
 		}
 	}

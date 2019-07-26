@@ -3,13 +3,13 @@ services:
   mysql:
     image: "mysql:5.7"
     restart: always
+    ports:
+      - "13306:3306"
     environment:
       MYSQL_DATABASE: "lekcije"
       MYSQL_USER: "lekcije"
       MYSQL_PASSWORD: "lekcije"
       MYSQL_ROOT_PASSWORD: "root"
-    ports:
-      - "13306:3306"
     volumes:
       - "./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
       - "./volume/mysql/etc/mysql:/etc/mysql"
@@ -19,3 +19,25 @@ services:
     image: "redis:3.2-alpine"
     ports:
       - "16379:6379"
+
+  zipkin_storage:
+    image: openzipkin/zipkin-mysql
+    container_name: zipkin_mysql
+
+  zipkin:
+    image: "openzipkin/zipkin"
+    container_name: zipkin
+    ports:
+      - "19411:9411"
+    environment:
+      - STORAGE_TYPE=mysql
+      # Point the zipkin at the storage backend
+      - MYSQL_HOST=zipkin_mysql
+      # Uncomment to enable scribe
+      # - SCRIBE_ENABLED=true
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to enable debug logging
+      # - JAVA_OPTS=-Dlogging.level.zipkin2=DEBUG
+    depends_on:
+      - zipkin_storage

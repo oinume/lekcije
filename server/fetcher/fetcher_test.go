@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -32,7 +33,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	mCountries, err = model.NewMCountryService(db).LoadAll()
+	mCountries, err = model.NewMCountryService(db).LoadAll(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -86,7 +87,7 @@ func TestFetch(t *testing.T) {
 	transport := &errorTransport{okThreshold: 0}
 	client := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	teacher, _, err := fetcher.Fetch(3986)
+	teacher, _, err := fetcher.Fetch(context.Background(), 3986)
 	a.Nil(err)
 	a.Equal("Hena", teacher.Name)
 	a.Equal(1, transport.callCount)
@@ -106,7 +107,7 @@ func TestFetchRetry(t *testing.T) {
 	transport := &errorTransport{okThreshold: 2}
 	client := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	teacher, _, err := fetcher.Fetch(3986)
+	teacher, _, err := fetcher.Fetch(context.Background(), 3986)
 	a.Nil(err)
 	a.Equal("Hena", teacher.Name)
 	a.Equal(2, transport.callCount)
@@ -120,7 +121,7 @@ func TestFetchRedirect(t *testing.T) {
 		CheckRedirect: redirectErrorFunc,
 	}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	_, _, err := fetcher.Fetch(5982)
+	_, _, err := fetcher.Fetch(context.Background(), 5982)
 	r.Error(err)
 	a.True(errors.IsNotFound(err))
 }
@@ -151,7 +152,7 @@ func TestFetchInternalServerError(t *testing.T) {
 		},
 	}
 	fetcher := NewLessonFetcher(client, 1, false, mCountries, nil)
-	_, _, err := fetcher.Fetch(5982)
+	_, _, err := fetcher.Fetch(context.Background(), 5982)
 	a.Error(err)
 	a.Contains(err.Error(), "Unknown error in fetchContent")
 	a.Contains(err.Error(), "statusCode=500")
@@ -171,7 +172,7 @@ func TestFetchConcurrency(t *testing.T) {
 		wg.Add(1)
 		go func(teacherID int) {
 			defer wg.Done()
-			_, _, err := fetcher.Fetch(uint32(teacherID))
+			_, _, err := fetcher.Fetch(context.Background(), uint32(teacherID))
 			if err != nil {
 				fmt.Printf("err = %v\n", err)
 				return

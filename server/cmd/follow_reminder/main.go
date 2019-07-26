@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/http"
@@ -49,6 +50,7 @@ func run() error {
 	}
 	defer db.Close()
 
+	ctx := context.Background()
 	var date time.Time
 	if *targetDate == "" {
 		date = time.Now().UTC().Add(-1 * 24 * time.Hour)
@@ -82,7 +84,7 @@ func run() error {
 		mail.SetCustomArg("user_id", fmt.Sprint(user.ID))
 
 		if !*dryRun {
-			if err := sender.Send(mail); err != nil {
+			if err := sender.Send(ctx, mail); err != nil {
 				return err
 			}
 		}

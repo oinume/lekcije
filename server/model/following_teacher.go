@@ -1,13 +1,14 @@
 package model
 
 import (
-	"time"
-
+	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
+	"go.opencensus.io/trace"
 )
 
 const MaxFollowTeacherCount = 20
@@ -77,8 +78,16 @@ func (s *FollowingTeacherService) FindTeacherIDs() ([]uint32, error) {
 }
 
 func (s *FollowingTeacherService) FindTeacherIDsByUserID(
-	userID uint32, fetchErrorCount int, lastLessonAt time.Time,
+	ctx context.Context,
+	userID uint32,
+	fetchErrorCount int,
+	lastLessonAt time.Time,
 ) ([]uint32, error) {
+	_, span := trace.StartSpan(ctx, "FollowingTeacherService.FindTeacherIDsByUserID")
+	span.Annotatef([]trace.Attribute{
+		trace.Int64Attribute("userID", int64(userID)),
+	}, "userID:%d", userID)
+	defer span.End()
 	values := make([]*FollowingTeacher, 0, 1000)
 	sql := `
 	SELECT ft.teacher_id FROM following_teacher AS ft
