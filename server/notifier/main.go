@@ -87,8 +87,7 @@ func (m *Main) Run() error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-	sw.Mark("model.OpenDB")
+	defer func() { _ = db.Close() }()
 
 	if *m.NotificationInterval == 0 {
 		return fmt.Errorf("-notification-interval is required")

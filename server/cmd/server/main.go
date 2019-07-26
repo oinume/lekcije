@@ -53,11 +53,10 @@ func main() {
 	trace.RegisterExporter(exporter)
 
 	if config.DefaultVars.EnableStackdriverProfiler {
-		credential, cleaner, err := gcp.WithCredentialsFileFromBase64String(config.DefaultVars.GCPServiceAccountKey)
+		credential, err := gcp.WithCredentialsJSONFromBase64String(config.DefaultVars.GCPServiceAccountKey)
 		if err != nil {
-			log.Fatalf("WithCredentialsFileFromBase64String failed: %v", err)
+			log.Fatalf("WithCredentialsJSONFromBase64String failed: %v", err)
 		}
-		defer cleaner()
 
 		// TODO: Move to gcp package
 		if err := profiler.Start(profiler.Config{

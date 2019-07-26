@@ -132,7 +132,6 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 			errors.WithMessagef("Failed to FindTeacherIDsByUserID(): userID=%v", user.ID),
 		)
 	}
-	n.stopwatch.Mark(fmt.Sprintf("FindTeacherIDsByUserID:%d", user.ID))
 
 	if len(teacherIDs) == 0 {
 		return nil
@@ -147,7 +146,6 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
 		go func(teacherID uint32) {
-			//defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
 			defer wg.Done()
 			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(ctx, teacherID)
 			if err != nil {
@@ -189,24 +187,23 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 	if err != nil {
 		return err
 	}
-	n.stopwatch.Mark(fmt.Sprintf("notificationTimeSpanService.FindByUserID:%d", user.ID))
 	filteredAvailable := availableTeachersAndLessons.FilterBy(model.NotificationTimeSpanList(timeSpans))
 	if err := n.sendNotificationToUser(ctx, user, filteredAvailable); err != nil {
 		return err
 	}
 
+	_, span := trace.StartSpan(ctx, "Notifier.SendNotification.sleep")
 	time.Sleep(150 * time.Millisecond)
-	n.stopwatch.Mark("sleep")
+	span.End()
 
 	return nil
 }
 
 // Returns teacher, fetchedLessons, newAvailableLessons, error
-func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teacherID uint32) (
-	*model.TeacherLessons,
-	*model.TeacherLessons,
-	error,
-) {
+func (n *Notifier) fetchAndExtractNewAvailableLessons(
+	ctx context.Context,
+	teacherID uint32,
+) (*model.TeacherLessons, *model.TeacherLessons, error) {
 	_, span := trace.StartSpan(ctx, "Notifier.fetchAndExtractNewAvailableLessons")
 	defer span.End()
 	span.Annotatef([]trace.Attribute{
@@ -215,7 +212,6 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teach
 
 	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, teacherID)
 	if err != nil {
-		n.stopwatch.Mark(fmt.Sprintf("fetcher.Fetch(error):%d", teacherID))
 		return nil, nil, err
 	}
 	logger.App.Debug(
@@ -223,7 +219,6 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teach
 		zap.Uint("teacherID", uint(teacher.ID)),
 		zap.Int("lessons", len(fetchedLessons)),
 	)
-	n.stopwatch.Mark(fmt.Sprintf("fetcher.Fetch:%d", teacherID))
 
 	//fmt.Printf("fetchedLessons ---\n")
 	//for _, l := range fetchedLessons {
@@ -237,14 +232,12 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teach
 	if err != nil {
 		return nil, nil, err
 	}
-	n.stopwatch.Mark(fmt.Sprintf("lessonService.FindLessons:%d", teacherID))
 	//fmt.Printf("lastFetchedLessons ---\n")
 	//for _, l := range lastFetchedLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
 	newAvailableLessons := n.lessonService.GetNewAvailableLessons(ctx, lastFetchedLessons, fetchedLessons)
-	n.stopwatch.Mark(fmt.Sprintf("lessonService.GetNewAvailableLessons:%d", teacherID))
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
@@ -315,7 +308,6 @@ func (n *Notifier) sendNotificationToUser(
 	n.senderWaitGroup.Add(1)
 	go func(email *emailer.Email) {
 		defer n.senderWaitGroup.Done()
-		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
 		if err := n.sender.Send(ctx, email); err != nil {
 			logger.App.Error(
 				"Failed to sendNotificationToUser",
