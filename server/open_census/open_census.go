@@ -28,7 +28,7 @@ func NewExporter(c *config.Vars, service string, alwaysSample bool) (trace.Expor
 		if err != nil {
 			return nil, nil, err
 		}
-		defer cleaner()
+		//defer cleaner()
 		e, err := stackdriver.NewExporter(stackdriver.Options{
 			ProjectID: c.GCPProjectID,
 			// MetricPrefix helps uniquely identify your metrics.
@@ -41,7 +41,7 @@ func NewExporter(c *config.Vars, service string, alwaysSample bool) (trace.Expor
 
 		exporter = e
 		// It is imperative to invoke flush before your main function exits
-		flush = e.Flush
+		flush = func() { cleaner(); e.Flush() }
 		if alwaysSample {
 			trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 		} else {
