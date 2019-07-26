@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -131,7 +132,7 @@ func TestNotificationTimeSpanService_UpdateAll(t *testing.T) {
 		t.Fatalf("notificationTimeSpanService.UpdateAll failed: err=%v", err)
 	}
 
-	gotTimeSpans, err := notificationTimeSpanService.FindByUserID(user.ID)
+	gotTimeSpans, err := notificationTimeSpanService.FindByUserID(context.Background(), user.ID)
 	if err != nil {
 		t.Fatalf("notificationTimeSpanService.FindByUserID failed: err=%v", err)
 	}

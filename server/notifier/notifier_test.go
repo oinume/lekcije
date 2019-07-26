@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -162,8 +163,9 @@ func TestNotifier_SendNotification(t *testing.T) {
 		sender := emailer.NewSendGridSender(senderHTTPClient)
 		n := NewNotifier(db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
 
+		ctx := context.Background()
 		for _, user := range users {
-			if err := n.SendNotification(user); err != nil {
+			if err := n.SendNotification(ctx, user); err != nil {
 				t.Fatalf("SendNotification failed: err=%v", err)
 			}
 		}
@@ -202,7 +204,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient)
 		n := NewNotifier(db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
-		if err := n.SendNotification(user); err != nil {
+		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
 
@@ -252,7 +254,7 @@ func TestNotifier_Close(t *testing.T) {
 	helper.CreateFollowingTeacher(user.ID, teacher)
 
 	n := NewNotifier(db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
-	err = n.SendNotification(user)
+	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(&model.StatNotifier{
 		Datetime:             time.Now().UTC(),

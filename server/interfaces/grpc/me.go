@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/interfaces"
@@ -39,7 +39,7 @@ func (s *apiV1Server) GetMe(
 	}
 
 	timeSpansService := model.NewNotificationTimeSpanService(s.db)
-	timeSpans, err := timeSpansService.FindByUserID(user.ID)
+	timeSpans, err := timeSpansService.FindByUserID(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +54,8 @@ func (s *apiV1Server) GetMe(
 	}
 
 	return &api_v1.GetMeResponse{
-		UserId: int32(user.ID),
-		Email:  user.Email,
+		UserId:                int32(user.ID),
+		Email:                 user.Email,
 		NotificationTimeSpans: timeSpansPB,
 		MPlan: &api_v1.MPlan{
 			Id:   int32(mPlan.ID),

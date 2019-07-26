@@ -115,12 +115,12 @@ func NewNotifier(
 	}
 }
 
-func (n *Notifier) SendNotification(user *model.User) error {
+func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	n.lessonService = model.NewLessonService(n.db)
 	const maxFetchErrorCount = 5
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
-		user.ID, maxFetchErrorCount, time.Now().Add(-1*60*24*time.Hour), /* 2 months */
+		ctx, user.ID, maxFetchErrorCount, time.Now().Add(-1*60*24*time.Hour), /* 2 months */
 	)
 	if err != nil {
 		return errors.NewInternalError(
@@ -181,13 +181,13 @@ func (n *Notifier) SendNotification(user *model.User) error {
 	wg.Wait()
 
 	notificationTimeSpanService := model.NewNotificationTimeSpanService(n.db)
-	timeSpans, err := notificationTimeSpanService.FindByUserID(user.ID)
+	timeSpans, err := notificationTimeSpanService.FindByUserID(ctx, user.ID)
 	if err != nil {
 		return err
 	}
 	n.stopwatch.Mark(fmt.Sprintf("notificationTimeSpanService.FindByUserID:%d", user.ID))
 	filteredAvailable := availableTeachersAndLessons.FilterBy(model.NotificationTimeSpanList(timeSpans))
-	if err := n.sendNotificationToUser(user, filteredAvailable); err != nil {
+	if err := n.sendNotificationToUser(ctx, user, filteredAvailable); err != nil {
 		return err
 	}
 
@@ -246,6 +246,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
 }
 
 func (n *Notifier) sendNotificationToUser(
+	ctx context.Context,
 	user *model.User,
 	lessonsPerTeacher *teachersAndLessons,
 ) error {

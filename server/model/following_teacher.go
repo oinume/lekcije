@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"time"
 
 	"fmt"
@@ -77,7 +78,7 @@ func (s *FollowingTeacherService) FindTeacherIDs() ([]uint32, error) {
 }
 
 func (s *FollowingTeacherService) FindTeacherIDsByUserID(
-	userID uint32, fetchErrorCount int, lastLessonAt time.Time,
+	ctx context.Context, userID uint32, fetchErrorCount int, lastLessonAt time.Time,
 ) ([]uint32, error) {
 	values := make([]*FollowingTeacher, 0, 1000)
 	sql := `

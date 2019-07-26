@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -109,7 +110,7 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 }
 
 // Returns an empty slice if no users found
-func (s *UserService) FindAllEmailVerifiedIsTrue(notificationInterval int) ([]*User, error) {
+func (s *UserService) FindAllEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*User, error) {
 	var users []*User
 	sql := `
 	SELECT u.* FROM (SELECT DISTINCT(user_id) FROM following_teacher) AS ft

@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -32,7 +33,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	mCountries, err = model.NewMCountryService(db).LoadAll()
+	mCountries, err = model.NewMCountryService(db).LoadAll(context.Background())
 	if err != nil {
 		panic(err)
 	}

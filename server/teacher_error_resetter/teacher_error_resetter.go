@@ -1,6 +1,7 @@
 package teacher_error_resetter
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -37,8 +38,9 @@ func (m *Main) Run() error {
 	}
 	defer db.Close()
 
+	ctx := context.Background()
 	mCountryService := model.NewMCountryService(m.DB)
-	mCountries, err := mCountryService.LoadAll()
+	mCountries, err := mCountryService.LoadAll(ctx)
 	if err != nil {
 		return err
 	}

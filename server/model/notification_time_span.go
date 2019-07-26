@@ -1,11 +1,12 @@
 package model
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/errors"
 )
 
@@ -121,7 +122,7 @@ func (s *NotificationTimeSpanService) NewNotificationTimeSpansPB(args []*Notific
 	return values, nil
 }
 
-func (s *NotificationTimeSpanService) FindByUserID(userID uint32) ([]*NotificationTimeSpan, error) {
+func (s *NotificationTimeSpanService) FindByUserID(ctx context.Context, userID uint32) ([]*NotificationTimeSpan, error) {
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
 	timeSpans := make([]*NotificationTimeSpan, 0, 10)
 	if err := s.db.Raw(sql, userID).Scan(&timeSpans).Error; err != nil {
