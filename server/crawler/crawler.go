@@ -70,7 +70,7 @@ func (m *Main) Run() error {
 		for _, id := range teacherIDs {
 			id := id
 			g.Go(func() error {
-				teacher, _, err := lessonFetcher.Fetch(id)
+				teacher, _, err := lessonFetcher.Fetch(ctx, id)
 				if err != nil {
 					if *m.ContinueOnError {
 						logger.App.Error("Error during LessonFetcher.Fetch", zap.Error(err))

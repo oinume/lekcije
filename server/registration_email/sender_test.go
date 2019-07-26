@@ -1,6 +1,7 @@
 package registration_email
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -55,7 +56,7 @@ func TestEmailSender_Send(t *testing.T) {
 	}
 
 	sender := NewEmailSender(httpClient)
-	err := sender.Send(user)
+	err := sender.Send(context.Background(), user)
 	r.NoError(err)
 	a.Equal(1, transport.called)
 	// TODO: assert content

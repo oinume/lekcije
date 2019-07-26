@@ -1,6 +1,7 @@
 package emailer
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -52,7 +53,7 @@ oinume さん
 	email.SetCustomArg("userId", "1")
 	email.SetCustomArg("teacherIds", "1,2,3")
 	tr := &transport{}
-	err = NewSendGridSender(&http.Client{Transport: tr}).Send(email)
+	err = NewSendGridSender(&http.Client{Transport: tr}).Send(context.Background(), email)
 	r.Nil(err)
 	a.True(tr.called)
 }

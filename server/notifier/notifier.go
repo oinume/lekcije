@@ -213,7 +213,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teach
 		trace.Int64Attribute("teacherID", int64(teacherID)),
 	}, "teacherID:%d", teacherID)
 
-	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
+	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, teacherID)
 	if err != nil {
 		n.stopwatch.Mark(fmt.Sprintf("fetcher.Fetch(error):%d", teacherID))
 		return nil, nil, err
@@ -233,7 +233,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teach
 	now := time.Now().In(config.LocalLocation())
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalLocation())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := n.lessonService.FindLessons(teacher.ID, fromDate, toDate)
+	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, teacher.ID, fromDate, toDate)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -243,7 +243,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teach
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	newAvailableLessons := n.lessonService.GetNewAvailableLessons(lastFetchedLessons, fetchedLessons)
+	newAvailableLessons := n.lessonService.GetNewAvailableLessons(ctx, lastFetchedLessons, fetchedLessons)
 	n.stopwatch.Mark(fmt.Sprintf("lessonService.GetNewAvailableLessons:%d", teacherID))
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
@@ -252,7 +252,6 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teach
 	return model.NewTeacherLessons(teacher, fetchedLessons),
 		model.NewTeacherLessons(teacher, newAvailableLessons),
 		nil
-	//return teacher, fetchedLessons, newAvailableLessons, nil
 }
 
 func (n *Notifier) sendNotificationToUser(
@@ -260,6 +259,9 @@ func (n *Notifier) sendNotificationToUser(
 	user *model.User,
 	lessonsPerTeacher *teachersAndLessons,
 ) error {
+	_, span := trace.StartSpan(ctx, "Notifier.sendNotificationToUser")
+	defer span.End()
+
 	lessonsCount := 0
 	var teacherIDs []int
 	for teacherID, l := range lessonsPerTeacher.data {
@@ -314,7 +316,7 @@ func (n *Notifier) sendNotificationToUser(
 	go func(email *emailer.Email) {
 		defer n.senderWaitGroup.Done()
 		defer n.stopwatch.Mark(fmt.Sprintf("sender.Send:%d", user.ID))
-		if err := n.sender.Send(email); err != nil {
+		if err := n.sender.Send(ctx, email); err != nil {
 			logger.App.Error(
 				"Failed to sendNotificationToUser",
 				zap.String("email", user.Email), zap.Error(err),

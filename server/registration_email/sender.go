@@ -1,6 +1,7 @@
 package registration_email
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -24,7 +25,7 @@ func NewEmailSender(httpClient *http.Client) *emailSender {
 	}
 }
 
-func (s *emailSender) Send(user *model.User) error {
+func (s *emailSender) Send(ctx context.Context, user *model.User) error {
 	t := emailer.NewTemplate("notifier", getEmailTemplate())
 	data := struct {
 		To     string
@@ -43,7 +44,7 @@ func (s *emailSender) Send(user *model.User) error {
 	email.SetCustomArg("email_type", model.EmailTypeRegistration)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 
-	return s.sender.Send(email)
+	return s.sender.Send(ctx, email)
 }
 
 func getEmailTemplate() string {

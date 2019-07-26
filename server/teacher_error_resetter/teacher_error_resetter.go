@@ -53,7 +53,7 @@ func (m *Main) Run() error {
 	fetcher := fetcher.NewLessonFetcher(m.HTTPClient, *m.Concurrency, false, mCountries, logger.App)
 	defer fetcher.Close()
 	for _, t := range teachers {
-		if _, _, err := fetcher.Fetch(t.ID); err != nil {
+		if _, _, err := fetcher.Fetch(ctx, t.ID); err != nil {
 			logger.App.Error("fetcher.Fetch failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
 		}

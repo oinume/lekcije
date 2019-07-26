@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"strings"
 	"testing"
 	"time"
@@ -29,7 +30,7 @@ func TestLessonService_UpdateLessons(t *testing.T) {
 		a.Equal(1, len(logs))
 	}
 
-	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
+	foundLessons, err := lessonService.FindLessons(context.Background(), teacherID, datetime, datetime)
 	r.NoError(err)
 	a.Equal(len(lessons), len(foundLessons))
 	for i := range lessons {
@@ -55,7 +56,7 @@ func TestLessonService_UpdateLessonsOverwrite(t *testing.T) {
 	r.NoError(err)
 	a.EqualValues(1, affected)
 
-	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
+	foundLessons, err := lessonService.FindLessons(context.Background(), teacherID, datetime, datetime)
 	r.NoError(err)
 	a.Equal(strings.ToLower(foundLessons[0].Status), "reserved")
 
@@ -79,7 +80,7 @@ func TestLessonService_UpdateLessonsNoChange(t *testing.T) {
 	r.NoError(err)
 	a.EqualValues(0, affected)
 
-	foundLessons, err := lessonService.FindLessons(teacherID, datetime, datetime)
+	foundLessons, err := lessonService.FindLessons(context.Background(), teacherID, datetime, datetime)
 	r.NoError(err)
 	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
 
@@ -96,7 +97,7 @@ func TestLessonService_GetNewAvailableLessons1(t *testing.T) {
 	lessons2 := createLessons(1, datetime, "Reserved", 3)
 	lessons2[1].Status = "Available"
 	// Test GetNewAvailableLessons returns a lesson when new lesson is "Available"
-	availableLessons := lessonService.GetNewAvailableLessons(lessons1, lessons2)
+	availableLessons := lessonService.GetNewAvailableLessons(context.Background(), lessons1, lessons2)
 	a.Equal(1, len(availableLessons))
 	a.Equal(datetime.Add(1*time.Hour), availableLessons[0].Datetime)
 }
@@ -110,7 +111,7 @@ func TestLessonService_GetNewAvailableLessons2(t *testing.T) {
 	lessons1[0].Status = "Available"
 	lessons2[0].Status = "Available"
 	// Test GetNewAvailableLessons returns nothing when both lessons are "Available"
-	availableLessons := lessonService.GetNewAvailableLessons(lessons1, lessons2)
+	availableLessons := lessonService.GetNewAvailableLessons(context.Background(), lessons1, lessons2)
 	a.Equal(0, len(availableLessons))
 }
 

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/oinume/goenum"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
+	"go.opencensus.io/trace"
 )
 
 const (
@@ -173,7 +175,15 @@ WHERE
 	return ret, nil
 }
 
-func (s *LessonService) FindLessons(teacherID uint32, fromDate, toDate time.Time) ([]*Lesson, error) {
+func (s *LessonService) FindLessons(
+	ctx context.Context,
+	teacherID uint32,
+	fromDate,
+	toDate time.Time,
+) ([]*Lesson, error) {
+	_, span := trace.StartSpan(ctx, "LessonService.FindLessons")
+	defer span.End()
+
 	lessons := make([]*Lesson, 0, 1000)
 	sql := strings.TrimSpace(fmt.Sprintf(`
 SELECT * FROM %s
@@ -200,7 +210,10 @@ LIMIT 1000
 	return lessons, nil
 }
 
-func (s *LessonService) GetNewAvailableLessons(oldLessons, newLessons []*Lesson) []*Lesson {
+func (s *LessonService) GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*Lesson) []*Lesson {
+	_, span := trace.StartSpan(ctx, "LessonService.GetNewAvailableLessons")
+	defer span.End()
+
 	// Pattern
 	// 2016-01-01 00:00@Any -> Available
 	oldLessonsMap := make(map[string]*Lesson, len(oldLessons))

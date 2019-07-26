@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/errors"
+	"go.opencensus.io/trace"
 )
 
 type NotificationTimeSpan struct {
@@ -123,6 +124,8 @@ func (s *NotificationTimeSpanService) NewNotificationTimeSpansPB(args []*Notific
 }
 
 func (s *NotificationTimeSpanService) FindByUserID(ctx context.Context, userID uint32) ([]*NotificationTimeSpan, error) {
+	_, span := trace.StartSpan(ctx, "NotificationTimeSpanService.FindByUserID")
+	defer span.End()
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
 	timeSpans := make([]*NotificationTimeSpan, 0, 10)
 	if err := s.db.Raw(sql, userID).Scan(&timeSpans).Error; err != nil {

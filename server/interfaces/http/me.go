@@ -145,7 +145,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	now := time.Now().UTC()
 	teacherIDs := make([]string, 0, len(teachers))
 	for _, t := range teachers {
-		teacher, _, err := fetcher.Fetch(t.ID)
+		teacher, _, err := fetcher.Fetch(r.Context(), t.ID)
 		if err != nil {
 			if errors.IsNotFound(err) {
 				continue
