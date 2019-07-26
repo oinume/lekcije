@@ -26,7 +26,8 @@ func NewExporter(c *config.Vars, service string) (trace.Exporter, FlushFunc, err
 		e, err := stackdriver.NewExporter(stackdriver.Options{
 			ProjectID: c.GCPProjectID,
 			// MetricPrefix helps uniquely identify your metrics.
-			MetricPrefix: service,
+			MetricPrefix:       service,
+			TraceClientOptions: nil, // TODO: Set credential
 		})
 		if err != nil {
 			log.Fatalf("Failed to create the Stackdriver exporter: %v", err)
