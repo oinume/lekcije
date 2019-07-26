@@ -19,6 +19,7 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
+	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 )
 
@@ -148,7 +149,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 		go func(teacherID uint32) {
 			//defer n.stopwatch.Mark(fmt.Sprintf("fetchAndExtractNewAvailableLessons:%d", teacherID))
 			defer wg.Done()
-			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(teacherID)
+			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(ctx, teacherID)
 			if err != nil {
 				if errors.IsNotFound(err) {
 					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
@@ -201,11 +202,17 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 }
 
 // Returns teacher, fetchedLessons, newAvailableLessons, error
-func (n *Notifier) fetchAndExtractNewAvailableLessons(teacherID uint32) (
+func (n *Notifier) fetchAndExtractNewAvailableLessons(ctx context.Context, teacherID uint32) (
 	*model.TeacherLessons,
 	*model.TeacherLessons,
 	error,
 ) {
+	_, span := trace.StartSpan(ctx, "Notifier.fetchAndExtractNewAvailableLessons")
+	defer span.End()
+	span.Annotatef([]trace.Attribute{
+		trace.Int64Attribute("teacherID", int64(teacherID)),
+	}, "teacherID:%d", teacherID)
+
 	teacher, fetchedLessons, err := n.fetcher.Fetch(teacherID)
 	if err != nil {
 		n.stopwatch.Mark(fmt.Sprintf("fetcher.Fetch(error):%d", teacherID))
