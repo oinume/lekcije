@@ -10,22 +10,17 @@ import (
 	"os"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/notifier"
 	"github.com/oinume/lekcije/server/open_census"
 	"github.com/oinume/lekcije/server/stopwatch"
-	"github.com/oinume/lekcije/server/util"
-	"github.com/pkg/profile"
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
-	"google.golang.org/api/option"
 )
 
 func main() {
@@ -55,8 +50,7 @@ func (m *notifierMain) run(args []string) error {
 		fetcherCache         = flagSet.Bool("fetcher-cache", false, "Cache teacher and lesson data in Fetcher")
 		notificationInterval = flagSet.Int("notification-interval", 0, "Notification interval")
 		sendEmail            = flagSet.Bool("send-email", true, "Flag to send email")
-		logLevel             = flagSet.String("log-level", "info", "Log level")
-		profileMode          = flagSet.String("profile-mode", "", "block|cpu|mem|trace")
+		//logLevel             = flagSet.String("log-level", "info", "Log level")
 	)
 
 	if err := flagSet.Parse(args[1:]); err != nil {
@@ -65,29 +59,12 @@ func (m *notifierMain) run(args []string) error {
 
 	sw := stopwatch.NewSync()
 	sw.Start()
-	var storageClient *storage.Client
-	switch *profileMode {
-	case "block":
-		defer profile.Start(profile.ProfilePath("."), profile.BlockProfile).Stop()
-	case "cpu":
-		defer profile.Start(profile.ProfilePath("."), profile.CPUProfile).Stop()
-	case "mem":
-		defer profile.Start(profile.ProfilePath("."), profile.MemProfile).Stop()
-	case "trace":
-		defer profile.Start(profile.ProfilePath("."), profile.TraceProfile).Stop()
-	case "stopwatch":
-		var err error
-		storageClient, err = newStorageClient()
-		if err != nil {
-			return err
-		}
-	}
 
 	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
-	if *logLevel != "" {
-		//logger.App.SetLevel(logger.NewLevel(*logLevel))
-	}
+	//if *logLevel != "" {
+	//	logger.App.SetLevel(logger.NewLevel(*logLevel))
+	//}
 	logger.App.Info(fmt.Sprintf("notifier started (interval=%d)", *notificationInterval))
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
@@ -144,7 +121,7 @@ func (m *notifierMain) run(args []string) error {
 		UserCount:            uint32(len(users)),
 		FollowedTeacherCount: 0,
 	}
-	n := notifier.NewNotifier(db, lessonFetcher, *dryRun, sender, sw, storageClient)
+	n := notifier.NewNotifier(db, lessonFetcher, *dryRun, sender, sw, nil)
 	defer n.Close(statNotifier)
 	for _, user := range users {
 		if err := n.SendNotification(ctx, user); err != nil {
@@ -153,19 +130,4 @@ func (m *notifierMain) run(args []string) error {
 	}
 
 	return nil
-}
-
-func newStorageClient() (*storage.Client, error) {
-	serviceAccountKey := os.Getenv("GCP_SERVICE_ACCOUNT_KEY")
-	if serviceAccountKey == "" {
-		return nil, errors.NewInternalError(errors.WithMessage("Env not found"))
-	}
-	f, err := util.GenerateTempFileFromBase64String("", "gcp-", serviceAccountKey)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		os.Remove(f.Name())
-	}()
-	return storage.NewClient(context.Background(), option.WithCredentialsFile(f.Name()))
 }
