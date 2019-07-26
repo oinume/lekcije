@@ -24,16 +24,16 @@ func NewExporter(c *config.Vars, service string, alwaysSample bool) (trace.Expor
 		if c.GCPProjectID == "" {
 			return nil, nil, fmt.Errorf("no exporter configuration")
 		}
-		credential, cleaner, err := gcp.WithCredentialsFileFromBase64String(c.GCPServiceAccountKey)
+		credential, err := gcp.WithCredentialsJSONFromBase64String(c.GCPServiceAccountKey)
 		if err != nil {
 			return nil, nil, err
 		}
-		//defer cleaner()
 		e, err := stackdriver.NewExporter(stackdriver.Options{
 			ProjectID: c.GCPProjectID,
 			// MetricPrefix helps uniquely identify your metrics.
-			MetricPrefix:       service,
-			TraceClientOptions: []option.ClientOption{credential},
+			MetricPrefix:            service,
+			TraceClientOptions:      []option.ClientOption{credential},
+			MonitoringClientOptions: []option.ClientOption{credential},
 		})
 		if err != nil {
 			log.Fatalf("Failed to create the Stackdriver exporter: %v", err)
@@ -41,7 +41,7 @@ func NewExporter(c *config.Vars, service string, alwaysSample bool) (trace.Expor
 
 		exporter = e
 		// It is imperative to invoke flush before your main function exits
-		flush = func() { cleaner(); e.Flush() }
+		flush = e.Flush
 		if alwaysSample {
 			trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 		} else {
