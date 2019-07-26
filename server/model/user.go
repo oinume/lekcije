@@ -9,6 +9,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/errors"
+	"go.opencensus.io/trace"
 )
 
 type User struct {
@@ -111,6 +112,8 @@ func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
 
 // Returns an empty slice if no users found
 func (s *UserService) FindAllEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*User, error) {
+	_, span := trace.StartSpan(ctx, "UserService.FindAllEmailVerifiedIsTrue")
+	defer span.End()
 	var users []*User
 	sql := `
 	SELECT u.* FROM (SELECT DISTINCT(user_id) FROM following_teacher) AS ft
