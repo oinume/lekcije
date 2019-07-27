@@ -46,7 +46,7 @@ var (
 			Proxy:               http.ProxyFromEnvironment,
 			DialContext: (&net.Dialer{
 				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
+				KeepAlive: 1200 * time.Second,
 			}).DialContext,
 			IdleConnTimeout:       1200 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
