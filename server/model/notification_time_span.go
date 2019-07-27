@@ -123,9 +123,16 @@ func (s *NotificationTimeSpanService) NewNotificationTimeSpansPB(args []*Notific
 	return values, nil
 }
 
-func (s *NotificationTimeSpanService) FindByUserID(ctx context.Context, userID uint32) ([]*NotificationTimeSpan, error) {
+func (s *NotificationTimeSpanService) FindByUserID(
+	ctx context.Context,
+	userID uint32,
+) ([]*NotificationTimeSpan, error) {
 	_, span := trace.StartSpan(ctx, "NotificationTimeSpanService.FindByUserID")
 	defer span.End()
+	span.Annotatef([]trace.Attribute{
+		trace.Int64Attribute("userID", int64(userID)),
+	}, "userID:%d", userID)
+
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
 	timeSpans := make([]*NotificationTimeSpan, 0, 10)
 	if err := s.db.Raw(sql, userID).Scan(&timeSpans).Error; err != nil {
