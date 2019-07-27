@@ -19,7 +19,7 @@ def timed_job_min1():
         shell=True)
 
 
-@scheduler.scheduled_job('interval', minutes=10)
+@scheduler.scheduled_job('interval', minutes=15)
 def timed_job_min10():
     print("Run notifier (interval=10)")
     subprocess.check_call(
