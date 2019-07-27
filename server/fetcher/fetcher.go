@@ -103,6 +103,10 @@ func NewLessonFetcher(
 func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
 	_, span := trace.StartSpan(ctx, "LessonFetcher.Fetch")
 	defer span.End()
+	span.Annotatef([]trace.Attribute{
+		trace.Int64Attribute("teacherID", int64(teacherID)),
+	}, "teacherID:%d", teacherID)
+
 	fetcher.semaphore <- struct{}{}
 	defer func() {
 		<-fetcher.semaphore

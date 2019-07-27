@@ -121,7 +121,7 @@ func (m *notifierMain) run(args []string) error {
 		FollowedTeacherCount: 0,
 	}
 	n := notifier.NewNotifier(db, lessonFetcher, *dryRun, sender, sw, nil)
-	defer n.Close(statNotifier)
+	defer n.Close(ctx, statNotifier)
 	for _, user := range users {
 		if err := n.SendNotification(ctx, user); err != nil {
 			return err

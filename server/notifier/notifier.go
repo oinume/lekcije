@@ -193,8 +193,11 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 	}
 
 	_, span := trace.StartSpan(ctx, "Notifier.SendNotification.sleep")
+	defer span.End()
+	span.Annotatef([]trace.Attribute{
+		trace.Int64Attribute("userID", int64(user.ID)),
+	}, "userID:%d", user.ID)
 	time.Sleep(150 * time.Millisecond)
-	span.End()
 
 	return nil
 }
@@ -349,15 +352,16 @@ PR ────────────────
 	`)
 }
 
-func (n *Notifier) Close(stat *model.StatNotifier) {
+func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 	n.senderWaitGroup.Wait()
 	defer n.fetcher.Close()
 	defer func() {
 		if n.dryRun {
 			return
 		}
+		_, span := trace.StartSpan(ctx, "lessonService.UpdateLessons")
+		defer span.End()
 
-		n.stopwatch.Mark("lessonService.UpdateLessons")
 		teacherService := model.NewTeacherService(n.db)
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
@@ -378,6 +382,7 @@ func (n *Notifier) Close(stat *model.StatNotifier) {
 			}
 		}
 	}()
+	// TODO: remove
 	defer func() {
 		n.stopwatch.Stop()
 		if n.storageClient != nil {
