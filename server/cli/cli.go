@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"fmt"
 	"io"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 const (
@@ -31,4 +34,17 @@ func NewMain(command Commander, out, err io.Writer) *Main {
 
 func (m *Main) Run(args []string) error {
 	return m.command.Run(args)
+}
+
+func WriteError(w io.Writer, err error) {
+	fmt.Fprintf(w, "%v", err.Error())
+	fmt.Fprint(w, "\n--- stacktrace ---")
+	switch e := err.(type) {
+	case *errors.AnnotatedError:
+		if e.OutputStackTrace() {
+			fmt.Fprintf(w, "%+v\n", e.StackTrace())
+		}
+	default:
+		fmt.Fprintf(w, "%+v", err)
+	}
 }

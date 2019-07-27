@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"io/ioutil"
 	mrand "math/rand"
 	"net/http"
@@ -134,19 +133,6 @@ func IsUserAgentSP(req *http.Request) bool {
 func IsUserAgentTablet(req *http.Request) bool {
 	ua := strings.ToLower(req.UserAgent())
 	return strings.Contains(ua, "ipad")
-}
-
-func WriteError(w io.Writer, err error) {
-	fmt.Fprintf(w, "%v", err.Error())
-	fmt.Fprint(w, "\n--- stacktrace ---")
-	switch e := err.(type) {
-	case *errors.AnnotatedError:
-		if e.OutputStackTrace() {
-			fmt.Fprintf(w, "%+v\n", e.StackTrace())
-		}
-	default:
-		fmt.Fprintf(w, "%+v", err)
-	}
 }
 
 func SendErrorToRollbar(err error, id string) {
