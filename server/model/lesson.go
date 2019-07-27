@@ -183,6 +183,9 @@ func (s *LessonService) FindLessons(
 ) ([]*Lesson, error) {
 	_, span := trace.StartSpan(ctx, "LessonService.FindLessons")
 	defer span.End()
+	span.Annotatef([]trace.Attribute{
+		trace.Int64Attribute("teacherID", int64(teacherID)),
+	}, "teacherID:%d", teacherID)
 
 	lessons := make([]*Lesson, 0, 1000)
 	sql := strings.TrimSpace(fmt.Sprintf(`
