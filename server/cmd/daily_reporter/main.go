@@ -5,10 +5,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/daily_reporter"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
 )
 
 func main() {
@@ -20,14 +20,14 @@ func main() {
 	config.MustProcessDefault()
 	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {
-		util.WriteError(os.Stderr, err)
+		cli.WriteError(os.Stderr, err)
 		os.Exit(1)
 	}
 	defer db.Close()
 	m.DB = db
 
 	if err := m.Run(); err != nil {
-		util.WriteError(os.Stderr, err)
+		cli.WriteError(os.Stderr, err)
 		os.Exit(1)
 	}
 	os.Exit(0)

@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/crawler"
-	"github.com/oinume/lekcije/server/util"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 
 	flag.Parse()
 	if err := m.Run(); err != nil {
-		util.WriteError(os.Stderr, err)
+		cli.WriteError(os.Stderr, err)
 		os.Exit(1)
 	}
 	os.Exit(0)

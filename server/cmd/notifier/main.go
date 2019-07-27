@@ -29,7 +29,7 @@ func main() {
 		errStream: os.Stderr,
 	}
 	if err := m.run(os.Args); err != nil {
-		_, _ = fmt.Fprintf(m.errStream, "%+v", err)
+		cli.WriteError(m.errStream, err)
 		os.Exit(cli.ExitError)
 	}
 	os.Exit(cli.ExitOK)
