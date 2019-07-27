@@ -20,6 +20,6 @@ func TestWriteError(t *testing.T) {
 	WriteError(&out, err)
 	a.Contains(out.String(), "code.Internal")
 	a.Contains(out.String(), "error message")
-	a.Contains(out.String(), "github.com/oinume/lekcije/server/util.TestWriteError")
+	a.Contains(out.String(), "github.com/oinume/lekcije/server/cli.TestWriteError")
 	//fmt.Printf("%v\n", out.String())
 }
