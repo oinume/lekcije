@@ -18,12 +18,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	dryRun = flag.Bool("dry-run", false, "Don't update database with fetched lessons")
-	//logLevel   = flag.String("log-level", "info", "Log level")
-	targetDate = flag.String("target-date", "", "Specify registration date of users")
-)
-
 func main() {
 	m := &followReminderMain{
 		outStream: os.Stdout,
