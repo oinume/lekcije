@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -78,10 +77,10 @@ func (m *notifierMain) run(args []string) error {
 	exporter, flush, err := open_census.NewExporter(
 		config.DefaultVars,
 		serviceName,
-		!config.DefaultVars.IsProductionEnv(),
+		*notificationInterval == 10 || !config.IsProductionEnv(),
 	)
 	if err != nil {
-		log.Fatalf("NewExporter failed: %v", err)
+		return fmt.Errorf("NewExporter failed: %v", err)
 	}
 	defer flush()
 	trace.RegisterExporter(exporter)
@@ -122,7 +121,7 @@ func (m *notifierMain) run(args []string) error {
 		FollowedTeacherCount: 0,
 	}
 	n := notifier.NewNotifier(db, lessonFetcher, *dryRun, sender, sw, nil)
-	defer n.Close(statNotifier)
+	defer n.Close(ctx, statNotifier)
 	for _, user := range users {
 		if err := n.SendNotification(ctx, user); err != nil {
 			return err

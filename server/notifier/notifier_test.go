@@ -170,7 +170,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			}
 		}
 		// Wait all async requests are done
-		n.Close(&model.StatNotifier{
+		n.Close(ctx, &model.StatNotifier{
 			Datetime:             time.Now().UTC(),
 			Interval:             10,
 			Elapsed:              1000,
@@ -208,7 +208,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
 
-		n.Close(&model.StatNotifier{
+		n.Close(context.Background(), &model.StatNotifier{
 			Datetime:             time.Now().UTC(),
 			Interval:             10,
 			Elapsed:              1000,
@@ -256,7 +256,7 @@ func TestNotifier_Close(t *testing.T) {
 	n := NewNotifier(db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
-	n.Close(&model.StatNotifier{
+	n.Close(context.Background(), &model.StatNotifier{
 		Datetime:             time.Now().UTC(),
 		Interval:             10,
 		Elapsed:              1000,
