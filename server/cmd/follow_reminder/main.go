@@ -4,16 +4,17 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
 	"go.uber.org/zap"
 )
 
@@ -24,15 +25,34 @@ var (
 )
 
 func main() {
-	flag.Parse()
-	if err := run(); err != nil {
-		util.WriteError(os.Stderr, err)
-		os.Exit(1)
+	m := &followReminderMain{
+		outStream: os.Stdout,
+		errStream: os.Stderr,
 	}
-	os.Exit(0)
+	if err := m.run(os.Args); err != nil {
+		cli.WriteError(m.errStream, err)
+		os.Exit(cli.ExitError)
+	}
+	os.Exit(cli.ExitOK)
 }
 
-func run() error {
+type followReminderMain struct {
+	outStream io.Writer
+	errStream io.Writer
+}
+
+func (m *followReminderMain) run(args []string) error {
+	flagSet := flag.NewFlagSet("follow_reminder", flag.ContinueOnError)
+	flagSet.SetOutput(m.errStream)
+	var (
+		dryRun     = flagSet.Bool("dry-run", false, "Don't update database with fetched lessons")
+		targetDate = flagSet.String("target-date", "", "Specify registration date of users")
+		//logLevel             = flagSet.String("log-level", "info", "Log level")
+	)
+	if err := flagSet.Parse(args[1:]); err != nil {
+		return err
+	}
+
 	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
 	//if *logLevel != "" {
@@ -48,7 +68,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	ctx := context.Background()
 	var date time.Time
