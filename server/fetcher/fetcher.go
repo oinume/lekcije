@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/http/httptrace"
 	"regexp"
 	"strconv"
 	"strings"
@@ -126,7 +127,7 @@ func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*mod
 	var content io.ReadCloser
 	err := retry.Retry(2, 300*time.Millisecond, func() error {
 		var err error
-		content, err = fetcher.fetchContent(teacher.URL())
+		content, err = fetcher.fetchContent(ctx, teacher.URL())
 		return err
 	})
 	defer content.Close()
@@ -144,7 +145,7 @@ func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*mod
 	return teacher, lessons, nil
 }
 
-func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
+func (fetcher *LessonFetcher) fetchContent(ctx context.Context, url string) (io.ReadCloser, error) {
 	nopCloser := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -154,6 +155,9 @@ func (fetcher *LessonFetcher) fetchContent(url string) (io.ReadCloser, error) {
 		)
 	}
 	req.Header.Set("User-Agent", userAgent)
+	tracer := NewHTTPClientTracer(ctx)
+	req = req.WithContext(httptrace.WithClientTrace(ctx, tracer.Trace()))
+
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {
 		return nopCloser, errors.NewInternalError(
