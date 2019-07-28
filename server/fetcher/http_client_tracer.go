@@ -11,6 +11,9 @@ import (
 type HTTPClientTracer struct {
 	ctx                 context.Context
 	clientTrace         *httptrace.ClientTrace
+	spanPrefix          string
+	attributes          []trace.Attribute
+	attributesText      string
 	getConnSpan         *trace.Span
 	dnsSpan             *trace.Span
 	connectSpan         *trace.Span
@@ -18,10 +21,18 @@ type HTTPClientTracer struct {
 	waitForResponseSpan *trace.Span
 }
 
-func NewHTTPClientTracer(ctx context.Context) *HTTPClientTracer {
-	// TODO: spanPrefix
-	// TODO: Add annotation for all spans
-	tracer := &HTTPClientTracer{ctx: ctx}
+func NewHTTPClientTracer(
+	ctx context.Context,
+	spanPrefix string,
+	attributes []trace.Attribute,
+	attributesText string,
+) *HTTPClientTracer {
+	tracer := &HTTPClientTracer{
+		ctx:            ctx,
+		spanPrefix:     spanPrefix,
+		attributes:     attributes,
+		attributesText: attributesText,
+	}
 	clientTrace := &httptrace.ClientTrace{
 		GetConn:              tracer.getConn,
 		GotConn:              tracer.gotConn,
@@ -56,6 +67,12 @@ func (t *HTTPClientTracer) FinishSpans() {
 	t.finishSpan(t.waitForResponseSpan)
 }
 
+func (t *HTTPClientTracer) startSpan(name string) (context.Context, *trace.Span) {
+	ctx, span := trace.StartSpan(t.ctx, t.spanPrefix+name)
+	span.Annotate(t.attributes, t.attributesText)
+	return ctx, span
+}
+
 func (t *HTTPClientTracer) finishSpan(span *trace.Span) {
 	if span != nil {
 		span.End()
@@ -63,7 +80,7 @@ func (t *HTTPClientTracer) finishSpan(span *trace.Span) {
 }
 
 func (t *HTTPClientTracer) getConn(hostPort string) {
-	_, t.getConnSpan = trace.StartSpan(t.ctx, "getConn")
+	_, t.getConnSpan = t.startSpan("getConn")
 }
 
 func (t *HTTPClientTracer) gotConn(connInfo httptrace.GotConnInfo) {
@@ -71,7 +88,7 @@ func (t *HTTPClientTracer) gotConn(connInfo httptrace.GotConnInfo) {
 }
 
 func (t *HTTPClientTracer) dnsStart(info httptrace.DNSStartInfo) {
-	_, t.dnsSpan = trace.StartSpan(t.ctx, "dns")
+	_, t.dnsSpan = t.startSpan("dns")
 }
 
 func (t *HTTPClientTracer) dnsDone(dnsInfo httptrace.DNSDoneInfo) {
@@ -79,7 +96,7 @@ func (t *HTTPClientTracer) dnsDone(dnsInfo httptrace.DNSDoneInfo) {
 }
 
 func (t *HTTPClientTracer) connectStart(network, addr string) {
-	_, t.connectSpan = trace.StartSpan(t.ctx, "connect")
+	_, t.connectSpan = t.startSpan("connect")
 }
 
 func (t *HTTPClientTracer) connectDone(network, addr string, err error) {
@@ -88,7 +105,7 @@ func (t *HTTPClientTracer) connectDone(network, addr string, err error) {
 }
 
 func (t *HTTPClientTracer) tlsHandshakeStart() {
-	_, t.tlsHandshakeSpan = trace.StartSpan(t.ctx, "tlsHandshake")
+	_, t.tlsHandshakeSpan = t.startSpan("tlsHandshake")
 }
 
 func (t *HTTPClientTracer) tlsHandshakeDone(state tls.ConnectionState, err error) {
@@ -97,7 +114,7 @@ func (t *HTTPClientTracer) tlsHandshakeDone(state tls.ConnectionState, err error
 }
 
 func (t *HTTPClientTracer) wroteRequest(info httptrace.WroteRequestInfo) {
-	_, t.waitForResponseSpan = trace.StartSpan(t.ctx, "waitForResponse")
+	_, t.waitForResponseSpan = t.startSpan("waitForResponse")
 }
 
 func (t *HTTPClientTracer) gotFirstResponseByte() {
