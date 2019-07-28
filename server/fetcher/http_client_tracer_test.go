@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httptrace"
@@ -36,7 +37,12 @@ func TestNewHTTPClientTracer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewRequest failed: %v", err)
 	}
-	tracer := NewHTTPClientTracer(ctx, "test.")
+	tracer := NewHTTPClientTracer(
+		ctx,
+		"test.",
+		[]trace.Attribute{trace.StringAttribute("url", ts.URL)},
+		fmt.Sprintf("url:%s", ts.URL),
+	)
 	req = req.WithContext(httptrace.WithClientTrace(ctx, tracer.Trace()))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

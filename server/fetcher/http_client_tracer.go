@@ -12,6 +12,8 @@ type HTTPClientTracer struct {
 	ctx                 context.Context
 	clientTrace         *httptrace.ClientTrace
 	spanPrefix          string
+	attributes          []trace.Attribute
+	attributesText      string
 	getConnSpan         *trace.Span
 	dnsSpan             *trace.Span
 	connectSpan         *trace.Span
@@ -19,11 +21,17 @@ type HTTPClientTracer struct {
 	waitForResponseSpan *trace.Span
 }
 
-func NewHTTPClientTracer(ctx context.Context, spanPrefix string) *HTTPClientTracer {
-	// TODO: Add annotation for all spans
+func NewHTTPClientTracer(
+	ctx context.Context,
+	spanPrefix string,
+	attributes []trace.Attribute,
+	attributesText string,
+) *HTTPClientTracer {
 	tracer := &HTTPClientTracer{
-		ctx:        ctx,
-		spanPrefix: spanPrefix,
+		ctx:            ctx,
+		spanPrefix:     spanPrefix,
+		attributes:     attributes,
+		attributesText: attributesText,
 	}
 	clientTrace := &httptrace.ClientTrace{
 		GetConn:              tracer.getConn,
@@ -60,7 +68,9 @@ func (t *HTTPClientTracer) FinishSpans() {
 }
 
 func (t *HTTPClientTracer) startSpan(name string) (context.Context, *trace.Span) {
-	return trace.StartSpan(t.ctx, t.spanPrefix+name)
+	ctx, span := trace.StartSpan(t.ctx, t.spanPrefix+name)
+	span.Annotate(t.attributes, t.attributesText)
+	return ctx, span
 }
 
 func (t *HTTPClientTracer) finishSpan(span *trace.Span) {
