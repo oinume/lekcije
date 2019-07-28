@@ -155,7 +155,7 @@ func (fetcher *LessonFetcher) fetchContent(ctx context.Context, url string) (io.
 		)
 	}
 	req.Header.Set("User-Agent", userAgent)
-	tracer := NewHTTPClientTracer(ctx)
+	tracer := NewHTTPClientTracer(ctx, "LessonFetcher.fetchContent.")
 	req = req.WithContext(httptrace.WithClientTrace(ctx, tracer.Trace()))
 
 	resp, err := fetcher.httpClient.Do(req)

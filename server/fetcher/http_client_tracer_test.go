@@ -36,7 +36,7 @@ func TestNewHTTPClientTracer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewRequest failed: %v", err)
 	}
-	tracer := NewHTTPClientTracer(ctx)
+	tracer := NewHTTPClientTracer(ctx, "test.")
 	req = req.WithContext(httptrace.WithClientTrace(ctx, tracer.Trace()))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -44,8 +44,8 @@ func TestNewHTTPClientTracer(t *testing.T) {
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	want := []string{"connect", "getConn", "waitForResponse"}
+	want := []string{"test.connect", "test.getConn", "test.waitForResponse"}
 	if got := exporter.spanNames; !reflect.DeepEqual(got, want) {
-		t.Errorf("got = %+v ,want = %+v", got, want)
+		t.Errorf("unexpected span names: got = %+v, want = %+v", got, want)
 	}
 }
