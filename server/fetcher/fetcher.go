@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -49,8 +50,11 @@ var (
 				Timeout:   30 * time.Second,
 				KeepAlive: 1200 * time.Second,
 			}).DialContext,
-			IdleConnTimeout:       1200 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
+			IdleConnTimeout:     1200 * time.Second,
+			TLSHandshakeTimeout: 10 * time.Second,
+			TLSClientConfig: &tls.Config{
+				ClientSessionCache: tls.NewLRUClientSessionCache(100),
+			},
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
