@@ -34,12 +34,10 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/openzipkin/zipkin-go v0.2.0
 	github.com/pkg/errors v0.8.0
-	github.com/pkg/profile v1.2.1
 	github.com/rs/cors v1.3.0
 	github.com/sclevine/agouti v0.0.0-20171003013254-8cf0313221cb
 	github.com/sendgrid/rest v2.4.0+incompatible
 	github.com/sendgrid/sendgrid-go v3.4.1+incompatible
-	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
 	go.opencensus.io v0.22.0
@@ -48,14 +46,10 @@ require (
 	go.uber.org/zap v1.7.1
 	goji.io/v3 v3.0.0
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
-	golang.org/x/exp v0.0.0-20190718202018-cfdd5522f6f6 // indirect
-	golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9 // indirect
-	golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028 // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20190724185037-8aa4eac1a7c1 // indirect
 	google.golang.org/api v0.7.0
 	google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610
 	google.golang.org/grpc v1.22.0
