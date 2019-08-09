@@ -508,17 +508,10 @@ func getDefaultHTTPClient() *http.Client {
 	if !config.DefaultVars.EnableFetcherHTTP2 {
 		return defaultHTTPClient
 	}
-	//fmt.Printf("HTTP2!\n")
-	//t := defaultHTTPClient.Transport.(*http.Transport)
-	//_ = http2.ConfigureTransport(t)
 	defaultHTTPClient.Transport = &http2.Transport{
 		TLSClientConfig: &tls.Config{
 			ClientSessionCache: tls.NewLRUClientSessionCache(100),
 		},
-		//ConnPool:                   nil,
-		//DisableCompression:         false,
-		//AllowHTTP:                  false,
-		//MaxHeaderListSize:          0,
 		StrictMaxConcurrentStreams: true,
 	}
 	return defaultHTTPClient
