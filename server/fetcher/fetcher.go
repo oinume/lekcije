@@ -9,13 +9,12 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptrace"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"os"
 
 	"github.com/Songmu/retry"
 	"github.com/oinume/lekcije/server/config"
@@ -25,6 +24,7 @@ import (
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/net/http2"
 	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 )
@@ -80,11 +80,14 @@ type LessonFetcher struct {
 }
 
 func NewLessonFetcher(
-	httpClient *http.Client, concurrency int, caching bool,
-	mCountries *model.MCountries, log *zap.Logger,
+	httpClient *http.Client,
+	concurrency int,
+	caching bool,
+	mCountries *model.MCountries,
+	log *zap.Logger,
 ) *LessonFetcher {
 	if httpClient == nil {
-		httpClient = defaultHTTPClient
+		httpClient = getDefaultHTTPClient()
 	}
 	if concurrency < 1 {
 		concurrency = 1
@@ -499,4 +502,17 @@ func (t *MockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
 	resp.Body = ioutil.NopCloser(strings.NewReader(t.content))
 	return resp, nil
+}
+
+func getDefaultHTTPClient() *http.Client {
+	if !config.DefaultVars.EnableFetcherHTTP2 {
+		return defaultHTTPClient
+	}
+	defaultHTTPClient.Transport = &http2.Transport{
+		TLSClientConfig: &tls.Config{
+			ClientSessionCache: tls.NewLRUClientSessionCache(100),
+		},
+		StrictMaxConcurrentStreams: true,
+	}
+	return defaultHTTPClient
 }

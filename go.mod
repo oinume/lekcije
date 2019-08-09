@@ -38,6 +38,7 @@ require (
 	github.com/sclevine/agouti v0.0.0-20171003013254-8cf0313221cb
 	github.com/sendgrid/rest v2.4.0+incompatible
 	github.com/sendgrid/sendgrid-go v3.4.1+incompatible
+	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
 	go.opencensus.io v0.22.0
