@@ -2,10 +2,13 @@ package emailer
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
@@ -20,6 +23,32 @@ const (
 	sendGridAPIPath = "/v3/mail/send"
 )
 
+var (
+	redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+
+	defaultHTTPClient = &http.Client{
+		Timeout:       10 * time.Second,
+		CheckRedirect: redirectErrorFunc,
+		Transport: &http.Transport{
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 100,
+			Proxy:               http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 1200 * time.Second,
+			}).DialContext,
+			IdleConnTimeout:     1200 * time.Second,
+			TLSHandshakeTimeout: 10 * time.Second,
+			TLSClientConfig: &tls.Config{
+				ClientSessionCache: tls.NewLRUClientSessionCache(100),
+			},
+			ExpectContinueTimeout: 1 * time.Second,
+		},
+	}
+)
+
 type Sender interface {
 	Send(ctx context.Context, email *Email) error
 }
@@ -30,7 +59,7 @@ type SendGridSender struct {
 
 func NewSendGridSender(httpClient *http.Client) Sender {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = defaultHTTPClient
 	}
 	client := &rest.Client{
 		HTTPClient: httpClient,
