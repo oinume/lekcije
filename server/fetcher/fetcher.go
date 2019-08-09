@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/http/httptrace"
 	"os"
@@ -41,20 +42,20 @@ var (
 	defaultHTTPClient = &http.Client{
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
-		Transport: &http2.Transport{
-			//MaxIdleConns:        100,
-			//MaxIdleConnsPerHost: 100,
-			//Proxy:               http.ProxyFromEnvironment,
-			//DialContext: (&net.Dialer{
-			//	Timeout:   30 * time.Second,
-			//	KeepAlive: 1200 * time.Second,
-			//}).DialContext,
-			//IdleConnTimeout:     1200 * time.Second,
-			//TLSHandshakeTimeout: 10 * time.Second,
+		Transport: &http.Transport{
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 100,
+			Proxy:               http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 1200 * time.Second,
+			}).DialContext,
+			IdleConnTimeout:     1200 * time.Second,
+			TLSHandshakeTimeout: 10 * time.Second,
 			TLSClientConfig: &tls.Config{
 				ClientSessionCache: tls.NewLRUClientSessionCache(100),
 			},
-			//			ExpectContinueTimeout: 1 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
 	titleXPath      = xmlpath.MustCompile(`//title`)
@@ -79,11 +80,14 @@ type LessonFetcher struct {
 }
 
 func NewLessonFetcher(
-	httpClient *http.Client, concurrency int, caching bool,
-	mCountries *model.MCountries, log *zap.Logger,
+	httpClient *http.Client,
+	concurrency int,
+	caching bool,
+	mCountries *model.MCountries,
+	log *zap.Logger,
 ) *LessonFetcher {
 	if httpClient == nil {
-		httpClient = defaultHTTPClient
+		httpClient = getDefaultHTTPClient()
 	}
 	if concurrency < 1 {
 		concurrency = 1
@@ -498,4 +502,13 @@ func (t *MockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
 	resp.Body = ioutil.NopCloser(strings.NewReader(t.content))
 	return resp, nil
+}
+
+func getDefaultHTTPClient() *http.Client {
+	if !config.DefaultVars.EnableFetcherHTTP2 {
+		return defaultHTTPClient
+	}
+	t := defaultHTTPClient.Transport.(*http.Transport)
+	_ = http2.ConfigureTransport(t)
+	return defaultHTTPClient
 }
