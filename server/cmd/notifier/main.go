@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"time"
 
@@ -108,7 +107,7 @@ func (m *notifierMain) run(args []string) error {
 
 	var sender emailer.Sender
 	if *sendEmail {
-		sender = emailer.NewSendGridSender(http.DefaultClient)
+		sender = emailer.NewSendGridSender(nil)
 	} else {
 		sender = &emailer.NoSender{}
 	}
