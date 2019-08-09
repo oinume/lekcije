@@ -27,9 +27,9 @@ type Vars struct {
 	RedisURL                  string `envconfig:"REDIS_URL"`
 	GCPProjectID              string `envconfig:"GCP_PROJECT_ID"`
 	GCPServiceAccountKey      string `envconfig:"GCP_SERVICE_ACCOUNT_KEY"`
+	EnableFetcherHTTP2        bool   `envconfig:"ENABLE_FETCHER_HTTP2" default:"true"`
 	EnableTrace               bool   `envconfig:"ENABLE_TRACE"`
 	EnableStackdriverProfiler bool   `envconfig:"ENABLE_STACKDRIVER_PROFILER"`
-	EnableFetcherHTTP2        bool   `envconfig:"ENABLE_FETCHER_HTTP2"`
 	GoogleClientID            string `envconfig:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret        string `envconfig:"GOOGLE_CLIENT_SECRET"`
 	GoogleAnalyticsID         string `envconfig:"GOOGLE_ANALYTICS_ID"`
