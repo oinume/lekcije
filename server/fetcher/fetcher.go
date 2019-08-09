@@ -6,16 +6,14 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"net/http/httptrace"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"os"
 
 	"github.com/Songmu/retry"
 	"github.com/oinume/lekcije/server/config"
@@ -25,6 +23,7 @@ import (
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/net/http2"
 	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 )
@@ -42,20 +41,20 @@ var (
 	defaultHTTPClient = &http.Client{
 		Timeout:       5 * time.Second,
 		CheckRedirect: redirectErrorFunc,
-		Transport: &http.Transport{
-			MaxIdleConns:        100,
-			MaxIdleConnsPerHost: 100,
-			Proxy:               http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 1200 * time.Second,
-			}).DialContext,
-			IdleConnTimeout:     1200 * time.Second,
-			TLSHandshakeTimeout: 10 * time.Second,
+		Transport: &http2.Transport{
+			//MaxIdleConns:        100,
+			//MaxIdleConnsPerHost: 100,
+			//Proxy:               http.ProxyFromEnvironment,
+			//DialContext: (&net.Dialer{
+			//	Timeout:   30 * time.Second,
+			//	KeepAlive: 1200 * time.Second,
+			//}).DialContext,
+			//IdleConnTimeout:     1200 * time.Second,
+			//TLSHandshakeTimeout: 10 * time.Second,
 			TLSClientConfig: &tls.Config{
 				ClientSessionCache: tls.NewLRUClientSessionCache(100),
 			},
-			ExpectContinueTimeout: 1 * time.Second,
+			//			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
 	titleXPath      = xmlpath.MustCompile(`//title`)
