@@ -103,18 +103,18 @@ func (m *Main) Run() error {
 	return nil
 }
 
-func (m *Main) createLoader(db *gorm.DB) teacherIDLoader {
-	var loader teacherIDLoader
+func (m *Main) createLoader(db *gorm.DB) TeacherIDLoader {
+	var loader TeacherIDLoader
 	if *m.SpecifiedIDs != "" {
 		loader = &specificTeacherIDLoader{idString: *m.SpecifiedIDs}
 	} else if *m.Followed {
 		loader = &followedTeacherIDLoader{db: db}
 	} else if *m.All {
-		loader = newScrapingTeacherIDLoader(byRating, nil)
+		loader = NewScrapingTeacherIDLoader(ByRating, nil)
 	} else if *m.New {
-		loader = newScrapingTeacherIDLoader(byNew, nil)
+		loader = NewScrapingTeacherIDLoader(ByNew, nil)
 	} else {
-		loader = newScrapingTeacherIDLoader(byRating, nil)
+		loader = NewScrapingTeacherIDLoader(ByRating, nil)
 	}
 	return loader
 }
