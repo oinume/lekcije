@@ -25,8 +25,8 @@ volume/nginx/var/log
 # Other
 deploy.sh
 
-.venv
+/.venv
+/venv
 .ipynb_checkpoints
 /*.pid
 bin/lekcije*
-
