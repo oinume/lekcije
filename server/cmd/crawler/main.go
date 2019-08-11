@@ -34,7 +34,6 @@ func main() {
 type crawlerMain struct {
 	outStream io.Writer
 	errStream io.Writer
-	db        *gorm.DB
 }
 
 func (m *crawlerMain) run(args []string) error {
@@ -53,13 +52,11 @@ func (m *crawlerMain) run(args []string) error {
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
 	}
-
 	if *followedOnly && *specifiedIDs != "" {
 		return fmt.Errorf("can't specify -followedOnly and -ids flags both")
 	}
 
 	config.MustProcessDefault()
-
 	ctx := context.Background()
 	startedAt := time.Now().UTC()
 	//if *m.LogLevel != "" {
