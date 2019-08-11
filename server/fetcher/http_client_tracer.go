@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"net/http/httptrace"
+	"sync"
 
 	"go.opencensus.io/trace"
 )
@@ -19,6 +20,7 @@ type HTTPClientTracer struct {
 	connectSpan         *trace.Span
 	tlsHandshakeSpan    *trace.Span
 	waitForResponseSpan *trace.Span
+	mutex               *sync.RWMutex
 }
 
 func NewHTTPClientTracer(
@@ -32,6 +34,7 @@ func NewHTTPClientTracer(
 		spanPrefix:     spanPrefix,
 		attributes:     attributes,
 		attributesText: attributesText,
+		mutex:          new(sync.RWMutex),
 	}
 	clientTrace := &httptrace.ClientTrace{
 		GetConn:              tracer.getConn,
@@ -114,9 +117,13 @@ func (t *HTTPClientTracer) tlsHandshakeDone(state tls.ConnectionState, err error
 }
 
 func (t *HTTPClientTracer) wroteRequest(info httptrace.WroteRequestInfo) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
 	_, t.waitForResponseSpan = t.startSpan("waitForResponse")
 }
 
 func (t *HTTPClientTracer) gotFirstResponseByte() {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	t.finishSpan(t.waitForResponseSpan)
 }
