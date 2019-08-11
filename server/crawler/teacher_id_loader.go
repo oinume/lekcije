@@ -11,9 +11,15 @@ import (
 	"gopkg.in/xmlpath.v2"
 )
 
-type teacherIDLoader interface {
+type TeacherIDLoader interface {
 	Load(cursor string) ([]uint32, string, error)
 	GetInitialCursor() string
+}
+
+func NewSpecificTeacherIDLoader(idString string) TeacherIDLoader {
+	return &specificTeacherIDLoader{
+		idString: idString,
+	}
 }
 
 type specificTeacherIDLoader struct {
@@ -37,6 +43,10 @@ func (l *specificTeacherIDLoader) Load(cursor string) ([]uint32, string, error) 
 	return ids, "", nil
 }
 
+func NewFollowedTeacherIDLoader(db *gorm.DB) TeacherIDLoader {
+	return &followedTeacherIDLoader{db: db}
+}
+
 type followedTeacherIDLoader struct {
 	db *gorm.DB
 }
@@ -56,8 +66,8 @@ func (l *followedTeacherIDLoader) Load(cursor string) ([]uint32, string, error) 
 type scrapingOrder int
 
 const (
-	byRating scrapingOrder = iota + 1
-	byNew
+	ByRating scrapingOrder = iota + 1
+	ByNew
 )
 
 const (
@@ -74,7 +84,7 @@ var (
 	currentPageXpath          = xmlpath.MustCompile(`span`)
 )
 
-func newScrapingTeacherIDLoader(order scrapingOrder, httpClient *http.Client) *scrapingTeacherIDLoader {
+func NewScrapingTeacherIDLoader(order scrapingOrder, httpClient *http.Client) *scrapingTeacherIDLoader {
 	if httpClient == nil {
 		httpClient = defaultScrapingHTTPClient
 	}
