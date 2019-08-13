@@ -49,7 +49,7 @@ func TestEmailSender_Send(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	user := helper.CreateRandomUser()
+	user := helper.CreateRandomUser(t)
 	transport := &mockSenderTransport{}
 	httpClient := &http.Client{
 		Transport: transport,

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/url"
 	"strings"
+	"testing"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -146,7 +147,7 @@ func LoadAllTables(db *gorm.DB, dbName string) ([]string, error) {
 	return tableNames, nil
 }
 
-func ReplaceToTestDBURL(dbURL string) string {
+func ReplaceToTestDBURL(t *testing.T, dbURL string) string {
 	if strings.HasSuffix(dbURL, "/lekcije") {
 		return strings.Replace(dbURL, "/lekcije", "/lekcije_test", 1)
 	}

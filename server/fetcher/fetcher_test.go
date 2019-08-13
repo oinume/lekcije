@@ -26,7 +26,7 @@ var (
 
 func TestMain(m *testing.M) {
 	config.MustProcessDefault()
-	testDBURL := model.ReplaceToTestDBURL(config.DefaultVars.DBURL())
+	testDBURL := model.ReplaceToTestDBURL(nil, config.DefaultVars.DBURL())
 	var err error
 	db, err := model.OpenDB(testDBURL, 1, config.DefaultVars.DebugSQL)
 	if err != nil {

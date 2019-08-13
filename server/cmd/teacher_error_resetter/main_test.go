@@ -17,7 +17,7 @@ func TestMain(m *testing.M) {
 	config.MustProcessDefault()
 	helper = model.NewTestHelper()
 	// NOTE: Avoid "Failed to FindByPK: id=1: record not found"
-	helper.TruncateAllTables(helper.DB())
+	helper.TruncateAllTables(nil)
 	os.Exit(m.Run())
 }
 
@@ -47,11 +47,11 @@ func Test_teacherErrorResetterMain_run(t *testing.T) {
 			m := &teacherErrorResetterMain{
 				outStream: test.fields.outStream,
 				errStream: test.fields.errStream,
-				db:        helper.DB(),
+				db:        helper.DB(t),
 			}
 
-			teacherService := model.NewTeacherService(helper.DB())
-			teacher := helper.CreateRandomTeacher()
+			teacherService := model.NewTeacherService(helper.DB(t))
+			teacher := helper.CreateRandomTeacher(t)
 			teacher.YearsOfExperience = 1
 			teacher.FavoriteCount = 10
 			teacher.Rating = 4.8

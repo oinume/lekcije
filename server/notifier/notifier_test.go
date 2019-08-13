@@ -52,19 +52,19 @@ func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, erro
 }
 
 func TestMain(m *testing.M) {
-	db := helper.DB()
+	db := helper.DB(nil)
 	defer db.Close()
-	helper.TruncateAllTables(db)
+	helper.TruncateAllTables(nil)
 	os.Exit(m.Run())
 }
 
 func TestTeachersAndLessons_FilterBy(t *testing.T) {
-	user := helper.CreateRandomUser()
+	user := helper.CreateRandomUser(t)
 	timeSpans := []*model.NotificationTimeSpan{
 		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
 		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
 	}
-	teacher := helper.CreateRandomTeacher()
+	teacher := helper.CreateRandomTeacher(t)
 	// TODO: table driven test
 	lessons := []*model.Lesson{
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)}, // excluded
@@ -101,7 +101,7 @@ func TestTeachersAndLessons_FilterBy(t *testing.T) {
 func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
 	//user := helper.CreateRandomUser()
 	timeSpans := make([]*model.NotificationTimeSpan, 0)
-	teacher := helper.CreateRandomTeacher()
+	teacher := helper.CreateRandomTeacher(t)
 	// TODO: table driven test
 	lessons := []*model.Lesson{
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)},
@@ -133,7 +133,7 @@ func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
 }
 
 func TestNotifier_SendNotification(t *testing.T) {
-	db := helper.DB()
+	db := helper.DB(t)
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
 	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
@@ -149,13 +149,13 @@ func TestNotifier_SendNotification(t *testing.T) {
 		const numOfUsers = 10
 		for i := 0; i < numOfUsers; i++ {
 			name := fmt.Sprintf("oinume+%02d", i)
-			user := helper.CreateUser(name, name+"@gmail.com")
-			teacher := helper.CreateRandomTeacher()
-			helper.CreateFollowingTeacher(user.ID, teacher)
+			user := helper.CreateUser(t, name, name+"@gmail.com")
+			teacher := helper.CreateRandomTeacher(t)
+			helper.CreateFollowingTeacher(t, user.ID, teacher)
 			users = append(users, user)
 		}
 
-		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), nil)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
@@ -184,11 +184,11 @@ func TestNotifier_SendNotification(t *testing.T) {
 	})
 
 	t.Run("narrow_down_with_notification_time_span", func(t *testing.T) {
-		user := helper.CreateRandomUser()
-		teacher := helper.CreateRandomTeacher()
-		helper.CreateFollowingTeacher(user.ID, teacher)
+		user := helper.CreateRandomUser(t)
+		teacher := helper.CreateRandomTeacher(t)
+		helper.CreateFollowingTeacher(t, user.ID, teacher)
 
-		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB())
+		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB(t))
 		timeSpans := []*model.NotificationTimeSpan{
 			{UserID: user.ID, Number: 1, FromTime: "02:00:00", ToTime: "03:00:00"},
 			{UserID: user.ID, Number: 2, FromTime: "06:00:00", ToTime: "07:00:00"},
@@ -197,7 +197,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			t.Fatalf("UpdateAll failed: err=%v", err)
 		}
 
-		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), nil)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
@@ -233,7 +233,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 func TestNotifier_Close(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
-	db := helper.DB()
+	db := helper.DB(t)
 	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
 
 	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
@@ -241,7 +241,7 @@ func TestNotifier_Close(t *testing.T) {
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
 	}
-	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(), nil)
+	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), nil)
 
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
@@ -249,9 +249,9 @@ func TestNotifier_Close(t *testing.T) {
 	}
 	sender := emailer.NewSendGridSender(senderHTTPClient)
 
-	user := helper.CreateRandomUser()
-	teacher := helper.CreateTeacher(3982, "Hena")
-	helper.CreateFollowingTeacher(user.ID, teacher)
+	user := helper.CreateRandomUser(t)
+	teacher := helper.CreateTeacher(t, 3982, "Hena")
+	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
 	n := NewNotifier(db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
 	err = n.SendNotification(context.Background(), user)
