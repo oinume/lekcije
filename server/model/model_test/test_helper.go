@@ -27,11 +27,8 @@ func (h *TestHelper) DB(t *testing.T) *gorm.DB {
 	return h.TestHelper.DB(t)
 }
 
-func (h *TestHelper) getDBName(dbURL string) string {
-	if index := strings.LastIndex(dbURL, "/"); index != -1 {
-		return dbURL[index+1:]
-	}
-	return ""
+func (h *TestHelper) GetDBName(dbURL string) string {
+	return h.TestHelper.GetDBName(dbURL)
 }
 
 func (h *TestHelper) LoadAllTables(t *testing.T, db *gorm.DB) []string {

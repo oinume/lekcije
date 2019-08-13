@@ -41,7 +41,7 @@ func (h *TestHelper) DB(t *testing.T) *gorm.DB {
 	return db
 }
 
-func (h *TestHelper) getDBName(dbURL string) string {
+func (h *TestHelper) GetDBName(dbURL string) string {
 	if index := strings.LastIndex(dbURL, "/"); index != -1 {
 		return dbURL[index+1:]
 	}
@@ -54,7 +54,7 @@ func (h *TestHelper) LoadAllTables(t *testing.T, db *gorm.DB) []string {
 	}
 	tables := []Table{}
 	sql := "SELECT table_name FROM information_schema.tables WHERE table_schema = ?"
-	if err := db.Raw(sql, h.getDBName(h.dbURL)).Scan(&tables).Error; err != nil {
+	if err := db.Raw(sql, h.GetDBName(h.dbURL)).Scan(&tables).Error; err != nil {
 		e := fmt.Errorf("failed to select table names: err=%v", err)
 		if t == nil {
 			panic(e)
