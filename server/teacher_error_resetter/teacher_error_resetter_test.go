@@ -1,5 +1,6 @@
 package teacher_error_resetter
 
+// TODO: move to server/cmd/teacher_error_resetter/main_test
 import (
 	"net/http"
 	"os"

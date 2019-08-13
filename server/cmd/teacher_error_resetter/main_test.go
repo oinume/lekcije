@@ -33,6 +33,7 @@ func Test_teacherErrorResetterMain_run(t *testing.T) {
 				outStream: test.fields.outStream,
 				errStream: test.fields.errStream,
 			}
+
 			if err := m.run(test.args); (err != nil) != test.wantErr {
 				t.Errorf("teacherErrorResetterMain.run() error = %v, wantErr %v", err, test.wantErr)
 			}
