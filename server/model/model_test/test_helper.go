@@ -1,16 +1,11 @@
 package model_test
 
 import (
-	"context"
-	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
 )
 
 func ReplaceToTestDBURL(dbURL string) string {
@@ -21,9 +16,7 @@ func ReplaceToTestDBURL(dbURL string) string {
 }
 
 type TestHelper struct {
-	dbURL string
-	db    *gorm.DB
-	//mCountryService *MCountryService
+	model.TestHelper
 }
 
 func NewTestHelper() *TestHelper {
@@ -31,17 +24,7 @@ func NewTestHelper() *TestHelper {
 }
 
 func (h *TestHelper) DB(t *testing.T) *gorm.DB {
-	if h.db != nil {
-		return h.db
-	}
-	config.MustProcessDefault()
-	h.dbURL = ReplaceToTestDBURL(config.DefaultVars.DBURL())
-	db, err := model.OpenDB(h.dbURL, 1, config.DefaultVars.DebugSQL)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to OpenDB(): err=%v", err))
-	}
-	h.db = db
-	return db
+	return h.TestHelper.DB(t)
 }
 
 func (h *TestHelper) getDBName(dbURL string) string {
@@ -52,97 +35,37 @@ func (h *TestHelper) getDBName(dbURL string) string {
 }
 
 func (h *TestHelper) LoadAllTables(t *testing.T, db *gorm.DB) []string {
-	type Table struct {
-		Name string `gorm:"column:table_name"`
-	}
-	tables := []Table{}
-	sql := "SELECT table_name FROM information_schema.tables WHERE table_schema = ?"
-	if err := db.Raw(sql, h.getDBName(h.dbURL)).Scan(&tables).Error; err != nil {
-		panic(fmt.Sprintf("Failed to select table names: err=%v", err))
-	}
-
-	tableNames := []string{}
-	for _, t := range tables {
-		if t.Name == "goose_db_version" {
-			continue
-		}
-		tableNames = append(tableNames, t.Name)
-	}
-	return tableNames
+	return h.TestHelper.LoadAllTables(t, db)
 }
 
-func (h *TestHelper) TruncateAllTables(t *testing.T, db *gorm.DB) {
-	//fmt.Printf("TruncateAllTables() called!\n--- stack ---\n%+v\n", errors.NewInternalError().StackTrace())
-	tables := h.LoadAllTables(t, db)
-	for _, t := range tables {
-		if strings.HasPrefix(t, "m_") {
-			continue
-		}
-		if err := db.Exec("TRUNCATE TABLE " + t).Error; err != nil {
-			panic(fmt.Sprintf("Failed to truncate table: table=%v, err=%v", t, err))
-		}
-	}
+func (h *TestHelper) TruncateAllTables(t *testing.T) {
+	h.TestHelper.TruncateAllTables(t)
 }
 
 func (h *TestHelper) CreateUser(t *testing.T, name, email string) *model.User {
-	db := h.DB(t)
-	user, err := model.NewUserService(db).Create(name, email)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to CreateUser(): err=%v", err))
-	}
-	return user
+	return h.TestHelper.CreateUser(t, name, email)
 }
 
 func (h *TestHelper) CreateRandomUser(t *testing.T) *model.User {
-	name := util.RandomString(16)
-	return h.CreateUser(t, name, name+"@example.com")
+	return h.TestHelper.CreateRandomUser(t)
 }
 
 func (h *TestHelper) CreateUserGoogle(t *testing.T, googleID string, userID uint32) *model.UserGoogle {
-	userGoogle := &model.UserGoogle{
-		GoogleID: googleID,
-		UserID:   userID,
-	}
-	if err := h.DB(t).Create(userGoogle).Error; err != nil {
-		panic(fmt.Sprintf("Failed to CreateUserGoogle(): %v", err))
-	}
-	return userGoogle
+	return h.TestHelper.CreateUserGoogle(t, googleID, userID)
 }
 
 func (h *TestHelper) CreateTeacher(t *testing.T, id uint32, name string) *model.Teacher {
-	db := h.DB(t)
-	teacher := &model.Teacher{
-		ID:           id,
-		Name:         name,
-		Gender:       "female",
-		Birthday:     time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
-		LastLessonAt: time.Now().Add(-1 * 24 * time.Hour), // 1 day ago
-	}
-	if err := model.NewTeacherService(db).CreateOrUpdate(teacher); err != nil {
-		panic(fmt.Sprintf("Failed to CreateTeacher(): err=%v", err))
-	}
-	return teacher
+	return h.TestHelper.CreateTeacher(t, id, name)
 }
 
 func (h *TestHelper) CreateRandomTeacher(t *testing.T) *model.Teacher {
-	return h.CreateTeacher(t, uint32(util.RandomInt(9999999)), util.RandomString(6))
+	return h.TestHelper.CreateRandomTeacher(t)
 }
 
 func (h *TestHelper) LoadMCountries(t *testing.T) *model.MCountries {
-	db := h.DB(t)
-	// TODO: cache
-	mCountries, err := model.NewMCountryService(db).LoadAll(context.Background())
-	if err != nil {
-		panic(fmt.Sprintf("Failed to MCountryService.LoadAll(): err=%v", err))
-	}
-	return mCountries
+	return h.TestHelper.LoadMCountries(t)
 }
 
 func (h *TestHelper) CreateFollowingTeacher(t *testing.T, userID uint32, teacher *model.Teacher) *model.FollowingTeacher {
-	now := time.Now()
-	ft, err := model.NewFollowingTeacherService(h.DB(t)).FollowTeacher(userID, teacher, now)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to FollowTeacher(): err=%v", err))
-	}
-	return ft
+	return h.TestHelper.CreateFollowingTeacher(t, userID, teacher)
 }
