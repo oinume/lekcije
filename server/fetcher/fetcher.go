@@ -469,6 +469,7 @@ type MockTransport struct {
 	content   string
 }
 
+// TODO: Move to fetcher_test
 func NewMockTransport(path string) (*MockTransport, error) {
 	file, err := os.Open(path)
 	if err != nil {

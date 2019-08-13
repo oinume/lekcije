@@ -4,9 +4,11 @@ import (
 	"context"
 	"flag"
 	"io"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/fetcher"
@@ -17,8 +19,10 @@ import (
 
 func main() {
 	m := &teacherErrorResetterMain{
-		outStream: os.Stdout,
-		errStream: os.Stderr,
+		outStream:  os.Stdout,
+		errStream:  os.Stderr,
+		db:         nil,
+		httpClient: nil,
 	}
 	if err := m.run(os.Args); err != nil {
 		cli.WriteError(m.errStream, err)
@@ -28,8 +32,10 @@ func main() {
 }
 
 type teacherErrorResetterMain struct {
-	outStream io.Writer
-	errStream io.Writer
+	outStream  io.Writer
+	errStream  io.Writer
+	db         *gorm.DB
+	httpClient *http.Client
 }
 
 const fetchErrorCount = 5
@@ -47,12 +53,15 @@ func (m *teacherErrorResetterMain) run(args []string) error {
 	}
 
 	config.MustProcessDefault()
-	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
-	if err != nil {
-		cli.WriteError(os.Stderr, err)
-		os.Exit(1)
+	if m.db == nil {
+		db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
+		if err != nil {
+			cli.WriteError(os.Stderr, err)
+			os.Exit(1)
+		}
+		defer func() { _ = db.Close() }()
+		m.db = db
 	}
-	defer func() { _ = db.Close() }()
 
 	startedAt := time.Now().UTC()
 	logger.App.Info("teacher_error_resetter started")
@@ -62,18 +71,18 @@ func (m *teacherErrorResetterMain) run(args []string) error {
 	}()
 
 	ctx := context.Background()
-	mCountryService := model.NewMCountryService(db)
+	mCountryService := model.NewMCountryService(m.db)
 	mCountries, err := mCountryService.LoadAll(ctx)
 	if err != nil {
 		return err
 	}
 
-	teacherService := model.NewTeacherService(db)
+	teacherService := model.NewTeacherService(m.db)
 	teachers, err := teacherService.FindByFetchErrorCountGt(fetchErrorCount)
 	if err != nil {
 		return err
 	}
-	lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, false, mCountries, logger.App)
+	lessonFetcher := fetcher.NewLessonFetcher(m.httpClient, *concurrency, false, mCountries, logger.App)
 	defer lessonFetcher.Close()
 	for _, t := range teachers {
 		if _, _, err := lessonFetcher.Fetch(ctx, t.ID); err != nil {
