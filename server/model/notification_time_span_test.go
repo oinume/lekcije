@@ -108,7 +108,7 @@ func TestNotificationTimeSpanList_Within(t *testing.T) {
 }
 
 func TestNotificationTimeSpanService_UpdateAll(t *testing.T) {
-	user := helper.CreateRandomUser()
+	user := helper.CreateRandomUser(t)
 	now := time.Now().UTC()
 	timeSpans := []*NotificationTimeSpan{
 		{

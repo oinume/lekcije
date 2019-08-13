@@ -21,7 +21,7 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	user := helper.CreateRandomUser()
+	user := helper.CreateRandomUser(t)
 	const timestamp = 1492528264
 	reqBody := strings.NewReader(fmt.Sprintf(`
 [
@@ -44,7 +44,7 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	s := NewServer(&interfaces.ServerArgs{
-		DB: helper.DB(),
+		DB: helper.DB(t),
 	})
 	handler := s.postAPISendGridEventWebhookHandler()
 	handler.ServeHTTP(w, req)
@@ -52,7 +52,7 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	a.Equal(http.StatusOK, w.Code)
 
 	// Check OpenNotificationAt
-	u, err := model.NewUserService(helper.DB()).FindByPK(user.ID)
+	u, err := model.NewUserService(helper.DB(t)).FindByPK(user.ID)
 	r.NoError(err)
 	r.True(u.OpenNotificationAt.Valid)
 	a.Equal(int64(timestamp), u.OpenNotificationAt.Time.Unix())

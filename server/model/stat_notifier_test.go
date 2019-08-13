@@ -10,7 +10,7 @@ import (
 func TestStatNotifierService_CreateOrUpdate(t *testing.T) {
 	//a := assert.New(t)
 	r := require.New(t)
-	helper.TruncateAllTables(helper.DB())
+	helper.TruncateAllTables(t)
 
 	//user1 := helper.CreateUser("test1", "test1@gmail.com")
 	statNotifier := &StatNotifier{

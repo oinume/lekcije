@@ -16,8 +16,8 @@ func TestUserService_FindByGoogleID(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	user := helper.CreateRandomUser()
-	userGoogle := helper.CreateUserGoogle("1", user.ID)
+	user := helper.CreateRandomUser(t)
+	userGoogle := helper.CreateUserGoogle(t, "1", user.ID)
 	userActual, err := userService.FindByGoogleID(userGoogle.GoogleID)
 	r.Nil(err)
 	a.Equal(user.ID, userActual.ID)
@@ -27,11 +27,11 @@ func TestUserService_FindByGoogleID(t *testing.T) {
 func TestUserService_FindAllEmailVerifiedIsTrue(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
-	helper.TruncateAllTables(helper.DB())
+	helper.TruncateAllTables(t)
 
-	user := helper.CreateRandomUser()
-	teacher := helper.CreateRandomTeacher()
-	_ = helper.CreateFollowingTeacher(user.ID, teacher)
+	user := helper.CreateRandomUser(t)
+	teacher := helper.CreateRandomTeacher(t)
+	_ = helper.CreateFollowingTeacher(t, user.ID, teacher)
 
 	users, err := userService.FindAllEmailVerifiedIsTrue(context.Background(), 10)
 	r.NoError(err)
@@ -73,7 +73,7 @@ func TestUserService_UpdateEmail(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	user := helper.CreateRandomUser()
+	user := helper.CreateRandomUser(t)
 	email := randomEmail()
 	err := userService.UpdateEmail(user, email)
 	r.NoError(err)

@@ -11,10 +11,10 @@ import (
 func TestStatDailyUserNotificationEventService_CreateOrUpdate(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
-	helper.TruncateAllTables(helper.DB())
+	helper.TruncateAllTables(t)
 
-	user1 := helper.CreateUser("test1", "test1@gmail.com")
-	user2 := helper.CreateUser("test2", "test2@gmail.com")
+	user1 := helper.CreateUser(t, "test1", "test1@gmail.com")
+	user2 := helper.CreateUser(t, "test2", "test2@gmail.com")
 	testCases := []struct {
 		userID   uint32
 		datetime time.Time

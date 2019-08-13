@@ -17,7 +17,7 @@ func TestOAuth(t *testing.T) {
 	r := require.New(t)
 
 	s := NewServer(&interfaces.ServerArgs{
-		DB: helper.DB(),
+		DB: helper.DB(t),
 	})
 	testCases := []struct {
 		path        string

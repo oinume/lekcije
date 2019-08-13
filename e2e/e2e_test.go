@@ -28,9 +28,8 @@ var helper = model.NewTestHelper()
 
 func TestMain(m *testing.M) {
 	config.MustProcessDefault()
-	db = helper.DB()
+	db = helper.DB(nil)
 	if err := os.Setenv("MYSQL_DATABASE", "lekcije_test"); err != nil {
-		// TODO: Not use panic
 		panic(err)
 	}
 
@@ -42,7 +41,7 @@ func TestMain(m *testing.M) {
 	}
 	logger.InitializeAppLogger(&appLogBuffer, appLogLevel)
 
-	helper.TruncateAllTables(helper.DB())
+	helper.TruncateAllTables(nil)
 
 	port := config.DefaultVars.HTTPPort
 	args := &interfaces.ServerArgs{

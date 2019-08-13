@@ -6,9 +6,9 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	db := helper.DB()
-	defer db.Close()
-	helper.TruncateAllTables(db)
+	db := helper.DB(nil)
+	defer func() { _ = db.Close() }()
+	helper.TruncateAllTables(nil)
 	_ = os.Chdir("../../..")
 	os.Exit(m.Run())
 }

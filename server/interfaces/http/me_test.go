@@ -17,12 +17,12 @@ func TestGetMe(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 	s := NewServer(&interfaces.ServerArgs{
-		DB: helper.DB(),
+		DB: helper.DB(t),
 	})
 
 	req, err := http.NewRequest("GET", "/me", nil)
 	r.NoError(err)
-	user := helper.CreateRandomUser()
+	user := helper.CreateRandomUser(t)
 	ctx := context_data.SetLoggedInUser(req.Context(), user)
 	ctx = context_data.SetTrackingID(ctx, fmt.Sprint(user.ID))
 	req = req.WithContext(ctx)
@@ -39,12 +39,12 @@ func TestGetMeSetting(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 	s := NewServer(&interfaces.ServerArgs{
-		DB: helper.DB(),
+		DB: helper.DB(t),
 	})
 
 	req, err := http.NewRequest("GET", "/me/setting", nil)
 	r.NoError(err)
-	user := helper.CreateRandomUser()
+	user := helper.CreateRandomUser(t)
 	ctx := context_data.SetLoggedInUser(req.Context(), user)
 	ctx = context_data.SetTrackingID(ctx, fmt.Sprint(user.ID))
 	req = req.WithContext(ctx)

@@ -32,8 +32,8 @@ var (
 
 func TestMain(m *testing.M) {
 	config.MustProcessDefault()
-	db := helper.DB()
-	defer db.Close()
+	db := helper.DB(nil)
+	defer func() { _ = db.Close() }()
 
 	eventLogEmailService = NewEventLogEmailService(db)
 	followingTeacherService = NewFollowingTeacherService(db)
@@ -49,9 +49,9 @@ func TestMain(m *testing.M) {
 	userService = NewUserService(db)
 	userGoogleService = NewUserGoogleService(db)
 	userAPITokenService = NewUserAPITokenService(db)
-	mCountries = helper.LoadMCountries()
+	mCountries = helper.LoadMCountries(nil)
 
-	helper.TruncateAllTables(db)
+	helper.TruncateAllTables(nil)
 	os.Exit(m.Run())
 }
 
