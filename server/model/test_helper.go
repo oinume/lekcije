@@ -27,7 +27,7 @@ func (h *TestHelper) DB(t *testing.T) *gorm.DB {
 		return h.db
 	}
 	config.MustProcessDefault()
-	h.dbURL = ReplaceToTestDBURL(config.DefaultVars.DBURL())
+	h.dbURL = ReplaceToTestDBURL(t, config.DefaultVars.DBURL())
 	db, err := OpenDB(h.dbURL, 1, config.DefaultVars.DebugSQL)
 	if err != nil {
 		e := fmt.Errorf("OpenDB failed: %v", err)
