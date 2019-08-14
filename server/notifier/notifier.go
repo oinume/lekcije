@@ -343,7 +343,7 @@ Body: text/html
 
 {{ end }}
 PR ────────────────
-<a href="https://lekcije.amebaownd.com/posts/3780950" target="_blank" rel="nofollow">設定画面からレッスン希望時間帯が設定できるようになりました</a>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSe2MRi1G5sdnkU12yrw3bFkOFFCJBCHxEVcDU3e6gC4TTnwtw/viewform" target="_blank" rel="nofollow">【1分で終わります】有料プランに関するアンケートにお答え下さい</a>
 PR ────────────────
 
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
