@@ -23,7 +23,7 @@ func init() {
 		panic(err)
 	}
 
-	InitializeAccessLogger(os.Stdout)
+	//InitializeAccessLogger(os.Stdout)
 	appLogLevel := zapcore.InfoLevel
 	if level := os.Getenv("LOG_LEVEL"); level != "" {
 		appLogLevel = NewLevel(level)

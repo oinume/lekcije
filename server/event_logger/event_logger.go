@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jpillora/go-ogle-analytics"
+	ga "github.com/jpillora/go-ogle-analytics"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/logger"
@@ -27,6 +27,8 @@ var gaHTTPClient = &http.Client{
 	Transport: &logger.LoggingHTTPTransport{DumpHeaderBody: true},
 	Timeout:   time.Second * 7,
 }
+
+// TODO: Rename this package ga_measurement and add EventSender and define methods.
 
 type GAMeasurementEventValues struct {
 	UserAgentOverride string
