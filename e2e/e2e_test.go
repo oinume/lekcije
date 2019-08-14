@@ -28,35 +28,34 @@ var helper = model.NewTestHelper()
 
 func TestMain(m *testing.M) {
 	config.MustProcessDefault()
-	db = helper.DB(nil)
 	if err := os.Setenv("MYSQL_DATABASE", "lekcije_test"); err != nil {
 		panic(err)
 	}
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
-	logger.InitializeAccessLogger(&accessLogBuffer)
 	appLogLevel := zapcore.InfoLevel
 	if level := os.Getenv("LOG_LEVEL"); level != "" {
 		appLogLevel = logger.NewLevel(level)
 	}
-	logger.InitializeAppLogger(&appLogBuffer, appLogLevel)
-
-	helper.TruncateAllTables(nil)
-
-	port := config.DefaultVars.HTTPPort
 	args := &interfaces.ServerArgs{
-		DB: db,
+		AccessLogger: logger.NewAccessLogger(&accessLogBuffer),
+		AppLogger:    logger.NewAppLogger(&appLogBuffer, appLogLevel),
+		DB:           helper.DB(nil),
 		//Redis: redis
 	}
 	s := interfaces_http.NewServer(args)
 	routes := s.CreateRoutes(nil) // TODO: grpc-gateway
-	port += 1
+	port := config.DefaultVars.HTTPPort + 1
 	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
 	defer server.Close()
 
+	helper.TruncateAllTables(nil)
+
 	client.Timeout = 5 * time.Second
-	os.Chdir("../")
+	if err := os.Chdir("../"); err != nil {
+		panic(fmt.Errorf("os.Chdir failed: %v", err))
+	}
 	status := m.Run()
 	defer os.Exit(status)
 }

@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// TODO: consider to put them into context
 var (
 	Access *zap.Logger
 	App    *zap.Logger
@@ -40,6 +39,14 @@ func InitializeAppLogger(w io.Writer, logLevel zapcore.Level) {
 	App = NewZapLogger(nil, []io.Writer{w}, logLevel)
 }
 
+func NewAccessLogger(w io.Writer) *zap.Logger {
+	return NewZapLogger(nil, []io.Writer{w}, zapcore.InfoLevel)
+}
+
+func NewAppLogger(w io.Writer, logLevel zapcore.Level) *zap.Logger {
+	return NewZapLogger(nil, []io.Writer{w}, logLevel)
+}
+
 func NewLevel(level string) zapcore.Level {
 	var l zapcore.Level
 	switch strings.ToLower(level) {
@@ -62,7 +69,10 @@ func NewLevel(level string) zapcore.Level {
 }
 
 func NewZapLogger(
-	encoderConfig *zapcore.EncoderConfig, writers []io.Writer, logLevel zapcore.Level, options ...zap.Option,
+	encoderConfig *zapcore.EncoderConfig,
+	writers []io.Writer,
+	logLevel zapcore.Level,
+	options ...zap.Option,
 ) *zap.Logger {
 	if encoderConfig == nil {
 		c := zap.NewProductionEncoderConfig()
