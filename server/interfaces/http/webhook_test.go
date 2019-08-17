@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -42,7 +43,7 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	r.NoError(err)
 
 	w := httptest.NewRecorder()
-	s := newTestServer(t)
+	s := newTestServer(t, new(bytes.Buffer))
 	handler := s.postAPISendGridEventWebhookHandler()
 	handler.ServeHTTP(w, req)
 

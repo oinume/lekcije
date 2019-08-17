@@ -9,8 +9,6 @@ import (
 
 	"github.com/oinume/lekcije/server/ga_measurement"
 
-	"github.com/oinume/lekcije/server/logger"
-
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
@@ -46,7 +44,7 @@ func (v *SendGridEventValues) IsEventOpen() bool {
 	return v.Event == "open"
 }
 
-func (v *SendGridEventValues) LogToFile() {
+func (v *SendGridEventValues) LogToFile(logger *zap.Logger) {
 	fields := []zapcore.Field{
 		zap.Time("timestamp", time.Unix(v.Timestamp, 0)),
 		zap.String("sgEventID", v.SGEventID),
@@ -70,7 +68,7 @@ func (v *SendGridEventValues) LogToFile() {
 		fields = append(fields, zap.String("url", v.URL))
 	}
 
-	event_logger.New(logger.Access).Log(
+	event_logger.New(logger).Log(
 		userID,
 		ga_measurement.CategoryEmail,
 		v.Event,
@@ -111,7 +109,7 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 
 	userService := model.NewUserService(s.db)
 	for _, v := range values {
-		v.LogToFile()
+		v.LogToFile(s.accessLogger)
 		if err := v.LogToDB(s.db); err != nil {
 			internalServerError(w, err, 0)
 			return

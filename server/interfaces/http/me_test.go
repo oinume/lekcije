@@ -15,7 +15,7 @@ func TestGetMe(t *testing.T) {
 	//t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	s := newTestServer(t)
+	s := newTestServer(t, nil)
 
 	req, err := http.NewRequest("GET", "/me", nil)
 	r.NoError(err)
@@ -35,7 +35,7 @@ func TestGetMeSetting(t *testing.T) {
 	//t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	s := newTestServer(t)
+	s := newTestServer(t, nil)
 
 	req, err := http.NewRequest("GET", "/me/setting", nil)
 	r.NoError(err)

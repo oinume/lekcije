@@ -14,7 +14,7 @@ func TestOAuth(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	s := newTestServer(t)
+	s := newTestServer(t, nil)
 
 	testCases := []struct {
 		path        string
