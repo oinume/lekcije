@@ -93,9 +93,8 @@ func (c *client) SendEvent(
 
 	c.eventLogger.Log(userID, category, action, zap.String("label", label), zap.Int64("value", value))
 	if err := gaClient.Send(event); err == nil {
-		logger.App.Debug("ga_measurement.client.SendEvent() success", logFields...)
+		c.appLogger.Debug("ga_measurement.client.SendEvent() success", logFields...)
 	} else {
-		logger.App.Warn("ga_measurement.client.SendEvent() failed", zap.Error(err))
 		return errors.NewInternalError(
 			errors.WithMessage("gaClient.Send failed"),
 			errors.WithError(err),

@@ -101,7 +101,7 @@ func (s *server) postAPISendGridEventWebhookHandler() http.HandlerFunc {
 func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Request) {
 	values := make([]SendGridEventValues, 0, 1000)
 	if err := json.NewDecoder(r.Body).Decode(&values); err != nil {
-		internalServerError(w, err, 0)
+		internalServerError(s.appLogger, w, err, 0)
 		return
 	}
 	defer r.Body.Close()
@@ -111,12 +111,12 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 	for _, v := range values {
 		v.LogToFile(s.accessLogger)
 		if err := v.LogToDB(s.db); err != nil {
-			internalServerError(w, err, 0)
+			internalServerError(s.appLogger, w, err, 0)
 			return
 		}
 		if v.EmailType == model.EmailTypeNewLessonNotifier && v.IsEventOpen() {
 			if err := userService.UpdateOpenNotificationAt(v.GetUserID(), time.Unix(v.Timestamp, 0).UTC()); err != nil {
-				internalServerError(w, err, 0)
+				internalServerError(s.appLogger, w, err, 0)
 				return
 			}
 		}
@@ -124,5 +124,5 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "OK")
+	_, _ = fmt.Fprint(w, "OK")
 }

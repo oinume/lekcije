@@ -14,7 +14,7 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux.Use(redirecter)
 	mux.Use(panicHandler)
 	mux.Use(setLoggedInUser(s.db))
-	mux.Use(loginRequiredFilter(s.db))
+	mux.Use(loginRequiredFilter(s.db, s.appLogger))
 	mux.Use(setCORS)
 	mux.Use(setGRPCMetadata)
 	mux.Use(setGAMeasurementEventValues)

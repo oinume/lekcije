@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/oinume/lekcije/server/logger"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/server/ga_measurement"
@@ -22,6 +21,7 @@ import (
 )
 
 type apiV1Server struct {
+	appLogger           *zap.Logger
 	db                  *gorm.DB
 	redis               *redis.Client
 	gaMeasurementClient ga_measurement.Client
@@ -29,6 +29,7 @@ type apiV1Server struct {
 
 func RegisterAPIV1Server(server *grpc.Server, args *interfaces.ServerArgs) {
 	api_v1.RegisterAPIServer(server, &apiV1Server{
+		appLogger:           args.AppLogger,
 		db:                  args.DB,
 		redis:               args.Redis,
 		gaMeasurementClient: args.GAMeasurementClient,
@@ -155,7 +156,7 @@ func (s *apiV1Server) sendGAMeasurementEvent(
 		userID,
 	)
 	if err != nil {
-		logger.App.Warn("SendEvent() failed", zap.Error(err))
+		s.appLogger.Warn("SendEvent() failed", zap.Error(err))
 	}
 }
 

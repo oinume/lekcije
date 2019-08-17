@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/oinume/lekcije/server/logger"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/server/ga_measurement"
@@ -55,6 +54,6 @@ func (s *server) sendGAMeasurementEvent(
 		userID,
 	)
 	if err != nil {
-		logger.App.Warn("SendEvent() failed", zap.Error(err))
+		s.appLogger.Warn("SendEvent() failed", zap.Error(err))
 	}
 }

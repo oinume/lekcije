@@ -12,7 +12,6 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/util"
 )
@@ -51,7 +50,7 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	mPlanService := model.NewMPlanService(s.db)
 	plan, err := mPlanService.FindByPK(user.PlanID)
 	if err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
 	data.MPlan = plan
@@ -59,13 +58,13 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
 	if err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
 	data.Teachers = teachers
 
 	if err := t.Execute(w, data); err != nil {
-		internalServerError(w, errors.NewInternalError(
+		internalServerError(s.appLogger, w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
 		), user.ID)
@@ -80,7 +79,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	if teacherIDsOrURL == "" {
 		e := flash_message.New(flash_message.KindWarning, emptyTeacherURLMessage)
 		if err := s.flashMessageStore.Save(e); err != nil {
-			internalServerError(w, err, user.ID)
+			internalServerError(s.appLogger, w, err, user.ID)
 			return
 		}
 		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
@@ -91,7 +90,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		e := flash_message.New(flash_message.KindWarning, invalidTeacherURLMessage)
 		if err := s.flashMessageStore.Save(e); err != nil {
-			internalServerError(w, err, user.ID)
+			internalServerError(s.appLogger, w, err, user.ID)
 			return
 		}
 		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
@@ -101,7 +100,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	followingTeacherService := model.NewFollowingTeacherService(s.db)
 	reachesLimit, err := followingTeacherService.ReachesFollowingTeacherLimit(user.ID, len(teachers))
 	if err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
 	if reachesLimit {
@@ -110,7 +109,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 			fmt.Sprintf(reachedMaxFollowTeacherMessage, model.MaxFollowTeacherCount),
 		)
 		if err := s.flashMessageStore.Save(e); err != nil {
-			internalServerError(w, err, user.ID)
+			internalServerError(s.appLogger, w, err, user.ID)
 			return
 		}
 		http.Redirect(w, r, "/me?"+e.AsURLQueryString(), http.StatusFound)
@@ -124,11 +123,11 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 		userService := model.NewUserService(s.db)
 		// TODO: 1回でまとめて更新する
 		if err := userService.UpdateFollowedTeacherAt(user); err != nil {
-			internalServerError(w, err, user.ID)
+			internalServerError(s.appLogger, w, err, user.ID)
 			return
 		}
 		if err := userService.UpdateOpenNotificationAt(user.ID, time.Now().UTC()); err != nil {
-			internalServerError(w, err, user.ID)
+			internalServerError(s.appLogger, w, err, user.ID)
 			return
 		}
 		updateFollowedTeacherAt = true
@@ -138,10 +137,10 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	// TODO: preload
 	mCountries, err := mCountryService.LoadAll(ctx)
 	if err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
-	fetcher := fetcher.NewLessonFetcher(nil, 1, false, mCountries, logger.App)
+	fetcher := fetcher.NewLessonFetcher(nil, 1, false, mCountries, s.appLogger)
 	defer fetcher.Close()
 	now := time.Now().UTC()
 	teacherIDs := make([]string, 0, len(teachers))
@@ -151,12 +150,12 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 			if errors.IsNotFound(err) {
 				continue
 			}
-			internalServerError(w, err, user.ID)
+			internalServerError(s.appLogger, w, err, user.ID)
 			return
 		}
 
 		if _, err := followingTeacherService.FollowTeacher(user.ID, teacher, now); err != nil {
-			internalServerError(w, err, user.ID)
+			internalServerError(s.appLogger, w, err, user.ID)
 			return
 		}
 		teacherIDs = append(teacherIDs, fmt.Sprint(t.ID))
@@ -184,7 +183,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 
 	successMessage := flash_message.New(flash_message.KindSuccess, followedMessage)
 	if err := s.flashMessageStore.Save(successMessage); err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
 
@@ -210,7 +209,7 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 		util.StringToUint32Slice(teacherIDs...),
 	)
 	if err != nil {
-		internalServerError(w, errors.NewInternalError(
+		internalServerError(s.appLogger, w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to delete teachers"),
 			errors.WithResource(errors.NewResource("following_teacher_service", "teacherIDs", teacherIDs)),
@@ -229,7 +228,7 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 
 	successMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
 	if err := s.flashMessageStore.Save(successMessage); err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
 
@@ -250,7 +249,7 @@ func (s *server) getMeSetting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		internalServerError(w, errors.NewInternalError(
+		internalServerError(s.appLogger, w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to template.Execute()"),
 		), user.ID)
@@ -268,7 +267,7 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie(APITokenCookieName)
 	if err != nil {
-		internalServerError(w, errors.NewInternalError(
+		internalServerError(s.appLogger, w, errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessage("Failed to get token cookie"),
 		), user.ID)
@@ -285,7 +284,7 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookieToDelete)
 	userAPITokenService := model.NewUserAPITokenService(s.db)
 	if err := userAPITokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
 	go s.sendGAMeasurementEvent(

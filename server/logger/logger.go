@@ -3,15 +3,10 @@ package logger
 import (
 	"io"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-)
-
-var (
-	App *zap.Logger
 )
 
 func init() {
@@ -21,17 +16,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	//InitializeAccessLogger(os.Stdout)
-	appLogLevel := zapcore.InfoLevel
-	if level := os.Getenv("LOG_LEVEL"); level != "" {
-		appLogLevel = NewLevel(level)
-	}
-	InitializeAppLogger(os.Stderr, appLogLevel)
-}
-
-func InitializeAppLogger(w io.Writer, logLevel zapcore.Level) {
-	App = NewZapLogger(nil, []io.Writer{w}, logLevel)
 }
 
 func NewAccessLogger(w io.Writer) *zap.Logger {

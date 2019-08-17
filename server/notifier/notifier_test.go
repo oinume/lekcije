@@ -134,7 +134,7 @@ func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
 
 func TestNotifier_SendNotification(t *testing.T) {
 	db := helper.DB(t)
-	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
+	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 
 	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
 	if err != nil {
@@ -155,13 +155,13 @@ func TestNotifier_SendNotification(t *testing.T) {
 			users = append(users, user)
 		}
 
-		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), nil)
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), appLogger)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
 		}
-		sender := emailer.NewSendGridSender(senderHTTPClient)
-		n := NewNotifier(db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
+		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+		n := NewNotifier(appLogger, db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
 
 		ctx := context.Background()
 		for _, user := range users {
@@ -202,8 +202,8 @@ func TestNotifier_SendNotification(t *testing.T) {
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
 		}
-		sender := emailer.NewSendGridSender(senderHTTPClient)
-		n := NewNotifier(db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
+		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+		n := NewNotifier(appLogger, db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
 		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -234,26 +234,26 @@ func TestNotifier_Close(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 	db := helper.DB(t)
-	logger.InitializeAppLogger(os.Stdout, zapcore.DebugLevel)
+	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 
 	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
 	r.NoError(err, "fetcher.NewMockTransport failed")
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
 	}
-	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), nil)
+	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), appLogger)
 
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
 		Transport: senderTransport,
 	}
-	sender := emailer.NewSendGridSender(senderHTTPClient)
+	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
 
 	user := helper.CreateRandomUser(t)
 	teacher := helper.CreateTeacher(t, 3982, "Hena")
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
-	n := NewNotifier(db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
+	n := NewNotifier(appLogger, db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(context.Background(), &model.StatNotifier{

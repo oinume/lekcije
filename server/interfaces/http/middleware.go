@@ -13,7 +13,6 @@ import (
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
@@ -34,7 +33,7 @@ func panicHandler(h http.Handler) http.Handler {
 				default:
 					err = fmt.Errorf("unknown error type: %v", errorType)
 				}
-				internalServerError(w, errors.NewInternalError(
+				internalServerError(nil, w, errors.NewInternalError(
 					errors.WithError(err),
 					errors.WithMessage("panic occurred"),
 				), 0)
@@ -172,7 +171,7 @@ func setGAMeasurementEventValues(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
+func loginRequiredFilter(db *gorm.DB, appLogger *zap.Logger) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -182,7 +181,7 @@ func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
 			}
 			cookie, err := r.Cookie(APITokenCookieName)
 			if err != nil {
-				logger.App.Debug("Not logged in")
+				appLogger.Debug("Not logged in")
 				http.Redirect(w, r, config.WebURL(), http.StatusFound)
 				return
 			}
@@ -192,14 +191,14 @@ func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
 			user, err := userService.FindLoggedInUser(cookie.Value)
 			if err != nil {
 				if errors.IsNotFound(err) {
-					logger.App.Debug("not logged in")
+					appLogger.Debug("not logged in")
 					http.Redirect(w, r, config.WebURL(), http.StatusFound)
 					return
 				}
-				internalServerError(w, err, 0)
+				internalServerError(appLogger, w, err, 0)
 				return
 			}
-			logger.App.Debug("Logged in user", zap.String("name", user.Name))
+			appLogger.Debug("Logged in user", zap.String("name", user.Name))
 			c := context_data.SetLoggedInUser(ctx, user)
 			h.ServeHTTP(w, r.WithContext(c))
 		}

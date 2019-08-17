@@ -41,7 +41,7 @@ func (m *followReminderMain) run(args []string) error {
 	var (
 		dryRun     = flagSet.Bool("dry-run", false, "Don't update database with fetched lessons")
 		targetDate = flagSet.String("target-date", "", "Specify registration date of users")
-		//logLevel             = flagSet.String("log-level", "info", "Log level")
+		logLevel   = flagSet.String("log-level", "info", "Log level")
 	)
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
@@ -49,13 +49,11 @@ func (m *followReminderMain) run(args []string) error {
 
 	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
-	//if *logLevel != "" {
-	//	logger.App.SetLevel(logger.NewLevel(*logLevel))
-	//}
-	logger.App.Info("follow_reminder started")
+	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel(*logLevel))
+	appLogger.Info("follow_reminder started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("follow_reminder finished", zap.Int("elapsed", int(elapsed)))
+		appLogger.Info("follow_reminder finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
 	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
@@ -79,7 +77,7 @@ func (m *followReminderMain) run(args []string) error {
 		return err
 	}
 
-	sender := emailer.NewSendGridSender(http.DefaultClient)
+	sender := emailer.NewSendGridSender(http.DefaultClient, appLogger)
 	templateText := getEmailTemplate()
 	for _, user := range users {
 		t := emailer.NewTemplate("follow_reminder", templateText)
@@ -102,7 +100,7 @@ func (m *followReminderMain) run(args []string) error {
 				return err
 			}
 		}
-		logger.App.Info("followReminder", zap.Uint("userID", uint(user.ID)), zap.String("email", user.Email))
+		appLogger.Info("followReminder", zap.Uint("userID", uint(user.ID)), zap.String("email", user.Email))
 	}
 
 	return nil

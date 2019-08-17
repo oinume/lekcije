@@ -87,8 +87,10 @@ func main() {
 	defer redis.Close()
 
 	accessLogger := logger.NewAccessLogger(os.Stdout)
+	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel("info")) // TODO: flag
 	args := &interfaces.ServerArgs{
 		AccessLogger:      accessLogger,
+		AppLogger:         appLogger,
 		DB:                db,
 		FlashMessageStore: flash_message.NewStoreRedis(redis),
 		Redis:             redis,
@@ -97,7 +99,7 @@ func main() {
 		},
 		GAMeasurementClient: ga_measurement.NewClient(
 			nil,
-			logger.App,
+			appLogger,
 			event_logger.New(accessLogger),
 		),
 	}

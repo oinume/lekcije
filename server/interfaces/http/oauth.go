@@ -12,7 +12,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/registration_email"
 	"github.com/oinume/lekcije/server/util"
@@ -75,7 +74,7 @@ func (s *server) oauthGoogle(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	if err := checkState(r); err != nil {
-		internalServerError(w, err, 0)
+		internalServerError(s.appLogger, w, err, 0)
 		return
 	}
 	token, idToken, err := exchange(r)
@@ -84,12 +83,12 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
-		internalServerError(w, err, 0)
+		internalServerError(s.appLogger, w, err, 0)
 		return
 	}
 	googleID, name, email, err := getGoogleUserInfo(token, idToken)
 	if err != nil {
-		internalServerError(w, err, 0)
+		internalServerError(s.appLogger, w, err, 0)
 		return
 	}
 
@@ -107,7 +106,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		)
 	} else {
 		if !errors.IsNotFound(err) {
-			internalServerError(w, err, 0)
+			internalServerError(s.appLogger, w, err, 0)
 			return
 		}
 		// Couldn't find user for the googleID, so create a new user
@@ -117,7 +116,7 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			return errCreate
 		})
 		if errTx != nil {
-			internalServerError(w, errTx, 0)
+			internalServerError(s.appLogger, w, errTx, 0)
 			return
 		}
 		userCreated = true
@@ -134,16 +133,16 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	userAPITokenService := model.NewUserAPITokenService(s.db)
 	userAPIToken, err := userAPITokenService.Create(user.ID)
 	if err != nil {
-		internalServerError(w, err, user.ID)
+		internalServerError(s.appLogger, w, err, user.ID)
 		return
 	}
 
 	if userCreated {
 		// Send registration email
 		go func(user *model.User) {
-			sender := registration_email.NewEmailSender(s.senderHTTPClient)
+			sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
 			if err := sender.Send(r.Context(), user); err != nil {
-				logger.App.Error(
+				s.appLogger.Error(
 					"Failed to send registration email",
 					zap.String("email", user.Email), zap.Error(err),
 				)

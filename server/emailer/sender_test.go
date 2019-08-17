@@ -4,8 +4,12 @@ import (
 	"context"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
+
+	"github.com/oinume/lekcije/server/logger"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -53,7 +57,10 @@ oinume さん
 	email.SetCustomArg("userId", "1")
 	email.SetCustomArg("teacherIds", "1,2,3")
 	tr := &transport{}
-	err = NewSendGridSender(&http.Client{Transport: tr}).Send(context.Background(), email)
+	err = NewSendGridSender(
+		&http.Client{Transport: tr},
+		logger.NewAppLogger(os.Stdout, zapcore.InfoLevel),
+	).Send(context.Background(), email)
 	r.Nil(err)
 	a.True(tr.called)
 }

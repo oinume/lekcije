@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/oinume/lekcije/server/logger"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
@@ -55,7 +59,8 @@ func TestEmailSender_Send(t *testing.T) {
 		Transport: transport,
 	}
 
-	sender := NewEmailSender(httpClient)
+	appLogger := logger.NewAppLogger(os.Stdout, zapcore.InfoLevel)
+	sender := NewEmailSender(httpClient, appLogger)
 	err := sender.Send(context.Background(), user)
 	r.NoError(err)
 	a.Equal(1, transport.called)
