@@ -9,26 +9,22 @@ import (
 	"os"
 	"time"
 
-	"github.com/oinume/lekcije/server/event_logger"
-	"github.com/oinume/lekcije/server/ga_measurement"
-	"github.com/oinume/lekcije/server/logger"
-
-	"github.com/oinume/lekcije/server/gcp"
-
-	"go.opencensus.io/trace"
-
-	"github.com/oinume/lekcije/server/open_census"
-
 	"cloud.google.com/go/profiler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/event_logger"
+	"github.com/oinume/lekcije/server/ga_measurement"
+	"github.com/oinume/lekcije/server/gcp"
 	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_grpc "github.com/oinume/lekcije/server/interfaces/grpc"
 	"github.com/oinume/lekcije/server/interfaces/grpc/interceptor"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/open_census"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
