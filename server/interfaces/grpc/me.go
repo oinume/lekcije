@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/oinume/lekcije/server/logger"
+	"go.uber.org/zap"
+
+	"github.com/oinume/lekcije/server/ga_measurement"
+
 	"github.com/jinzhu/gorm"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/context_data"
-	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/interfaces"
 	"github.com/oinume/lekcije/server/model"
 	"google.golang.org/grpc"
@@ -18,14 +22,16 @@ import (
 )
 
 type apiV1Server struct {
-	db    *gorm.DB
-	redis *redis.Client
+	db                  *gorm.DB
+	redis               *redis.Client
+	gaMeasurementClient ga_measurement.Client
 }
 
 func RegisterAPIV1Server(server *grpc.Server, args *interfaces.ServerArgs) {
 	api_v1.RegisterAPIServer(server, &apiV1Server{
-		db:    args.DB,
-		redis: args.Redis,
+		db:                  args.DB,
+		redis:               args.Redis,
+		gaMeasurementClient: args.GAMeasurementClient,
 	})
 }
 
@@ -92,7 +98,15 @@ func (s *apiV1Server) UpdateMeEmail(
 	if err := userService.UpdateEmail(user, in.Email); err != nil {
 		return nil, err
 	}
-	go event_logger.SendGAMeasurementEvent2(event_logger.MustGAMeasurementEventValues(ctx), event_logger.CategoryUser, "update", fmt.Sprint(user.ID), 0, user.ID)
+
+	go s.sendGAMeasurementEvent(
+		ctx,
+		ga_measurement.CategoryUser,
+		"update",
+		fmt.Sprint(user.ID),
+		0,
+		user.ID,
+	)
 
 	return &api_v1.UpdateMeEmailResponse{}, nil
 }
@@ -112,9 +126,37 @@ func (s *apiV1Server) UpdateMeNotificationTimeSpan(
 		return nil, err
 	}
 
-	go event_logger.SendGAMeasurementEvent2(event_logger.MustGAMeasurementEventValues(ctx), event_logger.CategoryUser, "updateNotificationTimeSpan", fmt.Sprint(user.ID), 0, user.ID)
+	go s.sendGAMeasurementEvent(
+		ctx,
+		ga_measurement.CategoryUser,
+		"updateNotificationTimeSpan",
+		fmt.Sprint(user.ID),
+		0,
+		user.ID,
+	)
 
 	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
+}
+
+func (s *apiV1Server) sendGAMeasurementEvent(
+	ctx context.Context,
+	category,
+	action,
+	label string,
+	value int64,
+	userID uint32,
+) {
+	err := s.gaMeasurementClient.SendEvent(
+		ga_measurement.MustEventValues(ctx),
+		category,
+		action,
+		fmt.Sprint(userID),
+		0,
+		userID,
+	)
+	if err != nil {
+		logger.App.Warn("SendEvent() failed", zap.Error(err))
+	}
 }
 
 func authenticateFromContext(ctx context.Context, db *gorm.DB) (*model.User, error) {

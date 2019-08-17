@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oinume/lekcije/server/interfaces"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,9 +42,7 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	r.NoError(err)
 
 	w := httptest.NewRecorder()
-	s := NewServer(&interfaces.ServerArgs{
-		DB: helper.DB(t),
-	})
+	s := newTestServer(t)
 	handler := s.postAPISendGridEventWebhookHandler()
 	handler.ServeHTTP(w, req)
 

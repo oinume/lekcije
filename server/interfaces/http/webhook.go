@@ -7,6 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/oinume/lekcije/server/ga_measurement"
+
+	"github.com/oinume/lekcije/server/logger"
+
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/model"
@@ -66,7 +70,12 @@ func (v *SendGridEventValues) LogToFile() {
 		fields = append(fields, zap.String("url", v.URL))
 	}
 
-	event_logger.Log(userID, event_logger.CategoryEmail, v.Event, fields...)
+	event_logger.New(logger.Access).Log(
+		userID,
+		ga_measurement.CategoryEmail,
+		v.Event,
+		fields...,
+	)
 }
 
 func (v *SendGridEventValues) LogToDB(db *gorm.DB) error {

@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/ga_measurement"
+
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/logger"
@@ -161,16 +162,23 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 		teacherIDs = append(teacherIDs, fmt.Sprint(t.ID))
 	}
 
-	go event_logger.SendGAMeasurementEvent2(
-		event_logger.MustGAMeasurementEventValues(r.Context()),
-		event_logger.CategoryFollowingTeacher, "follow",
-		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
+	go s.sendGAMeasurementEvent(
+		r.Context(),
+		ga_measurement.CategoryFollowingTeacher,
+		"follow",
+		strings.Join(teacherIDs, ","),
+		int64(len(teacherIDs)),
+		user.ID,
 	)
+
 	if updateFollowedTeacherAt {
-		go event_logger.SendGAMeasurementEvent2(
-			event_logger.MustGAMeasurementEventValues(r.Context()),
-			event_logger.CategoryUser, "followFirstTime",
-			fmt.Sprint(user.ID), 0, user.ID,
+		go s.sendGAMeasurementEvent(
+			r.Context(),
+			ga_measurement.CategoryUser,
+			"followFirstTime",
+			fmt.Sprint(user.ID),
+			0,
+			user.ID,
 		)
 	}
 
@@ -209,10 +217,14 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 		), user.ID)
 		return
 	}
-	go event_logger.SendGAMeasurementEvent2(
-		event_logger.MustGAMeasurementEventValues(r.Context()),
-		event_logger.CategoryFollowingTeacher, "unfollow",
-		strings.Join(teacherIDs, ","), int64(len(teacherIDs)), user.ID,
+
+	go s.sendGAMeasurementEvent(
+		r.Context(),
+		ga_measurement.CategoryUser,
+		"unfollow",
+		strings.Join(teacherIDs, ","),
+		int64(len(teacherIDs)),
+		user.ID,
 	)
 
 	successMessage := flash_message.New(flash_message.KindSuccess, unfollowedMessage)
@@ -276,10 +288,13 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 		internalServerError(w, err, user.ID)
 		return
 	}
-	go event_logger.SendGAMeasurementEvent2(
-		event_logger.MustGAMeasurementEventValues(r.Context()),
-		event_logger.CategoryUser, "logout", "", 0, user.ID,
+	go s.sendGAMeasurementEvent(
+		r.Context(),
+		ga_measurement.CategoryUser,
+		"logout",
+		fmt.Sprint(user.ID),
+		0,
+		user.ID,
 	)
-
 	http.Redirect(w, r, "/", http.StatusFound)
 }

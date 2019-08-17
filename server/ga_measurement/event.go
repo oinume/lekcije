@@ -9,6 +9,12 @@ import (
 	"github.com/oinume/lekcije/server/errors"
 )
 
+const (
+	CategoryEmail            = "email"
+	CategoryUser             = "user"
+	CategoryFollowingTeacher = "followingTeacher"
+)
+
 type eventValuesKey struct{}
 
 type EventValues struct {
@@ -48,6 +54,14 @@ func GetEventValues(ctx context.Context) (*EventValues, error) {
 			errors.WithMessage("failed get value from context"),
 		)
 	}
+}
+
+func MustEventValues(ctx context.Context) *EventValues {
+	v, err := GetEventValues(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }
 
 func getRemoteAddress(req *http.Request) string {

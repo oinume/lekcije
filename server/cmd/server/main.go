@@ -8,6 +8,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/oinume/lekcije/server/event_logger"
+	"github.com/oinume/lekcije/server/ga_measurement"
+	"github.com/oinume/lekcije/server/logger"
+
 	"github.com/oinume/lekcije/server/gcp"
 
 	"go.opencensus.io/trace"
@@ -92,7 +96,13 @@ func main() {
 		SenderHTTPClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},
+		GAMeasurementClient: ga_measurement.NewClient(
+			nil,
+			logger.App,
+			event_logger.New(logger.Access),
+		),
 	}
+
 	errors := make(chan error)
 	go func() {
 		errors <- startGRPCServer(grpcPort, args)

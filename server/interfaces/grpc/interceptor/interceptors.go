@@ -4,9 +4,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/oinume/lekcije/server/ga_measurement"
+
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/oinume/lekcije/server/context_data"
-	"github.com/oinume/lekcije/server/event_logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -42,7 +43,7 @@ func GAMeasurementEventInterceptor() grpc.UnaryServerInterceptor {
 			return handler(ctx, req)
 		}
 
-		eventValues := &event_logger.GAMeasurementEventValues{}
+		eventValues := &ga_measurement.EventValues{}
 		for key, values := range md {
 			if !strings.HasPrefix(key, "http-") {
 				continue
@@ -63,7 +64,7 @@ func GAMeasurementEventInterceptor() grpc.UnaryServerInterceptor {
 				eventValues.ClientID = values[0]
 			}
 		}
-		c := event_logger.WithGAMeasurementEventValues(ctx, eventValues)
+		c := ga_measurement.WithEventValues(ctx, eventValues)
 		return handler(c, req)
 	}
 }

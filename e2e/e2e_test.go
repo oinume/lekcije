@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oinume/lekcije/server/ga_measurement"
+
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/interfaces"
@@ -42,6 +44,7 @@ func TestMain(m *testing.M) {
 		AppLogger:    logger.NewAppLogger(&appLogBuffer, appLogLevel),
 		DB:           helper.DB(nil),
 		//Redis: redis
+		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	}
 	s := interfaces_http.NewServer(args)
 	routes := s.CreateRoutes(nil) // TODO: grpc-gateway

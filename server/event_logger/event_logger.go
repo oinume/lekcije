@@ -183,7 +183,7 @@ type Logger struct {
 	logger *zap.Logger
 }
 
-func NewEventLogger(l *zap.Logger) *Logger {
+func New(l *zap.Logger) *Logger {
 	return &Logger{logger: l}
 }
 

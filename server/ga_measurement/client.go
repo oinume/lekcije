@@ -6,9 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/oinume/lekcije/server/errors"
-
 	ga "github.com/jpillora/go-ogle-analytics"
+	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
 	"go.uber.org/zap"
@@ -18,6 +17,17 @@ import (
 var defaultHTTPClient = &http.Client{
 	Transport: &logger.LoggingHTTPTransport{DumpHeaderBody: true},
 	Timeout:   time.Second * 7,
+}
+
+type Client interface {
+	SendEvent(
+		values *EventValues,
+		category,
+		action,
+		label string,
+		value int64,
+		userID uint32,
+	) error
 }
 
 type client struct {
@@ -92,5 +102,22 @@ func (c *client) SendEvent(
 		)
 	}
 
+	return nil
+}
+
+type fakeClient struct{}
+
+func NewFakeClient() *fakeClient {
+	return &fakeClient{}
+}
+
+func (fc *fakeClient) SendEvent(
+	values *EventValues,
+	category,
+	action,
+	label string,
+	value int64,
+	userID uint32,
+) error {
 	return nil
 }

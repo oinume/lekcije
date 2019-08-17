@@ -7,10 +7,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/oinume/lekcije/server/ga_measurement"
+
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/registration_email"
@@ -96,10 +97,13 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	user, err := userService.FindByGoogleID(googleID)
 	userCreated := false
 	if err == nil {
-		go event_logger.SendGAMeasurementEvent2(
-			event_logger.MustGAMeasurementEventValues(r.Context()),
-			event_logger.CategoryUser, "login",
-			fmt.Sprint(user.ID), 0, user.ID,
+		go s.sendGAMeasurementEvent(
+			r.Context(),
+			ga_measurement.CategoryUser,
+			"login",
+			fmt.Sprint(user.ID),
+			0,
+			user.ID,
 		)
 	} else {
 		if !errors.IsNotFound(err) {
@@ -117,10 +121,13 @@ func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		userCreated = true
-		go event_logger.SendGAMeasurementEvent2(
-			event_logger.MustGAMeasurementEventValues(r.Context()),
-			event_logger.CategoryUser, "create",
-			fmt.Sprint(user.ID), 0, user.ID,
+		go s.sendGAMeasurementEvent(
+			r.Context(),
+			ga_measurement.CategoryUser,
+			"create",
+			fmt.Sprint(user.ID),
+			0,
+			user.ID,
 		)
 	}
 
@@ -218,7 +225,7 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 	if err != nil {
 		return "", "", "", errors.NewInternalError(
 			errors.WithError(err),
-			errors.WithMessage("Failed to create oauth2.Client"),
+			errors.WithMessage("Failed to create oauth2.client"),
 		)
 	}
 

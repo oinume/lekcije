@@ -99,7 +99,7 @@ func Test_client_SendEvent(t *testing.T) {
 			c := NewClient(
 				&http.Client{Transport: test.transport},
 				zap.NewNop(),
-				event_logger.NewEventLogger(zap.NewNop()),
+				event_logger.New(zap.NewNop()),
 			)
 
 			err := c.SendEvent(

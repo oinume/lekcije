@@ -6,12 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/ga_measurement"
+
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
@@ -160,8 +161,10 @@ func setGRPCMetadata(h http.Handler) http.Handler {
 
 func setGAMeasurementEventValues(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		v := event_logger.NewGAMeasurementEventValuesFromRequest(r)
-		c := event_logger.WithGAMeasurementEventValues(r.Context(), v)
+		c := ga_measurement.WithEventValues(
+			r.Context(),
+			ga_measurement.NewEventValuesFromRequest(r),
+		)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)

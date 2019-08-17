@@ -1,7 +1,14 @@
 package http
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+
+	"github.com/oinume/lekcije/server/logger"
+	"go.uber.org/zap"
+
+	"github.com/oinume/lekcije/server/ga_measurement"
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/interfaces"
@@ -10,17 +17,40 @@ import (
 )
 
 type server struct {
-	db                *gorm.DB
-	flashMessageStore flash_message.Store
-	redis             *redis.Client
-	senderHTTPClient  *http.Client
+	db                  *gorm.DB
+	flashMessageStore   flash_message.Store
+	redis               *redis.Client
+	senderHTTPClient    *http.Client
+	gaMeasurementClient ga_measurement.Client
 }
 
 func NewServer(args *interfaces.ServerArgs) *server {
 	return &server{
-		db:                args.DB,
-		flashMessageStore: args.FlashMessageStore,
-		redis:             args.Redis,
-		senderHTTPClient:  args.SenderHTTPClient,
+		db:                  args.DB,
+		flashMessageStore:   args.FlashMessageStore,
+		redis:               args.Redis,
+		senderHTTPClient:    args.SenderHTTPClient,
+		gaMeasurementClient: args.GAMeasurementClient,
+	}
+}
+
+func (s *server) sendGAMeasurementEvent(
+	ctx context.Context,
+	category,
+	action,
+	label string,
+	value int64,
+	userID uint32,
+) {
+	err := s.gaMeasurementClient.SendEvent(
+		ga_measurement.MustEventValues(ctx),
+		category,
+		action,
+		fmt.Sprint(userID),
+		0,
+		userID,
+	)
+	if err != nil {
+		logger.App.Warn("SendEvent() failed", zap.Error(err))
 	}
 }
