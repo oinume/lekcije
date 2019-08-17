@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/oinume/lekcije/server/event_logger"
@@ -89,7 +90,9 @@ func main() {
 	}
 	defer redis.Close()
 
+	accessLogger := logger.NewAccessLogger(os.Stdout)
 	args := &interfaces.ServerArgs{
+		AccessLogger:      accessLogger,
 		DB:                db,
 		FlashMessageStore: flash_message.NewStoreRedis(redis),
 		Redis:             redis,
@@ -99,7 +102,7 @@ func main() {
 		GAMeasurementClient: ga_measurement.NewClient(
 			nil,
 			logger.App,
-			event_logger.New(logger.Access),
+			event_logger.New(accessLogger),
 		),
 	}
 

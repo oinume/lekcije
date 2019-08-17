@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	Access *zap.Logger
-	App    *zap.Logger
+	App *zap.Logger
 )
 
 func init() {
@@ -29,10 +28,6 @@ func init() {
 		appLogLevel = NewLevel(level)
 	}
 	InitializeAppLogger(os.Stderr, appLogLevel)
-}
-
-func InitializeAccessLogger(w io.Writer) {
-	Access = NewZapLogger(nil, []io.Writer{w}, zapcore.InfoLevel)
 }
 
 func InitializeAppLogger(w io.Writer, logLevel zapcore.Level) {
