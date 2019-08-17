@@ -7,6 +7,7 @@ import (
 	"time"
 
 	ga "github.com/jpillora/go-ogle-analytics"
+	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -19,11 +20,15 @@ var defaultHTTPClient = &http.Client{
 
 type client struct {
 	appLogger   *zap.Logger
-	eventLogger *zap.Logger
+	eventLogger *event_logger.Logger
 	httpClient  *http.Client
 }
 
-func NewClient(httpClient *http.Client, appLogger *zap.Logger, eventLogger *zap.Logger) *client {
+func NewClient(
+	httpClient *http.Client,
+	appLogger *zap.Logger,
+	eventLogger *event_logger.Logger,
+) *client {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
 	}
@@ -73,12 +78,14 @@ func (c *client) SendEvent(
 		gaClient.UserID(fmt.Sprint(userID))
 		logFields = append(logFields, zap.Uint("userID", uint(userID)))
 	}
+
+	c.eventLogger.Log(userID, category, action, zap.String("label", label), zap.Int64("value", value))
 	if err := gaClient.Send(event); err == nil {
-		logger.App.Debug("SendGAMeasurementEvent() success", logFields...)
-		// TODO: use event_logger
-		c.eventLogger.Log(userID, category, action, zap.String("label", label), zap.Int64("value", value))
+		logger.App.Debug("ga_measurement.client.SendEvent() success", logFields...)
 	} else {
-		logger.App.Warn("SendGAMeasurementEvent() failed", zap.Error(err))
+		logger.App.Warn("ga_measurement.client.SendEvent() failed", zap.Error(err))
+		return err
 	}
+
 	return nil
 }
