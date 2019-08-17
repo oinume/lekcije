@@ -17,6 +17,8 @@ import (
 )
 
 type server struct {
+	accessLogger        *zap.Logger
+	appLogger           *zap.Logger
 	db                  *gorm.DB
 	flashMessageStore   flash_message.Store
 	redis               *redis.Client
@@ -26,6 +28,8 @@ type server struct {
 
 func NewServer(args *interfaces.ServerArgs) *server {
 	return &server{
+		accessLogger:        args.AccessLogger,
+		appLogger:           args.AppLogger,
 		db:                  args.DB,
 		flashMessageStore:   args.FlashMessageStore,
 		redis:               args.Redis,

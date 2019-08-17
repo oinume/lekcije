@@ -10,7 +10,7 @@ import (
 func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux := goji.NewMux()
 	mux.Use(setTrackingID)
-	mux.Use(accessLogger)
+	mux.Use(setAccessLogger(s.accessLogger))
 	mux.Use(redirecter)
 	mux.Use(panicHandler)
 	mux.Use(setLoggedInUser(s.db))
