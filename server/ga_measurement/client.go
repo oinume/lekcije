@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/oinume/lekcije/server/errors"
+
 	ga "github.com/jpillora/go-ogle-analytics"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
@@ -49,7 +51,7 @@ func (c *client) SendEvent(
 ) error {
 	gaClient, err := ga.NewClient(os.Getenv("GOOGLE_ANALYTICS_ID"))
 	if err != nil {
-		c.appLogger.Warn("ga.NewClient() failed", zap.Error(err))
+		c.appLogger.Error("ga.NewClient() failed", zap.Error(err))
 		return err
 	}
 	gaClient.HttpClient = c.httpClient
@@ -84,7 +86,10 @@ func (c *client) SendEvent(
 		logger.App.Debug("ga_measurement.client.SendEvent() success", logFields...)
 	} else {
 		logger.App.Warn("ga_measurement.client.SendEvent() failed", zap.Error(err))
-		return err
+		return errors.NewInternalError(
+			errors.WithMessage("gaClient.Send failed"),
+			errors.WithError(err),
+		)
 	}
 
 	return nil
