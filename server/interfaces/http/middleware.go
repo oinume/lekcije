@@ -46,7 +46,7 @@ func panicHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func setAccessLogger(logger *zap.Logger) func(http.Handler) http.Handler {
+func accessLogger(logger *zap.Logger) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
@@ -81,41 +81,6 @@ func setAccessLogger(logger *zap.Logger) func(http.Handler) http.Handler {
 		}
 		return http.HandlerFunc(fn)
 	}
-}
-
-func accessLogger(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		writerProxy := WrapWriter(w)
-		h.ServeHTTP(writerProxy, r)
-		func() {
-			end := time.Now()
-			status := writerProxy.Status()
-			if status == 0 {
-				status = http.StatusOK
-			}
-			trackingID := ""
-			if v, err := context_data.GetTrackingID(r.Context()); err == nil {
-				trackingID = v
-			}
-
-			// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
-			logger.Access.Info(
-				"access",
-				zap.String("date", start.Format(time.RFC3339)),
-				zap.String("method", r.Method),
-				zap.String("url", r.URL.String()),
-				zap.Int("status", status),
-				zap.Int("bytes", writerProxy.BytesWritten()),
-				zap.String("remoteAddr", getRemoteAddress(r)),
-				zap.String("userAgent", r.Header.Get("User-Agent")),
-				zap.String("referer", r.Referer()),
-				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
-				zap.String("trackingID", trackingID),
-			)
-		}()
-	}
-	return http.HandlerFunc(fn)
 }
 
 func setLoggedInUser(db *gorm.DB) func(http.Handler) http.Handler {

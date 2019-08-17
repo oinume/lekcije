@@ -21,7 +21,7 @@ func TestAccessLogger(t *testing.T) {
 	r.NoError(err)
 	w := httptest.NewRecorder()
 	b := new(bytes.Buffer)
-	middleware := setAccessLogger(logger.NewAccessLogger(b))
+	middleware := accessLogger(logger.NewAccessLogger(b))
 	middleware(http.HandlerFunc(dummyHandler)).ServeHTTP(w, req)
 
 	a.Equal(http.StatusOK, w.Code)
