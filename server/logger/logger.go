@@ -3,17 +3,10 @@ package logger
 import (
 	"io"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-)
-
-// TODO: consider to put them into context
-var (
-	Access *zap.Logger
-	App    *zap.Logger
 )
 
 func init() {
@@ -23,21 +16,14 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	InitializeAccessLogger(os.Stdout)
-	appLogLevel := zapcore.InfoLevel
-	if level := os.Getenv("LOG_LEVEL"); level != "" {
-		appLogLevel = NewLevel(level)
-	}
-	InitializeAppLogger(os.Stderr, appLogLevel)
 }
 
-func InitializeAccessLogger(w io.Writer) {
-	Access = NewZapLogger(nil, []io.Writer{w}, zapcore.InfoLevel)
+func NewAccessLogger(w io.Writer) *zap.Logger {
+	return NewZapLogger(nil, []io.Writer{w}, zapcore.InfoLevel)
 }
 
-func InitializeAppLogger(w io.Writer, logLevel zapcore.Level) {
-	App = NewZapLogger(nil, []io.Writer{w}, logLevel)
+func NewAppLogger(w io.Writer, logLevel zapcore.Level) *zap.Logger {
+	return NewZapLogger(nil, []io.Writer{w}, logLevel)
 }
 
 func NewLevel(level string) zapcore.Level {
@@ -62,7 +48,10 @@ func NewLevel(level string) zapcore.Level {
 }
 
 func NewZapLogger(
-	encoderConfig *zapcore.EncoderConfig, writers []io.Writer, logLevel zapcore.Level, options ...zap.Option,
+	encoderConfig *zapcore.EncoderConfig,
+	writers []io.Writer,
+	logLevel zapcore.Level,
+	options ...zap.Option,
 ) *zap.Logger {
 	if encoderConfig == nil {
 		c := zap.NewProductionEncoderConfig()

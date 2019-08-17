@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/oinume/lekcije/server/ga_measurement"
+
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/event_logger"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
@@ -33,7 +33,7 @@ func panicHandler(h http.Handler) http.Handler {
 				default:
 					err = fmt.Errorf("unknown error type: %v", errorType)
 				}
-				internalServerError(w, errors.NewInternalError(
+				internalServerError(nil, w, errors.NewInternalError(
 					errors.WithError(err),
 					errors.WithMessage("panic occurred"),
 				), 0)
@@ -45,39 +45,41 @@ func panicHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func accessLogger(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		writerProxy := WrapWriter(w)
-		h.ServeHTTP(writerProxy, r)
-		func() {
-			end := time.Now()
-			status := writerProxy.Status()
-			if status == 0 {
-				status = http.StatusOK
-			}
-			trackingID := ""
-			if v, err := context_data.GetTrackingID(r.Context()); err == nil {
-				trackingID = v
-			}
+func accessLogger(logger *zap.Logger) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			writerProxy := WrapWriter(w)
+			h.ServeHTTP(writerProxy, r)
+			func() {
+				end := time.Now()
+				status := writerProxy.Status()
+				if status == 0 {
+					status = http.StatusOK
+				}
+				trackingID := ""
+				if v, err := context_data.GetTrackingID(r.Context()); err == nil {
+					trackingID = v
+				}
 
-			// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
-			logger.Access.Info(
-				"access",
-				zap.String("date", start.Format(time.RFC3339)),
-				zap.String("method", r.Method),
-				zap.String("url", r.URL.String()),
-				zap.Int("status", status),
-				zap.Int("bytes", writerProxy.BytesWritten()),
-				zap.String("remoteAddr", getRemoteAddress(r)),
-				zap.String("userAgent", r.Header.Get("User-Agent")),
-				zap.String("referer", r.Referer()),
-				zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
-				zap.String("trackingID", trackingID),
-			)
-		}()
+				// 180.76.15.26 - - [31/Jul/2016:13:18:07 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
+				logger.Info(
+					"access",
+					zap.String("date", start.Format(time.RFC3339)),
+					zap.String("method", r.Method),
+					zap.String("url", r.URL.String()),
+					zap.Int("status", status),
+					zap.Int("bytes", writerProxy.BytesWritten()),
+					zap.String("remoteAddr", getRemoteAddress(r)),
+					zap.String("userAgent", r.Header.Get("User-Agent")),
+					zap.String("referer", r.Referer()),
+					zap.Duration("elapsed", end.Sub(start)/time.Millisecond),
+					zap.String("trackingID", trackingID),
+				)
+			}()
+		}
+		return http.HandlerFunc(fn)
 	}
-	return http.HandlerFunc(fn)
 }
 
 func setLoggedInUser(db *gorm.DB) func(http.Handler) http.Handler {
@@ -160,14 +162,16 @@ func setGRPCMetadata(h http.Handler) http.Handler {
 
 func setGAMeasurementEventValues(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		v := event_logger.NewGAMeasurementEventValuesFromRequest(r)
-		c := event_logger.WithGAMeasurementEventValues(r.Context(), v)
+		c := ga_measurement.WithEventValues(
+			r.Context(),
+			ga_measurement.NewEventValuesFromRequest(r),
+		)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
 	return http.HandlerFunc(fn)
 }
 
-func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
+func loginRequiredFilter(db *gorm.DB, appLogger *zap.Logger) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -177,7 +181,7 @@ func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
 			}
 			cookie, err := r.Cookie(APITokenCookieName)
 			if err != nil {
-				logger.App.Debug("Not logged in")
+				appLogger.Debug("Not logged in")
 				http.Redirect(w, r, config.WebURL(), http.StatusFound)
 				return
 			}
@@ -187,14 +191,14 @@ func loginRequiredFilter(db *gorm.DB) func(http.Handler) http.Handler {
 			user, err := userService.FindLoggedInUser(cookie.Value)
 			if err != nil {
 				if errors.IsNotFound(err) {
-					logger.App.Debug("not logged in")
+					appLogger.Debug("not logged in")
 					http.Redirect(w, r, config.WebURL(), http.StatusFound)
 					return
 				}
-				internalServerError(w, err, 0)
+				internalServerError(appLogger, w, err, 0)
 				return
 			}
-			logger.App.Debug("Logged in user", zap.String("name", user.Name))
+			appLogger.Debug("Logged in user", zap.String("name", user.Name))
 			c := context_data.SetLoggedInUser(ctx, user)
 			h.ServeHTTP(w, r.WithContext(c))
 		}

@@ -46,7 +46,7 @@ func (m *teacherErrorResetterMain) run(args []string) error {
 	var (
 		concurrency = flagSet.Int("concurrency", 1, "Concurrency of lessonFetcher")
 		dryRun      = flagSet.Bool("dry-run", false, "Don't update database with fetched lessons")
-		//logLevel = flag.String("log-level", "info", "Log level")
+		logLevel    = flag.String("log-level", "info", "Log level")
 	)
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
@@ -64,10 +64,11 @@ func (m *teacherErrorResetterMain) run(args []string) error {
 	}
 
 	startedAt := time.Now().UTC()
-	logger.App.Info("teacher_error_resetter started")
+	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel(*logLevel))
+	appLogger.Info("teacher_error_resetter started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("teacher_error_resetter finished", zap.Int("elapsed", int(elapsed)))
+		appLogger.Info("teacher_error_resetter finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
 	ctx := context.Background()
@@ -82,19 +83,19 @@ func (m *teacherErrorResetterMain) run(args []string) error {
 	if err != nil {
 		return err
 	}
-	lessonFetcher := fetcher.NewLessonFetcher(m.httpClient, *concurrency, false, mCountries, logger.App)
+	lessonFetcher := fetcher.NewLessonFetcher(m.httpClient, *concurrency, false, mCountries, appLogger)
 	defer lessonFetcher.Close()
 	for _, t := range teachers {
 		if _, _, err := lessonFetcher.Fetch(ctx, t.ID); err != nil {
-			logger.App.Error("lessonFetcher.Fetch failed", zap.Uint32("id", t.ID), zap.Error(err))
+			appLogger.Error("lessonFetcher.Fetch failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
 		}
 		if *dryRun {
-			logger.App.Info("Skip teacher because of dry-run", zap.Uint32("id", t.ID))
+			appLogger.Info("Skip teacher because of dry-run", zap.Uint32("id", t.ID))
 			continue
 		}
 		if err := teacherService.ResetFetchErrorCount(t.ID); err != nil {
-			logger.App.Error("teacherService.ResetFetchErrorCount failed", zap.Uint32("id", t.ID), zap.Error(err))
+			appLogger.Error("teacherService.ResetFetchErrorCount failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
 		}
 	}

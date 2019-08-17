@@ -13,6 +13,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/ga_measurement"
 	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/logger"
@@ -21,42 +22,44 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var server *httptest.Server
-var client = http.DefaultClient
-var db *gorm.DB
-var helper = model.NewTestHelper()
+var (
+	server *httptest.Server
+	client = http.DefaultClient
+	helper = model.NewTestHelper()
+	db     *gorm.DB
+)
 
 func TestMain(m *testing.M) {
 	config.MustProcessDefault()
-	db = helper.DB(nil)
 	if err := os.Setenv("MYSQL_DATABASE", "lekcije_test"); err != nil {
 		panic(err)
 	}
 
 	var accessLogBuffer, appLogBuffer bytes.Buffer
-	logger.InitializeAccessLogger(&accessLogBuffer)
 	appLogLevel := zapcore.InfoLevel
 	if level := os.Getenv("LOG_LEVEL"); level != "" {
 		appLogLevel = logger.NewLevel(level)
 	}
-	logger.InitializeAppLogger(&appLogBuffer, appLogLevel)
-
-	helper.TruncateAllTables(nil)
-
-	port := config.DefaultVars.HTTPPort
 	args := &interfaces.ServerArgs{
-		DB: db,
+		AccessLogger: logger.NewAccessLogger(&accessLogBuffer),
+		AppLogger:    logger.NewAppLogger(&appLogBuffer, appLogLevel),
+		DB:           helper.DB(nil),
 		//Redis: redis
+		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	}
 	s := interfaces_http.NewServer(args)
 	routes := s.CreateRoutes(nil) // TODO: grpc-gateway
-	port += 1
+	port := config.DefaultVars.HTTPPort + 1
 	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
 	defer server.Close()
 
+	helper.TruncateAllTables(nil)
+
 	client.Timeout = 5 * time.Second
-	os.Chdir("../")
+	if err := os.Chdir("../"); err != nil {
+		panic(fmt.Errorf("os.Chdir failed: %v", err))
+	}
 	status := m.Run()
 	defer os.Exit(status)
 }

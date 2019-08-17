@@ -10,8 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -54,10 +55,11 @@ type Sender interface {
 }
 
 type SendGridSender struct {
-	client *rest.Client
+	client    *rest.Client
+	appLogger *zap.Logger
 }
 
-func NewSendGridSender(httpClient *http.Client) Sender {
+func NewSendGridSender(httpClient *http.Client, appLogger *zap.Logger) Sender {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
 	}
@@ -65,7 +67,8 @@ func NewSendGridSender(httpClient *http.Client) Sender {
 		HTTPClient: httpClient,
 	}
 	return &SendGridSender{
-		client: client,
+		client:    client,
+		appLogger: appLogger,
 	}
 }
 
@@ -107,7 +110,7 @@ func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
 			"Failed to send email by SendGrid: statusCode=%v, body=%v",
 			resp.StatusCode, strings.Replace(resp.Body, "\n", "\\n", -1),
 		)
-		logger.App.Error(message)
+		s.appLogger.Error(message) // TODO: remove and log in caller
 		return errors.NewInternalError(
 			errors.WithError(err),
 			errors.WithMessagef("Failed to send email by SendGrid: statusCode=%v", resp.StatusCode),

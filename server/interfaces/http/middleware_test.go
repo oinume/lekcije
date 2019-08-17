@@ -1,10 +1,13 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/oinume/lekcije/server/logger"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,10 +20,12 @@ func TestAccessLogger(t *testing.T) {
 	req, err := http.NewRequest("GET", "/", nil)
 	r.NoError(err)
 	w := httptest.NewRecorder()
-	middleware := accessLogger(http.HandlerFunc(dummyHandler))
-	middleware.ServeHTTP(w, req)
+	b := new(bytes.Buffer)
+	middleware := accessLogger(logger.NewAccessLogger(b))
+	middleware(http.HandlerFunc(dummyHandler)).ServeHTTP(w, req)
 
 	a.Equal(http.StatusOK, w.Code)
+	a.Contains(b.String(), `"access"`)
 }
 
 func TestSeTrackingID(t *testing.T) {

@@ -13,7 +13,6 @@ import (
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/util"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -41,7 +40,7 @@ func ParseHTMLTemplates(files ...string) *template.Template {
 	return template.Must(template.ParseFiles(f...))
 }
 
-func internalServerError(w http.ResponseWriter, err error, userID uint32) {
+func internalServerError(appLogger *zap.Logger, w http.ResponseWriter, err error, userID uint32) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
@@ -60,7 +59,9 @@ func internalServerError(w http.ResponseWriter, err error, userID uint32) {
 		}
 		fields = append(fields, zap.String("stacktrace", b.String()))
 	}
-	logger.App.Error("internalServerError", fields...)
+	if appLogger != nil {
+		appLogger.Error("internalServerError", fields...)
+	}
 
 	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
 	if !config.IsProductionEnv() {

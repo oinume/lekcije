@@ -47,7 +47,7 @@ func (m *crawlerMain) run(args []string) error {
 		all             = flagSet.Bool("all", false, "Crawl all teachers ordered by evaluation")
 		newOnly         = flagSet.Bool("new", false, "Crawl all teachers ordered by new")
 		interval        = flagSet.Duration("interval", 1*time.Second, "Fetch interval. (default=1s)")
-		//logLevel        = flag.String("log-level", "info", "Log level")
+		logLevel        = flag.String("log-level", "info", "Log level")
 	)
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
@@ -59,13 +59,11 @@ func (m *crawlerMain) run(args []string) error {
 	config.MustProcessDefault()
 	ctx := context.Background()
 	startedAt := time.Now().UTC()
-	//if *m.LogLevel != "" {
-	//	//logger.App.SetLevel(logger.NewLevel(*m.LogLevel))
-	//}
-	logger.App.Info("crawler started")
+	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel(*logLevel))
+	appLogger.Info("crawler started")
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info("crawler finished", zap.Int("elapsed", int(elapsed)))
+		appLogger.Info("crawler finished", zap.Int("elapsed", int(elapsed)))
 	}()
 
 	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
@@ -81,7 +79,7 @@ func (m *crawlerMain) run(args []string) error {
 	}
 
 	loader := m.createLoader(db, *specifiedIDs, *followedOnly, *all, *newOnly)
-	lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, false, mCountries, logger.App)
+	lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, false, mCountries, appLogger)
 	teacherService := model.NewTeacherService(db)
 	for cursor := loader.GetInitialCursor(); cursor != ""; {
 		var teacherIDs []uint32
@@ -99,7 +97,7 @@ func (m *crawlerMain) run(args []string) error {
 				teacher, _, err := lessonFetcher.Fetch(ctx, id)
 				if err != nil {
 					if *continueOnError {
-						logger.App.Error("Error during LessonFetcher.Fetch", zap.Error(err))
+						appLogger.Error("Error during LessonFetcher.Fetch", zap.Error(err))
 						return nil
 					} else {
 						return err
@@ -107,7 +105,7 @@ func (m *crawlerMain) run(args []string) error {
 				}
 				if err := teacherService.CreateOrUpdate(teacher); err != nil {
 					if *continueOnError {
-						logger.App.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
+						appLogger.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
 						return nil
 					} else {
 						return err

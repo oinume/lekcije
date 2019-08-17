@@ -48,7 +48,7 @@ func (m *notifierMain) run(args []string) error {
 		fetcherCache         = flagSet.Bool("fetcher-cache", false, "Cache teacher and lesson data in Fetcher")
 		notificationInterval = flagSet.Int("notification-interval", 0, "Notification interval")
 		sendEmail            = flagSet.Bool("send-email", true, "Flag to send email")
-		//logLevel             = flagSet.String("log-level", "info", "Log level")
+		logLevel             = flagSet.String("log-level", "info", "Log level")
 	)
 
 	if err := flagSet.Parse(args[1:]); err != nil {
@@ -60,13 +60,11 @@ func (m *notifierMain) run(args []string) error {
 
 	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
-	//if *logLevel != "" {
-	//	logger.App.SetLevel(logger.NewLevel(*logLevel))
-	//}
-	logger.App.Info(fmt.Sprintf("notifier started (interval=%d)", *notificationInterval))
+	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel(*logLevel))
+	appLogger.Info(fmt.Sprintf("notifier started (interval=%d)", *notificationInterval))
 	defer func() {
 		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		logger.App.Info(
+		appLogger.Info(
 			fmt.Sprintf("notifier finished (interval=%d)", *notificationInterval),
 			zap.Int("elapsed", int(elapsed)),
 		)
@@ -103,11 +101,11 @@ func (m *notifierMain) run(args []string) error {
 	if err != nil {
 		return err
 	}
-	lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountries, logger.App)
+	lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountries, appLogger)
 
 	var sender emailer.Sender
 	if *sendEmail {
-		sender = emailer.NewSendGridSender(nil)
+		sender = emailer.NewSendGridSender(nil, appLogger)
 	} else {
 		sender = &emailer.NoSender{}
 	}
@@ -119,7 +117,7 @@ func (m *notifierMain) run(args []string) error {
 		UserCount:            uint32(len(users)),
 		FollowedTeacherCount: 0,
 	}
-	n := notifier.NewNotifier(db, lessonFetcher, *dryRun, sender, sw, nil)
+	n := notifier.NewNotifier(appLogger, db, lessonFetcher, *dryRun, sender, sw, nil)
 	defer n.Close(ctx, statNotifier)
 	for _, user := range users {
 		if err := n.SendNotification(ctx, user); err != nil {

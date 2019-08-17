@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"go.uber.org/zap"
+
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/errors"
@@ -16,12 +18,12 @@ type emailSender struct {
 	sender emailer.Sender
 }
 
-func NewEmailSender(httpClient *http.Client) *emailSender {
+func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) *emailSender {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 	return &emailSender{
-		sender: emailer.NewSendGridSender(httpClient),
+		sender: emailer.NewSendGridSender(httpClient, appLogger),
 	}
 }
 

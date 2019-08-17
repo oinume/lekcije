@@ -14,7 +14,7 @@ func TestInternalServerError(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	err := errors.NewInternalError(errors.WithError(fmt.Errorf("new error")))
-	internalServerError(w, err, 0)
+	internalServerError(nil, w, err, 0)
 
 	a.Contains(w.Body.String(), "code.Internal: new error")
 }

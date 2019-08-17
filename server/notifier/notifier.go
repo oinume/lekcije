@@ -15,7 +15,6 @@ import (
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/fetcher"
-	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
@@ -24,6 +23,7 @@ import (
 )
 
 type Notifier struct {
+	appLogger       *zap.Logger
 	db              *gorm.DB
 	fetcher         *fetcher.LessonFetcher
 	dryRun          bool
@@ -93,6 +93,7 @@ func NewTeachersAndLessons(length int) *teachersAndLessons {
 }
 
 func NewNotifier(
+	appLogger *zap.Logger,
 	db *gorm.DB,
 	fetcher *fetcher.LessonFetcher,
 	dryRun bool,
@@ -104,6 +105,7 @@ func NewNotifier(
 		sw = stopwatch.NewSync()
 	}
 	return &Notifier{
+		appLogger:       appLogger,
 		db:              db,
 		fetcher:         fetcher,
 		dryRun:          dryRun,
@@ -151,15 +153,15 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 			if err != nil {
 				if errors.IsNotFound(err) {
 					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
-						logger.App.Error(
+						n.appLogger.Error(
 							"IncrementFetchErrorCount failed",
 							zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
 						)
 					}
-					logger.App.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
+					n.appLogger.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
 				}
 				// TODO: Handle a case eikaiwa.dmm.com is down
-				logger.App.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
+				n.appLogger.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				return
 			}
 
@@ -217,7 +219,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	if err != nil {
 		return nil, nil, err
 	}
-	logger.App.Debug(
+	n.appLogger.Debug(
 		"fetcher.Fetch",
 		zap.Uint("teacherID", uint(teacher.ID)),
 		zap.Int("lessons", len(fetchedLessons)),
@@ -306,13 +308,13 @@ func (n *Notifier) sendNotificationToUser(
 	email.SetCustomArg("teacher_ids", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
-	logger.App.Info("sendNotificationToUser", zap.String("email", user.Email))
+	n.appLogger.Info("sendNotificationToUser", zap.String("email", user.Email))
 
 	n.senderWaitGroup.Add(1)
 	go func(email *emailer.Email) {
 		defer n.senderWaitGroup.Done()
 		if err := n.sender.Send(ctx, email); err != nil {
-			logger.App.Error(
+			n.appLogger.Error(
 				"Failed to sendNotificationToUser",
 				zap.String("email", user.Email), zap.Error(err),
 			)
@@ -366,7 +368,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
 				if err := teacherService.CreateOrUpdate(teacher); err != nil {
-					logger.App.Error(
+					n.appLogger.Error(
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 					)
@@ -374,7 +376,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 				}
 			}
 			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
-				logger.App.Error(
+				n.appLogger.Error(
 					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 				)
@@ -389,7 +391,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 			//fmt.Println("--- stopwatch ---")
 			//fmt.Println(n.stopwatch.Report())
 			if err := n.uploadStopwatchReport(); err != nil {
-				logger.App.Error("uploadStopwatchReport failed", zap.Error(err))
+				n.appLogger.Error("uploadStopwatchReport failed", zap.Error(err))
 			}
 		}
 	}()
@@ -397,7 +399,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 		stat.Elapsed = uint32(time.Now().UTC().Sub(stat.Datetime) / time.Millisecond)
 		stat.FollowedTeacherCount = uint32(len(n.teachers))
 		if err := model.NewStatNotifierService(n.db).CreateOrUpdate(stat); err != nil {
-			logger.App.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
+			n.appLogger.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
 		}
 	}
 }

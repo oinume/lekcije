@@ -6,24 +6,25 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"time"
-
-	"github.com/oinume/lekcije/server/gcp"
-
-	"go.opencensus.io/trace"
-
-	"github.com/oinume/lekcije/server/open_census"
 
 	"cloud.google.com/go/profiler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/event_logger"
+	"github.com/oinume/lekcije/server/ga_measurement"
+	"github.com/oinume/lekcije/server/gcp"
 	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_grpc "github.com/oinume/lekcije/server/interfaces/grpc"
 	"github.com/oinume/lekcije/server/interfaces/grpc/interceptor"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
+	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/open_census"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -85,14 +86,24 @@ func main() {
 	}
 	defer redis.Close()
 
+	accessLogger := logger.NewAccessLogger(os.Stdout)
+	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel("info")) // TODO: flag
 	args := &interfaces.ServerArgs{
+		AccessLogger:      accessLogger,
+		AppLogger:         appLogger,
 		DB:                db,
 		FlashMessageStore: flash_message.NewStoreRedis(redis),
 		Redis:             redis,
 		SenderHTTPClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},
+		GAMeasurementClient: ga_measurement.NewClient(
+			nil,
+			appLogger,
+			event_logger.New(accessLogger),
+		),
 	}
+
 	errors := make(chan error)
 	go func() {
 		errors <- startGRPCServer(grpcPort, args)
