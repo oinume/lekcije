@@ -11,10 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oinume/lekcije/server/ga_measurement"
-
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/ga_measurement"
 	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/logger"
@@ -23,10 +22,12 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var server *httptest.Server
-var client = http.DefaultClient
-var db *gorm.DB
-var helper = model.NewTestHelper()
+var (
+	server *httptest.Server
+	client = http.DefaultClient
+	helper = model.NewTestHelper()
+	db     *gorm.DB
+)
 
 func TestMain(m *testing.M) {
 	config.MustProcessDefault()
