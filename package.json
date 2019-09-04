@@ -41,9 +41,9 @@
     "style-loader": "^0.21.0",
     "transfer-webpack-plugin": "^0.1.4",
     "url-loader": "^1.0.1",
-    "webpack": "^4.10.2",
-    "webpack-cli": "^2.1.4",
-    "webpack-dev-server": "^3.1.4"
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7",
+    "webpack-dev-server": "^3.8.0"
   },
   "dependencies": {
     "autoprefixer": "^8.5.2",
