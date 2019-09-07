@@ -7,6 +7,7 @@ import EmailForm from './components/setting/EmailForm';
 import MPlanForm from './components/setting/MPlanForm';
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
+import Loader from 'react-loader-spinner';
 
 class SettingView extends MicroContainer {
 
@@ -59,7 +60,7 @@ class SettingView extends MicroContainer {
         <h1 className="page-title">設定</h1>
         <Loadable
           active={this.state.loading}
-          spinner={true}
+          spinner={<Loader type="Oval" color="#00BFFF" height="100" width="100" />}
           text='Loading data ...'
           styles={{
             overlay: (base) => ({
