@@ -14,6 +14,7 @@ services:
     volumes:
       - "./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
       - "./volume/mysql/etc/mysql:/etc/mysql"
+#      - "./volume/mysql/var/lib/mysql:/var/lib/mysql"
 #      - ./log/mysql:/var/log/mysql
 
   redis:
