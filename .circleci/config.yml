@@ -67,7 +67,8 @@ jobs:
           VERSION_HASH: "_version_"
           NODE_ENV: "test"
           LEKCIJE_ENV: "test"
-      - image: circleci/mysql:5.7
+      - image: circleci/mysql:8.0
+        command: "mysqld --default-authentication-plugin=mysql_native_password"
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD=true
       - image: redis:3.2-alpine
