@@ -1,7 +1,8 @@
 version: "3.3"
 services:
   mysql:
-    image: "mysql:5.7"
+    image: "mysql:8.0"
+    command: "--secure-file-priv=NULL"
     restart: always
     ports:
       - "13306:3306"
