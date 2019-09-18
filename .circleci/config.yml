@@ -91,8 +91,9 @@ jobs:
           name: "Setup database"
           command: |
             set -eu
+            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE USER IF NOT EXISTS 'lekcije'@'%' identified by 'lekcije'"
             mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
-            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%' IDENTIFIED BY 'lekcije'"
+            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%'"
       - restore_cache:
           key: go-mod-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "go.sum" }}
       - save_cache:
