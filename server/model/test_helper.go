@@ -53,7 +53,7 @@ func (h *TestHelper) LoadAllTables(t *testing.T, db *gorm.DB) []string {
 		Name string `gorm:"column:table_name"`
 	}
 	tables := []Table{}
-	sql := "SELECT table_name FROM information_schema.tables WHERE table_schema = ?"
+	sql := "SELECT table_name AS table_name FROM information_schema.tables WHERE table_schema = ?"
 	if err := db.Raw(sql, h.GetDBName(h.dbURL)).Scan(&tables).Error; err != nil {
 		e := fmt.Errorf("failed to select table names: err=%v", err)
 		if t == nil {
@@ -82,7 +82,7 @@ func (h *TestHelper) TruncateAllTables(t *testing.T) {
 			continue
 		}
 		if err := db.Exec("TRUNCATE TABLE " + table).Error; err != nil {
-			e := fmt.Errorf("failed to truncate table: table=%v, err=%v", t, err)
+			e := fmt.Errorf("failed to truncate table: table=%v, err=%v", table, err)
 			if t == nil {
 				panic(e)
 			} else {

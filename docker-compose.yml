@@ -1,7 +1,8 @@
 version: "3.3"
 services:
   mysql:
-    image: "mysql:5.7"
+    image: "mysql:8.0"
+    command: "--secure-file-priv=NULL --default-authentication-plugin=mysql_native_password"
     restart: always
     ports:
       - "13306:3306"
@@ -13,6 +14,7 @@ services:
     volumes:
       - "./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d"
       - "./volume/mysql/etc/mysql:/etc/mysql"
+#      - "./volume/mysql/var/lib/mysql:/var/lib/mysql"
 #      - ./log/mysql:/var/log/mysql
 
   redis:
