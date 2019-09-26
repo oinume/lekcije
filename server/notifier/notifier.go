@@ -344,9 +344,6 @@ Body: text/html
 <a href="http://eikaiwa.dmm.com/teacher/schedule/{{ $teacherID }}/">Mobile</a>
 
 {{ end }}
-PR ────────────────
-<a href="https://docs.google.com/forms/d/e/1FAIpQLSe2MRi1G5sdnkU12yrw3bFkOFFCJBCHxEVcDU3e6gC4TTnwtw/viewform" target="_blank" rel="nofollow">【1分で終わります】有料プランに関するアンケートにお答え下さい</a>
-PR ────────────────
 
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
 
