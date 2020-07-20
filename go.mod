@@ -15,12 +15,12 @@ require (
 	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/go-sql-driver/mysql v0.0.0-20180125054745-bc14601d1bd5
-	github.com/golang/protobuf v1.3.2
+	github.com/golang/protobuf v1.4.2
 	github.com/google/pprof v0.0.0-20190723021845-34ac40c74b70 // indirect
 	github.com/google/uuid v0.0.0-20171129191014-dec09d789f3d
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v0.0.0-20180108155640-d0c54e68681e
-	github.com/grpc-ecosystem/grpc-gateway v1.5.0
+	github.com/grpc-ecosystem/grpc-gateway v1.14.6
 	github.com/jinzhu/gorm v0.0.0-20180210142528-85774eb9dab4
 	github.com/jinzhu/inflection v0.0.0-20170102125226-1c35d901db3d // indirect
 	github.com/jinzhu/now v1.0.0 // indirect
@@ -46,13 +46,13 @@ require (
 	go.uber.org/zap v1.7.1
 	goji.io/v3 v3.0.0
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
-	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
-	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/text v0.3.2
 	google.golang.org/api v0.7.0
-	google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610
-	google.golang.org/grpc v1.22.0
+	google.golang.org/genproto v0.0.0-20200513103714-09dca8ec2884
+	google.golang.org/grpc v1.29.1
 	gopkg.in/bsm/ratelimit.v1 v1.0.0-20160220154919-db14e161995a // indirect
 	gopkg.in/redis.v4 v4.2.4
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc

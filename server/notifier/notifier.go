@@ -345,6 +345,12 @@ Body: text/html
 
 {{ end }}
 
+お知らせ ────────────────
+8/31をもってlekcijeのサービスを終了いたします。
+詳しくは下記をご覧ください。
+https://lekcije.amebaownd.com/posts/8888140
+────────────────────────
+
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
 
 <a href="https://goo.gl/forms/CIGO3kpiQCGjtFD42">お問い合わせ</a>
