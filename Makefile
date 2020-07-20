@@ -22,10 +22,10 @@ setup: install-commands
 
 .PHONY: install-commands
 install-commands:
-	GO111MODULE=off $(GO_GET) bitbucket.org/liamstask/goose/cmd/goose
-	GO111MODULE=off $(GO_GET) github.com/golang/protobuf/protoc-gen-go
-	GO111MODULE=off $(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	GO111MODULE=off $(GO_GET) honnef.co/go/tools/cmd/staticcheck
+	GO111MODULE=on $(GO_GET) bitbucket.org/liamstask/goose/cmd/goose
+	GO111MODULE=on $(GO_GET) github.com/golang/protobuf/protoc-gen-go
+	GO111MODULE=on $(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+	GO111MODULE=on $(GO_GET) honnef.co/go/tools/cmd/staticcheck
 
 .PHONY: vendor
 vendor:
@@ -78,7 +78,7 @@ goimports:
 	goimports -w ./server ./e2e
 
 .PHONY: go-lint
-go-lint: go-staticcheck 
+go-lint: go-staticcheck
 
 .PHONY: go-vet
 go-vet:
