@@ -81,7 +81,7 @@ jobs:
           command: |
             set -eu
             apt-get update -qq
-            apt-get install -y mysql-client net-tools
+            apt-get install -y default-mysql-client net-tools
       - run:
           name: "Wait MySQL is up"
           command: |
