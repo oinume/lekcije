@@ -5,7 +5,6 @@ module github.com/oinume/lekcije
 go 1.14
 
 require (
-	bitbucket.org/liamstask/goose v0.0.0-20150115234039-8488cc47d90c // indirect
 	cloud.google.com/go v0.43.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.12.4
 	contrib.go.opencensus.io/exporter/zipkin v0.1.1
@@ -28,7 +27,6 @@ require (
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/kylelemons/go-gypsy v0.0.0-20160905020020-08cad365cd28 // indirect
 	github.com/lib/pq v1.0.0 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
@@ -42,7 +40,6 @@ require (
 	github.com/sendgrid/sendgrid-go v3.4.1+incompatible
 	github.com/stretchr/testify v1.3.0
 	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
-	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.opencensus.io v0.22.0
 	go.uber.org/atomic v1.3.1 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
@@ -59,5 +56,4 @@ require (
 	gopkg.in/bsm/ratelimit.v1 v1.0.0-20160220154919-db14e161995a // indirect
 	gopkg.in/redis.v4 v4.2.4
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
-	honnef.co/go/tools v0.0.1-2020.1.4 // indirect
 )
