@@ -389,7 +389,7 @@ func (fetcher *LessonFetcher) parseTeacherFavoriteCount(teacher *model.Teacher, 
 	value, ok := favCountXPath.String(rootNode)
 	if !ok {
 		fetcher.logger.Error(
-			fmt.Sprintf("Failed to parse teacher favorite count"),
+			"Failed to parse teacher favorite count",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
 		return
@@ -397,7 +397,7 @@ func (fetcher *LessonFetcher) parseTeacherFavoriteCount(teacher *model.Teacher, 
 	v, err := strconv.ParseUint(value, 10, 32)
 	if err != nil {
 		fetcher.logger.Error(
-			fmt.Sprintf("Failed to parse teacher favorite count. It's not a number"),
+			"Failed to parse teacher favorite count. It's not a number",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
 		return
@@ -412,7 +412,7 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 		newTeacherXPath := xmlpath.MustCompile(`//dl/dd/img[@class='new_teacher']`)
 		if _, ok := newTeacherXPath.String(rootNode); !ok {
 			fetcher.logger.Error(
-				fmt.Sprintf("Failed to parse teacher review count"),
+				"Failed to parse teacher review count",
 				zap.Uint("teacherID", uint(teacher.ID)),
 			)
 		}
@@ -423,7 +423,7 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 	reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
 	if err != nil {
 		fetcher.logger.Error(
-			fmt.Sprintf("Failed to parse teacher review count. It's not a number"),
+			"Failed to parse teacher review count. It's not a number",
 			zap.Uint("teacherID", uint(teacher.ID)),
 			zap.String("value", value),
 		)
@@ -435,7 +435,7 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 	value, ok = numXPath.String(rootNode)
 	if !ok {
 		fetcher.logger.Error(
-			fmt.Sprintf("Failed to parse teacher rating"),
+			"Failed to parse teacher rating",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
 		return
@@ -443,7 +443,7 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 	rating, err := strconv.ParseFloat(value, 32)
 	if err != nil {
 		fetcher.logger.Error(
-			fmt.Sprintf("Failed to parse teacher rating. It's not a number"),
+			"Failed to parse teacher rating. It's not a number",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
 		return
