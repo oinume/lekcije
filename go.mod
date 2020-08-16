@@ -1,8 +1,8 @@
-// +heroku goVersion go1.14
+// +heroku goVersion go1.15
 // +heroku install ./server/cmd/...
 module github.com/oinume/lekcije
 
-go 1.14
+go 1.15
 
 require (
 	cloud.google.com/go v0.43.0
