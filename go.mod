@@ -45,14 +45,15 @@ require (
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.7.1
 	goji.io/v3 v3.0.0
-	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
-	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0
+	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	golang.org/x/text v0.3.2
+	golang.org/x/sys v0.0.0-20200814200057-3d37ad5750ed // indirect
+	golang.org/x/text v0.3.3
 	google.golang.org/api v0.7.0
-	google.golang.org/genproto v0.0.0-20200513103714-09dca8ec2884
+	google.golang.org/genproto v0.0.0-20200815001618-f69a88009b70
 	google.golang.org/grpc v1.29.1
+	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/bsm/ratelimit.v1 v1.0.0-20160220154919-db14e161995a // indirect
 	gopkg.in/redis.v4 v4.2.4
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
