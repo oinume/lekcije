@@ -49,7 +49,7 @@ func (e oauthError) Error() string {
 	case oauthErrorAccessDenied:
 		return "oauthError: access denied"
 	}
-	return fmt.Sprintf("oauthError: invalid: %v", e)
+	return "oauthError: unexpected error"
 }
 
 func (s *server) oauthGoogleHandler() http.HandlerFunc {
