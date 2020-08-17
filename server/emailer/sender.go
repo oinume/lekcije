@@ -96,7 +96,7 @@ func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
 	req.Method = "POST"
 	req.Body = mail.GetRequestBody(m)
 	//fmt.Printf("--- request ---\n%s\n", string(req.Body))
-	resp, err := s.client.Send(req)
+	resp, err := s.client.API(req)
 	if err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
