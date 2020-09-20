@@ -346,9 +346,9 @@ Body: text/html
 {{ end }}
 
 お知らせ ────────────────
-8/31のサービス終了を延期します。
+Patreonによるサポートプログラムを開始しました。
 詳しくは下記をご覧ください。
-https://lekcije.amebaownd.com/posts/9732937
+https://lekcije.amebaownd.com/posts/10340104
 ────────────────────────
 
 空きレッスンの通知の解除は<a href="{{ .WebURL }}/me">こちら</a>
