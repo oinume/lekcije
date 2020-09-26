@@ -362,7 +362,7 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 			)
 		}
 	case "経歴":
-		yoe := -1
+		var yoe int
 		switch value {
 		case "1年未満":
 			yoe = 0

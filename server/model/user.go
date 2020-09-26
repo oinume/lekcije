@@ -180,7 +180,8 @@ func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *Us
 				errors.WithMessage("Failed to create User"),
 				errors.WithResource(errors.NewResourceWithEntries(
 					"user", []errors.ResourceEntry{
-						{"email", email}, {"googleID", googleID},
+						{Key: "email", Value: email},
+						{Key: "googleID", Value: googleID},
 					},
 				)),
 			)
@@ -216,7 +217,7 @@ func (s *UserService) UpdateEmail(user *User, newEmail string) error {
 			errors.WithMessage("Failed to update user email"),
 			errors.WithResource(errors.NewResourceWithEntries(
 				user.TableName(), []errors.ResourceEntry{
-					{"id", user.ID}, {"email", newEmail},
+					{Key: "id", Value: user.ID}, {Key: "email", Value: newEmail},
 				},
 			)),
 		)

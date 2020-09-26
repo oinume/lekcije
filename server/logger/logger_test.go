@@ -20,7 +20,7 @@ func TestLogger(t *testing.T) {
 	l := zap.New(core)
 	//r.Nil(err)
 	l.Info("TestLogger !")
-	l.Sync()
+	_ = l.Sync()
 	//l.C
 	fmt.Printf("b = %s\n", b.String())
 }

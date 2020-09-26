@@ -68,8 +68,8 @@ func (s *UserAPITokenService) DeleteByUserIDAndToken(userID uint32, token string
 			errors.WithResource(
 				errors.NewResourceWithEntries(
 					(&UserAPIToken{}).TableName(), []errors.ResourceEntry{
-						{"userID", userID},
-						{"token", token},
+						{Key: "userID", Value: userID},
+						{Key: "token", Value: token},
 					},
 				),
 			),

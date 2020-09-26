@@ -29,7 +29,7 @@ func TestOAuthGoogleLogin(t *testing.T) {
 	driver := newWebDriver()
 	err := driver.Start()
 	r.NoError(err)
-	defer driver.Stop()
+	defer func() { _ = driver.Stop() }()
 
 	page, err := driver.NewPage()
 	r.NoError(err)
@@ -93,7 +93,7 @@ func TestOAuthGoogleLogout(t *testing.T) {
 
 	driver := newWebDriver()
 	r.NoError(driver.Start())
-	defer driver.Stop()
+	defer func() { _ = driver.Stop() }()
 
 	page, err := driver.NewPage()
 	r.NoError(err)

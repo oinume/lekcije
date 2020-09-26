@@ -110,8 +110,8 @@ func (s *LessonService) UpdateLessons(lessons []*Lesson) (int64, error) {
 					errors.WithResource(errors.NewResourceWithEntries(
 						s.TableName(),
 						[]errors.ResourceEntry{
-							{"teacherID", lesson.TeacherID},
-							{"datetime", lesson.Datetime},
+							{Key: "teacherID", Value: lesson.TeacherID},
+							{Key: "datetime", Value: lesson.Datetime},
 						},
 					)),
 				)

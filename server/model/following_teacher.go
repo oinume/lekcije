@@ -158,8 +158,8 @@ func (s *FollowingTeacherService) FollowTeacher(
 			errors.WithError(err),
 			errors.WithResource(
 				errors.NewResourceWithEntries(ft.TableName(), []errors.ResourceEntry{
-					{"userID", userID},
-					{"teacherID", teacher.ID},
+					{Key: "userID", Value: userID},
+					{Key: "teacherID", Value: teacher.ID},
 				}),
 			),
 		)
@@ -186,8 +186,8 @@ func (s *FollowingTeacherService) DeleteTeachersByUserIDAndTeacherIDs(
 			errors.WithError(result.Error),
 			errors.WithMessage("Failed to delete following_teacher"),
 			errors.WithResource(errors.NewResourceWithEntries(s.TableName(), []errors.ResourceEntry{
-				{"userID", userID},
-				{"teacherIDs", teacherIDs},
+				{Key: "userID", Value: userID},
+				{Key: "teacherIDs", Value: teacherIDs},
 			})),
 		)
 	} else {

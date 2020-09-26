@@ -4,12 +4,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/oinume/lekcije/server/ga_measurement"
-
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/oinume/lekcije/server/context_data"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/oinume/lekcije/server/context_data"
+	"github.com/oinume/lekcije/server/ga_measurement"
 )
 
 const apiTokenMetadataKey = "api-token"
