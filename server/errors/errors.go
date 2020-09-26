@@ -164,7 +164,7 @@ func WithResource(r *Resource) Option {
 
 func (e *AnnotatedError) Error() string {
 	var b bytes.Buffer
-	io.WriteString(&b, e.code.String())
+	_, _ = io.WriteString(&b, e.code.String())
 	if e.message != "" {
 		fmt.Fprintf(&b, ": %v", e.message)
 	}

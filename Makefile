@@ -18,14 +18,11 @@ PID = $(APP).pid
 all: build
 
 .PHONY: setup
-setup: install-commands
+setup: install-tools
 
-.PHONY: install-commands
-install-commands:
-	GO111MODULE=on $(GO_GET) bitbucket.org/liamstask/goose/cmd/goose
-	GO111MODULE=on $(GO_GET) github.com/golang/protobuf/protoc-gen-go
-	GO111MODULE=on $(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	GO111MODULE=on $(GO_GET) honnef.co/go/tools/cmd/staticcheck
+.PHONY: install-tools
+install-tools:
+	cd tools && ./install-tools.sh
 
 .PHONY: vendor
 vendor:
@@ -78,15 +75,9 @@ goimports:
 	goimports -w ./server ./e2e
 
 .PHONY: go-lint
-go-lint: go-staticcheck
-
-.PHONY: go-vet
-go-vet:
-	go vet -v $(LINT_PACKAGES)
-
-.PHONY: go-staticcheck
-go-staticcheck:
-	staticcheck $(LINT_PACKAGES)
+go-lint:
+	golangci-lint version
+	golangci-lint run -j 4 --out-format=line-number ./...
 
 .PHONY: docker/build/server
 docker/build/server:
@@ -121,3 +112,7 @@ restart: kill clean build/server
 
 watch: restart
 	fswatch -o -e ".*" -e vendor -e node_modules -e .venv -i "\\.go$$" . | xargs -n1 -I{} make restart || make kill
+
+.PHONY: help
+help:  ## show this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[\/a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

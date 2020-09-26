@@ -1,0 +1,19 @@
+---
+run:
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  timeout: 5m
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/oinume/todomvc
+
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - misspell
+  fast: false
+
+issues:
+  exclude-rules:
+
