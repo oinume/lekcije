@@ -75,15 +75,9 @@ goimports:
 	goimports -w ./server ./e2e
 
 .PHONY: go-lint
-go-lint: go-staticcheck
-
-.PHONY: go-vet
-go-vet:
-	go vet -v $(LINT_PACKAGES)
-
-.PHONY: go-staticcheck
-go-staticcheck:
-	staticcheck $(LINT_PACKAGES)
+go-lint:
+	golangci-lint version
+	golangci-lint run -j 4 --out-format=line-number ./...
 
 .PHONY: docker/build/server
 docker/build/server:
