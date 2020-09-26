@@ -106,7 +106,7 @@ jobs:
           name: "Install commands"
           command: |
             if [ ! -e "/go/bin/staticcheck" ]; then
-              make install-commands GO_GET="go get -u"
+              make install-tools
             fi
       - save_cache:
           key: go-commands-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "go.sum" }}

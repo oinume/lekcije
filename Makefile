@@ -18,14 +18,11 @@ PID = $(APP).pid
 all: build
 
 .PHONY: setup
-setup: install-commands
+setup: install-tools
 
-.PHONY: install-commands
-install-commands:
-	GO111MODULE=on $(GO_GET) bitbucket.org/liamstask/goose/cmd/goose
-	GO111MODULE=on $(GO_GET) github.com/golang/protobuf/protoc-gen-go
-	GO111MODULE=on $(GO_GET) github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	GO111MODULE=on $(GO_GET) honnef.co/go/tools/cmd/staticcheck
+.PHONY: install-tools
+install-tools:
+	cd tools && ./install-tools.sh
 
 .PHONY: vendor
 vendor:
