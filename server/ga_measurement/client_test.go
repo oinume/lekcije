@@ -6,8 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oinume/lekcije/server/event_logger"
 	"go.uber.org/zap"
+
+	"github.com/oinume/lekcije/server/event_logger"
 )
 
 type fakeTransport struct{}

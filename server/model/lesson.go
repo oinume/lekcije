@@ -8,9 +8,10 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/goenum"
+	"go.opencensus.io/trace"
+
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
-	"go.opencensus.io/trace"
 )
 
 const (

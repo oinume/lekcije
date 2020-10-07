@@ -7,11 +7,12 @@ import (
 	"time"
 
 	ga "github.com/jpillora/go-ogle-analytics"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/event_logger"
 	"github.com/oinume/lekcije/server/logger"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 var defaultHTTPClient = &http.Client{

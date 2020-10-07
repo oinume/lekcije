@@ -5,8 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oinume/lekcije/server/config"
 	"github.com/stretchr/testify/require"
+
+	"github.com/oinume/lekcije/server/config"
 )
 
 var (

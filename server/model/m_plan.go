@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+
 	"github.com/oinume/lekcije/server/errors"
 )
 

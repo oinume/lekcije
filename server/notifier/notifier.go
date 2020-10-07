@@ -11,6 +11,9 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/jinzhu/gorm"
+	"go.opencensus.io/trace"
+	"go.uber.org/zap"
+
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/errors"
@@ -18,8 +21,6 @@ import (
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/stopwatch"
 	"github.com/oinume/lekcije/server/util"
-	"go.opencensus.io/trace"
-	"go.uber.org/zap"
 )
 
 type Notifier struct {

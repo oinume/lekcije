@@ -11,6 +11,10 @@ import (
 
 	"cloud.google.com/go/profiler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"go.opencensus.io/trace"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/event_logger"
@@ -24,9 +28,6 @@ import (
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
 	"github.com/oinume/lekcije/server/open_census"
-	"go.opencensus.io/trace"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 const (

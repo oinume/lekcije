@@ -8,8 +8,9 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/errors"
 	"go.opencensus.io/trace"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 type User struct {

@@ -9,13 +9,14 @@ import (
 	"path"
 	"strings"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/server/util"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 const (

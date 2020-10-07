@@ -10,9 +10,10 @@ import (
 	"github.com/oinume/lekcije/server/ga_measurement"
 
 	"github.com/jinzhu/gorm"
+	"gopkg.in/redis.v4"
+
 	"github.com/oinume/lekcije/server/interfaces"
 	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
-	"gopkg.in/redis.v4"
 )
 
 type server struct {

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 func TestWriteError(t *testing.T) {

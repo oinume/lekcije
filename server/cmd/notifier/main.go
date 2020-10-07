@@ -8,6 +8,9 @@ import (
 	"os"
 	"time"
 
+	"go.opencensus.io/trace"
+	"go.uber.org/zap"
+
 	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
@@ -17,8 +20,6 @@ import (
 	"github.com/oinume/lekcije/server/notifier"
 	"github.com/oinume/lekcije/server/open_census"
 	"github.com/oinume/lekcije/server/stopwatch"
-	"go.opencensus.io/trace"
-	"go.uber.org/zap"
 )
 
 func main() {

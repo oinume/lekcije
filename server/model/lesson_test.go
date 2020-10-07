@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oinume/lekcije/server/config"
-	"github.com/oinume/lekcije/server/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/util"
 )
 
 func TestLessonService_UpdateLessons(t *testing.T) {

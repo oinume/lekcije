@@ -10,10 +10,11 @@ import (
 	"github.com/oinume/lekcije/server/ga_measurement"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/event_logger"
-	"github.com/oinume/lekcije/server/model"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/oinume/lekcije/server/event_logger"
+	"github.com/oinume/lekcije/server/model"
 )
 
 type SendGridEventValues struct {

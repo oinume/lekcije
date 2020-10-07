@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/errors"
 	"go.opencensus.io/trace"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 const MaxFollowTeacherCount = 20

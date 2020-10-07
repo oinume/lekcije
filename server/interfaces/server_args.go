@@ -6,9 +6,10 @@ import (
 	"github.com/oinume/lekcije/server/ga_measurement"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 	"go.uber.org/zap"
 	"gopkg.in/redis.v4"
+
+	"github.com/oinume/lekcije/server/interfaces/http/flash_message"
 )
 
 type ServerArgs struct {

@@ -5,8 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 func TestInternalServerError(t *testing.T) {

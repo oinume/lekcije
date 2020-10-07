@@ -14,8 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/stvp/rollbar"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 var (

@@ -3,8 +3,9 @@ package gcp
 import (
 	"encoding/base64"
 
-	"github.com/oinume/lekcije/server/errors"
 	"google.golang.org/api/option"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 type Cleaner func()

@@ -5,9 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/oinume/lekcije/server/context_data"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/oinume/lekcije/server/context_data"
 )
 
 func TestOAuth(t *testing.T) {

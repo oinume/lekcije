@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jinzhu/gorm"
+
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
 )

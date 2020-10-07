@@ -6,9 +6,10 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.opencensus.io/trace"
+
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"github.com/oinume/lekcije/server/errors"
-	"go.opencensus.io/trace"
 )
 
 type NotificationTimeSpan struct {
