@@ -1,9 +1,0 @@
-local:
-    driver: mysql
-    open: $MYSQL_USER:$MYSQL_PASSWORD@tcp($MYSQL_HOST:$MYSQL_PORT)/lekcije?charset=utf8mb4&parseTime=true&loc=UTC
-test:
-    driver: mysql
-    open: $MYSQL_USER:$MYSQL_PASSWORD@tcp($MYSQL_HOST:$MYSQL_PORT)/lekcije_test?charset=utf8mb4&parseTime=true&loc=UTC
-circle_ci:
-    driver: mysql
-    open: lekcije:lekcije@tcp(127.0.0.1:3306)/lekcije_test?charset=utf8mb4&parseTime=true&loc=UTC
