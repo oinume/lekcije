@@ -6,9 +6,10 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
+	"gopkg.in/xmlpath.v2"
+
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
-	"gopkg.in/xmlpath.v2"
 )
 
 type TeacherIDLoader interface {

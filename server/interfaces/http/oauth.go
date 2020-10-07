@@ -10,16 +10,17 @@ import (
 	"github.com/oinume/lekcije/server/ga_measurement"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/config"
-	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/registration_email"
-	"github.com/oinume/lekcije/server/util"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
 	"google.golang.org/api/option"
+
+	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/registration_email"
+	"github.com/oinume/lekcije/server/util"
 )
 
 var _ = fmt.Print

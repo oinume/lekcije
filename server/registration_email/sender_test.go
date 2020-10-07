@@ -11,12 +11,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oinume/lekcije/server/logger"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/server/logger"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/oinume/lekcije/server/model"
 )
 
 var helper = model.NewTestHelper()

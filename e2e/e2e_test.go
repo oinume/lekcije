@@ -12,14 +12,15 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/sclevine/agouti"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/ga_measurement"
 	"github.com/oinume/lekcije/server/interfaces"
 	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/sclevine/agouti"
-	"go.uber.org/zap/zapcore"
 )
 
 var (

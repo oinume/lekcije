@@ -10,14 +10,15 @@ import (
 	"github.com/oinume/lekcije/server/ga_measurement"
 
 	"github.com/jinzhu/gorm"
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
-	"github.com/oinume/lekcije/server/context_data"
-	"github.com/oinume/lekcije/server/interfaces"
-	"github.com/oinume/lekcije/server/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/redis.v4"
+
+	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	"github.com/oinume/lekcije/server/context_data"
+	"github.com/oinume/lekcije/server/interfaces"
+	"github.com/oinume/lekcije/server/model"
 )
 
 type apiV1Server struct {

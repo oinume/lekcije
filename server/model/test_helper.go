@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/util"
 )

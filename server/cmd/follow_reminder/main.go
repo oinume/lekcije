@@ -10,12 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/emailer"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"go.uber.org/zap"
 )
 
 func main() {

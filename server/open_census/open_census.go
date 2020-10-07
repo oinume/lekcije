@@ -6,12 +6,13 @@ import (
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"contrib.go.opencensus.io/exporter/zipkin"
-	"github.com/oinume/lekcije/server/config"
-	"github.com/oinume/lekcije/server/gcp"
 	open_zipkin "github.com/openzipkin/zipkin-go"
 	zipkin_http "github.com/openzipkin/zipkin-go/reporter/http"
 	"go.opencensus.io/trace"
 	"google.golang.org/api/option"
+
+	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/gcp"
 )
 
 type FlushFunc func()

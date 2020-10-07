@@ -8,9 +8,10 @@ import (
 	"log"
 	"time"
 
+	"go.opencensus.io/trace"
+
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/open_census"
-	"go.opencensus.io/trace"
 )
 
 func main() {

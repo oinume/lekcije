@@ -4,9 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oinume/lekcije/server/model"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/redis.v4"
+
+	"github.com/oinume/lekcije/server/model"
 )
 
 var redisClient *redis.Client

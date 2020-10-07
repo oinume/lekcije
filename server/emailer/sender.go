@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/oinume/lekcije/server/errors"
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"go.opencensus.io/trace"
+	"go.uber.org/zap"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 const (

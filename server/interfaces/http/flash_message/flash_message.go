@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"gopkg.in/redis.v4"
+
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/util"
-	"gopkg.in/redis.v4"
 )
 
 var _ = fmt.Print

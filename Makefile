@@ -80,7 +80,7 @@ go-test:
 
 .PHONY: goimports
 goimports:
-	goimports -w ./server ./e2e
+	goimports -w -local github.com/oinume/lekcije ./server ./e2e
 
 .PHONY: go-lint
 go-lint:

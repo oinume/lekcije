@@ -10,12 +10,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
+	"github.com/rs/cors"
+	"go.uber.org/zap"
+
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/context_data"
 	"github.com/oinume/lekcije/server/errors"
 	"github.com/oinume/lekcije/server/model"
-	"github.com/rs/cors"
-	"go.uber.org/zap"
 )
 
 var _ = fmt.Print

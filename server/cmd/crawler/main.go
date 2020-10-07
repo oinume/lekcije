@@ -9,14 +9,15 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/oinume/lekcije/server/cli"
 	"github.com/oinume/lekcije/server/config"
 	"github.com/oinume/lekcije/server/crawler"
 	"github.com/oinume/lekcije/server/fetcher"
 	"github.com/oinume/lekcije/server/logger"
 	"github.com/oinume/lekcije/server/model"
-	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 )
 
 func main() {

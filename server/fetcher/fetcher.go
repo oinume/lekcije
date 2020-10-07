@@ -17,16 +17,17 @@ import (
 	"time"
 
 	"github.com/Songmu/retry"
-	"github.com/oinume/lekcije/server/config"
-	"github.com/oinume/lekcije/server/errors"
-	"github.com/oinume/lekcije/server/logger"
-	"github.com/oinume/lekcije/server/model"
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/net/http2"
 	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
+
+	"github.com/oinume/lekcije/server/config"
+	"github.com/oinume/lekcije/server/errors"
+	"github.com/oinume/lekcije/server/logger"
+	"github.com/oinume/lekcije/server/model"
 )
 
 const (

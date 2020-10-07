@@ -6,9 +6,10 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/oinume/lekcije/server/errors"
 	"go.opencensus.io/trace"
 	"golang.org/x/net/context"
+
+	"github.com/oinume/lekcije/server/errors"
 )
 
 type MCountry struct {
