@@ -43,6 +43,10 @@ build/%:
 clean:
 	${RM} $(foreach command,$(COMMANDS),bin/lekcije_$(command))
 
+.PHONY: db/goose/%
+db/goose/%:
+	goose -dir ./db/migrations mysql "$(MYSQL_USER):$(MYSQL_PASSWORD)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DATABASE)?charset=utf8mb4&parseTime=true&loc=UTC" $*
+
 .PHONY: proto/go
 proto/go:
 	rm -rf $(PROTO_GEN_DIR)/go && mkdir -p $(PROTO_GEN_DIR)/go
@@ -65,6 +69,10 @@ test: go-test e2e-test
 .PHONY: e2e-test
 e2e-test: minify-static-development
 	$(GO_TEST_E2E) github.com/oinume/lekcije/e2e
+
+.PHONY: test/db/goose/%
+test/db/goose/%:
+	goose -dir ./db/migrations mysql "$(MYSQL_USER):$(MYSQL_PASSWORD)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DATABASE)_test?charset=utf8mb4&parseTime=true&loc=UTC" $*
 
 .PHONY: go-test
 go-test:

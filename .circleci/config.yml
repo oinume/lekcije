@@ -115,7 +115,8 @@ jobs:
       - run:
           name: "Apply database migrations"
           command: |
-            goose -env=circle_ci up
+            export PATH=${PATH}:/go/bin:`pwd`/tools/bin
+            make test/db/goose/up
       - run:
           name: "Run go-lint"
           command: make go-lint

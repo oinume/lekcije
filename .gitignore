@@ -30,3 +30,4 @@ deploy.sh
 .ipynb_checkpoints
 /*.pid
 bin/lekcije*
+tools/bin/*
