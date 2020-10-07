@@ -72,7 +72,7 @@ e2e-test: minify-static-development
 
 .PHONY: test/db/goose/%
 test/db/goose/%:
-	goose -dir ./db/migrations mysql "$(MYSQL_USER):$(MYSQL_PASSWORD)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DATABASE)_test?charset=utf8mb4&parseTime=true&loc=UTC" $*
+	goose -dir ./db/migrations mysql "$(MYSQL_USER):$(MYSQL_PASSWORD)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DATABASE_TEST)?charset=utf8mb4&parseTime=true&loc=UTC" $*
 
 .PHONY: go-test
 go-test:
