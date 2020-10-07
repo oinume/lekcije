@@ -57,11 +57,11 @@ jobs:
           ENABLE_TRACE: "false"
           GO111MODULE: "on"
           MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_USER: "root"
+          MYSQL_USER: "lekcije"
           MYSQL_PASSWORD: "lekcije"
           MYSQL_HOST: "127.0.0.1"
           MYSQL_PORT: "3306"
-          MYSQL_DATABASE: "lekcije_test"
+          MYSQL_DATABASE: "lekcije"
           REDIS_URL: "redis://h:@127.0.0.1:6379"
           E2E_WEB_DRIVER: "PhantomJS"
           VERSION_HASH: "_version_"
@@ -91,9 +91,9 @@ jobs:
           name: "Setup database"
           command: |
             set -eu
-            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE USER IF NOT EXISTS 'lekcije'@'%' identified by 'lekcije'"
-            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
-            mysql -u${MYSQL_USER} -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%'"
+            mysql -uroot -h ${MYSQL_HOST} -e "CREATE USER IF NOT EXISTS 'lekcije'@'%' identified by 'lekcije'"
+            mysql -uroot -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
+            mysql -uroot -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%'"
       - restore_cache:
           key: go-mod-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "go.sum" }}
       - save_cache:
