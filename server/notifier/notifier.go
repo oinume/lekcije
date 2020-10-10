@@ -347,7 +347,7 @@ Body: text/html
 {{ end }}
 
 お知らせ ────────────────
-Patreonによるサポートプログラムを開始しました。
+lekcijeの運営を継続できるようPatreonでのご協力をお願いいたします。
 詳しくは下記をご覧ください。
 https://lekcije.amebaownd.com/posts/10340104
 ────────────────────────
