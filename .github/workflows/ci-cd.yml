@@ -29,7 +29,7 @@ jobs:
       MYSQL_PORT: "3306"
       MYSQL_DATABASE: "lekcije_test"
       MYSQL_DATABASE_TEST: "lekcije_test"
-      REDIS_URL: "redis://127.0.0.1:6379"
+      REDIS_URL: "redis://h:@127.0.0.1:6379"
       E2E_WEB_DRIVER: "PhantomJS"
       VERSION_HASH: "_version_"
       NODE_ENV: "test"
