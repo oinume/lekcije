@@ -14,20 +14,21 @@ import (
 type fakeTransport struct{}
 
 func (t *fakeTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	panic("fakeTransport.RoundTrip")
 	//b, err := httputil.DumpRequest(req, true)
 	//if err != nil {
 	//	panic(err)
 	//}
 	//fmt.Println(string(b))
-	resp := &http.Response{
-		Header:     make(http.Header),
-		Request:    req,
-		StatusCode: http.StatusOK,
-		Status:     "200 OK",
-	}
-	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
-	resp.Body = ioutil.NopCloser(strings.NewReader("ok"))
-	return resp, nil
+	//resp := &http.Response{
+	//	Header:     make(http.Header),
+	//	Request:    req,
+	//	StatusCode: http.StatusOK,
+	//	Status:     "200 OK",
+	//}
+	//resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+	//resp.Body = ioutil.NopCloser(strings.NewReader("ok"))
+	//return resp, nil
 }
 
 type fakeErrorTransport struct{}
