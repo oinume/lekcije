@@ -1,0 +1,128 @@
+name: CI/CD
+on:
+  - push
+jobs:
+  backend-build:
+    name: backend-build
+    runs-on: ubuntu-latest
+    env:
+      CACHE_VERSION: 1
+      ENABLE_TRACE: "false"
+      GO111MODULE: "on"
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_USER: "lekcije"
+      MYSQL_PASSWORD: "lekcije"
+      MYSQL_HOST: "127.0.0.1"
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: "lekcije_test"
+      MYSQL_DATABASE_TEST: "lekcije_test"
+      REDIS_URL: "redis://h:@127.0.0.1:6379"
+      E2E_WEB_DRIVER: "PhantomJS"
+      VERSION_HASH: "_version_"
+      NODE_ENV: "test"
+      LEKCIJE_ENV: "test"
+    steps:
+      - name: Set up Go 1.15
+        id: go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/go
+          key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Install tools
+        run: |
+          ls -l ~/go/bin || true
+          if [ ! -e ~/go/bin/goose ]; then
+            make install-tools
+          fi
+      - name: Build
+        run: |
+          make build
+      - name: Run go-lint
+        run: |
+          export PATH=${PATH}:~/go/bin
+          make go-lint
+      - name: Apply database migrations
+        run: |
+          make test/db/goose/up
+      - name: Run go-test
+        run: |
+          make go-test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.txt
+          fail_ci_if_error: false
+      #          flags: unittests # optional
+      #          name: codecov-umbrella # optional
+
+#  build:
+#    name: build
+#    runs-on: ubuntu-latest
+#    env:
+#      MYSQL_USER: todomvc
+#      MYSQL_PASSWORD: todomvc
+#      MYSQL_HOST: 127.0.0.1
+#      MYSQL_PORT: 3306
+#      MYSQL_DATABASE: todomvc
+#      CACHE_VERSION: 4
+#    steps:
+#      - name: Set up Go 1.15
+#        uses: actions/setup-go@v1
+#        with:
+#          go-version: 1.15
+#        id: go
+#      - uses: actions/checkout@v2
+#      - uses: actions/cache@v2
+#        id: cache
+#        with:
+#          path: ~/go
+#          key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
+#          restore-keys: |
+#            ${{ runner.os }}-go-
+#      - name: Install tools
+#        run: |
+#          ls -l ~/go/bin || true
+#          if [ ! -e ~/go/bin/goose ]; then
+#            make install-tools
+#          fi
+#      - name: Build
+#        run: |
+#          make build
+#      - name: Run go/lint
+#        run: |
+#          export PATH=${PATH}:~/go/bin
+#          make go/lint
+#      - name: Start MySQL
+#        run: |
+#          sudo systemctl start mysql.service
+#      - name: Create database
+#        run: |
+#          mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
+#      - name: DB Migration
+#        run: |
+#          export PATH=${PATH}:~/go/bin:`pwd`/tools/bin
+#          make test/db/goose/up
+#      - name: Run tests
+#        run: |
+#          make test/coverage
+#      - name: Upload coverage to codecov
+#        uses: codecov/codecov-action@v1
+#        with:
+#          token: ${{ secrets.CODECOV_TOKEN }}
+#          file: ./coverage.txt
+#          fail_ci_if_error: false
+#      #          flags: unittests # optional
+#      #          name: codecov-umbrella # optional
+#      - name: Upload coverage to coveralls
+#        uses: shogo82148/actions-goveralls@v1
+#        with:
+#          path-to-profile: coverage.txt
+#          parallel: false
