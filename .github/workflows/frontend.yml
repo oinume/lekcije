@@ -4,7 +4,7 @@ on:
 env:
   CACHE_VERSION: 1
 jobs:
-  frontend:
+  build:
     name: build
     runs-on: ubuntu-20.04
     env:
@@ -35,6 +35,9 @@ jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-20.04
+#    if: github.ref == 'refs/heads/master'
+    needs:
+      - build
     steps:
       - uses: actions/checkout@v2
       - name: Use NodeJS 14.x
@@ -74,7 +77,14 @@ jobs:
       - name: Install heroku command
         run: |
           ./ci/install-heroku-cli.sh
+          cat ~/.netrc
+        env:
+          HEROKU_LOGIN: ${{ secrets.HEROKU_LOGIN }}
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       - name: Set VERSION_HASH on heroku
         run: |
           HASH=$(make print-version-hash)
-          heroku config:set VERSION_HASH=$HASH -a lekcije
+          /opt/heroku/bin/heroku config:set VERSION_HASH=$HASH -a lekcije
+        env:
+          HEROKU_LOGIN: ${{ secrets.HEROKU_LOGIN }}
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
