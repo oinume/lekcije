@@ -4,8 +4,20 @@ on:
 jobs:
   backend-build:
     name: backend-build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
       redis:
         image: redis:3.2-alpine
         options: >-
@@ -32,6 +44,9 @@ jobs:
       NODE_ENV: "test"
       LEKCIJE_ENV: "test"
     steps:
+      - name: Print PWD
+        run: |
+          pwd
       - name: Set up Go 1.15
         id: go
         uses: actions/setup-go@v1
@@ -62,9 +77,6 @@ jobs:
         run: |
           export PATH=${PATH}:~/go/bin
           make go-lint
-      - name: Start MySQL
-        run: |
-          sudo systemctl start mysql.service
       - name: Create database
         run: |
           mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
