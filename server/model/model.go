@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"fmt"
 	"net/url"
 	"strings"
 	"testing"
@@ -65,6 +66,9 @@ func OpenRedis(redisURL string) (*redis.Client, error) {
 		Password: password,
 		DB:       0,
 	})
+	if _, err := client.Ping().Result(); err != nil {
+		return nil, fmt.Errorf("client.Ping() failed: %v", err)
+	}
 	return client, nil
 }
 
