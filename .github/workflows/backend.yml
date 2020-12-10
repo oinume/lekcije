@@ -1,9 +1,11 @@
-name: CI/CD
+name: backend
 on:
   - push
+env:
+  CACHE_VERSION: 1
 jobs:
-  backend-build:
-    name: backend-build
+  build:
+    name: build
     runs-on: ubuntu-20.04
     services:
       mysql:
@@ -28,7 +30,6 @@ jobs:
         ports:
           - 6379:6379
     env:
-      CACHE_VERSION: 1
       ENABLE_TRACE: "false"
       GO111MODULE: "on"
       MYSQL_ALLOW_EMPTY_PASSWORD: true
@@ -96,35 +97,3 @@ jobs:
           fail_ci_if_error: false
       #          flags: unittests # optional
       #          name: codecov-umbrella # optional
-
-  frontend-build:
-    name: frontend-build
-    runs-on: ubuntu-20.04
-    env:
-      CACHE_VERSION: 1
-      VERSION_HASH: "_version_"
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use NodeJS ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14.x
-      - uses: actions/cache@v2
-        id: cache
-        with:
-          path: ~/work/lekcije/lekcije/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-
-      - name: Create static dir
-        run: |
-          mkdir -p static
-      - name: Install modules
-        run: |
-          if [ ! -e "./node_modules" ]; then
-            set -eu
-            npm install
-          fi
-      - name: Run tests
-        run: |
-          npm test
