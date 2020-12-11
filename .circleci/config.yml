@@ -23,29 +23,6 @@ install_npm_packages: &install_npm_packages
     fi
 
 jobs:
-  frontend:
-    environment:
-      <<: *env
-    working_directory: /go/src/github.com/oinume/lekcije
-    docker:
-      - image: node:10.12-stretch
-    steps:
-      - checkout
-      - run:
-          <<: *gitconfig
-      - restore_cache:
-          <<: *node_modules_cache_key
-      - run:
-          <<: *install_npm_packages
-      - save_cache:
-          <<: *node_modules_cache_key
-          paths:
-            - "/go/src/github.com/oinume/lekcije/node_modules"
-      - run:
-          name: "Run tests"
-          command: |
-            npm test
-
   server:
     environment:
       <<: *env
@@ -133,62 +110,6 @@ jobs:
           name: "Upload to codecov"
           command: |
             bash <(curl -s https://codecov.io/bash)
-  deploy-frontend:
-    environment:
-      <<: *env
-    working_directory: /go/src/github.com/oinume/lekcije
-    docker:
-      - image: node:10.12-stretch
-    steps:
-      - checkout
-      - run:
-          <<: *gitconfig
-      - restore_cache:
-          <<: *node_modules_cache_key
-      - run:
-          <<: *install_npm_packages
-      - save_cache:
-          <<: *node_modules_cache_key
-          paths:
-            - "/go/src/github.com/oinume/lekcije/node_modules"
-      - run:
-          name: "Minify"
-          command: |
-            rm -rf static
-            make minify-static
-      - restore_cache:
-          key: google-cloud-sdk-221.0.0
-      - run:
-          name: "Install google-cloud-sdk"
-          command: |
-            ./ci/install-google-cloud-sdk.sh
-      - save_cache:
-          key: google-cloud-sdk-221.0.0
-          paths:
-          - /google-cloud-sdk
-      - run:
-          name: "Activate GCP service account"
-          command: |
-            echo $GCP_SERVICE_ACCOUNT_KEY | base64 --decode > ./gcp-service-account-key.json
-            gcloud auth activate-service-account --key-file ./gcp-service-account-key.json
-      - run:
-          name: "Deploy to GCS"
-          command: |
-            HASH=$(make print-version-hash)
-            gsutil -h "Cache-Control: public,max-age=2592000" -m rsync -d -r static/$HASH gs://asset.lekcije.com/static/$HASH
-      - run:
-          name: "Ensure to enable CORS"
-          command: |
-            gsutil cors set cors-asset.lekcije.com.json gs://asset.lekcije.com
-      - run:
-          name: "Install heroku command"
-          command: |
-            ./ci/install-heroku-cli.sh
-      - run:
-          name: "Set VERSION_HASH on heroku"
-          command: |
-            HASH=$(make print-version-hash)
-            heroku config:set VERSION_HASH=$HASH -a lekcije
   deploy-server-image:
     environment:
       <<: *env
@@ -246,18 +167,6 @@ workflows:
           filters:
             branches:
               only: /.*/
-      - frontend:
-          filters:
-            branches:
-              only: /.*/
-      - deploy-frontend:
-          requires:
-            - frontend
-          filters:
-            branches:
-              only:
-                - master
-                - /public-.*/
       - deploy-server-image:
           requires:
             - server

@@ -35,7 +35,7 @@ jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-20.04
-#    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' or startsWith(github.ref, 'ref/heads/public-')
     needs:
       - build
     steps:
