@@ -1,0 +1,85 @@
+name: frontend
+on:
+  - push
+env:
+  CACHE_VERSION: 1
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    env:
+      VERSION_HASH: "_version_"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use NodeJS 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/work/lekcije/lekcije/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Install npm modules
+        run: |
+          if [ ! -e "./node_modules" ]; then
+            set -eu
+            npm install
+          fi
+      - name: Run tests
+        run: |
+          npm test
+
+  deploy:
+    name: deploy
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'ref/heads/public-')
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use NodeJS 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/work/lekcije/lekcije/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Install npm modules
+        run: |
+          if [ ! -e "./node_modules" ]; then
+            set -eu
+            npm install
+          fi
+      - name: Minify
+        run: |
+          rm -rf static
+          make minify-static
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+         project_id: ${{ secrets.GCP_PROJECT_ID }}
+         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+         export_default_credentials: true
+      - name: Deploy to GCS
+        run: |
+          HASH=$(make print-version-hash)
+          gsutil -h "Cache-Control: public,max-age=2592000" -m rsync -d -r static/$HASH gs://asset.lekcije.com/static/$HASH
+      - name: Ensure to enable CORS
+        run: |
+          gsutil cors set cors-asset.lekcije.com.json gs://asset.lekcije.com
+      - name: Install heroku command
+        run: |
+          ./ci/install-heroku-cli.sh
+      - name: Set VERSION_HASH on heroku
+        run: |
+          HASH=$(make print-version-hash)
+          /opt/heroku/bin/heroku config:set VERSION_HASH=$HASH -a lekcije
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}

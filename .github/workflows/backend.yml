@@ -1,9 +1,11 @@
-name: CI/CD
+name: backend
 on:
   - push
+env:
+  CACHE_VERSION: 1
 jobs:
-  backend-build:
-    name: backend-build
+  build:
+    name: build
     runs-on: ubuntu-20.04
     services:
       mysql:
@@ -28,7 +30,6 @@ jobs:
         ports:
           - 6379:6379
     env:
-      CACHE_VERSION: 1
       ENABLE_TRACE: "false"
       GO111MODULE: "on"
       MYSQL_ALLOW_EMPTY_PASSWORD: true
