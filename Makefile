@@ -22,7 +22,7 @@ setup: install-tools
 
 .PHONY: install-tools
 install-tools:
-	cd tools && ./install-tools.sh
+	cd tools && go list -f='{{ join .Imports "\n" }}' ./tools.go | tr -d [ | tr -d ] | xargs -I{} go install {}
 
 .PHONY: vendor
 vendor:
