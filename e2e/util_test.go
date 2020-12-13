@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/oinume/lekcije/server/model"
-	"github.com/oinume/lekcije/server/util"
+	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/util"
 )
 
 func createUserAndLogin(name, email, googleID string) (*model.User, string, error) {

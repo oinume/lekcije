@@ -15,12 +15,12 @@ import (
 	"github.com/sclevine/agouti"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/oinume/lekcije/server/config"
-	"github.com/oinume/lekcije/server/ga_measurement"
-	"github.com/oinume/lekcije/server/interfaces"
-	interfaces_http "github.com/oinume/lekcije/server/interfaces/http"
-	"github.com/oinume/lekcije/server/logger"
-	"github.com/oinume/lekcije/server/model"
+	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/ga_measurement"
+	"github.com/oinume/lekcije/backend/interfaces"
+	interfaces_http "github.com/oinume/lekcije/backend/interfaces/http"
+	"github.com/oinume/lekcije/backend/logger"
+	"github.com/oinume/lekcije/backend/model"
 )
 
 var (
