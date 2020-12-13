@@ -21,7 +21,7 @@ jobs:
           --health-timeout=5s
           --health-retries=3
       redis:
-        image: redis:3.2-alpine
+        image: redis:3.2-alpine # TODO: Update to latest
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -73,11 +73,11 @@ jobs:
           fi
       - name: Build
         run: |
-          make build
-      - name: Run go-lint
+          make backend/build
+      - name: Run go/lint
         run: |
           export PATH=${PATH}:~/go/bin
-          make go-lint
+          make go/lint
       - name: Create database
         run: |
           mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
@@ -85,10 +85,10 @@ jobs:
         run: |
           export PATH=${PATH}:~/go/bin
           make test/db/goose/up
-      - name: Run go-test
+      - name: Run go/test
         run: |
           export
-          make go-test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
+          make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v1
         with:
