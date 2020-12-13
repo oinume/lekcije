@@ -26,6 +26,6 @@ func TestNewAnnotatedError(t *testing.T) {
 
 	var out bytes.Buffer
 	fmt.Fprintf(&out, "%+v\n", err.StackTrace())
-	a.Contains(out.String(), "github.com/oinume/lekcije/server/errors.NewAnnotatedError")
+	a.Contains(out.String(), "github.com/oinume/lekcije/backend/errors.NewAnnotatedError")
 	a.Contains(out.String(), "TestNewAnnotatedError")
 }
