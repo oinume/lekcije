@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   mysql:
-    image: "mysql:8.0"
+    image: "mysql/mysql-server:8.0"
     command: "--secure-file-priv=NULL --default-authentication-plugin=mysql_native_password"
     restart: always
     ports:
