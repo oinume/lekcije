@@ -1,5 +1,5 @@
 // +heroku goVersion go1.15
-// +heroku install ./server/cmd/...
+// +heroku install ./backend/cmd/...
 module github.com/oinume/lekcije
 
 go 1.15
