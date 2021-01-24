@@ -6,43 +6,44 @@ const path = require('path');
 const buildPath = path.resolve(__dirname, 'static');
 const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server only
+//const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server only
 
-var devtool = 'source-map'; // Render source-map file for final build
-var plugins = [
-  new CopyWebpackPlugin([
-    { context: 'frontend', from: '**/*.css' },
-    { context: 'frontend', from: '**/*.html' },
-    { context: 'frontend', from: '**/*.png' },
-    { context: 'frontend', from: '**/*.jpg' },
-    { context: 'frontend', from: '**/*.eot' },
-    { context: 'frontend', from: '**/*.svg' },
-    { context: 'frontend', from: '**/*.ttf' },
-    { context: 'frontend', from: '**/*.woff' },
-    { context: 'frontend', from: '**/*.woff2' },
-    { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
-    { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
-    { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
-    { context: nodeModulesPath, from: 'react/umd/**', to: 'lib' },
-    { context: nodeModulesPath, from: 'react-dom/umd/**', to: 'lib' },
-  ])
+let devtool = 'source-map'; // Render source-map file for final build
+let plugins = [
+  new CopyWebpackPlugin({
+    patterns: [
+      { context: 'frontend', from: '**/*.css' },
+      { context: 'frontend', from: '**/*.html' },
+      { context: 'frontend', from: '**/*.png' },
+      { context: 'frontend', from: '**/*.eot' },
+      { context: 'frontend', from: '**/*.svg' },
+      { context: 'frontend', from: '**/*.ttf' },
+      { context: 'frontend', from: '**/*.woff' },
+      { context: 'frontend', from: '**/*.woff2' },
+      { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
+      { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
+      { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
+      { context: nodeModulesPath, from: 'react/umd/**', to: 'lib' },
+      { context: nodeModulesPath, from: 'react-dom/umd/**', to: 'lib' },
+    ]
+  })
 ];
 
 if (process.env.WEBPACK_DEV_SERVER === 'true') {
   console.log('WEBPACK_DEV_SERVER is true');
   devtool = 'eval';
-  plugins.push(
-    new TransferWebpackPlugin([
-      {from: 'css'},
-      {from: 'html'},
-      {from: 'image'},
-      {from: nodeModulesPath + "/bootstrap", to: 'lib'},
-      {from: nodeModulesPath + "/bootswatch", to: 'lib'},
-      {from: nodeModulesPath + "/jquery", to: 'lib'},
-      {from: nodeModulesPath + "/react", to: 'lib'},
-      {from: nodeModulesPath + "/react-dom", to: 'lib'},
-    ], path.resolve(__dirname, "frontend"))
-  );
+//   plugins.push(
+//     new TransferWebpackPlugin([
+//       {from: 'css'},
+//       {from: 'html'},
+//       {from: 'image'},
+//       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
+//       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
+//       {from: nodeModulesPath + "/jquery", to: 'lib'},
+//       {from: nodeModulesPath + "/react", to: 'lib'},
+//       {from: nodeModulesPath + "/react-dom", to: 'lib'},
+//     ], path.resolve(__dirname, "frontend"))
+//   );
 }
 
 const config = {
@@ -60,7 +61,6 @@ const config = {
     path: path.join(buildPath, process.env.VERSION_HASH),
     publicPath: path.join('/static', process.env.VERSION_HASH),
     filename: "js/[name].bundle.js",
-    chunkFilename: "js/[name].chunk.js"
   },
   externals: {
     'jquery': 'jQuery',
@@ -104,31 +104,31 @@ const config = {
       },
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader"
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.png$/,
-        loader: "url-loader?limit=100000"
+        use: 'url-loader?limit=100000'
       },
       {
         test: /\.jpg$/,
-        loader: "file-loader"
+        use: 'file-loader'
       },
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&mimetype=application/font-woff'
+        use: 'url?limit=10000&mimetype=application/font-woff'
       },
       {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&mimetype=application/octet-stream'
+        use: 'url?limit=10000&mimetype=application/octet-stream'
       },
       {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'file'
+        use: 'file'
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&mimetype=image/svg+xml'
+        use: 'url?limit=10000&mimetype=image/svg+xml'
       }
     ],
   },
