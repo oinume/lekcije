@@ -54,7 +54,7 @@ const config = {
   },
   resolve: {
     //When require, do not have to add these extensions to file's name
-    extensions: ['.js', '.jsx', '.json', '.css'],
+    extensions: ['.js', '.jsx', '.json', '.css', '.ts', '.tsx'],
     //node_modules: ["web_modules", "node_modules"]  (Default Settings)
   },
   output: {
@@ -101,6 +101,10 @@ const config = {
             }]
           ]
         }
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader'
       },
       {
         test: /\.css$/,
