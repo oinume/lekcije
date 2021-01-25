@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createHttpClient} from './http';
 import Alert from './components/Alert';
-//import AlertFC from "./components/AlertFC";
+import {AlertFC} from "./components/AlertFC";
 import EmailForm from './components/setting/EmailForm';
-import { MPlanFormFC } from "./components/setting/MPlanFormFC";
+import {MPlanFormFC} from "./components/setting/MPlanFormFC";
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
@@ -32,13 +32,15 @@ class SettingView extends MicroContainer {
         name: '',
       }
     };
+
+    this.handleHideAlert = this.handleHideAlert.bind(this);
   }
 
   componentDidMount() {
     this.subscribe({
       showAlert: this.handleShowAlert,
-      // Email
       hideAlert: this.handleHideAlert,
+      // Email
       onChangeEmail: this.handleOnChangeEmail,
       updateEmail: this.handleUpdateEmail,
       // TimeSpan
@@ -71,7 +73,10 @@ class SettingView extends MicroContainer {
             })
           }}
         >
-          <Alert dispatch={this.dispatch} {...this.state.alert}/>
+          <AlertFC
+            {...this.state.alert}
+            handleCloseAlert={this.handleHideAlert}
+          />
           <EmailForm dispatch={this.dispatch} value={this.state.email}/>
           <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
           <MPlanFormFC {...this.state.mPlan}/>

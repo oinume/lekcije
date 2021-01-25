@@ -11,17 +11,17 @@ type Props = {
   kind: string
   message: string
   visible: boolean
-  handleHideAlert: () => void
+  handleCloseAlert: () => void
 };
 
-export const AlertFC: React.FC<Props> = ({kind, message, visible, handleHideAlert}) => {
+export const AlertFC: React.FC<Props> = ({kind, message, visible, handleCloseAlert}) => {
   if (visible) {
     return (
       <div className={"alert alert-" + kind} role="alert">
         <button
           type="button"
           className="close"
-          onClick={() => handleHideAlert()}
+          onClick={() => handleCloseAlert()}
         >
           &times;
         </button>
