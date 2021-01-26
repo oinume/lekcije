@@ -2,10 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createHttpClient} from './http';
-import Alert from './components/Alert';
-import {AlertFC} from "./components/AlertFC";
+import {Alert} from "./components/Alert";
 import EmailForm from './components/setting/EmailForm';
-import {MPlanFormFC} from "./components/setting/MPlanFormFC";
+import {MPlanForm} from "./components/setting/MPlanForm";
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
@@ -73,13 +72,13 @@ class SettingView extends MicroContainer {
             })
           }}
         >
-          <AlertFC
+          <Alert
             {...this.state.alert}
             handleCloseAlert={this.handleHideAlert}
           />
           <EmailForm dispatch={this.dispatch} value={this.state.email}/>
           <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
-          <MPlanFormFC {...this.state.mPlan}/>
+          <MPlanForm {...this.state.mPlan}/>
         </Loadable>
       </div>
     );
