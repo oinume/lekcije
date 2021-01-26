@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createHttpClient} from './http';
 import {Alert} from "./components/Alert";
-import EmailForm from './components/setting/EmailForm';
+import {EmailFormFC} from './components/setting/EmailFormFC';
 import {MPlanForm} from "./components/setting/MPlanForm";
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
@@ -33,6 +33,8 @@ class SettingView extends MicroContainer {
     };
 
     this.handleHideAlert = this.handleHideAlert.bind(this);
+    this.handleOnChangeEmail= this.handleOnChangeEmail.bind(this);
+    this.handleUpdateEmail = this.handleUpdateEmail.bind(this);
   }
 
   componentDidMount() {
@@ -76,7 +78,11 @@ class SettingView extends MicroContainer {
             {...this.state.alert}
             handleCloseAlert={this.handleHideAlert}
           />
-          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+          <EmailFormFC
+            email={this.state.email}
+            handleOnChange={this.handleOnChangeEmail}
+            handleUpdateEmail={this.handleUpdateEmail}
+          />
           <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
           <MPlanForm {...this.state.mPlan}/>
         </Loadable>
@@ -122,12 +128,11 @@ class SettingView extends MicroContainer {
     })
   }
 
-  handleOnChangeEmail(email) {
-    this.setState({email: email})
+  handleOnChangeEmail(e) {
+    this.setState({email: e.target.value});
   }
 
   handleUpdateEmail(email) {
-    //alert('email is ' + email);
     const client = createHttpClient();
     client.post('/api/v1/me/email', {
       email: email,
