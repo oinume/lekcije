@@ -6,7 +6,7 @@ type Props = {
   handleUpdateEmail: (email: string) => void
 }
 
-export const EmailFormFC: React.FC<Props> = ({email, handleOnChange, handleUpdateEmail}) => {
+export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateEmail}) => {
   return (
       <form className="form-horizontal">
         <div className="form-group">

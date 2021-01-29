@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createHttpClient} from './http';
 import {Alert} from "./components/Alert";
-import {EmailFormFC} from './components/setting/EmailFormFC';
+import {EmailForm} from './components/setting/EmailForm';
 import {MPlanForm} from "./components/setting/MPlanForm";
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
@@ -78,7 +78,7 @@ class SettingView extends MicroContainer {
             {...this.state.alert}
             handleCloseAlert={this.handleHideAlert}
           />
-          <EmailFormFC
+          <EmailForm
             email={this.state.email}
             handleOnChange={this.handleOnChangeEmail}
             handleUpdateEmail={this.handleUpdateEmail}
