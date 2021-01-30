@@ -1,16 +1,8 @@
-// module.exports = {
-//   verbose: true,
-//   rootDir: './frontend'
-// };
-
 module.exports = {
   verbose: true,
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: './frontend',
-  // roots: [
-  //   './frontend'
-  // ],
 //  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
   testPathIgnorePatterns: ['.next/', 'node_modules/'],
 //  snapshotSerializers: ['enzyme-to-json/serializer'],
