@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 
 type Props = {
   email: string
-  handleOnChange: () => void
+  handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   handleUpdateEmail: (email: string) => void
 }
 
