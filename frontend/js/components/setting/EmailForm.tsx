@@ -1,19 +1,13 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
 
-export default class EmailForm extends React.Component {
+type Props = {
+  email: string
+  handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  handleUpdateEmail: (email: string) => void
+}
 
-  constructor(props) {
-    super(props);
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange(e) {
-    this.props.dispatch('onChangeEmail', e.target.value);
-  }
-
-  render() {
-    return (
+export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateEmail}) => {
+  return (
       <form className="form-horizontal">
         <div className="form-group">
           <div className="col-sm-3">
@@ -23,27 +17,21 @@ export default class EmailForm extends React.Component {
             <input
               type="email" className="form-control" name="email" id="email"
               placeholder="Email" required autoFocus autoComplete="on"
-              value={this.props.value} onChange={this.onChange}/>
+              value={email} onChange={handleOnChange}/>
           </div>
         </div>
         <div className="form-group">
           <div className="col-sm-offset-2 col-sm-8">
             <button
               type="button"
-              disabled={!this.props.value}
+              disabled={!email}
               className="btn btn-primary"
-              onClick={() => this.props.dispatch('updateEmail', this.props.value)}
+              onClick={() => handleUpdateEmail(email)}
             >
               変更
             </button>
           </div>
         </div>
       </form>
-    );
-  }
+  );
 }
-
-EmailForm.propTypes = {
-  value: PropTypes.string.isRequired,
-  dispatch: PropTypes.func.isRequired,
-};

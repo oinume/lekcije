@@ -14,7 +14,7 @@ type Props = {
   handleCloseAlert: () => void
 };
 
-export const AlertFC: React.FC<Props> = ({kind, message, visible, handleCloseAlert}) => {
+export const Alert: React.FC<Props> = ({kind, message, visible, handleCloseAlert}) => {
   if (visible) {
     return (
       <div className={"alert alert-" + kind} role="alert">

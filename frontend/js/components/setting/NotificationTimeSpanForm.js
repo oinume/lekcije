@@ -1,6 +1,6 @@
 import React from "react";
-import Select from '../Select';
-import {sprintf} from 'sprintf-js';
+import { Select } from '../Select';
+import { sprintf } from 'sprintf-js';
 import PropTypes from "prop-types";
 
 export default class NotificationTimeSpanForm extends React.Component {

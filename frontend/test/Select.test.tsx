@@ -1,8 +1,5 @@
-'use strict';
-
 import React from 'react';
-//import renderer from 'react-test-renderer';
-import Select from "../js/components/Select";
+import { Select } from '../js/components/Select';
 import { configure, shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -17,7 +14,8 @@ test('Select initial state', () => {
     <Select
       name="country"
       value=""
-      onChange={() => {}}
+      className=""
+      onChange={(event: React.ChangeEvent<HTMLElement>) => {}}
       options={options}
     />
   );

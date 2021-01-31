@@ -2,10 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
 import {createHttpClient} from './http';
-import Alert from './components/Alert';
-import {AlertFC} from "./components/AlertFC";
-import EmailForm from './components/setting/EmailForm';
-import {MPlanFormFC} from "./components/setting/MPlanFormFC";
+import {Alert} from "./components/Alert";
+import {EmailForm} from './components/setting/EmailForm';
+import {MPlanForm} from "./components/setting/MPlanForm";
 import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
@@ -34,6 +33,8 @@ class SettingView extends MicroContainer {
     };
 
     this.handleHideAlert = this.handleHideAlert.bind(this);
+    this.handleOnChangeEmail= this.handleOnChangeEmail.bind(this);
+    this.handleUpdateEmail = this.handleUpdateEmail.bind(this);
   }
 
   componentDidMount() {
@@ -73,13 +74,17 @@ class SettingView extends MicroContainer {
             })
           }}
         >
-          <AlertFC
+          <Alert
             {...this.state.alert}
             handleCloseAlert={this.handleHideAlert}
           />
-          <EmailForm dispatch={this.dispatch} value={this.state.email}/>
+          <EmailForm
+            email={this.state.email}
+            handleOnChange={this.handleOnChangeEmail}
+            handleUpdateEmail={this.handleUpdateEmail}
+          />
           <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
-          <MPlanFormFC {...this.state.mPlan}/>
+          <MPlanForm {...this.state.mPlan}/>
         </Loadable>
       </div>
     );
@@ -123,12 +128,11 @@ class SettingView extends MicroContainer {
     })
   }
 
-  handleOnChangeEmail(email) {
-    this.setState({email: email})
+  handleOnChangeEmail(e) {
+    this.setState({email: e.target.value});
   }
 
   handleUpdateEmail(email) {
-    //alert('email is ' + email);
     const client = createHttpClient();
     client.post('/api/v1/me/email', {
       email: email,
