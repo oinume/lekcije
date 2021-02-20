@@ -1,6 +1,17 @@
 name: frontend
 on:
-  - push
+  push:
+    paths:
+      - "**.css"
+      - "**.html"
+      - "**.json"
+      - "**.jsx?"
+      - "**.md"
+      - "**.proto"
+      - "**.tsx?"
+      - "**.ya?ml"
+      - ".babelrc"
+      - "Makefile"
 env:
   CACHE_VERSION: 1
 jobs:
