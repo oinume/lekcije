@@ -5,7 +5,8 @@ import {createHttpClient} from './http';
 import {Alert} from "./components/Alert";
 import {EmailForm} from './components/setting/EmailForm';
 import {MPlanForm} from "./components/setting/MPlanForm";
-import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
+//import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
+import {NotificationTimeSpanFormFC} from './components/setting/NotificationTimeSpanForm.tsx';
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
 
@@ -32,9 +33,15 @@ class SettingView extends MicroContainer {
       }
     };
 
+    this.handleShowAlert = this.handleShowAlert.bind(this);
     this.handleHideAlert = this.handleHideAlert.bind(this);
     this.handleOnChangeEmail= this.handleOnChangeEmail.bind(this);
     this.handleUpdateEmail = this.handleUpdateEmail.bind(this);
+    this.handleAddTimeSpan = this.handleAddTimeSpan.bind(this);
+    this.handleDeleteTimeSpan = this.handleDeleteTimeSpan.bind(this);
+    this.handleUpdateTimeSpan = this.handleUpdateTimeSpan.bind(this);
+    this.handleOnChangeTimeSpan = this.handleOnChangeTimeSpan.bind(this);
+    this.handleSetTimeSpanEditable = this.handleSetTimeSpanEditable.bind(this);
   }
 
   componentDidMount() {
@@ -83,7 +90,14 @@ class SettingView extends MicroContainer {
             handleOnChange={this.handleOnChangeEmail}
             handleUpdateEmail={this.handleUpdateEmail}
           />
-          <NotificationTimeSpanForm dispatch={this.dispatch} {...this.state.timeSpan}/>
+          <NotificationTimeSpanFormFC
+            handleAdd={this.handleAddTimeSpan}
+            handleDelete={this.handleDeleteTimeSpan}
+            handleUpdate={this.handleUpdateTimeSpan}
+            handleOnChange={this.handleOnChangeTimeSpan}
+            handleSetEditable={this.handleSetTimeSpanEditable}
+            {...this.state.timeSpan}
+          />
           <MPlanForm {...this.state.mPlan}/>
         </Loadable>
       </div>
