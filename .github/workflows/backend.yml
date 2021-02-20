@@ -7,6 +7,7 @@ on:
       - "**.proto"
       - "**.ya?ml"
       - "**.sh"
+      - "**.py"
       - "go.mod"
       - "go.sum"
       - "Makefile"
