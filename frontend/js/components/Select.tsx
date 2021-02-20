@@ -9,7 +9,7 @@ type Props = {
   name: string
   value: string
   className: string
-  onChange: (event: React.ChangeEvent<HTMLElement>) => void
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   options: Option[]
 }
 
