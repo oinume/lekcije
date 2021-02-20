@@ -1,17 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
-import {createHttpClient} from './http';
-import {Alert} from "./components/Alert";
-import {EmailForm} from './components/setting/EmailForm';
-import {MPlanForm} from "./components/setting/MPlanForm";
+import { createHttpClient } from './http';
+import { Alert } from './components/Alert';
+import { EmailForm } from './components/setting/EmailForm';
+import { MPlanForm } from './components/setting/MPlanForm';
 //import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
-import {NotificationTimeSpanForm} from './components/setting/NotificationTimeSpanForm.tsx';
+import { NotificationTimeSpanForm } from './components/setting/NotificationTimeSpanForm.tsx';
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
 
 class SettingView extends MicroContainer {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -30,12 +29,12 @@ class SettingView extends MicroContainer {
       mPlan: {
         id: 0,
         name: '',
-      }
+      },
     };
 
     this.handleShowAlert = this.handleShowAlert.bind(this);
     this.handleHideAlert = this.handleHideAlert.bind(this);
-    this.handleOnChangeEmail= this.handleOnChangeEmail.bind(this);
+    this.handleOnChangeEmail = this.handleOnChangeEmail.bind(this);
     this.handleUpdateEmail = this.handleUpdateEmail.bind(this);
     this.handleAddTimeSpan = this.handleAddTimeSpan.bind(this);
     this.handleDeleteTimeSpan = this.handleDeleteTimeSpan.bind(this);
@@ -71,14 +70,16 @@ class SettingView extends MicroContainer {
         <h1 className="page-title">設定</h1>
         <Loadable
           active={this.state.loading}
-          spinner={<Loader type="Oval" color="#00BFFF" height="100" width="100" />}
-          text='Loading data ...'
+          spinner={
+            <Loader type="Oval" color="#00BFFF" height="100" width="100" />
+          }
+          text="Loading data ..."
           styles={{
             overlay: (base) => ({
               ...base,
               background: 'rgba(255, 255, 255, 0)',
               color: 'rgba(0, 0, 0, 1)',
-            })
+            }),
           }}
         >
           <Alert
@@ -98,7 +99,7 @@ class SettingView extends MicroContainer {
             handleSetEditable={this.handleSetTimeSpanEditable}
             {...this.state.timeSpan}
           />
-          <MPlanForm {...this.state.mPlan}/>
+          <MPlanForm {...this.state.mPlan} />
         </Loadable>
       </div>
     );
@@ -106,10 +107,13 @@ class SettingView extends MicroContainer {
 
   fetch() {
     const client = createHttpClient();
-    client.get('/api/v1/me')
+    client
+      .get('/api/v1/me')
       .then((response) => {
         console.log(response.data);
-        const timeSpans = response.data['notificationTimeSpans'] ? response.data['notificationTimeSpans'] : [];
+        const timeSpans = response.data['notificationTimeSpans']
+          ? response.data['notificationTimeSpans']
+          : [];
         this.setState({
           loading: false,
           userId: response.data['userId'],
@@ -119,7 +123,7 @@ class SettingView extends MicroContainer {
             timeSpans: timeSpans,
           },
           mPlan: response.data['mPlan'],
-        })
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -132,32 +136,36 @@ class SettingView extends MicroContainer {
 
   handleShowAlert(kind, message) {
     this.setState({
-      alert: {visible: true, kind: kind, message: message}
-    })
+      alert: { visible: true, kind: kind, message: message },
+    });
   }
 
   handleHideAlert() {
     this.setState({
-      alert: {visible: false}
-    })
+      alert: { visible: false },
+    });
   }
 
   handleOnChangeEmail(e) {
-    this.setState({email: e.target.value});
+    this.setState({ email: e.target.value });
   }
 
   handleUpdateEmail(email) {
     const client = createHttpClient();
-    client.post('/api/v1/me/email', {
-      email: email,
-    })
+    client
+      .post('/api/v1/me/email', {
+        email: email,
+      })
       .then((response) => {
         this.handleShowAlert('success', 'メールアドレスを更新しました！');
       })
       .catch((error) => {
         console.log(error);
         if (error.response.status === 400) {
-          this.handleShowAlert('danger', '正しいメールアドレスを入力してください');
+          this.handleShowAlert(
+            'danger',
+            '正しいメールアドレスを入力してください'
+          );
         } else {
           // TODO: external message
           this.handleShowAlert('danger', 'システムエラーが発生しました');
@@ -170,8 +178,8 @@ class SettingView extends MicroContainer {
       timeSpan: {
         editable: value,
         timeSpans: this.state.timeSpan.timeSpans,
-      }
-    })
+      },
+    });
   }
 
   handleAddTimeSpan() {
@@ -181,8 +189,11 @@ class SettingView extends MicroContainer {
     this.setState({
       timeSpan: {
         editable: this.state.timeSpan.editable,
-        timeSpans: [...this.state.timeSpan.timeSpans, {fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0}],
-      }
+        timeSpans: [
+          ...this.state.timeSpan.timeSpans,
+          { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 },
+        ],
+      },
     });
   }
 
@@ -207,7 +218,7 @@ class SettingView extends MicroContainer {
       timeSpan: {
         editable: this.state.timeSpan.editable,
         timeSpans: timeSpans,
-      }
+      },
     });
   }
 
@@ -217,10 +228,12 @@ class SettingView extends MicroContainer {
       for (const [k, v] of Object.entries(timeSpan)) {
         timeSpan[k] = parseInt(v);
       }
-      if (timeSpan.fromHour === 0
-        && timeSpan.fromMinute === 0
-        && timeSpan.toHour === 0
-        && timeSpan.toMinute === 0) {
+      if (
+        timeSpan.fromHour === 0 &&
+        timeSpan.fromMinute === 0 &&
+        timeSpan.toHour === 0 &&
+        timeSpan.toMinute === 0
+      ) {
         // Ignore zero value
         continue;
       }
@@ -228,33 +241,33 @@ class SettingView extends MicroContainer {
     }
 
     const client = createHttpClient();
-    client.post('/api/v1/me/notificationTimeSpan', {
-      notificationTimeSpans: timeSpans,
-    })
+    client
+      .post('/api/v1/me/notificationTimeSpan', {
+        notificationTimeSpans: timeSpans,
+      })
       .then((response) => {
         this.handleShowAlert('success', 'レッスン希望時間帯を更新しました！');
       })
       .catch((error) => {
         console.log(error);
         if (error.response.status === 400) {
-          this.handleShowAlert('danger', '正しいレッスン希望時間帯を選択してください');
+          this.handleShowAlert(
+            'danger',
+            '正しいレッスン希望時間帯を選択してください'
+          );
         } else {
           // TODO: external message
           this.handleShowAlert('danger', 'システムエラーが発生しました');
         }
       });
 
-
     this.setState({
       timeSpan: {
         editable: false,
         timeSpans: timeSpans,
-      }
+      },
     });
   }
 }
 
-ReactDOM.render(
-  <SettingView/>,
-  document.getElementById('root')
-);
+ReactDOM.render(<SettingView />, document.getElementById('root'));

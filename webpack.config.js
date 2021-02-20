@@ -25,25 +25,25 @@ let plugins = [
       { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
       { context: nodeModulesPath, from: 'react/umd/**', to: 'lib' },
       { context: nodeModulesPath, from: 'react-dom/umd/**', to: 'lib' },
-    ]
-  })
+    ],
+  }),
 ];
 
 if (process.env.WEBPACK_DEV_SERVER === 'true') {
   console.log('WEBPACK_DEV_SERVER is true');
   devtool = 'eval';
-//   plugins.push(
-//     new TransferWebpackPlugin([
-//       {from: 'css'},
-//       {from: 'html'},
-//       {from: 'image'},
-//       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
-//       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
-//       {from: nodeModulesPath + "/jquery", to: 'lib'},
-//       {from: nodeModulesPath + "/react", to: 'lib'},
-//       {from: nodeModulesPath + "/react-dom", to: 'lib'},
-//     ], path.resolve(__dirname, "frontend"))
-//   );
+  //   plugins.push(
+  //     new TransferWebpackPlugin([
+  //       {from: 'css'},
+  //       {from: 'html'},
+  //       {from: 'image'},
+  //       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
+  //       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
+  //       {from: nodeModulesPath + "/jquery", to: 'lib'},
+  //       {from: nodeModulesPath + "/react", to: 'lib'},
+  //       {from: nodeModulesPath + "/react-dom", to: 'lib'},
+  //     ], path.resolve(__dirname, "frontend"))
+  //   );
 }
 
 const config = {
@@ -60,23 +60,23 @@ const config = {
   output: {
     path: path.join(buildPath, process.env.VERSION_HASH),
     publicPath: path.join('/static', process.env.VERSION_HASH),
-    filename: "js/[name].bundle.js",
+    filename: 'js/[name].bundle.js',
   },
   externals: {
-    'jquery': 'jQuery',
-    'react': 'React',
+    jquery: 'jQuery',
+    react: 'React',
     'react-dom': 'ReactDOM',
-    'bootstrap': 'bootstrap',
-    'bootswatch': 'bootswatch',
+    bootstrap: 'bootstrap',
+    bootswatch: 'bootswatch',
   },
   optimization: {
     runtimeChunk: {
-      name: 'vendor'
+      name: 'vendor',
     },
     splitChunks: {
       name: 'vendor',
       chunks: 'initial',
-    }
+    },
   },
   plugins: plugins,
   module: {
@@ -94,55 +94,58 @@ const config = {
           //plugins: ['react-hot-loader/babel'],
           presets: [
             ['@babel/react'],
-            ['@babel/env', {
-                "targets": {
-                  "browsers": ["last 2 versions", "safari >= 7"]
-                }
-            }]
-          ]
-        }
+            [
+              '@babel/env',
+              {
+                targets: {
+                  browsers: ['last 2 versions', 'safari >= 7'],
+                },
+              },
+            ],
+          ],
+        },
       },
       {
         test: /\.tsx?$/,
-        use: 'ts-loader'
+        use: 'ts-loader',
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.png$/,
-        use: 'url-loader?limit=100000'
+        use: 'url-loader?limit=100000',
       },
       {
         test: /\.jpg$/,
-        use: 'file-loader'
+        use: 'file-loader',
       },
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-        use: 'url?limit=10000&mimetype=application/font-woff'
+        use: 'url?limit=10000&mimetype=application/font-woff',
       },
       {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        use: 'url?limit=10000&mimetype=application/octet-stream'
+        use: 'url?limit=10000&mimetype=application/octet-stream',
       },
       {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        use: 'file'
+        use: 'file',
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        use: 'url?limit=10000&mimetype=image/svg+xml'
-      }
+        use: 'url?limit=10000&mimetype=image/svg+xml',
+      },
     ],
   },
   // Dev server Configuration options
   devServer: {
-    contentBase: 'frontend',  // Relative directory for base of server
-    hot: true,        // Live-reload
+    contentBase: 'frontend', // Relative directory for base of server
+    hot: true, // Live-reload
     inline: true,
     port: 4000,
-    host: '0.0.0.0',  // Change to '0.0.0.0' for external facing server
+    host: '0.0.0.0', // Change to '0.0.0.0' for external facing server
     proxy: {
       '*': {
         target: 'http://localhost:4001',
@@ -155,7 +158,7 @@ const config = {
         //         return false;
         //     //}
         // }
-      }
+      },
     },
   },
 };
