@@ -1,6 +1,16 @@
 name: backend
 on:
-  - push
+  push:
+    paths:
+      - "**.go"
+      - "**.json"
+      - "**.proto"
+      - "**.ya?ml"
+      - "**.sh"
+      - "**.py"
+      - "go.mod"
+      - "go.sum"
+      - "Makefile"
 env:
   CACHE_VERSION: 1
 jobs:
