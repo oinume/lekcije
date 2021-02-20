@@ -23,6 +23,7 @@
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^26.0.20",
     "@types/react-test-renderer": "^17.0.0",
+    "@types/sprintf-js": "^1.1.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
@@ -54,6 +55,7 @@
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.12.7",
+    "@types/lodash-es": "^4.17.4",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "autoprefixer": "^10.2.3",
@@ -66,6 +68,7 @@
     "eslint-plugin-react": "^7.22.0",
     "isparta-loader": "^2.0.0",
     "jquery": "^3.5.1",
+    "lodash-es": "^4.17.20",
     "minimatch": "^3.0.4",
     "node-libs-browser": "^2.2.1",
     "node-sass": "^5.0.0",

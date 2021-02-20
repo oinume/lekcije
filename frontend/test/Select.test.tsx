@@ -15,7 +15,7 @@ test('Select initial state', () => {
       name="country"
       value=""
       className=""
-      onChange={(event: React.ChangeEvent<HTMLElement>) => {}}
+      onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {}}
       options={options}
     />
   );

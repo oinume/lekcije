@@ -1,6 +1,6 @@
 import React from 'react';
 
-type Option = {
+export type Option = {
   value: string
   label: string
 }
@@ -9,16 +9,11 @@ type Props = {
   name: string
   value: string
   className: string
-  onChange: (event: React.ChangeEvent<HTMLElement>) => void
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
   options: Option[]
 }
 
 export const Select: React.FC<Props> = ({name, value, className, onChange, options}) => {
-    let opts: any = options.map((o: Option) => {
-      return (
-        <option key={o.value} value={o.value}>{o.label}</option>
-      )
-    })
     return (
       <select
         name={name}
@@ -27,40 +22,11 @@ export const Select: React.FC<Props> = ({name, value, className, onChange, optio
         onChange={onChange}
         style={{width:"auto"}}
       >
-        {opts}
+        {options.map((o: Option) => {
+          return (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          )
+        })}
       </select>
     );
 }
-// export default class Select extends React.Component {
-//
-//   constructor(props) {
-//     super(props);
-//   }
-//
-//   render() {
-//     let options = [];
-//     for (const o of this.props.options) {
-//       options.push(<option key={o.value} value={o.value}>{o.label}</option>);
-//     }
-//
-//     return (
-//       <select
-//         name={this.props.name}
-//         value={this.props.value}
-//         className={this.props.className}
-//         onChange={this.props.onChange}
-//         style={{width:"auto"}}
-//       >
-//         {options}
-//       </select>
-//     );
-//   }
-// }
-//
-// Select.propTypes = {
-//   name: PropTypes.string.isRequired,
-//   value: PropTypes.any.isRequired,
-//   options: PropTypes.array.isRequired,
-//   onChange: PropTypes.func.isRequired,
-//   className: PropTypes.string,
-// };
