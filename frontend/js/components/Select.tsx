@@ -14,11 +14,6 @@ type Props = {
 }
 
 export const Select: React.FC<Props> = ({name, value, className, onChange, options}) => {
-    let opts: any = options.map((o: Option) => {
-      return (
-        <option key={o.value} value={o.value}>{o.label}</option>
-      )
-    })
     return (
       <select
         name={name}
@@ -27,7 +22,11 @@ export const Select: React.FC<Props> = ({name, value, className, onChange, optio
         onChange={onChange}
         style={{width:"auto"}}
       >
-        {opts}
+        {options.map((o: Option) => {
+          return (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          )
+        })}
       </select>
     );
 }
