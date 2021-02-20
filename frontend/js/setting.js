@@ -6,7 +6,7 @@ import {Alert} from "./components/Alert";
 import {EmailForm} from './components/setting/EmailForm';
 import {MPlanForm} from "./components/setting/MPlanForm";
 //import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
-import {NotificationTimeSpanFormFC} from './components/setting/NotificationTimeSpanForm.tsx';
+import {NotificationTimeSpanForm} from './components/setting/NotificationTimeSpanForm.tsx';
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
 
@@ -90,7 +90,7 @@ class SettingView extends MicroContainer {
             handleOnChange={this.handleOnChangeEmail}
             handleUpdateEmail={this.handleUpdateEmail}
           />
-          <NotificationTimeSpanFormFC
+          <NotificationTimeSpanForm
             handleAdd={this.handleAddTimeSpan}
             handleDelete={this.handleDeleteTimeSpan}
             handleUpdate={this.handleUpdateTimeSpan}

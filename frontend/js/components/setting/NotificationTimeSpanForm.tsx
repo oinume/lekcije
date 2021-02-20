@@ -21,7 +21,7 @@ type Props = {
   handleSetEditable: (editable: boolean) => void
 }
 
-export const NotificationTimeSpanFormFC: React.FC<Props> = ({
+export const NotificationTimeSpanForm: React.FC<Props> = ({
   editable,
   timeSpans,
   handleAdd,
