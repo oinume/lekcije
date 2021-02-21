@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MicroContainer from 'react-micro-container';
-import { createHttpClient } from './http';
+import { createHttpClient } from './http/client';
 import { Alert } from './components/Alert';
 import { EmailForm } from './components/setting/EmailForm';
 import { MPlanForm } from './components/setting/MPlanForm';
