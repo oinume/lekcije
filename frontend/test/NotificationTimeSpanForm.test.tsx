@@ -1,9 +1,9 @@
 import React from 'react';
-import {configure, shallow} from 'enzyme';
+import { configure, shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { NotificationTimeSpanForm } from '../js/components/setting/NotificationTimeSpanForm';
 
-configure({adapter: new Adapter()});
+configure({ adapter: new Adapter() });
 
 test('<NotificationTimeSpanFormFC>', () => {
   const wrapper = shallow(

@@ -3,22 +3,15 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: './frontend',
-//  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
+  //  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
   testPathIgnorePatterns: ['.next', 'node_modules'],
-//  snapshotSerializers: ['enzyme-to-json/serializer'],
+  //  snapshotSerializers: ['enzyme-to-json/serializer'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx)$': 'ts-jest',
   },
-  moduleFileExtensions: [
-    'ts',
-    'tsx',
-    'js',
-    'jsx',
-    'json',
-    'node'
-  ],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
-    "^lodash-es$": "lodash"
+    '^lodash-es$': 'lodash',
   },
   // https://github.com/zeit/next.js/issues/8663#issue-490553899
   globals: {
@@ -26,7 +19,7 @@ module.exports = {
     // to transform jsx into js rather than leaving it jsx such as the next build requires. you
     // can see this setting in tsconfig.jest.json -> "jsx": "react"
     'ts-jest': {
-      'tsconfig': 'tsconfig.jest.json'
-    }
-  }
+      tsconfig: 'tsconfig.jest.json',
+    },
+  },
 };

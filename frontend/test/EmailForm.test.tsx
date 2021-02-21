@@ -1,12 +1,12 @@
 'use strict';
 
 import React from 'react';
-import {EmailForm} from '../js/components/setting/EmailForm';
-import {configure, shallow} from 'enzyme';
+import { EmailForm } from '../js/components/setting/EmailForm';
+import { configure, shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 //import MicroContainer from 'react-micro-container';
 
-configure({adapter: new Adapter()});
+configure({ adapter: new Adapter() });
 
 test('<EmailForm>', () => {
   //class Container extends MicroContainer {}
@@ -16,7 +16,7 @@ test('<EmailForm>', () => {
   //   onChangeEmail: () => {},
   //   updateEmail: () => {},
   // });
- // container.dispatch('onChangeEmail', 'updateEmail');
+  // container.dispatch('onChangeEmail', 'updateEmail');
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {};
   const handleUpdateEmail = (email: string) => {};

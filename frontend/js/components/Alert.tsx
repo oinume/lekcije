@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 // TODO: interface or type alias?
 // interface Props {
@@ -8,16 +8,21 @@ import React from "react";
 // }
 
 type Props = {
-  kind: string
-  message: string
-  visible: boolean
-  handleCloseAlert: () => void
+  kind: string;
+  message: string;
+  visible: boolean;
+  handleCloseAlert: () => void;
 };
 
-export const Alert: React.FC<Props> = ({kind, message, visible, handleCloseAlert}) => {
+export const Alert: React.FC<Props> = ({
+  kind,
+  message,
+  visible,
+  handleCloseAlert,
+}) => {
   if (visible) {
     return (
-      <div className={"alert alert-" + kind} role="alert">
+      <div className={'alert alert-' + kind} role="alert">
         <button
           type="button"
           className="close"
@@ -29,8 +34,6 @@ export const Alert: React.FC<Props> = ({kind, message, visible, handleCloseAlert
       </div>
     );
   } else {
-    return (
-      <div/>
-    );
+    return <div />;
   }
-}
+};

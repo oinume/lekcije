@@ -7,8 +7,8 @@ configure({ adapter: new Adapter() });
 
 test('Select initial state', () => {
   const options = [
-    {value: 'japan', label: 'Japan'},
-    {value: 'china', label: 'China'},
+    { value: 'japan', label: 'Japan' },
+    { value: 'china', label: 'China' },
   ];
   const wrapper = shallow(
     <Select
