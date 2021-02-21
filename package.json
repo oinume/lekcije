@@ -85,6 +85,12 @@
     "react-micro-container": "^1.2.0",
     "sprintf-js": "^1.1.2"
   },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
   "author": "Kazuhiro Oinuma",
   "license": "MIT",
   "repository": "oinume/lekcije"
