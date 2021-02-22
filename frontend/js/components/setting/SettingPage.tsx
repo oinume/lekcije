@@ -14,7 +14,7 @@ import { NotificationTimeSpanForm } from './NotificationTimeSpanForm';
   - https://ja.reactjs.org/docs/hooks-reference.html#usereducer
   - https://qiita.com/makishy/items/bb014073d6e494b1b35f
   - https://qiita.com/ossan-engineer/items/c3853315f59dc20bc9dc
-  - stateの管理はSettingPageで行い、useReducerでもらったdispatchをEmailFormとかに渡す。EMailFormではsubmitされたらAPIを呼び出し、最後にdispatchを呼んで親に伝える。EMAIL_SUBMITTEDを受け取ったらalertのstateを更新してAlertを出す
+  - stateの管理はSettingPageで行い、useReducerでもらったdispatchをEmailFormとかに渡す。EMailFormではsubmitされたらAPIを呼び出し、最後にdispatchを呼んで親に伝える。SUBMIT_EMAILを受け取ったらalertのstateを更新してAlertを出す
   - isLoading
   - alert (Add AlertState)
   - email
@@ -22,69 +22,78 @@ import { NotificationTimeSpanForm } from './NotificationTimeSpanForm';
   - mPlan
 */
 
-type State = { // TODO: Maybe rename to SettingPageState
-  loading: boolean;
-  email: string;
-};
+// type State = { // TODO: Maybe rename to SettingPageState
+//   loading: boolean;
+//   email: string;
+// };
 
-type Action = {
-  type: ActionType;
-  payload: State;
-};
+// type Action = {
+//   type: ActionType;
+//   payload: State;
+// };
+//
+// enum ActionType {
+//   FETCH_INIT = 1,
+//   FETCH_SUCCESS,
+//   FETCH_FAILURE,
+//   ON_CHANGE_OF_EMAIL,
+//   SUBMIT_EMAIL,
+// }
+//
+// enum EmailActionType {
+//   ON_CHANGE_OF_EMAIL = 1,
+//   SUBMIT_EMAIL,
+// }
 
-enum ActionType {
-  FETCH_INIT = 1,
-  FETCH_SUCCESS,
-  FETCH_ERROR,
-  ON_CHANGE_EMAIL,
-  UPDATE_EMAIL,
-}
-
-const reducer: React.Reducer<State, Action> = (state: State, action: Action) => {
-  switch (action.type) {
-    case ActionType.FETCH_INIT:
-      return {
-        ...state,
-        loading: true,
-      };
-    case ActionType.FETCH_SUCCESS:
-      console.log(state);
-      return {
-        ...state,
-        loading: false,
-      };
-    case ActionType.FETCH_ERROR:
-      return {
-        ...state,
-        loading: false,
-      };
-    case ActionType.ON_CHANGE_EMAIL:
-      return {
-        ...state,
-        email: action.payload.email,
-      }
-    case ActionType.UPDATE_EMAIL:
-      return {
-        ...state,
-        email: action.payload.email,
-      }
-    default:
-      throw Error('Invalid action');
-  }
-}
+// const reducer: React.Reducer<State, Action> = (state: State, action: Action):State => {
+//   switch (action.type) {
+//     case ActionType.FETCH_INIT:
+//       return {
+//         ...state,
+//         loading: true,
+//       };
+//     case ActionType.FETCH_SUCCESS:
+//       console.log(state);
+//       return {
+//         ...state,
+//         loading: false,
+//       };
+//     case ActionType.FETCH_FAILURE:
+//       return {
+//         ...state,
+//         loading: false,
+//       };
+//     case ActionType.ON_CHANGE_OF_EMAIL:
+//       return {
+//         ...state,
+//         email: action.payload.email,
+//       }
+//     case ActionType.SUBMIT_EMAIL:
+//       return {
+//         ...state,
+//         email: action.payload.email,
+//       }
+//     default:
+//       throw Error('Invalid action');
+//   }
+// }
 
 export const SettingPage: React.FC<{}> = () => {
-  const initialState:State = {
-    loading: false,
-    email: '',
-  };
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // const initialState:State = {
+  //   loading: false,
+  //   email: '',
+  // };
+  // const [state, dispatch] = useReducer(reducer, initialState);
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [alert, setAlert] = useState({
+    visible:false,
+    kind: '',
+    message: '',
+  });
 
   useEffect(() => {
-    dispatch({
-      type: ActionType.FETCH_INIT,
-      payload: {...state},
-    });
+    setLoading(true);
     const client = createHttpClient();
     client
       .get('/api/v1/me')
@@ -93,12 +102,6 @@ export const SettingPage: React.FC<{}> = () => {
         const timeSpans = response.data['notificationTimeSpans']
           ? response.data['notificationTimeSpans']
           : [];
-        dispatch({
-          type: ActionType.FETCH_SUCCESS,
-          payload: {
-            ...response.data,
-          },
-        });
         // this.setState({
         //   loading: false,
         //   userId: response.data['userId'],
@@ -109,53 +112,88 @@ export const SettingPage: React.FC<{}> = () => {
         //   },
         //   mPlan: response.data['mPlan'],
         // });
+        setEmail(response.data['email']);
       })
       .catch((error) => {
         console.log(error);
-        dispatch({
-          type: ActionType.FETCH_ERROR,
-          payload: { ...state },
-        })
+        // dispatch({
+        //   type: ActionType.FETCH_FAILURE,
+        //   payload: { ...state },
+        // })
         //this.handleShowAlert('danger', 'システムエラーが発生しました');
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [])
 
-  console.log('return JSX: state=', state);
+  const  handleShowAlert = (kind:string, message:string) => {
+    setAlert({ visible: true, kind: kind, message: message });
+  }
+
+  const handleHideAlert = () => {
+    setAlert({visible: false, kind: '', message: ''});
+  }
+
+  const handleOnChangeEmail = (event: React.ChangeEvent<HTMLInputElement>):void => {
+    setEmail(event.currentTarget.value);
+  }
+
+  const handleUpdateEmail = (email: string):void => {
+    const client = createHttpClient();
+    client
+      .post('/api/v1/me/email', {
+        email: email,
+      })
+      .then((response) => {
+        handleShowAlert('success', 'メールアドレスを更新しました！');
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response.status === 400) {
+          handleShowAlert('danger', '正しいメールアドレスを入力してください');
+        } else {
+          // TODO: external message
+          handleShowAlert('danger', 'システムエラーが発生しました');
+        }
+      });
+  }
+
   return (
     <div>
      <h1 className="page-title">設定</h1>
       {
-        state.loading ?
+        loading ?
           <Loader
-            loading={state.loading}
+            loading={loading}
             message={'Loading data ...'}
             css={'background: rgba(255, 255, 255, 0)'}
             size={50}
           /> :
           <>
-            {/*<Alert*/}
-            {/*  {...this.state.alert}*/}
-            {/*  handleCloseAlert={this.handleHideAlert}*/}
-            {/*/>*/}
+            <Alert
+              handleCloseAlert={handleHideAlert}
+              {...alert}
+            />
             <EmailForm
-              email={state.email}
-              handleOnChange={this.handleOnChangeEmail}
-              handleUpdateEmail={this.handleUpdateEmail}
+              email={email}
+              handleOnChange={handleOnChangeEmail}
+              handleUpdateEmail={handleUpdateEmail} // TODO: inline function
             />
-            <NotificationTimeSpanForm
-              handleAdd={this.handleAddTimeSpan}
-              handleDelete={this.handleDeleteTimeSpan}
-              handleUpdate={this.handleUpdateTimeSpan}
-              handleOnChange={this.handleOnChangeTimeSpan}
-              handleSetEditable={this.handleSetTimeSpanEditable}
-              {...this.state.timeSpan}
-            />
-            <MPlanForm {...this.state.mPlan} />
+            {/*<NotificationTimeSpanForm*/}
+            {/*  handleAdd={this.handleAddTimeSpan}*/}
+            {/*  handleDelete={this.handleDeleteTimeSpan}*/}
+            {/*  handleUpdate={this.handleUpdateTimeSpan}*/}
+            {/*  handleOnChange={this.handleOnChangeTimeSpan}*/}
+            {/*  handleSetEditable={this.handleSetTimeSpanEditable}*/}
+            {/*  {...this.state.timeSpan}*/}
+            {/*/>*/}
+            {/*<MPlanForm {...this.state.mPlan} />*/}
           </>
       }
     </div>
   );
-}
+};
 
 // class SettingView extends MicroContainer {
 //   constructor(props) {
