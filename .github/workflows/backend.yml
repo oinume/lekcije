@@ -4,6 +4,7 @@ on:
     paths:
       - "**.go"
       - "**.json"
+      - "**.html"
       - "**.proto"
       - "**.ya?ml"
       - "**.sh"
