@@ -1,15 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { SettingPage } from './components/setting/SettingPage';
 import MicroContainer from 'react-micro-container';
 import { createHttpClient } from './http/client';
 import { Alert } from './components/Alert';
 import { EmailForm } from './components/setting/EmailForm';
 import { MPlanForm } from './components/setting/MPlanForm';
-//import NotificationTimeSpanForm from './components/setting/NotificationTimeSpanForm';
-import { NotificationTimeSpanForm } from './components/setting/NotificationTimeSpanForm.tsx';
+import { NotificationTimeSpanForm } from './components/setting/NotificationTimeSpanForm';
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
 
+ReactDOM.render(
+  <SettingPage />,
+  document.getElementById('root')
+);
+
+/*
 class SettingView extends MicroContainer {
   constructor(props) {
     super(props);
@@ -271,3 +277,4 @@ class SettingView extends MicroContainer {
 }
 
 ReactDOM.render(<SettingView />, document.getElementById('root'));
+*/
