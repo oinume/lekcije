@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 type Props = {
   email: string;
-  handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleOnChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpdateEmail: (email: string) => void;
 };
 
@@ -12,8 +12,12 @@ export const EmailForm: React.FC<Props> = ({
   handleUpdateEmail,
 }) => {
   const [buttonEnabled, setButtonEnabled] = useState<boolean>(false);
+
   return (
-    <form className="form-horizontal">
+    <form className="form-horizontal" onSubmit={(e) => {
+      e.preventDefault();
+      handleUpdateEmail(email);
+    }}>
       <div className="form-group">
         <div className="col-sm-3">
           <label htmlFor="email" className="control-label">
@@ -32,6 +36,7 @@ export const EmailForm: React.FC<Props> = ({
             autoComplete="on"
             value={email}
             onChange={(e) => {
+              e.preventDefault();
               setButtonEnabled(e.currentTarget.value !== '');
               handleOnChange(e);
             }}
