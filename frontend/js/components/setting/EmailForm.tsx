@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
 type Props = {
   email: string;
@@ -31,7 +31,10 @@ export const EmailForm: React.FC<Props> = ({
             autoFocus
             autoComplete="on"
             value={email}
-            onChange={(e) => { setButtonEnabled(e.currentTarget.value !== ''); handleOnChange(e)}}
+            onChange={(e) => {
+              setButtonEnabled(e.currentTarget.value !== '');
+              handleOnChange(e);
+            }}
           />
         </div>
       </div>
