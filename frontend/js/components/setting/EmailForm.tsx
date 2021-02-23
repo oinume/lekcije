@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 type Props = {
   email: string;
@@ -11,6 +11,7 @@ export const EmailForm: React.FC<Props> = ({
   handleOnChange,
   handleUpdateEmail,
 }) => {
+  const [buttonEnabled, setButtonEnabled] = useState<boolean>(false);
   return (
     <form className="form-horizontal">
       <div className="form-group">
@@ -30,7 +31,10 @@ export const EmailForm: React.FC<Props> = ({
             autoFocus
             autoComplete="on"
             value={email}
-            onChange={handleOnChange}
+            onChange={(e) => {
+              setButtonEnabled(e.currentTarget.value !== '');
+              handleOnChange(e);
+            }}
           />
         </div>
       </div>
@@ -38,7 +42,7 @@ export const EmailForm: React.FC<Props> = ({
         <div className="col-sm-offset-2 col-sm-8">
           <button
             type="button"
-            disabled={!email}
+            disabled={!buttonEnabled}
             className="btn btn-primary"
             onClick={() => handleUpdateEmail(email)}
           >

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import cookie from 'cookie';
 
-function createHttpClient() {
+export const createHttpClient = () => {
   const cookies = cookie.parse(document.cookie);
-  const headers = {};
+  const headers: { [key: string]: string } = {};
   if (cookies['apiToken']) {
     headers['Grpc-Metadata-Api-Token'] = cookies['apiToken'];
     headers['X-Api-Token'] = cookies['apiToken'];
@@ -13,6 +13,4 @@ function createHttpClient() {
     timeout: 3000,
     headers: headers,
   });
-}
-
-export { createHttpClient };
+};
