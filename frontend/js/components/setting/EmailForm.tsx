@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 type Props = {
   email: string;
-  handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleOnChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpdateEmail: (email: string) => void;
 };
 
