@@ -3,7 +3,7 @@ import cookie from 'cookie';
 
 export const createHttpClient = () => {
   const cookies = cookie.parse(document.cookie);
-  const headers: { [key: string]: string; } = {};
+  const headers: { [key: string]: string } = {};
   if (cookies['apiToken']) {
     headers['Grpc-Metadata-Api-Token'] = cookies['apiToken'];
     headers['X-Api-Token'] = cookies['apiToken'];
@@ -13,4 +13,4 @@ export const createHttpClient = () => {
     timeout: 3000,
     headers: headers,
   });
-}
+};

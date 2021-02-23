@@ -10,10 +10,7 @@ import { NotificationTimeSpanForm } from './components/setting/NotificationTimeS
 import Loadable from 'react-loading-overlay';
 import Loader from 'react-loader-spinner';
 
-ReactDOM.render(
-  <SettingPage />,
-  document.getElementById('root')
-);
+ReactDOM.render(<SettingPage />, document.getElementById('root'));
 
 /*
 class SettingView extends MicroContainer {

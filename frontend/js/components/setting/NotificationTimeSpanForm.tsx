@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { range } from 'lodash-es';
 
 // TODO: must be class. Add method isZero() and parse(). To be defined in another file.
-export type TimeSpan = {
+export type NotificationTimeSpan = {
   fromHour: number;
   fromMinute: number;
   toHour: number;
