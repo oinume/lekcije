@@ -50,7 +50,7 @@ const config = {
   mode: process.env.MINIFY === 'true' ? 'production' : 'development',
   entry: {
     main: './frontend/js/main.js',
-    setting: './frontend/js/setting.js',
+    setting: './frontend/js/setting.tsx',
   },
   resolve: {
     //When require, do not have to add these extensions to file's name
