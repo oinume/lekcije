@@ -14,10 +14,13 @@ export const EmailForm: React.FC<Props> = ({
   const [buttonEnabled, setButtonEnabled] = useState<boolean>(false);
 
   return (
-    <form className="form-horizontal" onSubmit={(e) => {
-      e.preventDefault();
-      handleUpdateEmail(email);
-    }}>
+    <form
+      className="form-horizontal"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleUpdateEmail(email);
+      }}
+    >
       <div className="form-group">
         <div className="col-sm-3">
           <label htmlFor="email" className="control-label">
