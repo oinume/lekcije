@@ -21,8 +21,8 @@ type NotificationTimeSpanState = {
 };
 
 export const SettingPage: React.FC<{}> = () => {
-  const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
   const [alert, setAlert] = useState<AlertState>({
     visible: false,
     kind: '',
@@ -67,12 +67,6 @@ export const SettingPage: React.FC<{}> = () => {
 
   const handleHideAlert = () => {
     setAlert({ ...alert, visible: false });
-  };
-
-  const handleOnChangeEmail = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setEmail(event.currentTarget.value);
   };
 
   const handleUpdateEmail = (email: string): void => {
@@ -200,7 +194,9 @@ export const SettingPage: React.FC<{}> = () => {
           <Alert handleCloseAlert={handleHideAlert} {...alert} />
           <EmailForm
             email={email}
-            handleOnChange={handleOnChangeEmail}
+            handleOnChange={(e) => {
+              setEmail(e.currentTarget.value);
+            }}
             handleUpdateEmail={handleUpdateEmail} // TODO: inline function
           />
           <NotificationTimeSpanForm
