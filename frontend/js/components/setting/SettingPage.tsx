@@ -15,11 +15,6 @@ type AlertState = {
   message: string;
 };
 
-type NotificationTimeSpanState = {
-  timeSpans: NotificationTimeSpan[];
-  editable: boolean;
-};
-
 export const SettingPage: React.FC<{}> = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
@@ -28,13 +23,13 @@ export const SettingPage: React.FC<{}> = () => {
     kind: '',
     message: '',
   });
+  const [notificationTimeSpans, setNotificationTimeSpans] = useState<
+    NotificationTimeSpan[]
+  >([]);
   const [
-    notificationTimeSpanState,
-    setNotificationTimeSpanState,
-  ] = useState<NotificationTimeSpanState>({
-    timeSpans: [],
-    editable: false,
-  });
+    notificationTimeSpanEditable,
+    setNotificationTimeSpanEditable,
+  ] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
@@ -47,10 +42,7 @@ export const SettingPage: React.FC<{}> = () => {
           ? response.data['notificationTimeSpans']
           : [];
         setEmail(response.data['email']);
-        setNotificationTimeSpanState({
-          ...notificationTimeSpanState,
-          timeSpans: timeSpans,
-        });
+        setNotificationTimeSpans(timeSpans);
       })
       .catch((error) => {
         console.log(error);
@@ -75,7 +67,7 @@ export const SettingPage: React.FC<{}> = () => {
       .post('/api/v1/me/email', {
         email: email,
       })
-      .then((response) => {
+      .then((_) => {
         handleShowAlert('success', 'メールアドレスを更新しました！');
       })
       .catch((error) => {
@@ -89,36 +81,23 @@ export const SettingPage: React.FC<{}> = () => {
       });
   };
 
-  const handleSetTimeSpanEditable = (value: boolean) => {
-    setNotificationTimeSpanState({
-      ...notificationTimeSpanState,
-      editable: value,
-    });
-  };
-
   const handleAddTimeSpan = () => {
-    if (notificationTimeSpanState.timeSpans.length === 3) {
+    if (notificationTimeSpans.length === 3) {
       return;
     }
-    setNotificationTimeSpanState({
-      ...notificationTimeSpanState,
-      timeSpans: [
-        ...notificationTimeSpanState.timeSpans,
-        { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 },
-      ],
-    });
+    setNotificationTimeSpans([
+      ...notificationTimeSpans,
+      { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 },
+    ]);
   };
 
   const handleDeleteTimeSpan = (index: number) => {
-    let timeSpans = notificationTimeSpanState.timeSpans.slice();
+    let timeSpans = notificationTimeSpans.slice();
     if (index >= timeSpans.length) {
       return;
     }
     timeSpans.splice(index, 1);
-    setNotificationTimeSpanState({
-      ...notificationTimeSpanState,
-      timeSpans: timeSpans,
-    });
+    setNotificationTimeSpans(timeSpans);
   };
 
   const handleOnChangeTimeSpan = (
@@ -126,17 +105,14 @@ export const SettingPage: React.FC<{}> = () => {
     index: number,
     value: number
   ) => {
-    let timeSpans = notificationTimeSpanState.timeSpans.slice();
+    let timeSpans = notificationTimeSpans.slice();
     timeSpans[index][name as keyof NotificationTimeSpan] = value;
-    setNotificationTimeSpanState({
-      ...notificationTimeSpanState,
-      timeSpans: timeSpans,
-    });
+    setNotificationTimeSpans(timeSpans);
   };
 
   const handleUpdateTimeSpan = () => {
     const timeSpans: NotificationTimeSpan[] = [];
-    for (const timeSpan of notificationTimeSpanState.timeSpans) {
+    for (const timeSpan of notificationTimeSpans) {
       for (const [k, v] of Object.entries(timeSpan)) {
         timeSpan[k as keyof NotificationTimeSpan] = v;
       }
@@ -157,7 +133,7 @@ export const SettingPage: React.FC<{}> = () => {
       .post('/api/v1/me/notificationTimeSpan', {
         notificationTimeSpans: timeSpans,
       })
-      .then((response) => {
+      .then((_) => {
         handleShowAlert('success', 'レッスン希望時間帯を更新しました！');
       })
       .catch((error) => {
@@ -173,10 +149,8 @@ export const SettingPage: React.FC<{}> = () => {
         }
       });
 
-    setNotificationTimeSpanState({
-      editable: false,
-      timeSpans: timeSpans,
-    });
+    setNotificationTimeSpans(timeSpans);
+    setNotificationTimeSpanEditable(false);
   };
 
   return (
@@ -204,8 +178,9 @@ export const SettingPage: React.FC<{}> = () => {
             handleDelete={handleDeleteTimeSpan}
             handleUpdate={handleUpdateTimeSpan}
             handleOnChange={handleOnChangeTimeSpan}
-            handleSetEditable={handleSetTimeSpanEditable}
-            {...notificationTimeSpanState}
+            handleSetEditable={setNotificationTimeSpanEditable}
+            editable={notificationTimeSpanEditable}
+            timeSpans={notificationTimeSpans}
           />
           {/*<MPlanForm {...this.state.mPlan} />*/}
         </>
