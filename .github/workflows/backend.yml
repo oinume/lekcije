@@ -76,9 +76,9 @@ jobs:
         id: cache
         with:
           path: ${{ env.GOPATH }}/pkg/mod
-          key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
+          key: ${{ runner.os }}-build-go-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ runner.os }}-build-go-
       - name: Install tools
         run: |
           ls -l $GOPATH/bin || true
@@ -129,9 +129,9 @@ jobs:
         id: cache
         with:
           path: ${{ env.GOPATH }}/pkg/mod
-          key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
+          key: ${{ runner.os }}-deploy-to-production-go-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ runner.os }}-deploy-to-production-go-
       - name: Install App Engine Go SDK
         run: |
           echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
