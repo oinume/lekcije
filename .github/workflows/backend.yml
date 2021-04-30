@@ -15,6 +15,7 @@ on:
       - "Makefile"
 env:
   CACHE_VERSION: 1
+  GOPATH: /home/runner/go
 jobs:
   build:
     name: build
@@ -74,14 +75,14 @@ jobs:
       - uses: actions/cache@v2
         id: cache
         with:
-          path: ~/go/pkg/mod
+          path: ${{ env.GOPATH }}/pkg/mod
           key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Install tools
         run: |
-          ls -l ~/go/bin || true
-          if [ ! -e ~/go/bin/goose ]; then
+          ls -l $GOPATH/bin || true
+          if [ ! -e $GOPATH/bin/goose ]; then
             make install-tools
           fi
       - name: Build
@@ -89,14 +90,14 @@ jobs:
           make backend/build
       - name: Run go/lint
         run: |
-          export PATH=${PATH}:~/go/bin
+          export PATH=${PATH}:${GOPATH}/bin
           make go/lint
       - name: Create database
         run: |
           mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
       - name: Apply database migrations
         run: |
-          export PATH=${PATH}:~/go/bin
+          export PATH=${PATH}:${GOPATH}/bin
           make test/db/goose/up
       - name: Run go/test
         run: |
@@ -113,19 +114,17 @@ jobs:
 
   deploy-to-production:
     name: deploy to production
-    defaults:
-      run:
-        working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-    env:
-      GOPATH: ${{ github.workspace }}
-    if: github.ref == 'refs/heads/master'
+#    defaults:
+#      run:
+#        working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+#    env:
+#      GOPATH: ${{ github.workspace }}
+#    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     timeout-minutes: 20
     steps:
       - name: Check out the repository
         uses: actions/checkout@v2
-        with:
-          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
 #      - name: Save credentials into secrect.yaml
 #        run: |
 #          sed "s/<SENDGRID_API_KEY>/$SENDGRID_API_KEY/" ./entrypoint/task/secret.yaml.tmpl > ./entrypoint/task/secret.yaml
