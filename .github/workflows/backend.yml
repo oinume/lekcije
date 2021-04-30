@@ -114,7 +114,7 @@ jobs:
 
   deploy-to-production:
     name: deploy to production
-#    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     timeout-minutes: 20
     steps:
