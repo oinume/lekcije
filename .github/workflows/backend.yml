@@ -74,7 +74,7 @@ jobs:
       - uses: actions/cache@v2
         id: cache
         with:
-          path: ~/go
+          path: ~/go/pkg/mod
           key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
           restore-keys: |
             ${{ runner.os }}-go-
@@ -112,7 +112,7 @@ jobs:
       #          name: codecov-umbrella # optional
 
   deploy-to-production:
-    name: Deploy to production
+    name: deploy to production
     runs-on: ubuntu-20.04
     env:
       GOPATH: ${{ github.workspace }}
@@ -143,6 +143,13 @@ jobs:
           service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           service_account_email: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
           export_default_credentials: true
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Run go mod vendor
         run: |
           go mod vendor
