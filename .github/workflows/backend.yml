@@ -114,11 +114,6 @@ jobs:
 
   deploy-to-production:
     name: deploy to production
-#    defaults:
-#      run:
-#        working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-#    env:
-#      GOPATH: ${{ github.workspace }}
 #    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     timeout-minutes: 20
