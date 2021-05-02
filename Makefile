@@ -61,7 +61,6 @@ proto/go:
   		-I$(GOPATH)/src \
   		-Iproto \
   		-Iproto/third_party \
-  		-I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
   		--plugin=$(GOBIN)/protoc-gen-twirp \
   		--go_out=plugins=grpc:$(PROTO_GEN_DIR)/go \
   		--twirp_out=paths=source_relative:$(PROTO_GEN_DIR)/go \
@@ -70,7 +69,6 @@ proto/go:
 		-I$(GOPATH)/src \
 		-Iproto \
 		-Iproto/third_party \
-		-I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
 		--grpc-gateway_out=logtostderr=true:$(PROTO_GEN_DIR)/go \
 		proto/api/v1/*.proto
 
