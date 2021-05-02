@@ -38,6 +38,7 @@ require (
 	github.com/sendgrid/sendgrid-go v3.6.1+incompatible
 	github.com/stretchr/testify v1.6.1
 	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
+	github.com/twitchtv/twirp v7.2.0+incompatible
 	go.opencensus.io v0.22.4
 	go.uber.org/zap v1.15.0
 	goji.io/v3 v3.0.0
@@ -51,6 +52,7 @@ require (
 	google.golang.org/api v0.30.0
 	google.golang.org/genproto v0.0.0-20200815001618-f69a88009b70
 	google.golang.org/grpc v1.32.0
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/bsm/ratelimit.v1 v1.0.0-20160220154919-db14e161995a // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/redis.v4 v4.2.4

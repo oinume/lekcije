@@ -33,6 +33,34 @@ service API {
     }
 }
 
+service User {
+    rpc GetMe(GetMeRequest) returns (GetMeResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/me"
+        };
+    }
+
+    rpc GetMeEmail(GetMeEmailRequest) returns (GetMeEmailResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/me/email"
+        };
+    }
+
+    rpc UpdateMeEmail(UpdateMeEmailRequest) returns (UpdateMeEmailResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/me/email"
+            body: "*"
+        };
+    }
+
+    rpc UpdateMeNotificationTimeSpan(UpdateMeNotificationTimeSpanRequest) returns (UpdateMeNotificationTimeSpanResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/me/notificationTimeSpan"
+            body: "*"
+        };
+    }
+}
+
 message GetMeRequest {}
 
 message NotificationTimeSpan {

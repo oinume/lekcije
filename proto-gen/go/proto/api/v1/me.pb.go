@@ -7,11 +7,16 @@
 package api_v1
 
 import (
+	"context"
+	"reflect"
+	"sync"
+
 	_ "google.golang.org/genproto/googleapis/api/annotations"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -588,9 +593,37 @@ var file_proto_api_v1_me_proto_rawDesc = []byte{
 	0x69, 0x6d, 0x65, 0x53, 0x70, 0x61, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
 	0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x22, 0x1f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31,
 	0x2f, 0x6d, 0x65, 0x2f, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x54, 0x69, 0x6d, 0x65, 0x53, 0x70, 0x61, 0x6e, 0x3a, 0x01, 0x2a, 0x42, 0x15, 0x5a, 0x13, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x3b, 0x61, 0x70, 0x69, 0x5f,
-	0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x54, 0x69, 0x6d, 0x65, 0x53, 0x70, 0x61, 0x6e, 0x3a, 0x01, 0x2a, 0x32, 0xc2, 0x03, 0x0a, 0x04,
+	0x55, 0x73, 0x65, 0x72, 0x12, 0x48, 0x0a, 0x05, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x12, 0x14, 0x2e,
+	0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74,
+	0x4d, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x12, 0x82, 0xd3, 0xe4, 0x93,
+	0x02, 0x0c, 0x12, 0x0a, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x65, 0x12, 0x5d,
+	0x0a, 0x0a, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x19, 0x2e, 0x61,
+	0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x45, 0x6d, 0x61, 0x69, 0x6c,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31,
+	0x2e, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x18, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x12, 0x12, 0x10, 0x2f, 0x61, 0x70,
+	0x69, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x65, 0x2f, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x69, 0x0a,
+	0x0d, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4d, 0x65, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1c,
+	0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4d, 0x65,
+	0x45, 0x6d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x61,
+	0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4d, 0x65, 0x45, 0x6d,
+	0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1b, 0x82, 0xd3, 0xe4,
+	0x93, 0x02, 0x15, 0x22, 0x10, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x65, 0x2f,
+	0x65, 0x6d, 0x61, 0x69, 0x6c, 0x3a, 0x01, 0x2a, 0x12, 0xa5, 0x01, 0x0a, 0x1c, 0x55, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x4d, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x54, 0x69, 0x6d, 0x65, 0x53, 0x70, 0x61, 0x6e, 0x12, 0x2b, 0x2e, 0x61, 0x70, 0x69, 0x2e,
+	0x76, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4d, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66,
+	0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x69, 0x6d, 0x65, 0x53, 0x70, 0x61, 0x6e, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2c, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4d, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x54, 0x69, 0x6d, 0x65, 0x53, 0x70, 0x61, 0x6e, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x22, 0x1f, 0x2f, 0x61,
+	0x70, 0x69, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x65, 0x2f, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x69, 0x6d, 0x65, 0x53, 0x70, 0x61, 0x6e, 0x3a, 0x01, 0x2a,
+	0x42, 0x15, 0x5a, 0x13, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31,
+	0x3b, 0x61, 0x70, 0x69, 0x5f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -619,22 +652,30 @@ var file_proto_api_v1_me_proto_goTypes = []interface{}{
 	(*UpdateMeNotificationTimeSpanResponse)(nil), // 9: api.v1.UpdateMeNotificationTimeSpanResponse
 }
 var file_proto_api_v1_me_proto_depIdxs = []int32{
-	1, // 0: api.v1.GetMeResponse.notificationTimeSpans:type_name -> api.v1.NotificationTimeSpan
-	2, // 1: api.v1.GetMeResponse.mPlan:type_name -> api.v1.MPlan
-	1, // 2: api.v1.UpdateMeNotificationTimeSpanRequest.notificationTimeSpans:type_name -> api.v1.NotificationTimeSpan
-	0, // 3: api.v1.API.GetMe:input_type -> api.v1.GetMeRequest
-	4, // 4: api.v1.API.GetMeEmail:input_type -> api.v1.GetMeEmailRequest
-	6, // 5: api.v1.API.UpdateMeEmail:input_type -> api.v1.UpdateMeEmailRequest
-	8, // 6: api.v1.API.UpdateMeNotificationTimeSpan:input_type -> api.v1.UpdateMeNotificationTimeSpanRequest
-	3, // 7: api.v1.API.GetMe:output_type -> api.v1.GetMeResponse
-	5, // 8: api.v1.API.GetMeEmail:output_type -> api.v1.GetMeEmailResponse
-	7, // 9: api.v1.API.UpdateMeEmail:output_type -> api.v1.UpdateMeEmailResponse
-	9, // 10: api.v1.API.UpdateMeNotificationTimeSpan:output_type -> api.v1.UpdateMeNotificationTimeSpanResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1,  // 0: api.v1.GetMeResponse.notificationTimeSpans:type_name -> api.v1.NotificationTimeSpan
+	2,  // 1: api.v1.GetMeResponse.mPlan:type_name -> api.v1.MPlan
+	1,  // 2: api.v1.UpdateMeNotificationTimeSpanRequest.notificationTimeSpans:type_name -> api.v1.NotificationTimeSpan
+	0,  // 3: api.v1.API.GetMe:input_type -> api.v1.GetMeRequest
+	4,  // 4: api.v1.API.GetMeEmail:input_type -> api.v1.GetMeEmailRequest
+	6,  // 5: api.v1.API.UpdateMeEmail:input_type -> api.v1.UpdateMeEmailRequest
+	8,  // 6: api.v1.API.UpdateMeNotificationTimeSpan:input_type -> api.v1.UpdateMeNotificationTimeSpanRequest
+	0,  // 7: api.v1.User.GetMe:input_type -> api.v1.GetMeRequest
+	4,  // 8: api.v1.User.GetMeEmail:input_type -> api.v1.GetMeEmailRequest
+	6,  // 9: api.v1.User.UpdateMeEmail:input_type -> api.v1.UpdateMeEmailRequest
+	8,  // 10: api.v1.User.UpdateMeNotificationTimeSpan:input_type -> api.v1.UpdateMeNotificationTimeSpanRequest
+	3,  // 11: api.v1.API.GetMe:output_type -> api.v1.GetMeResponse
+	5,  // 12: api.v1.API.GetMeEmail:output_type -> api.v1.GetMeEmailResponse
+	7,  // 13: api.v1.API.UpdateMeEmail:output_type -> api.v1.UpdateMeEmailResponse
+	9,  // 14: api.v1.API.UpdateMeNotificationTimeSpan:output_type -> api.v1.UpdateMeNotificationTimeSpanResponse
+	3,  // 15: api.v1.User.GetMe:output_type -> api.v1.GetMeResponse
+	5,  // 16: api.v1.User.GetMeEmail:output_type -> api.v1.GetMeEmailResponse
+	7,  // 17: api.v1.User.UpdateMeEmail:output_type -> api.v1.UpdateMeEmailResponse
+	9,  // 18: api.v1.User.UpdateMeNotificationTimeSpan:output_type -> api.v1.UpdateMeNotificationTimeSpanResponse
+	11, // [11:19] is the sub-list for method output_type
+	3,  // [3:11] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_proto_api_v1_me_proto_init() }
@@ -772,7 +813,7 @@ func file_proto_api_v1_me_proto_init() {
 			NumEnums:      0,
 			NumMessages:   10,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_proto_api_v1_me_proto_goTypes,
 		DependencyIndexes: file_proto_api_v1_me_proto_depIdxs,
@@ -782,4 +823,372 @@ func file_proto_api_v1_me_proto_init() {
 	file_proto_api_v1_me_proto_rawDesc = nil
 	file_proto_api_v1_me_proto_goTypes = nil
 	file_proto_api_v1_me_proto_depIdxs = nil
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// APIClient is the client API for API service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type APIClient interface {
+	GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeResponse, error)
+	GetMeEmail(ctx context.Context, in *GetMeEmailRequest, opts ...grpc.CallOption) (*GetMeEmailResponse, error)
+	UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest, opts ...grpc.CallOption) (*UpdateMeEmailResponse, error)
+	UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest, opts ...grpc.CallOption) (*UpdateMeNotificationTimeSpanResponse, error)
+}
+
+type aPIClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
+	return &aPIClient{cc}
+}
+
+func (c *aPIClient) GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeResponse, error) {
+	out := new(GetMeResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.API/GetMe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest, opts ...grpc.CallOption) (*GetMeEmailResponse, error) {
+	out := new(GetMeEmailResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.API/GetMeEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest, opts ...grpc.CallOption) (*UpdateMeEmailResponse, error) {
+	out := new(UpdateMeEmailResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.API/UpdateMeEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest, opts ...grpc.CallOption) (*UpdateMeNotificationTimeSpanResponse, error) {
+	out := new(UpdateMeNotificationTimeSpanResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.API/UpdateMeNotificationTimeSpan", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// APIServer is the server API for API service.
+type APIServer interface {
+	GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error)
+	GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error)
+	UpdateMeEmail(context.Context, *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error)
+	UpdateMeNotificationTimeSpan(context.Context, *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error)
+}
+
+// UnimplementedAPIServer can be embedded to have forward compatible implementations.
+type UnimplementedAPIServer struct {
+}
+
+func (*UnimplementedAPIServer) GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
+}
+func (*UnimplementedAPIServer) GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMeEmail not implemented")
+}
+func (*UnimplementedAPIServer) UpdateMeEmail(context.Context, *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMeEmail not implemented")
+}
+func (*UnimplementedAPIServer) UpdateMeNotificationTimeSpan(context.Context, *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMeNotificationTimeSpan not implemented")
+}
+
+func RegisterAPIServer(s *grpc.Server, srv APIServer) {
+	s.RegisterService(&_API_serviceDesc, srv)
+}
+
+func _API_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetMe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.API/GetMe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetMe(ctx, req.(*GetMeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_GetMeEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMeEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetMeEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.API/GetMeEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetMeEmail(ctx, req.(*GetMeEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_UpdateMeEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMeEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).UpdateMeEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.API/UpdateMeEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).UpdateMeEmail(ctx, req.(*UpdateMeEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_UpdateMeNotificationTimeSpan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMeNotificationTimeSpanRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).UpdateMeNotificationTimeSpan(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.API/UpdateMeNotificationTimeSpan",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).UpdateMeNotificationTimeSpan(ctx, req.(*UpdateMeNotificationTimeSpanRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _API_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "api.v1.API",
+	HandlerType: (*APIServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetMe",
+			Handler:    _API_GetMe_Handler,
+		},
+		{
+			MethodName: "GetMeEmail",
+			Handler:    _API_GetMeEmail_Handler,
+		},
+		{
+			MethodName: "UpdateMeEmail",
+			Handler:    _API_UpdateMeEmail_Handler,
+		},
+		{
+			MethodName: "UpdateMeNotificationTimeSpan",
+			Handler:    _API_UpdateMeNotificationTimeSpan_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "proto/api/v1/me.proto",
+}
+
+// UserClient is the client API for User service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type UserClient interface {
+	GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeResponse, error)
+	GetMeEmail(ctx context.Context, in *GetMeEmailRequest, opts ...grpc.CallOption) (*GetMeEmailResponse, error)
+	UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest, opts ...grpc.CallOption) (*UpdateMeEmailResponse, error)
+	UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest, opts ...grpc.CallOption) (*UpdateMeNotificationTimeSpanResponse, error)
+}
+
+type userClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewUserClient(cc grpc.ClientConnInterface) UserClient {
+	return &userClient{cc}
+}
+
+func (c *userClient) GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeResponse, error) {
+	out := new(GetMeResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.User/GetMe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest, opts ...grpc.CallOption) (*GetMeEmailResponse, error) {
+	out := new(GetMeEmailResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.User/GetMeEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest, opts ...grpc.CallOption) (*UpdateMeEmailResponse, error) {
+	out := new(UpdateMeEmailResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.User/UpdateMeEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest, opts ...grpc.CallOption) (*UpdateMeNotificationTimeSpanResponse, error) {
+	out := new(UpdateMeNotificationTimeSpanResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.User/UpdateMeNotificationTimeSpan", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// UserServer is the server API for User service.
+type UserServer interface {
+	GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error)
+	GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error)
+	UpdateMeEmail(context.Context, *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error)
+	UpdateMeNotificationTimeSpan(context.Context, *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error)
+}
+
+// UnimplementedUserServer can be embedded to have forward compatible implementations.
+type UnimplementedUserServer struct {
+}
+
+func (*UnimplementedUserServer) GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
+}
+func (*UnimplementedUserServer) GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMeEmail not implemented")
+}
+func (*UnimplementedUserServer) UpdateMeEmail(context.Context, *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMeEmail not implemented")
+}
+func (*UnimplementedUserServer) UpdateMeNotificationTimeSpan(context.Context, *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMeNotificationTimeSpan not implemented")
+}
+
+func RegisterUserServer(s *grpc.Server, srv UserServer) {
+	s.RegisterService(&_User_serviceDesc, srv)
+}
+
+func _User_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetMe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.User/GetMe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetMe(ctx, req.(*GetMeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetMeEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMeEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetMeEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.User/GetMeEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetMeEmail(ctx, req.(*GetMeEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UpdateMeEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMeEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UpdateMeEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.User/UpdateMeEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UpdateMeEmail(ctx, req.(*UpdateMeEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UpdateMeNotificationTimeSpan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMeNotificationTimeSpanRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UpdateMeNotificationTimeSpan(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.User/UpdateMeNotificationTimeSpan",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UpdateMeNotificationTimeSpan(ctx, req.(*UpdateMeNotificationTimeSpanRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _User_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "api.v1.User",
+	HandlerType: (*UserServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetMe",
+			Handler:    _User_GetMe_Handler,
+		},
+		{
+			MethodName: "GetMeEmail",
+			Handler:    _User_GetMeEmail_Handler,
+		},
+		{
+			MethodName: "UpdateMeEmail",
+			Handler:    _User_UpdateMeEmail_Handler,
+		},
+		{
+			MethodName: "UpdateMeNotificationTimeSpan",
+			Handler:    _User_UpdateMeNotificationTimeSpan_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "proto/api/v1/me.proto",
 }

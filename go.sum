@@ -246,6 +246,8 @@ github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af h1:jS2zqm/MMI5cAT5C9HHYT/q66nFcdyIpCW9Z0i//5yo=
 github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af/go.mod h1:/fyFC854GgkbHRz/rSsiYc6h84o0G5hxBezoQqRK7Ho=
+github.com/twitchtv/twirp v7.2.0+incompatible h1:cXERdTtJqg8+OZdPCPGG2xWW8g+IKQ6zYjQTk9tWcCk=
+github.com/twitchtv/twirp v7.2.0+incompatible/go.mod h1:RRJoFSAmTEh2weEqWtpPE3vFK5YBhA6bqp2l1kfCC5A=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
