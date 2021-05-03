@@ -3,9 +3,10 @@ package http
 import (
 	stats_api "github.com/fukata/golang-stats-api-handler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 	"goji.io/v3"
 	"goji.io/v3/pat"
+
+	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
 func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
