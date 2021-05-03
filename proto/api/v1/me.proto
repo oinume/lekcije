@@ -1,10 +1,39 @@
 syntax = "proto3";
 
 package api.v1;
+option go_package = "proto/api/v1;api_v1";
 
 import "google/api/annotations.proto";
 
 service API {
+    rpc GetMe(GetMeRequest) returns (GetMeResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/me"
+        };
+    }
+
+    rpc GetMeEmail(GetMeEmailRequest) returns (GetMeEmailResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/me/email"
+        };
+    }
+
+    rpc UpdateMeEmail(UpdateMeEmailRequest) returns (UpdateMeEmailResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/me/email"
+            body: "*"
+        };
+    }
+
+    rpc UpdateMeNotificationTimeSpan(UpdateMeNotificationTimeSpanRequest) returns (UpdateMeNotificationTimeSpanResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/me/notificationTimeSpan"
+            body: "*"
+        };
+    }
+}
+
+service User {
     rpc GetMe(GetMeRequest) returns (GetMeResponse) {
         option (google.api.http) = {
             get: "/api/v1/me"

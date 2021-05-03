@@ -59,10 +59,16 @@ proto/go:
 	rm -rf $(PROTO_GEN_DIR)/go && mkdir -p $(PROTO_GEN_DIR)/go
 	protoc -I/usr/local/include -I. \
   		-I$(GOPATH)/src \
-  		-I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
+  		-Iproto \
+  		-Iproto/third_party \
+  		--plugin=$(GOBIN)/protoc-gen-twirp \
   		--go_out=plugins=grpc:$(PROTO_GEN_DIR)/go \
+  		--twirp_out=paths=source_relative:$(PROTO_GEN_DIR)/go \
   		proto/api/v1/*.proto
-	protoc -I/usr/local/include -I. -I$(GOPATH)/src -I$(VENDOR_DIR)/$(GRPC_GATEWAY_REPO) \
+	protoc -I/usr/local/include -I. \
+		-I$(GOPATH)/src \
+		-Iproto \
+		-Iproto/third_party \
 		--grpc-gateway_out=logtostderr=true:$(PROTO_GEN_DIR)/go \
 		proto/api/v1/*.proto
 
