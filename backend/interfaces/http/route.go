@@ -3,7 +3,8 @@ package http
 import (
 	stats_api "github.com/fukata/golang-stats-api-handler"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	goji "goji.io/v3"
+	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	"goji.io/v3"
 	"goji.io/v3/pat"
 )
 
@@ -38,6 +39,9 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux.HandleFunc(pat.Get("/api/debug/httpHeader"), s.getAPIDebugHTTPHeader)
 	mux.HandleFunc(pat.Post("/api/webhook/sendGrid"), s.postAPISendGridEventWebhook)
 	mux.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
+
+	userService := NewUserService()
+	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), api_v1.NewUserServer(userService))
 
 	if gatewayMux != nil {
 		// This path and path in the proto must be the same
