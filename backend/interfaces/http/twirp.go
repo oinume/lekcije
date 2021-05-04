@@ -121,7 +121,28 @@ func (s *UserService) UpdateMeNotificationTimeSpan(
 	ctx context.Context,
 	request *api_v1.UpdateMeNotificationTimeSpanRequest,
 ) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
-	panic("implement me")
+	user, err := authenticateFromContext(ctx, s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: validation
+	timeSpanService := model.NewNotificationTimeSpanService(s.db)
+	timeSpans := timeSpanService.NewNotificationTimeSpansFromPB(user.ID, request.NotificationTimeSpans)
+	if err := timeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
+		return nil, err
+	}
+
+	go s.sendGAMeasurementEvent(
+		ctx,
+		ga_measurement.CategoryUser,
+		"updateNotificationTimeSpan",
+		fmt.Sprint(user.ID),
+		0,
+		user.ID,
+	)
+
+	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
 }
 
 func validateEmail(email string) bool {
