@@ -1335,6 +1335,8 @@ func (s *aPIServer) PathPrefix() string {
 // ==============
 
 type User interface {
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
+
 	GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error)
 
 	GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error)
@@ -1350,7 +1352,7 @@ type User interface {
 
 type userProtobufClient struct {
 	client      HTTPClient
-	urls        [4]string
+	urls        [5]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -1370,7 +1372,8 @@ func NewUserProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Clie
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(clientOpts.PathPrefix(), "api.v1", "User")
-	urls := [4]string{
+	urls := [5]string{
+		serviceURL + "Ping",
 		serviceURL + "GetMe",
 		serviceURL + "GetMeEmail",
 		serviceURL + "UpdateMeEmail",
@@ -1383,6 +1386,52 @@ func NewUserProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Clie
 		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
 		opts:        clientOpts,
 	}
+}
+
+func (c *userProtobufClient) Ping(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
+	ctx = ctxsetters.WithServiceName(ctx, "User")
+	ctx = ctxsetters.WithMethodName(ctx, "Ping")
+	caller := c.callPing
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *PingRequest) (*PingResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*PingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*PingRequest) when calling interceptor")
+					}
+					return c.callPing(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*PingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*PingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *userProtobufClient) callPing(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+	out := new(PingResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
 }
 
 func (c *userProtobufClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
@@ -1416,7 +1465,7 @@ func (c *userProtobufClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetM
 
 func (c *userProtobufClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
 	out := new(GetMeResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1462,7 +1511,7 @@ func (c *userProtobufClient) GetMeEmail(ctx context.Context, in *GetMeEmailReque
 
 func (c *userProtobufClient) callGetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
 	out := new(GetMeEmailResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1508,7 +1557,7 @@ func (c *userProtobufClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmai
 
 func (c *userProtobufClient) callUpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
 	out := new(UpdateMeEmailResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1554,7 +1603,7 @@ func (c *userProtobufClient) UpdateMeNotificationTimeSpan(ctx context.Context, i
 
 func (c *userProtobufClient) callUpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
 	out := new(UpdateMeNotificationTimeSpanResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1575,7 +1624,7 @@ func (c *userProtobufClient) callUpdateMeNotificationTimeSpan(ctx context.Contex
 
 type userJSONClient struct {
 	client      HTTPClient
-	urls        [4]string
+	urls        [5]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -1595,7 +1644,8 @@ func NewUserJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOp
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(clientOpts.PathPrefix(), "api.v1", "User")
-	urls := [4]string{
+	urls := [5]string{
+		serviceURL + "Ping",
 		serviceURL + "GetMe",
 		serviceURL + "GetMeEmail",
 		serviceURL + "UpdateMeEmail",
@@ -1608,6 +1658,52 @@ func NewUserJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOp
 		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
 		opts:        clientOpts,
 	}
+}
+
+func (c *userJSONClient) Ping(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
+	ctx = ctxsetters.WithServiceName(ctx, "User")
+	ctx = ctxsetters.WithMethodName(ctx, "Ping")
+	caller := c.callPing
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *PingRequest) (*PingResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*PingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*PingRequest) when calling interceptor")
+					}
+					return c.callPing(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*PingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*PingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *userJSONClient) callPing(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+	out := new(PingResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
 }
 
 func (c *userJSONClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
@@ -1641,7 +1737,7 @@ func (c *userJSONClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeRes
 
 func (c *userJSONClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
 	out := new(GetMeResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1687,7 +1783,7 @@ func (c *userJSONClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest) 
 
 func (c *userJSONClient) callGetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
 	out := new(GetMeEmailResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1733,7 +1829,7 @@ func (c *userJSONClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailReq
 
 func (c *userJSONClient) callUpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
 	out := new(UpdateMeEmailResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1779,7 +1875,7 @@ func (c *userJSONClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *U
 
 func (c *userJSONClient) callUpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
 	out := new(UpdateMeNotificationTimeSpanResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
 		if !ok {
@@ -1891,6 +1987,9 @@ func (s *userServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	switch method {
+	case "Ping":
+		s.servePing(ctx, resp, req)
+		return
 	case "GetMe":
 		s.serveGetMe(ctx, resp, req)
 		return
@@ -1908,6 +2007,181 @@ func (s *userServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
 		return
 	}
+}
+
+func (s *userServer) servePing(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.servePingJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.servePingProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *userServer) servePingJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "Ping")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	reqContent := new(PingRequest)
+	unmarshaler := jsonpb.Unmarshaler{AllowUnknownFields: true}
+	if err = unmarshaler.Unmarshal(req.Body, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.User.Ping
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *PingRequest) (*PingResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*PingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*PingRequest) when calling interceptor")
+					}
+					return s.User.Ping(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*PingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*PingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *PingResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *PingResponse and nil error while calling Ping. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	var buf bytes.Buffer
+	marshaler := &jsonpb.Marshaler{OrigName: true, EmitDefaults: !s.jsonSkipDefaults}
+	if err = marshaler.Marshal(&buf, respContent); err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	respBytes := buf.Bytes()
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *userServer) servePingProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "Ping")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(PingRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.User.Ping
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *PingRequest) (*PingResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*PingRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*PingRequest) when calling interceptor")
+					}
+					return s.User.Ping(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*PingResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*PingResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *PingResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *PingResponse and nil error while calling Ping. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
 }
 
 func (s *userServer) serveGetMe(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
@@ -3172,37 +3446,39 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 510 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x55, 0xdd, 0x6a, 0x13, 0x41,
-	0x14, 0x66, 0xb2, 0xd9, 0xa0, 0xa7, 0x4d, 0xd1, 0xd3, 0xac, 0xc6, 0x35, 0x6a, 0x99, 0x16, 0x29,
-	0x69, 0x49, 0x48, 0xbc, 0xab, 0x57, 0x0a, 0x62, 0x7b, 0x11, 0x29, 0xab, 0xbd, 0x11, 0x44, 0x46,
-	0x33, 0x0d, 0x03, 0xd9, 0x99, 0x75, 0x77, 0x12, 0xf0, 0xd6, 0x0b, 0x5f, 0xc0, 0x67, 0xf0, 0x15,
-	0xbc, 0xd7, 0x57, 0xf0, 0x15, 0x7c, 0x10, 0xc9, 0xcc, 0x6c, 0xb2, 0x89, 0x9b, 0x20, 0xde, 0x09,
-	0xbd, 0xdb, 0xf3, 0xf7, 0x9d, 0xef, 0xfb, 0xce, 0x84, 0x40, 0x90, 0xa4, 0x4a, 0xab, 0x2e, 0x4b,
-	0x44, 0x77, 0xda, 0xeb, 0xc6, 0xbc, 0x63, 0x62, 0xac, 0xb1, 0x44, 0x74, 0xa6, 0xbd, 0xb0, 0x35,
-	0x52, 0x6a, 0x34, 0xe6, 0xa6, 0xce, 0xa4, 0x54, 0x9a, 0x69, 0xa1, 0x64, 0x66, 0xbb, 0xe8, 0x0e,
-	0x6c, 0x3f, 0xe7, 0x7a, 0xc0, 0x23, 0xfe, 0x61, 0xc2, 0x33, 0x4d, 0x3f, 0x13, 0x68, 0xbc, 0x50,
-	0x5a, 0x5c, 0x8a, 0xf7, 0xa6, 0xef, 0x95, 0x88, 0xf9, 0xcb, 0x84, 0x49, 0x0c, 0xe1, 0xda, 0x65,
-	0xaa, 0xe2, 0x53, 0x35, 0x49, 0x9b, 0x64, 0x8f, 0x1c, 0xfa, 0xd1, 0x3c, 0xc6, 0xfb, 0x00, 0xb3,
-	0xef, 0x81, 0x90, 0x13, 0xcd, 0x9b, 0x15, 0x53, 0x2d, 0x64, 0xf0, 0x16, 0xd4, 0xb4, 0x32, 0x93,
-	0x9e, 0xa9, 0xb9, 0x68, 0x86, 0xa9, 0x95, 0x9b, 0xaa, 0x5a, 0xcc, 0x3c, 0xa6, 0x47, 0xe0, 0x0f,
-	0xce, 0xc7, 0x4c, 0xe2, 0x0e, 0x54, 0xc4, 0xd0, 0xad, 0xac, 0x88, 0x21, 0x22, 0x54, 0x25, 0x8b,
-	0xed, 0x9a, 0xeb, 0x91, 0xf9, 0xa6, 0xdf, 0x08, 0xd4, 0x9d, 0x8c, 0x2c, 0x51, 0x32, 0x33, 0x2b,
-	0x27, 0x19, 0x4f, 0xcf, 0xf2, 0x49, 0x17, 0x61, 0x03, 0x7c, 0x1e, 0x33, 0x31, 0x76, 0xe3, 0x36,
-	0xc0, 0x08, 0x02, 0x59, 0x22, 0x3a, 0x6b, 0x7a, 0x7b, 0xde, 0xe1, 0x56, 0xbf, 0xd5, 0xb1, 0x5e,
-	0x76, 0xca, 0x9c, 0x89, 0xca, 0x47, 0x71, 0x1f, 0xfc, 0x78, 0x26, 0xc0, 0x28, 0xdb, 0xea, 0xd7,
-	0x73, 0x0c, 0xa3, 0x2a, 0xb2, 0x35, 0xba, 0x0b, 0x37, 0x0d, 0xef, 0x67, 0x33, 0x1a, 0xf9, 0x0d,
-	0xda, 0x80, 0xc5, 0xa4, 0x53, 0x34, 0x67, 0x4e, 0x0a, 0xcc, 0xe9, 0x31, 0x34, 0x2e, 0x92, 0x21,
-	0xd3, 0x7c, 0x19, 0x63, 0x4d, 0xf7, 0x6d, 0x08, 0x56, 0xba, 0x2d, 0x38, 0xfd, 0x08, 0xfb, 0x79,
-	0xa1, 0x54, 0xa3, 0x43, 0x5d, 0xeb, 0x13, 0xf9, 0x67, 0x9f, 0xe8, 0x43, 0x38, 0xd8, 0xbc, 0xda,
-	0x52, 0xec, 0x7f, 0xf7, 0xc0, 0x7b, 0x72, 0x7e, 0x86, 0xa7, 0xe0, 0x1b, 0x77, 0xb0, 0x91, 0x6f,
-	0x2b, 0x3e, 0xe0, 0x30, 0x58, 0xc9, 0x3a, 0x81, 0xf8, 0xe9, 0xe7, 0xaf, 0x2f, 0x95, 0x6d, 0x84,
-	0xc5, 0xef, 0x04, 0xdf, 0x00, 0x2c, 0x7c, 0xc6, 0x3b, 0x4b, 0x83, 0x45, 0x33, 0xc3, 0xb0, 0xac,
-	0xe4, 0x80, 0x9b, 0x06, 0x18, 0xf1, 0xc6, 0x02, 0xb8, 0x6b, 0x1f, 0x95, 0x80, 0xfa, 0x92, 0xd9,
-	0x38, 0xb7, 0xa7, 0xec, 0x62, 0xe1, 0xbd, 0x35, 0x55, 0xb7, 0xe7, 0xae, 0xd9, 0x13, 0xd0, 0x3f,
-	0xf6, 0x9c, 0x90, 0x36, 0x7e, 0x25, 0xd0, 0xda, 0x64, 0x22, 0x1e, 0xad, 0x82, 0x6f, 0xb8, 0x72,
-	0x78, 0xfc, 0x77, 0xcd, 0x8e, 0x58, 0xdb, 0x10, 0x3b, 0xa0, 0x0f, 0x0a, 0xc4, 0xca, 0x2e, 0x7d,
-	0x42, 0xda, 0xfd, 0x1f, 0x1e, 0x54, 0x2f, 0x32, 0x9e, 0x5e, 0x1d, 0xf1, 0xff, 0x3d, 0xe2, 0xd3,
-	0xe0, 0xf5, 0x6e, 0xf1, 0x1f, 0xe7, 0x31, 0x4b, 0xc4, 0xdb, 0x69, 0xef, 0x5d, 0xcd, 0x24, 0x1f,
-	0xfd, 0x0e, 0x00, 0x00, 0xff, 0xff, 0xb5, 0x60, 0xed, 0x6c, 0x8f, 0x06, 0x00, 0x00,
+	// 540 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x55, 0xcf, 0x8a, 0xd3, 0x40,
+	0x18, 0x27, 0x4d, 0x53, 0xf4, 0xeb, 0x76, 0xd1, 0xaf, 0x89, 0xd6, 0x58, 0x75, 0xc9, 0x2e, 0xb2,
+	0x74, 0x97, 0x96, 0xd6, 0xdb, 0x7a, 0x52, 0x10, 0x77, 0x0f, 0x95, 0x12, 0xdd, 0x8b, 0x20, 0x32,
+	0xda, 0x69, 0x19, 0x68, 0x66, 0x62, 0x32, 0x2d, 0x78, 0xf5, 0xe0, 0x0b, 0xf8, 0x0c, 0xbe, 0x82,
+	0x77, 0x9f, 0xc1, 0x57, 0xf0, 0x15, 0xbc, 0x4b, 0x66, 0x26, 0x6d, 0x5a, 0xd3, 0x22, 0xde, 0x84,
+	0xbd, 0xe5, 0xfb, 0x33, 0xbf, 0xdf, 0xef, 0xfb, 0x7d, 0x33, 0x04, 0xbc, 0x38, 0x11, 0x52, 0xf4,
+	0x48, 0xcc, 0x7a, 0x8b, 0x7e, 0x2f, 0xa2, 0x5d, 0x15, 0x63, 0x8d, 0xc4, 0xac, 0xbb, 0xe8, 0xfb,
+	0xed, 0xa9, 0x10, 0xd3, 0x19, 0x55, 0x75, 0xc2, 0xb9, 0x90, 0x44, 0x32, 0xc1, 0x53, 0xdd, 0x15,
+	0x7c, 0xb6, 0xc0, 0x7d, 0x21, 0x24, 0x9b, 0xb0, 0xf7, 0x2a, 0xff, 0x8a, 0x45, 0xf4, 0x65, 0x4c,
+	0x38, 0xfa, 0x70, 0x6d, 0x92, 0x88, 0xe8, 0x5c, 0xcc, 0x93, 0x96, 0x75, 0x60, 0x1d, 0x3b, 0xe1,
+	0x32, 0xc6, 0xfb, 0x00, 0xd9, 0xf7, 0x90, 0xf1, 0xb9, 0xa4, 0xad, 0x8a, 0xaa, 0x16, 0x32, 0x78,
+	0x0b, 0x6a, 0x52, 0xa8, 0x93, 0xb6, 0xaa, 0x99, 0x28, 0xc3, 0x94, 0xc2, 0x9c, 0xaa, 0x6a, 0xcc,
+	0x3c, 0x0e, 0x4e, 0xc0, 0x19, 0x8e, 0x66, 0x84, 0xe3, 0x3e, 0x54, 0xd8, 0xd8, 0x50, 0x56, 0xd8,
+	0x18, 0x11, 0xaa, 0x9c, 0x44, 0x9a, 0xe6, 0x7a, 0xa8, 0xbe, 0x83, 0x06, 0xd4, 0x47, 0x8c, 0x4f,
+	0x43, 0xfa, 0x61, 0x4e, 0x53, 0x19, 0xec, 0xc3, 0x9e, 0x0e, 0xd3, 0x58, 0xf0, 0x94, 0x66, 0xf1,
+	0x73, 0x2a, 0x87, 0x34, 0xaf, 0x7f, 0xb3, 0xa0, 0x61, 0x12, 0xba, 0x23, 0x53, 0x38, 0x4f, 0x69,
+	0x72, 0x91, 0x13, 0x99, 0x08, 0x5d, 0x70, 0x68, 0x44, 0xd8, 0xcc, 0xb0, 0xe9, 0x00, 0x43, 0xf0,
+	0x78, 0x89, 0x47, 0x69, 0xcb, 0x3e, 0xb0, 0x8f, 0xeb, 0x83, 0x76, 0x57, 0x5b, 0xdd, 0x2d, 0x33,
+	0x32, 0x2c, 0x3f, 0x8a, 0x87, 0xe0, 0x44, 0xd9, 0xbc, 0xca, 0x88, 0xfa, 0xa0, 0x91, 0x63, 0x28,
+	0x13, 0x42, 0x5d, 0x0b, 0x9a, 0x70, 0x53, 0xe9, 0x7e, 0x96, 0xc9, 0xc8, 0xa7, 0xe9, 0x00, 0x16,
+	0x93, 0x66, 0xa2, 0xa5, 0x72, 0xab, 0xa0, 0x3c, 0x38, 0x05, 0xf7, 0x32, 0x1e, 0x13, 0x49, 0xd7,
+	0x31, 0xb6, 0x74, 0xdf, 0x06, 0x6f, 0xa3, 0xdb, 0x18, 0xfa, 0x11, 0x0e, 0xf3, 0x42, 0xe9, 0x8c,
+	0x06, 0x75, 0xab, 0x4f, 0xd6, 0x3f, 0xfb, 0x14, 0x3c, 0x84, 0xa3, 0xdd, 0xd4, 0x5a, 0xe2, 0xe0,
+	0xbb, 0x0d, 0xf6, 0x93, 0xd1, 0x05, 0x9e, 0x83, 0xa3, 0xdc, 0x41, 0x37, 0x67, 0x2b, 0x5e, 0x05,
+	0xdf, 0xdb, 0xc8, 0x9a, 0x01, 0xf1, 0xd3, 0x8f, 0x9f, 0x5f, 0x2a, 0x7b, 0x08, 0xab, 0x67, 0x84,
+	0x6f, 0x00, 0x56, 0x3e, 0xe3, 0x9d, 0xb5, 0x83, 0x45, 0x33, 0x7d, 0xbf, 0xac, 0x64, 0x80, 0x5b,
+	0x0a, 0x18, 0xf1, 0xc6, 0x0a, 0xb8, 0xa7, 0x2f, 0x15, 0x83, 0xc6, 0x9a, 0xd9, 0xb8, 0xb4, 0xa7,
+	0x6c, 0x63, 0xfe, 0xbd, 0x2d, 0x55, 0xc3, 0x73, 0x57, 0xf1, 0x78, 0xc1, 0x1f, 0x3c, 0x67, 0x56,
+	0x07, 0xbf, 0x5a, 0xd0, 0xde, 0x65, 0x22, 0x9e, 0x6c, 0x82, 0xef, 0xd8, 0xb2, 0x7f, 0xfa, 0x77,
+	0xcd, 0x46, 0x58, 0x47, 0x09, 0x3b, 0x0a, 0x1e, 0x14, 0x84, 0x95, 0x6d, 0xfa, 0xcc, 0xea, 0x0c,
+	0x7e, 0xd9, 0x50, 0xbd, 0x4c, 0x69, 0x82, 0x7d, 0xa8, 0x66, 0x0f, 0x1a, 0x9b, 0x39, 0x55, 0xe1,
+	0xb5, 0xfb, 0xee, 0x7a, 0xd2, 0xdc, 0xff, 0xab, 0xbd, 0xff, 0xb7, 0x7b, 0x7f, 0xea, 0xbd, 0x6e,
+	0x16, 0xff, 0x61, 0x8f, 0x49, 0xcc, 0xde, 0x2e, 0xfa, 0xef, 0x6a, 0x2a, 0xf9, 0xe8, 0x77, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0x68, 0x89, 0x53, 0x2a, 0xe1, 0x06, 0x00, 0x00,
 }

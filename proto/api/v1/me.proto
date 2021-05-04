@@ -34,6 +34,8 @@ service API {
 }
 
 service User {
+    rpc Ping(PingRequest) returns (PingResponse);
+
     rpc GetMe(GetMeRequest) returns (GetMeResponse) {
         option (google.api.http) = {
             get: "/api/v1/me"
@@ -61,8 +63,6 @@ service User {
     }
 }
 
-message GetMeRequest {}
-
 message NotificationTimeSpan {
     int32 fromHour = 1;
     int32 fromMinute = 2;
@@ -74,6 +74,12 @@ message MPlan {
     int32 id = 1;
     string name = 2;
 }
+
+message PingRequest {}
+
+message PingResponse {}
+
+message GetMeRequest {}
 
 message GetMeResponse {
     int32 userId = 1;

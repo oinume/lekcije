@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -9,6 +10,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/jinzhu/gorm"
+	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -16,6 +19,7 @@ import (
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interfaces/http/flash_message"
+	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/util"
 )
 
@@ -152,4 +156,17 @@ func getRemoteAddress(req *http.Request) string {
 		return (strings.Split(req.RemoteAddr, ":"))[0]
 	}
 	return strings.TrimSpace((strings.Split(xForwardedFor, ","))[0])
+}
+
+func authenticateFromContext(ctx context.Context, db *gorm.DB) (*model.User, error) {
+	apiToken, err := context_data.GetAPIToken(ctx)
+	if err != nil {
+		return nil, twirp.NewError(twirp.Unauthenticated, "no api token found")
+	}
+	userService := model.NewUserService(db)
+	user, err := userService.FindLoggedInUser(apiToken)
+	if err != nil {
+		return nil, twirp.NewError(twirp.Unauthenticated, "no user found")
+	}
+	return user, nil
 }

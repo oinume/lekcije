@@ -35,7 +35,7 @@ export const SettingPage: React.FC<{}> = () => {
     setLoading(true);
     const client = createHttpClient();
     client
-      .get('/api/v1/me')
+      .post('/twirp/api.v1.User/GetMe', {})
       .then((response) => {
         console.log(response.data);
         const timeSpans = response.data['notificationTimeSpans']

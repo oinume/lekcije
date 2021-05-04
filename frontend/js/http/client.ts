@@ -7,7 +7,9 @@ export const createHttpClient = () => {
   if (cookies['apiToken']) {
     headers['Grpc-Metadata-Api-Token'] = cookies['apiToken'];
     headers['X-Api-Token'] = cookies['apiToken'];
+    headers['Authorization'] = 'Bearer ' + cookies['apiToken'];
   }
+  headers['Content-Type'] = 'application/json';
   return axios.create({
     //baseURL: 'https://some-domain.com/api/',
     timeout: 3000,
