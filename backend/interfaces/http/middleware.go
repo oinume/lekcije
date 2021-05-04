@@ -6,8 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
-
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/rs/cors"
@@ -16,6 +14,7 @@ import (
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
 )
 
@@ -229,6 +228,20 @@ func redirecter(h http.Handler) http.Handler {
 			http.Redirect(w, r, config.WebURL()+r.RequestURI, http.StatusMovedPermanently)
 			return
 		}
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func setAuthorizationContext(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		// Authorization: Bearer <token>
+		auth := strings.Split(r.Header.Get("authorization"), " ")
+		if len(auth) < 2 || strings.ToLower(auth[0]) != "bearer" {
+			h.ServeHTTP(w, r)
+			return
+		}
+		r = r.WithContext(context_data.WithAPIToken(r.Context(), strings.TrimSpace(auth[1])))
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)

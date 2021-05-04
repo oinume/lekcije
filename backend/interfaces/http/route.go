@@ -20,6 +20,7 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux.Use(setCORS)
 	mux.Use(setGRPCMetadata)
 	mux.Use(setGAMeasurementEventValues)
+	mux.Use(setAuthorizationContext)
 
 	mux.HandleFunc(pat.Get("/static/*"), s.static)
 	mux.HandleFunc(pat.Get("/"), s.index)
@@ -41,7 +42,7 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux.HandleFunc(pat.Post("/api/webhook/sendGrid"), s.postAPISendGridEventWebhook)
 	mux.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
 
-	userService := NewUserService()
+	userService := NewUserService(s.db)
 	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), api_v1.NewUserServer(userService))
 
 	if gatewayMux != nil {
