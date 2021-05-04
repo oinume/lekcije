@@ -42,7 +42,8 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux.HandleFunc(pat.Post("/api/webhook/sendGrid"), s.postAPISendGridEventWebhook)
 	mux.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
 
-	userService := NewUserService(s.db)
+	// TODO: Better dependency injection
+	userService := NewUserService(s.db, s.appLogger, s.gaMeasurementClient)
 	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), api_v1.NewUserServer(userService))
 
 	if gatewayMux != nil {

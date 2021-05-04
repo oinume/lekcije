@@ -2,20 +2,33 @@ package http
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/jinzhu/gorm"
+	"github.com/twitchtv/twirp"
+	"go.uber.org/zap"
 
+	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
 type UserService struct {
-	db *gorm.DB
+	appLogger           *zap.Logger
+	db                  *gorm.DB
+	gaMeasurementClient ga_measurement.Client
 }
 
-func NewUserService(db *gorm.DB) api_v1.User {
+func NewUserService(
+	db *gorm.DB,
+	appLogger *zap.Logger,
+	gaMeasurementClient ga_measurement.Client,
+) api_v1.User {
 	return &UserService{
-		db: db,
+		appLogger:           appLogger,
+		db:                  db,
+		gaMeasurementClient: gaMeasurementClient,
 	}
 }
 
@@ -65,14 +78,43 @@ func (s *UserService) GetMeEmail(
 	ctx context.Context,
 	request *api_v1.GetMeEmailRequest,
 ) (*api_v1.GetMeEmailResponse, error) {
-	panic("implement me")
+	user, err := authenticateFromContext(ctx, s.db)
+	if err != nil {
+		return nil, err
+	}
+	return &api_v1.GetMeEmailResponse{Email: user.Email}, nil
 }
 
 func (s *UserService) UpdateMeEmail(
 	ctx context.Context,
 	request *api_v1.UpdateMeEmailRequest,
 ) (*api_v1.UpdateMeEmailResponse, error) {
-	panic("implement me")
+	user, err := authenticateFromContext(ctx, s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: better validation
+	email := request.Email
+	if email == "" || !validateEmail(email) {
+		return nil, twirp.InvalidArgumentError("email", "invalid email")
+	}
+
+	userService := model.NewUserService(s.db)
+	if err := userService.UpdateEmail(user, request.Email); err != nil {
+		return nil, err
+	}
+
+	go s.sendGAMeasurementEvent(
+		ctx,
+		ga_measurement.CategoryUser,
+		"update",
+		fmt.Sprint(user.ID),
+		0,
+		user.ID,
+	)
+
+	return &api_v1.UpdateMeEmailResponse{}, nil
 }
 
 func (s *UserService) UpdateMeNotificationTimeSpan(
@@ -80,4 +122,30 @@ func (s *UserService) UpdateMeNotificationTimeSpan(
 	request *api_v1.UpdateMeNotificationTimeSpanRequest,
 ) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
 	panic("implement me")
+}
+
+func validateEmail(email string) bool {
+	// TODO: better validation
+	return strings.Contains(email, "@")
+}
+
+func (s *UserService) sendGAMeasurementEvent(
+	ctx context.Context,
+	category,
+	action,
+	label string,
+	value int64,
+	userID uint32,
+) {
+	err := s.gaMeasurementClient.SendEvent(
+		ga_measurement.MustEventValues(ctx),
+		category,
+		action,
+		fmt.Sprint(userID),
+		0,
+		userID,
+	)
+	if err != nil {
+		s.appLogger.Warn("SendEvent() failed", zap.Error(err))
+	}
 }
