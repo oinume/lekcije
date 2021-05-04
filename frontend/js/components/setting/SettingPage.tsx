@@ -130,7 +130,7 @@ export const SettingPage: React.FC<{}> = () => {
 
     const client = createHttpClient();
     client
-      .post('/api/v1/me/notificationTimeSpan', {
+      .post('/twirp/api.v1.User/UpdateMeNotificationTimeSpan', {
         notificationTimeSpans: timeSpans,
       })
       .then((_) => {
