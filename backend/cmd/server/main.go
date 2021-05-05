@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -31,10 +30,6 @@ const (
 func main() {
 	config.MustProcessDefault()
 	port := config.DefaultVars.HTTPPort
-	grpcPort := config.DefaultVars.GRPCPort
-	if port == grpcPort {
-		log.Fatalf("Can't specify same port for a server.")
-	}
 
 	exporter, flush, err := open_census.NewExporter(
 		config.DefaultVars,
@@ -109,10 +104,7 @@ func main() {
 }
 
 func startHTTPServer(port int, args *interfaces.ServerArgs) error {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
+	// TODO: graceful shutdown
 	server := interfaces_http.NewServer(args)
 	mux := server.CreateRoutes()
 	fmt.Printf("Starting HTTP server on %v\n", port)

@@ -34,7 +34,6 @@ type Vars struct {
 	GoogleClientSecret        string `envconfig:"GOOGLE_CLIENT_SECRET"`
 	GoogleAnalyticsID         string `envconfig:"GOOGLE_ANALYTICS_ID"`
 	HTTPPort                  int    `envconfig:"PORT" default:"4001"`
-	GRPCPort                  int    `envconfig:"GRPC_PORT" default:"4002"`
 	RollbarAccessToken        string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
 	VersionHash               string `envconfig:"VERSION_HASH"`
 	DebugSQL                  bool   `envconfig:"DEBUG_SQL"`
