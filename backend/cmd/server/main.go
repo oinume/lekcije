@@ -4,30 +4,23 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"time"
 
 	"cloud.google.com/go/profiler"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.opencensus.io/trace"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/gcp"
 	"github.com/oinume/lekcije/backend/interfaces"
-	interfaces_grpc "github.com/oinume/lekcije/backend/interfaces/grpc"
-	"github.com/oinume/lekcije/backend/interfaces/grpc/interceptor"
 	interfaces_http "github.com/oinume/lekcije/backend/interfaces/http"
 	"github.com/oinume/lekcije/backend/interfaces/http/flash_message"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/open_census"
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
 const (
@@ -107,11 +100,7 @@ func main() {
 
 	errors := make(chan error)
 	go func() {
-		errors <- startGRPCServer(grpcPort, args)
-	}()
-
-	go func() {
-		errors <- startHTTPServer(grpcPort, port, args)
+		errors <- startHTTPServer(port, args)
 	}()
 
 	for err := range errors {
@@ -119,39 +108,13 @@ func main() {
 	}
 }
 
-func startGRPCServer(port int, args *interfaces.ServerArgs) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	var opts []grpc.ServerOption
-	opts = append(opts, interceptor.WithUnaryServerInterceptors())
-	server := grpc.NewServer(opts...)
-	interfaces_grpc.RegisterAPIV1Server(server, args) // TODO: RegisterAPIV1Service
-	// Register reflection service on gRPC server.
-	reflection.Register(server)
-	fmt.Printf("Starting gRPC server on %d\n", port)
-	return server.Serve(lis)
-}
-
-func startHTTPServer(grpcPort, httpPort int, args *interfaces.ServerArgs) error {
+func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	muxOptions := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
-		OrigName:     true,
-		EmitDefaults: true,
-	})
-	gatewayMux := runtime.NewServeMux(muxOptions)
-	opts := []grpc.DialOption{grpc.WithInsecure()}
-	endpoint := fmt.Sprintf("127.0.0.1:%d", grpcPort)
-	if err := api_v1.RegisterAPIHandlerFromEndpoint(ctx, gatewayMux, endpoint, opts); err != nil {
-		return err
-	}
 	server := interfaces_http.NewServer(args)
-	mux := server.CreateRoutes(gatewayMux)
-	fmt.Printf("Starting HTTP server on %v\n", httpPort)
-	return http.ListenAndServe(fmt.Sprintf(":%d", httpPort), mux)
+	mux := server.CreateRoutes()
+	fmt.Printf("Starting HTTP server on %v\n", port)
+	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
 }

@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	}
 	s := interfaces_http.NewServer(args)
-	routes := s.CreateRoutes(nil) // TODO: grpc-gateway
+	routes := s.CreateRoutes()
 	port := config.DefaultVars.HTTPPort + 1
 	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
