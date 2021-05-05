@@ -142,20 +142,7 @@ func setTrackingID(h http.Handler) http.Handler {
 			http.SetCookie(w, c)
 		}
 		c := context_data.SetTrackingID(r.Context(), trackingID)
-		r.Header.Set("Grpc-Metadata-Http-Tracking-Id", trackingID)
 		h.ServeHTTP(w, r.WithContext(c))
-	}
-	return http.HandlerFunc(fn)
-}
-
-func setGRPCMetadata(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		r.Header.Set("Grpc-Metadata-Http-User-Agent", r.UserAgent())
-		r.Header.Set("Grpc-Metadata-Http-Referer", r.Referer())
-		r.Header.Set("Grpc-Metadata-Http-Host", r.Host)
-		r.Header.Set("Grpc-Metadata-Http-Url-Path", r.URL.Path)
-		r.Header.Set("Grpc-Metadata-Http-Remote-Addr", getRemoteAddress(r))
-		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
 }

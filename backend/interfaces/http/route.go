@@ -2,14 +2,13 @@ package http
 
 import (
 	stats_api "github.com/fukata/golang-stats-api-handler"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"goji.io/v3"
 	"goji.io/v3/pat"
 
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
-func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
+func (s *server) CreateRoutes() *goji.Mux {
 	mux := goji.NewMux()
 	mux.Use(setTrackingID)
 	mux.Use(accessLogger(s.accessLogger))
@@ -18,7 +17,6 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	mux.Use(setLoggedInUser(s.db))
 	mux.Use(loginRequiredFilter(s.db, s.appLogger))
 	mux.Use(setCORS)
-	mux.Use(setGRPCMetadata)
 	mux.Use(setGAMeasurementEventValues)
 	mux.Use(setAuthorizationContext)
 
@@ -45,12 +43,6 @@ func (s *server) CreateRoutes(gatewayMux *runtime.ServeMux) *goji.Mux {
 	// TODO: Better dependency injection
 	userService := NewUserService(s.db, s.appLogger, s.gaMeasurementClient)
 	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), api_v1.NewUserServer(userService))
-
-	if gatewayMux != nil {
-		// This path and path in the proto must be the same
-		mux.Handle(pat.Get("/api/v1/*"), gatewayMux)
-		mux.Handle(pat.Post("/api/v1/*"), gatewayMux)
-	}
 
 	return mux
 }
