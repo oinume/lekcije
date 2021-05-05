@@ -64,7 +64,7 @@ export const SettingPage: React.FC<{}> = () => {
   const handleUpdateEmail = (email: string): void => {
     const client = createHttpClient();
     client
-      .post('/api/v1/me/email', {
+      .post('/twirp/api.v1.User/UpdateMeEmail', {
         email: email,
       })
       .then((_) => {
@@ -130,7 +130,7 @@ export const SettingPage: React.FC<{}> = () => {
 
     const client = createHttpClient();
     client
-      .post('/api/v1/me/notificationTimeSpan', {
+      .post('/twirp/api.v1.User/UpdateMeNotificationTimeSpan', {
         notificationTimeSpans: timeSpans,
       })
       .then((_) => {
