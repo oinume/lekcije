@@ -1,0 +1,12 @@
+coverage:
+  status:
+    project:
+      default:
+        # required coverage value
+        target: 40%
+        # this allows a 25% drop from the previous base commit coverage
+        threshold: 25%
+ignore:
+  - "**/*.pb.go"
+  - "**/*.twirp.go"
+  - "**/*.moq.go"
