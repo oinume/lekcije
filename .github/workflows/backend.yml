@@ -128,4 +128,4 @@ jobs:
           go mod vendor
       - name: Deploy
         run: |
-          GO111MODULE=off gcloud app deploy --project ${{ secrets.GCP_PROJECT_ID }} --no-promote --quiet ./appengine/app.yaml
+          GO111MODULE=off gcloud app deploy --project ${{ secrets.GCP_PROJECT_ID }} --no-promote --quiet ./backend/appengine/app.yaml
