@@ -3,9 +3,6 @@ package flash_message
 import (
 	"encoding/json"
 	"fmt"
-	"time"
-
-	"gopkg.in/redis.v4"
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/util"
@@ -83,46 +80,4 @@ func (f *FlashMessage) Set() (string, error) {
 
 func (f *FlashMessage) AsURLQueryString() string {
 	return "flashMessageKey=" + f.Key
-}
-
-type Store interface {
-	Load(key string) (*FlashMessage, error)
-	Save(value *FlashMessage) error
-}
-
-type StoreRedis struct {
-	client *redis.Client
-}
-
-func NewStoreRedis(client *redis.Client) *StoreRedis {
-	return &StoreRedis{client: client}
-}
-
-func (s *StoreRedis) Load(key string) (*FlashMessage, error) {
-	value, err := s.client.Get(s.getKey(key)).Result()
-	if err != nil {
-		return nil, err
-	}
-	v := &FlashMessage{}
-	if err := json.Unmarshal([]byte(value), v); err != nil {
-		return nil, err
-	}
-	return v, nil
-}
-
-func (s *StoreRedis) Save(value *FlashMessage) error {
-	return s.SaveWithExpiration(value, time.Hour*24)
-}
-
-func (s *StoreRedis) SaveWithExpiration(value *FlashMessage, expiration time.Duration) error {
-	bytes, err := json.Marshal(value)
-	if err != nil {
-		return err
-	}
-	return s.client.Set(s.getKey(value.Key), string(bytes), expiration).Err()
-}
-
-// Append prefix to key
-func (s *StoreRedis) getKey(key string) string {
-	return "flashMessage:" + key
 }
