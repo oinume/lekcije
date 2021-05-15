@@ -88,8 +88,9 @@ func (s *StoreMySQL) SaveWithExpiration(value *FlashMessage, expiration time.Dur
 		return err
 	}
 	fm := &model.FlashMessage{
-		ID:    value.Key,
-		Value: string(bytes),
+		ID:        value.Key,
+		Value:     string(bytes),
+		ExpiredAt: time.Now().Add(expiration),
 	}
 	if result := s.db.Create(fm); result.Error != nil {
 		return result.Error
