@@ -81,7 +81,7 @@ func main() {
 		AccessLogger:      accessLogger,
 		AppLogger:         appLogger,
 		DB:                db,
-		FlashMessageStore: flash_message.NewStoreRedis(redis),
+		FlashMessageStore: flash_message.NewStoreMySQL(db),
 		Redis:             redis,
 		SenderHTTPClient: &http.Client{
 			Timeout: 5 * time.Second,
