@@ -10,3 +10,4 @@ ignore:
   - "**/*.pb.go"
   - "**/*.twirp.go"
   - "**/*.moq.go"
+  - "**/main.go"
