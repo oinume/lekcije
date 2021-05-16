@@ -69,12 +69,6 @@ func main() {
 	}
 	defer db.Close()
 
-	redis, err := model.OpenRedis(config.DefaultVars.RedisURL)
-	if err != nil {
-		log.Fatalf("model.OpenRedis failed: %v", err)
-	}
-	defer redis.Close()
-
 	accessLogger := logger.NewAccessLogger(os.Stdout)
 	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel("info")) // TODO: flag
 	args := &interfaces.ServerArgs{
@@ -82,7 +76,6 @@ func main() {
 		AppLogger:         appLogger,
 		DB:                db,
 		FlashMessageStore: flash_message.NewStoreMySQL(db),
-		Redis:             redis,
 		SenderHTTPClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},

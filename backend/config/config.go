@@ -24,7 +24,6 @@ type Vars struct {
 	EncryptionKey             string `envconfig:"ENCRYPTION_KEY"`
 	NodeEnv                   string `envconfig:"NODE_ENV"`
 	ServiceEnv                string `envconfig:"LEKCIJE_ENV" required:"true"`
-	RedisURL                  string `envconfig:"REDIS_URL"`
 	GCPProjectID              string `envconfig:"GCP_PROJECT_ID"`
 	GCPServiceAccountKey      string `envconfig:"GCP_SERVICE_ACCOUNT_KEY"`
 	EnableFetcherHTTP2        bool   `envconfig:"ENABLE_FETCHER_HTTP2" default:"true"`

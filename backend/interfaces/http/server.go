@@ -5,13 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
-
-	"github.com/jinzhu/gorm"
-	"gopkg.in/redis.v4"
-
 	"github.com/oinume/lekcije/backend/interfaces"
 	"github.com/oinume/lekcije/backend/interfaces/http/flash_message"
 )
@@ -21,7 +18,6 @@ type server struct {
 	appLogger           *zap.Logger
 	db                  *gorm.DB
 	flashMessageStore   flash_message.Store
-	redis               *redis.Client
 	senderHTTPClient    *http.Client
 	gaMeasurementClient ga_measurement.Client
 }
@@ -32,7 +28,6 @@ func NewServer(args *interfaces.ServerArgs) *server {
 		appLogger:           args.AppLogger,
 		db:                  args.DB,
 		flashMessageStore:   args.FlashMessageStore,
-		redis:               args.Redis,
 		senderHTTPClient:    args.SenderHTTPClient,
 		gaMeasurementClient: args.GAMeasurementClient,
 	}

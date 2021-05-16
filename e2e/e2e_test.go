@@ -42,10 +42,9 @@ func TestMain(m *testing.M) {
 		appLogLevel = logger.NewLevel(level)
 	}
 	args := &interfaces.ServerArgs{
-		AccessLogger: logger.NewAccessLogger(&accessLogBuffer),
-		AppLogger:    logger.NewAppLogger(&appLogBuffer, appLogLevel),
-		DB:           helper.DB(nil),
-		//Redis: redis
+		AccessLogger:        logger.NewAccessLogger(&accessLogBuffer),
+		AppLogger:           logger.NewAppLogger(&appLogBuffer, appLogLevel),
+		DB:                  helper.DB(nil),
 		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	}
 	s := interfaces_http.NewServer(args)
