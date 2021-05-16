@@ -33,15 +33,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-      redis:
-        image: redis:3.2-alpine # TODO: Update to latest
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
     env:
       ENABLE_TRACE: "false"
       GO111MODULE: "on"
@@ -52,7 +43,6 @@ jobs:
       MYSQL_PORT: "3306"
       MYSQL_DATABASE: "lekcije_test"
       MYSQL_DATABASE_TEST: "lekcije_test"
-      REDIS_URL: "redis://h:@127.0.0.1:6379"
       E2E_WEB_DRIVER: "PhantomJS"
       VERSION_HASH: "_version_"
       NODE_ENV: "test"
@@ -67,10 +57,6 @@ jobs:
         uses: actions/setup-go@v1
         with:
           go-version: 1.15
-      - name: Redis cli
-        run: |
-          sudo apt install redis-tools
-          redis-cli ping
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         id: cache
@@ -103,14 +89,6 @@ jobs:
         run: |
           export
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
-      - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.txt
-          fail_ci_if_error: false
-      #          flags: unittests # optional
-      #          name: codecov-umbrella # optional
 
   deploy-to-production:
     name: deploy to production

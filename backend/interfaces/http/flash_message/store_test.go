@@ -2,9 +2,9 @@ package flash_message
 
 import (
 	"os"
-	"reflect"
 	"testing"
 
+	"github.com/oinume/lekcije/backend/assertion"
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/model"
 )
@@ -37,15 +37,13 @@ func TestStoreMySQL_Save_Load(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			if err := storeMySQL.Save(test.want); err != nil {
-				t.Fatal(err)
+				t.Fatalf("Save() failed: %v", err)
 			}
 			got, err := storeMySQL.Load(test.want.Key)
 			if err != nil {
-				t.Fatalf("Load() failed: %got", err)
+				t.Fatalf("Load() failed: %v", err)
 			}
-			if !reflect.DeepEqual(test.want.Messages, got.Messages) {
-				t.Fatalf("unexpected flash message: want=%+v, got=%+v", test.want, got)
-			}
+			assertion.RequireEqual(t, test.want.Messages, got.Messages, "unexpected flash message")
 		})
 	}
 }
