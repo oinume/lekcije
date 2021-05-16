@@ -14,6 +14,7 @@ import (
 //nolint
 type fakeTransport struct{}
 
+//nolint:unused
 func (t *fakeTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	panic("fakeTransport.RoundTrip")
 	//b, err := httputil.DumpRequest(req, true)
@@ -35,6 +36,7 @@ func (t *fakeTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 //nolint
 type fakeErrorTransport struct{}
 
+//nolint:unused
 func (t *fakeErrorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	//b, err := httputil.DumpRequest(req, true)
 	//if err != nil {

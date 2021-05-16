@@ -113,7 +113,7 @@ func dumpRequestBody(req *http.Request, chunked bool) ([]byte, error) {
 	}
 	_, err = io.Copy(dest, req.Body)
 	if chunked {
-		dest.(io.Closer).Close()
+		_ = dest.(io.Closer).Close()
 		_, _ = io.WriteString(&b, "\r\n")
 	}
 

@@ -28,7 +28,7 @@ jobs:
       <<: *env
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
-      - image: golang:1.16-buster
+      - image: golang:1.15-buster
         environment:
           <<: *env
           ENABLE_TRACE: "false"
