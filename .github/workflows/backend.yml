@@ -89,14 +89,6 @@ jobs:
         run: |
           export
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
-      - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.txt
-          fail_ci_if_error: false
-      #          flags: unittests # optional
-      #          name: codecov-umbrella # optional
 
   deploy-to-production:
     name: deploy to production
