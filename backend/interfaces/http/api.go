@@ -13,8 +13,7 @@ import (
 func (s *server) getAPIStatus(w http.ResponseWriter, r *http.Request) {
 	// TODO: Include connection statistics
 	data := map[string]bool{
-		"db":    true,
-		"redis": true,
+		"db": true,
 	}
 
 	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
@@ -25,16 +24,6 @@ func (s *server) getAPIStatus(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		data["db"] = false
-	}
-
-	redis, err := model.OpenRedis(config.DefaultVars.RedisURL)
-	if err == nil {
-		defer redis.Close()
-		if redis.Ping().Err() != nil {
-			data["redis"] = false
-		}
-	} else {
-		data["redis"] = false
 	}
 
 	for _, status := range data {

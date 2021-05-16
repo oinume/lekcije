@@ -2,8 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"fmt"
-	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -11,8 +9,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"golang.org/x/net/context"
-	"gopkg.in/redis.v4"
 
 	"github.com/oinume/lekcije/backend/errors"
 )
@@ -21,8 +17,6 @@ const (
 	dbDateFormat     = "2006-01-02"
 	dbDatetimeFormat = "2006-01-02 15:04:05"
 )
-
-type contextKeyRedis struct{}
 
 func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	db, err := sql.Open(
@@ -50,45 +44,6 @@ func OpenDB(dsn string, maxConnections int, logging bool) (*gorm.DB, error) {
 	gormDB.LogMode(logging)
 
 	return gormDB, nil
-}
-
-func OpenRedis(redisURL string) (*redis.Client, error) {
-	u, err := url.Parse(redisURL)
-	if err != nil {
-		return nil, err
-	}
-	password := ""
-	if u.User != nil {
-		password, _ = u.User.Password()
-	}
-	client := redis.NewClient(&redis.Options{
-		Addr:     u.Host,
-		Password: password,
-		DB:       0,
-	})
-	if _, err := client.Ping().Result(); err != nil {
-		return nil, fmt.Errorf("client.Ping() failed: %v", err)
-	}
-	return client, nil
-}
-
-// TODO: Remove this function and use context_data
-func OpenRedisAndSetToContext(ctx context.Context, redisURL string) (*redis.Client, context.Context, error) {
-	r, err := OpenRedis(redisURL)
-	if err != nil {
-		return nil, nil, err
-	}
-	c := context.WithValue(ctx, contextKeyRedis{}, r)
-	return r, c, nil
-}
-
-func MustRedis(ctx context.Context) *redis.Client {
-	value := ctx.Value(contextKeyRedis{})
-	if r, ok := value.(*redis.Client); ok {
-		return r
-	} else {
-		panic("Failed to get *redis.Client from context")
-	}
 }
 
 type GORMTransactional func(tx *gorm.DB) error

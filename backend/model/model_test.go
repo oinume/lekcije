@@ -5,8 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/oinume/lekcije/backend/config"
 )
 
@@ -54,17 +52,4 @@ func TestMain(m *testing.M) {
 
 	helper.TruncateAllTables(nil)
 	os.Exit(m.Run())
-}
-
-func TestOpenRedis(t *testing.T) {
-	r := require.New(t)
-
-	redisURL := os.Getenv("REDIS_URL")
-	if redisURL == "" {
-		r.Fail("Env 'REDIS_URL' required.")
-	}
-	client, err := OpenRedis(redisURL)
-	r.NoError(err)
-	defer client.Close()
-	r.NoError(client.Ping().Err())
 }
