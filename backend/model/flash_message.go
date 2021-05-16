@@ -11,3 +11,10 @@ type FlashMessage struct {
 func (*FlashMessage) TableName() string {
 	return "flash_message"
 }
+
+func (fm *FlashMessage) IsExpired(now time.Time) bool {
+	if fm.ExpiredAt.IsZero() {
+		return false
+	}
+	return fm.ExpiredAt.Before(now)
+}

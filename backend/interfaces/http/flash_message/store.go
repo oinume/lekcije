@@ -1,6 +1,7 @@
 package flash_message
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/oinume/lekcije/backend/errors"
@@ -71,6 +72,9 @@ func (s *StoreMySQL) Load(key string) (*FlashMessage, error) {
 		}
 		return nil, result.Error
 	}
+	if flashMessage.IsExpired(time.Now().UTC()) {
+		return nil, fmt.Errorf("FlashMessage is expired: key=%v", key)
+	}
 	v := &FlashMessage{}
 	if err := json.Unmarshal([]byte(flashMessage.Value), v); err != nil {
 		return nil, err
@@ -90,7 +94,7 @@ func (s *StoreMySQL) SaveWithExpiration(value *FlashMessage, expiration time.Dur
 	fm := &model.FlashMessage{
 		ID:        value.Key,
 		Value:     string(bytes),
-		ExpiredAt: time.Now().Add(expiration),
+		ExpiredAt: time.Now().UTC().Add(expiration),
 	}
 	if result := s.db.Create(fm); result.Error != nil {
 		return result.Error
