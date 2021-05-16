@@ -51,18 +51,29 @@ func TestStoreRedis_LoadSave(t *testing.T) {
 	a.Equal("Your operation succeeded!", v.Messages[0])
 }
 
-func TestStoreMySQL_LoadSave(t *testing.T) {
-	flashMessage := New(KindInfo, "Your operation succeeded!")
-	if err := storeMySQL.Save(flashMessage); err != nil {
-		t.Fatal(err)
+func TestStoreMySQL_Save_Load(t *testing.T) {
+	t.Parallel()
+	tests := map[string]struct {
+		want *FlashMessage
+	}{
+		"ok": {
+			want: New(KindInfo, "データの削除に成功しました"),
+		},
 	}
-
-	v, err := storeMySQL.Load(flashMessage.Key)
-	if err != nil {
-		t.Fatal(err)
-	}
-	want := "Your operation succeeded!"
-	if !reflect.DeepEqual(want, v.Messages[0]) {
-		t.Errorf("unexpected flash message: %+v", v)
+	for name, test := range tests {
+		test := test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if err := storeMySQL.Save(test.want); err != nil {
+				t.Fatal(err)
+			}
+			got, err := storeMySQL.Load(test.want.Key)
+			if err != nil {
+				t.Fatalf("Load() failed: %got", err)
+			}
+			if !reflect.DeepEqual(test.want.Messages, got.Messages) {
+				t.Fatalf("unexpected flash message: want=%+v, got=%+v", test.want, got)
+			}
+		})
 	}
 }
