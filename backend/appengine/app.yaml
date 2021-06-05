@@ -1,1 +1,22 @@
 runtime: go115
+service: default
+handlers:
+  - url: /_ah/remote_api
+    script: auto
+    secure: always
+  - url: /.*
+    script: auto
+    secure: always
+instance_class: F1
+automatic_scaling:
+  min_idle_instances: 0
+  max_idle_instances: 1
+  min_pending_latency: 500ms
+  max_pending_latency: automatic
+  max_concurrent_requests: 30
+env_variables:
+  NODE_ENV: production
+  LEKCIJE_ENV: production
+  ENABLE_TRACE: false
+  ENABLE_STACKDRIVER_PROFILER: false
+  DEBUG_SQL: false

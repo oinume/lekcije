@@ -98,11 +98,24 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v2
-#      - name: Save credentials into secrect.yaml
-#        run: |
-#          sed "s/<SENDGRID_API_KEY>/$SENDGRID_API_KEY/" ./entrypoint/task/secret.yaml.tmpl > ./entrypoint/task/secret.yaml
-#        env:
-#          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      - name: Save credentials into secrect.yaml
+        run: |
+          VERSION_HASH=$(make print-version-hash)
+          sed "s/<MYSQL_USER>/${MYSQL_USER}/; s/<MYSQL_PASSWORD>/${MYSQL_PASSWORD}/; s/<MYSQL_HOST>/${MYSQL_HOST}/; s/<MYSQL_PORT>/${MYSQL_PORT}/; s/<MYSQL_DATABASE>/${MYSQL_DATABASE}/; s/<ENCRYPTION_KEY>/${ENCRYPTION_KEY}/; s/<GCP_PROJECT_ID>/${GCP_PROJECT_ID}/; s/<GCP_SERVICE_ACCOUNT_KEY>/${GCP_SERVICE_ACCOUNT_KEY}/; s/<GOOGLE_CLIENT_ID>/${GOOGLE_CLIENT_ID}/; s/<GOOGLE_CLIENT_SECRET>/${GOOGLE_CLIENT_SECRET}/; s/<GOOGLE_ANALYTICS_ID>/${GOOGLE_ANALYTICS_ID}/; s/<ROLLBAR_ACCESS_TOKEN>/${ROLLBAR_ACCESS_TOKEN}/; s/<SENDGRID_API_KEY>/${SENDGRID_API_KEY}/; s/<VERSION_HASH>/${VERSION_HASH}/;" ./backend/appengine/secret.yaml.tmpl > ./backend/appengine/secret.yaml
+        env:
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_ANALYTICS_ID: ${{ secrets.GOOGLE_ANALYTICS_ID }}
+          ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
       - uses: actions/cache@v2
         id: cache
         with:
