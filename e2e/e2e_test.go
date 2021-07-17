@@ -17,8 +17,8 @@ import (
 
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/ga_measurement"
-	"github.com/oinume/lekcije/backend/interfaces"
-	interfaces_http "github.com/oinume/lekcije/backend/interfaces/http"
+	interfaces "github.com/oinume/lekcije/backend/interface"
+	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 )

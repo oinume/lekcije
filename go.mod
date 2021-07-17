@@ -12,7 +12,7 @@ require (
 	github.com/Songmu/retry v0.1.0
 	github.com/aws/aws-sdk-go v1.34.5 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
-	github.com/denisenkom/go-mssqldb v0.0.0-20200620013148-b91950f658ec // indirect
+	github.com/friendsofgo/errors v0.9.2
 	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.4.2
@@ -37,14 +37,15 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
 	github.com/twitchtv/twirp v7.2.0+incompatible
+	github.com/volatiletech/null/v8 v8.1.2
+	github.com/volatiletech/sqlboiler/v4 v4.6.0
+	github.com/volatiletech/strmangle v0.0.1
 	go.opencensus.io v0.22.4
 	go.uber.org/zap v1.15.0
 	goji.io/v3 v3.0.0
-	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
-	golang.org/x/net v0.0.0-20200822124328-c89045814202
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
-	golang.org/x/sys v0.0.0-20200814200057-3d37ad5750ed // indirect
 	golang.org/x/text v0.3.3
 	golang.org/x/tools v0.0.0-20200817023811-d00afeaade8f // indirect
 	google.golang.org/api v0.30.0
