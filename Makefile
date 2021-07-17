@@ -92,8 +92,7 @@ go/goimports:
 
 .PHONY: go/lint
 go/lint:
-	golangci-lint version
-	golangci-lint run -j 4 --out-format=line-number ./...
+	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.41.1 golangci-lint run ./...
 
 .PHONY: docker/build/server
 docker/build/server:

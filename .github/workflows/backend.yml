@@ -90,6 +90,29 @@ jobs:
           export
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
 
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GOPATH: /home/runner/work/go
+      GOBIN: /home/runner/work/go/bin
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.41.1
+          working-directory: backend
+          skip-go-installation: true
+          skip-pkg-cache: false
+          skip-build-cache: false
+
   deploy-to-production:
     name: deploy to production
     if: github.ref == 'refs/heads/master'
