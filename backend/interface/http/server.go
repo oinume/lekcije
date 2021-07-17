@@ -9,8 +9,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
-	"github.com/oinume/lekcije/backend/interfaces"
-	"github.com/oinume/lekcije/backend/interfaces/http/flash_message"
+	interfaces "github.com/oinume/lekcije/backend/interface"
+	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 )
 
 type server struct {

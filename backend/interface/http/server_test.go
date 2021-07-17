@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
-	"github.com/oinume/lekcije/backend/interfaces"
+	interfaces "github.com/oinume/lekcije/backend/interface"
 	"github.com/oinume/lekcije/backend/logger"
 )
 
