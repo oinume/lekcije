@@ -59,8 +59,8 @@ db/connect:
 
 .PHONY: db/genereate
 db/generate:
-	go run ./tools/cmd/sqlboiler/main.go > sqlboiler.toml
-	sqlboiler -c sqlboiler.toml mysql
+	go run ./tools/cmd/sqlboiler/main.go > db/sqlboiler.toml
+	sqlboiler -c db/sqlboiler.toml mysql
 
 .PHONY: proto/go
 proto/go:

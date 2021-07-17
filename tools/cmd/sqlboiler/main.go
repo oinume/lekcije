@@ -10,8 +10,8 @@ func main() {
 	t := `
 add-panic-variants = false
 no-tests = true
-output  = "./backend/model"
-pkgname = "model"
+output  = "./backend/interfaces/mysql"
+pkgname = "mysql"
 
 [mysql]
   dbname  = "%s"
@@ -20,7 +20,7 @@ pkgname = "model"
   user    = "%s"
   pass    = "%s"
   sslmode = "false"
-  blacklist = ["goose_db_version"]
+  blacklist = ["event_log_email", "goose_db_version", "lesson_status_log", "m_country"]
 `
 	s := fmt.Sprintf(
 		t,
