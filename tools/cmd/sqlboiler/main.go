@@ -10,7 +10,7 @@ func main() {
 	t := `
 add-panic-variants = false
 no-tests = true
-output  = "./backend/interface/mysql"
+output  = "./backend/model2/mysql"
 pkgname = "mysql"
 
 [mysql]
