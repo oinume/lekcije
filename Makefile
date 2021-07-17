@@ -53,6 +53,14 @@ db/reset:
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
 	mysql -h $(DB_HOST) -P 13306 -uroot -proot < db/docker-entrypoint-initdb.d/create_database.sql
 
+.PHONY: db/connect
+db/connect:
+	mysql -h $(MYSQL_HOST) -P $(MYSQL_PORT) -u$(MYSQL_USER) -p$(MYSQL_PASSWORD) $(MYSQL_DATABASE)
+
+.PHONY: db/genereate
+db/generate:
+	go run ./tools/cmd/sqlboiler/main.go > sqlboiler.toml
+	sqlboiler -c sqlboiler.toml mysql
 
 .PHONY: proto/go
 proto/go:

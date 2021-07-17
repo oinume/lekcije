@@ -31,3 +31,5 @@ deploy.sh
 /*.pid
 bin/lekcije*
 tools/bin/*
+
+sqlboiler.toml
