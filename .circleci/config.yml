@@ -94,12 +94,6 @@ jobs:
             export PATH=${PATH}:/go/bin:`pwd`/tools/bin
             make test/db/goose/up
       - run:
-          name: "Run go-lint"
-          command: make go/lint
-      - run:
-          name: "Build"
-          command: make backend/build
-      - run:
           name: "Run go-test"
           command: |
             export MYSQL_USER=lekcije

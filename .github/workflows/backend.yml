@@ -17,9 +17,9 @@ env:
   CACHE_VERSION: 1
   GOPATH: /home/runner/go
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-20.04
+  test:
+    name: test
+    runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:8.0
@@ -71,13 +71,6 @@ jobs:
           if [ ! -e $GOPATH/bin/goose ]; then
             make install-tools
           fi
-      - name: Build
-        run: |
-          make backend/build
-      - name: Run go/lint
-        run: |
-          export PATH=${PATH}:${GOPATH}/bin
-          make go/lint
       - name: Create database
         run: |
           mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
@@ -89,6 +82,32 @@ jobs:
         run: |
           export
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GOPATH: /home/runner/work/go
+      GOBIN: /home/runner/work/go/bin
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+      - name: Build
+        run: |
+          make backend/build
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.41.1
+          working-directory: backend
+          skip-go-installation: true
+          skip-pkg-cache: false
+          skip-build-cache: false
 
   deploy-to-production:
     name: deploy to production
