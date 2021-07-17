@@ -74,10 +74,6 @@ jobs:
       - name: Build
         run: |
           make backend/build
-      - name: Run go/lint
-        run: |
-          export PATH=${PATH}:${GOPATH}/bin
-          make go/lint
       - name: Create database
         run: |
           mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
