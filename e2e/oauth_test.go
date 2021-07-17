@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/oinume/lekcije/backend/errors"
-	interfaces_http "github.com/oinume/lekcije/backend/interfaces/http"
+	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/util"
 )

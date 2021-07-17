@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
-	"github.com/oinume/lekcije/backend/interfaces/http/flash_message"
+	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 )
 
 type ServerArgs struct {

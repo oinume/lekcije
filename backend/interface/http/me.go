@@ -11,7 +11,7 @@ import (
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/fetcher"
-	"github.com/oinume/lekcije/backend/interfaces/http/flash_message"
+	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/util"
 )
