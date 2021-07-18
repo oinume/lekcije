@@ -95,7 +95,7 @@ func (m *dailyReporterMain) createStatNewLessonNotifier(date time.Time) error {
 		}
 	}
 
-	//statsNewLessonNotifierService := model.NewStatsNewLessonNotifierService(m.DB)
+	//statsNewLessonNotifierService := model.NewStatsNewLessonNotifierService(m.GormDB)
 	//for _, s := range statUUs {
 	//	v := values[s.Event]
 	//	v.UUCount = s.UUCount

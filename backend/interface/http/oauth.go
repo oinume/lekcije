@@ -9,6 +9,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
+	"goji.io/v3"
+	"goji.io/v3/pat"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
@@ -250,26 +252,34 @@ func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	return c
 }
 
-type oauthServer struct {
+type OAuthServer struct {
 	appLogger            *zap.Logger
 	gaMeasurementClient  ga_measurement.Client
 	gaMeasurementUsecase *usecase.GAMeasurement
 	userUsecase          *usecase.User
+	userAPITokenUsecase  *usecase.UserAPIToken
 }
 
 func NewOAuthServer(
 	appLogger *zap.Logger,
 	gaMeasurementClient ga_measurement.Client,
-	userService *usecase.User,
-) *oauthServer {
-	return &oauthServer{
+	userUsecase *usecase.User,
+	userAPITokenUsecase *usecase.UserAPIToken,
+) *OAuthServer {
+	return &OAuthServer{
 		appLogger:           appLogger,
 		gaMeasurementClient: gaMeasurementClient,
-		userUsecase:         userService,
+		userUsecase:         userUsecase,
+		userAPITokenUsecase: userAPITokenUsecase,
 	}
 }
 
-func (s *oauthServer) oauthGoogle(w http.ResponseWriter, r *http.Request) {
+func (s *OAuthServer) Setup(mux *goji.Mux) {
+	mux.HandleFunc(pat.Get("/oauth/google"), s.oauthGoogle)
+	mux.HandleFunc(pat.Get("/oauth/google/callback"), s.oauthGoogleCallback)
+}
+
+func (s *OAuthServer) oauthGoogle(w http.ResponseWriter, r *http.Request) {
 	state := util.RandomString(32)
 	cookie := &http.Cookie{
 		Name:     "oauthState",
@@ -284,7 +294,7 @@ func (s *oauthServer) oauthGoogle(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
 }
 
-func (s *oauthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
+func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	if err := checkState(r); err != nil {
 		internalServerError(s.appLogger, w, err, 0)
 		return
@@ -348,27 +358,27 @@ func (s *oauthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		}()
 	}
 
-	// TODO: Create API Token usecase
-	userAPITokenService := model.NewUserAPITokenService(s.db)
-	userAPIToken, err := userAPITokenService.Create(user.ID)
+	userAPIToken, err := s.userAPITokenUsecase.Create(ctx, user.ID)
 	if err != nil {
-		internalServerError(s.appLogger, w, err, user.ID)
+		internalServerError(s.appLogger, w, err, uint32(user.ID))
 		return
 	}
+	s.appLogger.Debug(fmt.Sprintf("userCreated = %v", userCreated))
 
-	if userCreated {
-		// Send registration email
-		go func(user *model.User) {
-			sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
-			if err := sender.Send(r.Context(), user); err != nil {
-				s.appLogger.Error(
-					"Failed to send registration email",
-					zap.String("email", user.Email), zap.Error(err),
-				)
-				util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
-			}
-		}(user)
-	}
+	//if userCreated {
+	//	// TODO: Move to usecase layer
+	//	// Send registration email
+	//	go func(user *model.User) {
+	//		sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
+	//		if err := sender.Send(r.Context(), user); err != nil {
+	//			s.appLogger.Error(
+	//				"Failed to send registration email",
+	//				zap.String("email", user.Email), zap.Error(err),
+	//			)
+	//			util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
+	//		}
+	//	}(user)
+	//}
 
 	cookie := &http.Cookie{
 		Name:     APITokenCookieName,

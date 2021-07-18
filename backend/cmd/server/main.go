@@ -9,8 +9,10 @@ import (
 
 	"cloud.google.com/go/profiler"
 	"go.opencensus.io/trace"
+	"goji.io/v3"
 
 	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/gcp"
@@ -59,7 +61,7 @@ func main() {
 		}
 	}
 
-	db, err := model.OpenDB(
+	gormDB, err := model.OpenDB(
 		config.DefaultVars.DBURL(),
 		maxDBConnections,
 		config.DefaultVars.DebugSQL,
@@ -67,23 +69,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("model.OpenDB failed: %v", err)
 	}
-	defer db.Close()
+	defer gormDB.Close()
 
 	accessLogger := logger.NewAccessLogger(os.Stdout)
 	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel("info")) // TODO: flag
 	args := &interfaces.ServerArgs{
 		AccessLogger:      accessLogger,
 		AppLogger:         appLogger,
-		DB:                db,
-		FlashMessageStore: flash_message.NewStoreMySQL(db),
-		SenderHTTPClient: &http.Client{
-			Timeout: 5 * time.Second,
-		},
+		DB:                gormDB.DB(),
+		FlashMessageStore: flash_message.NewStoreMySQL(gormDB),
 		GAMeasurementClient: ga_measurement.NewClient(
 			nil,
 			appLogger,
 			event_logger.New(accessLogger),
 		),
+		GormDB: gormDB,
+		SenderHTTPClient: &http.Client{
+			Timeout: 5 * time.Second,
+		},
 	}
 
 	errors := make(chan error)
@@ -99,7 +102,11 @@ func main() {
 func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	// TODO: graceful shutdown
 	server := interfaces_http.NewServer(args)
-	mux := server.CreateRoutes()
+	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient)
+	mux := goji.NewMux()
+	server.Setup(mux)
+	oauthServer.Setup(mux)
+
 	fmt.Printf("Starting HTTP server on %v\n", port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
 }

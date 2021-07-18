@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 func newTestServer(t *testing.T, accessLog io.Writer) *server {
 	return NewServer(&interfaces.ServerArgs{
 		AccessLogger:        logger.NewAccessLogger(accessLog),
-		DB:                  helper.DB(t),
+		GormDB:              helper.DB(t),
 		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	})
 }

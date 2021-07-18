@@ -44,11 +44,11 @@ func TestMain(m *testing.M) {
 	args := &interfaces.ServerArgs{
 		AccessLogger:        logger.NewAccessLogger(&accessLogBuffer),
 		AppLogger:           logger.NewAppLogger(&appLogBuffer, appLogLevel),
-		DB:                  helper.DB(nil),
+		GormDB:              helper.DB(nil),
 		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	}
 	s := interfaces_http.NewServer(args)
-	routes := s.CreateRoutes()
+	routes := s.Setup()
 	port := config.DefaultVars.HTTPPort + 1
 	server = newTestServer(routes, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
