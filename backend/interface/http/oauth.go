@@ -318,6 +318,7 @@ func (s *oauthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 				0,
 				uint32(user.ID),
 			); err != nil {
+				// TODO: Define usecase.ErrorRecorder.Warn and Error
 				s.appLogger.Warn("SendEvent() failed", zap.Error(err))
 			}
 		}()
