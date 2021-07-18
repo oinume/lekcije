@@ -7,8 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
-
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
@@ -18,8 +16,10 @@ import (
 
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/registration_email"
+	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
 )
 
@@ -248,4 +248,134 @@ func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	}
 	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.DefaultVars.WebURLScheme(r), host)
 	return c
+}
+
+type oauthServer struct {
+	appLogger            *zap.Logger
+	gaMeasurementClient  ga_measurement.Client
+	gaMeasurementUsecase *usecase.GAMeasurement
+	userUsecase          *usecase.User
+}
+
+func NewOAuthServer(
+	appLogger *zap.Logger,
+	gaMeasurementClient ga_measurement.Client,
+	userService *usecase.User,
+) *oauthServer {
+	return &oauthServer{
+		appLogger:           appLogger,
+		gaMeasurementClient: gaMeasurementClient,
+		userUsecase:         userService,
+	}
+}
+
+func (s *oauthServer) oauthGoogle(w http.ResponseWriter, r *http.Request) {
+	state := util.RandomString(32)
+	cookie := &http.Cookie{
+		Name:     "oauthState",
+		Value:    state,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Minute * 30),
+		HttpOnly: true,
+		// TODO: Secure: true
+	}
+	http.SetCookie(w, cookie)
+	c := getGoogleOAuthConfig(r)
+	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
+}
+
+func (s *oauthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
+	if err := checkState(r); err != nil {
+		internalServerError(s.appLogger, w, err, 0)
+		return
+	}
+	token, idToken, err := exchange(r)
+	if err != nil {
+		if err == oauthErrorAccessDenied {
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+		internalServerError(s.appLogger, w, err, 0)
+		return
+	}
+	googleID, name, email, err := getGoogleUserInfo(token, idToken)
+	if err != nil {
+		internalServerError(s.appLogger, w, err, 0)
+		return
+	}
+
+	ctx := r.Context()
+	user, err := s.userUsecase.FindByGoogleID(ctx, googleID)
+	userCreated := false
+	if err == nil {
+		go func() {
+			if err := s.gaMeasurementUsecase.SendEvent(
+				r.Context(),
+				ga_measurement.MustEventValues(ctx),
+				ga_measurement.CategoryUser,
+				"login",
+				fmt.Sprint(user.ID),
+				0,
+				uint32(user.ID),
+			); err != nil {
+				s.appLogger.Warn("SendEvent() failed", zap.Error(err))
+			}
+		}()
+	} else {
+		if !errors.IsNotFound(err) {
+			internalServerError(s.appLogger, w, err, 0)
+			return
+		}
+		user, _, err := s.userUsecase.CreateWithGoogle(ctx, name, email, googleID)
+		if err != nil {
+			internalServerError(s.appLogger, w, err, 0)
+			return
+		}
+		userCreated = true
+		go func() {
+			if err := s.gaMeasurementUsecase.SendEvent(
+				r.Context(),
+				ga_measurement.MustEventValues(ctx),
+				ga_measurement.CategoryUser,
+				"create",
+				fmt.Sprint(user.ID),
+				0,
+				uint32(user.ID),
+			); err != nil {
+				s.appLogger.Warn("SendEvent() failed", zap.Error(err))
+			}
+		}()
+	}
+
+	// TODO: Create API Token usecase
+	userAPITokenService := model.NewUserAPITokenService(s.db)
+	userAPIToken, err := userAPITokenService.Create(user.ID)
+	if err != nil {
+		internalServerError(s.appLogger, w, err, user.ID)
+		return
+	}
+
+	if userCreated {
+		// Send registration email
+		go func(user *model.User) {
+			sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
+			if err := sender.Send(r.Context(), user); err != nil {
+				s.appLogger.Error(
+					"Failed to send registration email",
+					zap.String("email", user.Email), zap.Error(err),
+				)
+				util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
+			}
+		}(user)
+	}
+
+	cookie := &http.Cookie{
+		Name:     APITokenCookieName,
+		Value:    userAPIToken.Token,
+		Path:     "/",
+		Expires:  time.Now().Add(model.UserAPITokenExpiration),
+		HttpOnly: false,
+	}
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/me", http.StatusFound)
 }
