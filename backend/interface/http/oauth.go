@@ -263,14 +263,16 @@ type OAuthServer struct {
 func NewOAuthServer(
 	appLogger *zap.Logger,
 	gaMeasurementClient ga_measurement.Client,
+	gaMeasurementUsecase *usecase.GAMeasurement,
 	userUsecase *usecase.User,
 	userAPITokenUsecase *usecase.UserAPIToken,
 ) *OAuthServer {
 	return &OAuthServer{
-		appLogger:           appLogger,
-		gaMeasurementClient: gaMeasurementClient,
-		userUsecase:         userUsecase,
-		userAPITokenUsecase: userAPITokenUsecase,
+		appLogger:            appLogger,
+		gaMeasurementClient:  gaMeasurementClient,
+		gaMeasurementUsecase: gaMeasurementUsecase,
+		userUsecase:          userUsecase,
+		userAPITokenUsecase:  userAPITokenUsecase,
 	}
 }
 

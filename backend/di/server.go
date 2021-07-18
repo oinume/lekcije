@@ -14,7 +14,11 @@ func NewOAuthServer(
 	db *sql.DB,
 	gaMeasurementClient ga_measurement.Client,
 ) *ihttp.OAuthServer {
-	userUsecase := NewUserUsecase(db)
-	userAPITokenUsecase := NewUserAPITokenUsecase(db)
-	return ihttp.NewOAuthServer(appLogger, gaMeasurementClient, userUsecase, userAPITokenUsecase)
+	return ihttp.NewOAuthServer(
+		appLogger,
+		gaMeasurementClient,
+		NewGAMeasurementUsecase(gaMeasurementClient),
+		NewUserUsecase(db),
+		NewUserAPITokenUsecase(db),
+	)
 }
