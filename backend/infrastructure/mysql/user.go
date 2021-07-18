@@ -31,7 +31,7 @@ func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*
 }
 
 func (r *userRepository) FindByGoogleIDWithExec(ctx context.Context, exec repository.Executor, googleID string) (*model2.User, error) {
-	return r.FindByGoogleIDWithExec(ctx, exec, googleID)
+	return r.findByGoogleIDWithExec(ctx, exec, googleID)
 }
 
 func (r *userRepository) findByGoogleIDWithExec(ctx context.Context, exec repository.Executor, googleID string) (*model2.User, error) {
