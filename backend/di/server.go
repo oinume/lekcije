@@ -2,6 +2,7 @@ package di
 
 import (
 	"database/sql"
+	"net/http"
 
 	"go.uber.org/zap"
 
@@ -13,11 +14,13 @@ func NewOAuthServer(
 	appLogger *zap.Logger,
 	db *sql.DB,
 	gaMeasurementClient ga_measurement.Client,
+	senderHTTPClient *http.Client,
 ) *ihttp.OAuthServer {
 	return ihttp.NewOAuthServer(
 		appLogger,
 		gaMeasurementClient,
 		NewGAMeasurementUsecase(gaMeasurementClient),
+		senderHTTPClient,
 		NewUserUsecase(db),
 		NewUserAPITokenUsecase(db),
 	)
