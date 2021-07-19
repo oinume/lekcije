@@ -103,9 +103,12 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	// TODO: graceful shutdown
 	server := interfaces_http.NewServer(args)
 	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.SenderHTTPClient)
+	userServer := di.NewUserServer(args.AppLogger, args.GormDB, args.GAMeasurementClient) // TODO:
+
 	mux := goji.NewMux()
 	server.Setup(mux)
 	oauthServer.Setup(mux)
+	interfaces_http.SetupTwirpServer(mux, userServer)
 
 	fmt.Printf("Starting HTTP server on %v\n", port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)

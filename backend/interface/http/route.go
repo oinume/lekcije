@@ -22,8 +22,6 @@ func (s *server) Setup(mux *goji.Mux) {
 	mux.HandleFunc(pat.Get("/static/*"), s.static)
 	mux.HandleFunc(pat.Get("/"), s.index)
 	mux.HandleFunc(pat.Get("/signup"), s.signup)
-	//mux.HandleFunc(pat.Get("/oauth/google"), s.oauthGoogle)
-	//mux.HandleFunc(pat.Get("/oauth/google/callback"), s.oauthGoogleCallback)
 	mux.HandleFunc(pat.Get("/robots.txt"), s.robotsTxt)
 	mux.HandleFunc(pat.Get("/sitemap.xml"), s.sitemapXML)
 	mux.HandleFunc(pat.Get("/terms"), s.terms)
@@ -38,8 +36,9 @@ func (s *server) Setup(mux *goji.Mux) {
 	mux.HandleFunc(pat.Get("/api/debug/httpHeader"), s.getAPIDebugHTTPHeader)
 	mux.HandleFunc(pat.Post("/api/webhook/sendGrid"), s.postAPISendGridEventWebhook)
 	mux.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
+}
 
-	// TODO: Better dependency injection
-	userService := NewUserService(s.db, s.appLogger, s.gaMeasurementClient)
-	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), api_v1.NewUserServer(userService))
+func SetupTwirpServer(mux *goji.Mux, userServer api_v1.TwirpServer) {
+	// TODO: Define UserServer etc in *server and setup mux inside it
+	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), userServer)
 }
