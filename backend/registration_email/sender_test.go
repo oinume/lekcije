@@ -20,11 +20,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/oinume/lekcije/backend/model"
 )
 
-var helper = model.NewTestHelper()
 var _ = fmt.Print
 
 type mockSenderTransport struct {
