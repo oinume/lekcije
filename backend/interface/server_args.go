@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/jinzhu/gorm"
@@ -13,8 +14,9 @@ import (
 type ServerArgs struct {
 	AccessLogger        *zap.Logger
 	AppLogger           *zap.Logger
-	DB                  *gorm.DB
+	DB                  *sql.DB
 	FlashMessageStore   flash_message.Store
-	SenderHTTPClient    *http.Client
 	GAMeasurementClient ga_measurement.Client
+	GormDB              *gorm.DB
+	SenderHTTPClient    *http.Client
 }

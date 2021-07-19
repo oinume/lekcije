@@ -7,10 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
-
-	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
+	"goji.io/v3"
+	"goji.io/v3/pat"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	google_auth2 "google.golang.org/api/oauth2/v2"
@@ -18,8 +17,10 @@ import (
 
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/registration_email"
+	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
 )
 
@@ -51,116 +52,6 @@ func (e oauthError) Error() string {
 		return "oauthError: access denied"
 	}
 	return fmt.Sprintf("oauthError: unknown error: %d", int(e))
-}
-
-func (s *server) oauthGoogleHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.oauthGoogle(w, r)
-	}
-}
-
-func (s *server) oauthGoogle(w http.ResponseWriter, r *http.Request) {
-	state := util.RandomString(32)
-	cookie := &http.Cookie{
-		Name:     "oauthState",
-		Value:    state,
-		Path:     "/",
-		Expires:  time.Now().Add(time.Minute * 30),
-		HttpOnly: true,
-	}
-	http.SetCookie(w, cookie)
-	c := getGoogleOAuthConfig(r)
-	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
-}
-
-func (s *server) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
-	if err := checkState(r); err != nil {
-		internalServerError(s.appLogger, w, err, 0)
-		return
-	}
-	token, idToken, err := exchange(r)
-	if err != nil {
-		if err == oauthErrorAccessDenied {
-			http.Redirect(w, r, "/", http.StatusFound)
-			return
-		}
-		internalServerError(s.appLogger, w, err, 0)
-		return
-	}
-	googleID, name, email, err := getGoogleUserInfo(token, idToken)
-	if err != nil {
-		internalServerError(s.appLogger, w, err, 0)
-		return
-	}
-
-	userService := model.NewUserService(s.db)
-	user, err := userService.FindByGoogleID(googleID)
-	userCreated := false
-	if err == nil {
-		go s.sendGAMeasurementEvent(
-			r.Context(),
-			ga_measurement.CategoryUser,
-			"login",
-			fmt.Sprint(user.ID),
-			0,
-			user.ID,
-		)
-	} else {
-		if !errors.IsNotFound(err) {
-			internalServerError(s.appLogger, w, err, 0)
-			return
-		}
-		// Couldn't find user for the googleID, so create a new user
-		errTx := model.GORMTransaction(s.db, "OAuthGoogleCallback", func(tx *gorm.DB) error {
-			var errCreate error
-			user, _, errCreate = userService.CreateWithGoogle(name, email, googleID)
-			return errCreate
-		})
-		if errTx != nil {
-			internalServerError(s.appLogger, w, errTx, 0)
-			return
-		}
-		userCreated = true
-		go s.sendGAMeasurementEvent(
-			r.Context(),
-			ga_measurement.CategoryUser,
-			"create",
-			fmt.Sprint(user.ID),
-			0,
-			user.ID,
-		)
-	}
-
-	userAPITokenService := model.NewUserAPITokenService(s.db)
-	userAPIToken, err := userAPITokenService.Create(user.ID)
-	if err != nil {
-		internalServerError(s.appLogger, w, err, user.ID)
-		return
-	}
-
-	if userCreated {
-		// Send registration email
-		go func(user *model.User) {
-			sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
-			if err := sender.Send(r.Context(), user); err != nil {
-				s.appLogger.Error(
-					"Failed to send registration email",
-					zap.String("email", user.Email), zap.Error(err),
-				)
-				util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
-			}
-		}(user)
-	}
-
-	cookie := &http.Cookie{
-		Name:     APITokenCookieName,
-		Value:    userAPIToken.Token,
-		Path:     "/",
-		Expires:  time.Now().Add(model.UserAPITokenExpiration),
-		HttpOnly: false,
-	}
-	http.SetCookie(w, cookie)
-	http.Redirect(w, r, "/me", http.StatusFound)
 }
 
 func checkState(r *http.Request) error {
@@ -248,4 +139,149 @@ func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 	}
 	c.RedirectURL = fmt.Sprintf("%s://%s/oauth/google/callback", config.DefaultVars.WebURLScheme(r), host)
 	return c
+}
+
+type OAuthServer struct {
+	appLogger            *zap.Logger
+	gaMeasurementClient  ga_measurement.Client
+	gaMeasurementUsecase *usecase.GAMeasurement
+	senderHTTPClient     *http.Client
+	userUsecase          *usecase.User
+	userAPITokenUsecase  *usecase.UserAPIToken
+}
+
+func NewOAuthServer(
+	appLogger *zap.Logger,
+	gaMeasurementClient ga_measurement.Client,
+	gaMeasurementUsecase *usecase.GAMeasurement,
+	senderHTTPClient *http.Client,
+	userUsecase *usecase.User,
+	userAPITokenUsecase *usecase.UserAPIToken,
+) *OAuthServer {
+	return &OAuthServer{
+		appLogger:            appLogger,
+		gaMeasurementClient:  gaMeasurementClient,
+		gaMeasurementUsecase: gaMeasurementUsecase,
+		senderHTTPClient:     senderHTTPClient,
+		userUsecase:          userUsecase,
+		userAPITokenUsecase:  userAPITokenUsecase,
+	}
+}
+
+func (s *OAuthServer) Setup(mux *goji.Mux) {
+	mux.HandleFunc(pat.Get("/oauth/google"), s.oauthGoogle)
+	mux.HandleFunc(pat.Get("/oauth/google/callback"), s.oauthGoogleCallback)
+}
+
+func (s *OAuthServer) oauthGoogle(w http.ResponseWriter, r *http.Request) {
+	state := util.RandomString(32)
+	cookie := &http.Cookie{
+		Name:     "oauthState",
+		Value:    state,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Minute * 30),
+		HttpOnly: true,
+		// TODO: Secure: true
+	}
+	http.SetCookie(w, cookie)
+	c := getGoogleOAuthConfig(r)
+	http.Redirect(w, r, c.AuthCodeURL(state), http.StatusFound)
+}
+
+func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
+	if err := checkState(r); err != nil {
+		internalServerError(s.appLogger, w, err, 0)
+		return
+	}
+	token, idToken, err := exchange(r)
+	if err != nil {
+		if err == oauthErrorAccessDenied {
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+		internalServerError(s.appLogger, w, err, 0)
+		return
+	}
+	googleID, name, email, err := getGoogleUserInfo(token, idToken)
+	if err != nil {
+		internalServerError(s.appLogger, w, err, 0)
+		return
+	}
+
+	ctx := r.Context()
+	user, err := s.userUsecase.FindByGoogleID(ctx, googleID)
+	userCreated := false
+	if err == nil {
+		go func() {
+			if err := s.gaMeasurementUsecase.SendEvent(
+				r.Context(),
+				ga_measurement.MustEventValues(ctx),
+				ga_measurement.CategoryUser,
+				"login",
+				fmt.Sprint(user.ID),
+				0,
+				uint32(user.ID),
+			); err != nil {
+				// TODO: Define usecase.ErrorRecorder.Warn and Error
+				s.appLogger.Warn("SendEvent() failed", zap.Error(err))
+			}
+		}()
+	} else {
+		if !errors.IsNotFound(err) {
+			internalServerError(s.appLogger, w, err, 0)
+			return
+		}
+		u, _, err := s.userUsecase.CreateWithGoogle(ctx, name, email, googleID)
+		if err != nil {
+			internalServerError(s.appLogger, w, err, 0)
+			return
+		}
+		userCreated = true
+		user = u
+		go func() {
+			if err := s.gaMeasurementUsecase.SendEvent(
+				r.Context(),
+				ga_measurement.MustEventValues(ctx),
+				ga_measurement.CategoryUser,
+				"create",
+				fmt.Sprint(user.ID),
+				0,
+				uint32(user.ID),
+			); err != nil {
+				s.appLogger.Warn("SendEvent() failed", zap.Error(err))
+			}
+		}()
+	}
+
+	userAPIToken, err := s.userAPITokenUsecase.Create(ctx, user.ID)
+	if err != nil {
+		internalServerError(s.appLogger, w, err, uint32(user.ID))
+		return
+	}
+	s.appLogger.Debug(fmt.Sprintf("userCreated = %v", userCreated))
+
+	if userCreated {
+		// TODO: Move to usecase layer
+		// Send registration email
+		go func() {
+			sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
+			if err := sender.Send(r.Context(), user); err != nil {
+				s.appLogger.Error(
+					"Failed to send registration email",
+					zap.String("email", user.Email), zap.Error(err),
+				)
+				util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
+			}
+		}()
+	}
+
+	cookie := &http.Cookie{
+		Name:     APITokenCookieName,
+		Value:    userAPIToken.Token,
+		Path:     "/",
+		Expires:  time.Now().Add(model.UserAPITokenExpiration),
+		HttpOnly: false,
+	}
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/me", http.StatusFound)
 }

@@ -11,7 +11,7 @@ func main() {
 add-panic-variants = false
 no-tests = true
 output  = "./backend/model2"
-pkgname = "mysql"
+pkgname = "model2"
 
 [mysql]
   dbname  = "%s"

@@ -26,7 +26,7 @@ func NewServer(args *interfaces.ServerArgs) *server {
 	return &server{
 		accessLogger:        args.AccessLogger,
 		appLogger:           args.AppLogger,
-		db:                  args.DB,
+		db:                  args.GormDB,
 		flashMessageStore:   args.FlashMessageStore,
 		senderHTTPClient:    args.SenderHTTPClient,
 		gaMeasurementClient: args.GAMeasurementClient,

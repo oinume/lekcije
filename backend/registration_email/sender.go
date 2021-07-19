@@ -12,6 +12,7 @@ import (
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 type emailSender struct {
@@ -27,7 +28,7 @@ func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) *emailSender
 	}
 }
 
-func (s *emailSender) Send(ctx context.Context, user *model.User) error {
+func (s *emailSender) Send(ctx context.Context, user *model2.User) error {
 	t := emailer.NewTemplate("notifier", getEmailTemplate())
 	data := struct {
 		To     string

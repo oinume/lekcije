@@ -2,6 +2,7 @@ package errors
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"io"
 
@@ -203,6 +204,9 @@ func (e *AnnotatedError) IsInvalidArgument() bool {
 }
 
 func IsNotFound(err error) bool {
+	if err == sql.ErrNoRows {
+		return true
+	}
 	if e, ok := err.(*AnnotatedError); ok {
 		return e.code == CodeNotFound
 	}

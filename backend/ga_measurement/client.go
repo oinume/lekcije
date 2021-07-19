@@ -20,7 +20,7 @@ var defaultHTTPClient = &http.Client{
 	Timeout:   time.Second * 7,
 }
 
-type Client interface {
+type Client interface { // TODO: Remove this interface and Move to infrastructure
 	SendEvent(
 		values *EventValues,
 		category,

@@ -8,8 +8,7 @@ import (
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
-func (s *server) CreateRoutes() *goji.Mux {
-	mux := goji.NewMux()
+func (s *server) Setup(mux *goji.Mux) {
 	mux.Use(setTrackingID)
 	mux.Use(accessLogger(s.accessLogger))
 	mux.Use(redirecter)
@@ -23,8 +22,8 @@ func (s *server) CreateRoutes() *goji.Mux {
 	mux.HandleFunc(pat.Get("/static/*"), s.static)
 	mux.HandleFunc(pat.Get("/"), s.index)
 	mux.HandleFunc(pat.Get("/signup"), s.signup)
-	mux.HandleFunc(pat.Get("/oauth/google"), s.oauthGoogle)
-	mux.HandleFunc(pat.Get("/oauth/google/callback"), s.oauthGoogleCallback)
+	//mux.HandleFunc(pat.Get("/oauth/google"), s.oauthGoogle)
+	//mux.HandleFunc(pat.Get("/oauth/google/callback"), s.oauthGoogleCallback)
 	mux.HandleFunc(pat.Get("/robots.txt"), s.robotsTxt)
 	mux.HandleFunc(pat.Get("/sitemap.xml"), s.sitemapXML)
 	mux.HandleFunc(pat.Get("/terms"), s.terms)
@@ -43,6 +42,4 @@ func (s *server) CreateRoutes() *goji.Mux {
 	// TODO: Better dependency injection
 	userService := NewUserService(s.db, s.appLogger, s.gaMeasurementClient)
 	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), api_v1.NewUserServer(userService))
-
-	return mux
 }

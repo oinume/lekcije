@@ -13,15 +13,15 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/logger"
+	"github.com/oinume/lekcije/backend/model2"
+	"github.com/oinume/lekcije/backend/util"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/oinume/lekcije/backend/model"
 )
 
-var helper = model.NewTestHelper()
 var _ = fmt.Print
 
 type mockSenderTransport struct {
@@ -55,7 +55,9 @@ func TestEmailSender_Send(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	user := helper.CreateRandomUser(t)
+	user := modeltest.NewUser(func(u *model2.User) {
+		u.ID = uint(util.RandomInt(10000000)) // TODO: Create randoms package
+	})
 	transport := &mockSenderTransport{}
 	httpClient := &http.Client{
 		Transport: transport,
