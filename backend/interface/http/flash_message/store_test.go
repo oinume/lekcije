@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oinume/lekcije/backend/assertion"
 	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/model"
 )
 
