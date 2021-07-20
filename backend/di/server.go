@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
 	ihttp "github.com/oinume/lekcije/backend/interface/http"
+	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
 func NewOAuthServer(
@@ -24,4 +26,13 @@ func NewOAuthServer(
 		NewUserUsecase(db),
 		NewUserAPITokenUsecase(db),
 	)
+}
+
+func NewUserServer(
+	appLogger *zap.Logger,
+	db *gorm.DB,
+	gaMeasurementClient ga_measurement.Client,
+) api_v1.TwirpServer {
+	userService := ihttp.NewUserService(db, appLogger, gaMeasurementClient)
+	return api_v1.NewUserServer(userService)
 }

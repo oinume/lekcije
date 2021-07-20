@@ -17,6 +17,7 @@ const (
 
 type eventValuesKey struct{}
 
+// TODO: Define into model
 type EventValues struct {
 	UserAgentOverride string
 	ClientID          string
@@ -56,7 +57,7 @@ func GetEventValues(ctx context.Context) (*EventValues, error) {
 	}
 }
 
-func MustEventValues(ctx context.Context) *EventValues {
+func MustEventValues(ctx context.Context) *EventValues { // TODO: Move this func into interface/http package
 	v, err := GetEventValues(ctx)
 	if err != nil {
 		panic(err)
