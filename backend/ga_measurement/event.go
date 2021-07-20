@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	model2 "github.com/oinume/lekcije/backend/model2c"
 )
@@ -19,24 +18,6 @@ const (
 type eventValuesKey struct{}
 
 type EventValues = model2.GAMeasurementEvent
-
-func NewEventValuesFromRequest(req *http.Request) *EventValues {
-	// Ignore if client id is not set
-	clientID, _ := context_data.GetTrackingID(req.Context())
-	return &EventValues{
-		UserAgentOverride: req.UserAgent(),
-		ClientID:          clientID,
-		DocumentHostName:  req.Host,
-		DocumentPath:      req.URL.Path,
-		DocumentTitle:     req.URL.Path,
-		DocumentReferrer:  req.Referer(),
-		IPOverride:        getRemoteAddress(req),
-	}
-}
-
-func WithEventValues(ctx context.Context, v *EventValues) context.Context {
-	return context.WithValue(ctx, eventValuesKey{}, v)
-}
 
 func GetEventValues(ctx context.Context) (*EventValues, error) {
 	v := ctx.Value(eventValuesKey{})
