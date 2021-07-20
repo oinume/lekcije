@@ -20,3 +20,7 @@ func NewNotificationTimeSpan(notificationTimeSpanRepo repository.NotificationTim
 func (u *NotificationTimeSpan) FindByUserID(ctx context.Context, userID uint) ([]*model2.NotificationTimeSpan, error) {
 	return u.notificationTimeSpanRepo.FindByUserID(ctx, userID)
 }
+
+func (u *NotificationTimeSpan) UpdateAll(ctx context.Context, userID uint, timeSpans []*model2.NotificationTimeSpan) error {
+	return u.notificationTimeSpanRepo.UpdateAll(ctx, userID, timeSpans)
+}

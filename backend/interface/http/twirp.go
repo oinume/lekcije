@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
-	"github.com/oinume/lekcije/backend/model"
 	model2 "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/usecase"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
@@ -44,15 +43,15 @@ func NewUserService(
 }
 
 func (s *UserService) Ping(
-	ctx context.Context,
-	request *api_v1.PingRequest,
+	_ context.Context,
+	_ *api_v1.PingRequest,
 ) (*api_v1.PingResponse, error) {
 	return &api_v1.PingResponse{}, nil
 }
 
 func (s *UserService) GetMe(
 	ctx context.Context,
-	request *api_v1.GetMeRequest,
+	_ *api_v1.GetMeRequest,
 ) (*api_v1.GetMeResponse, error) {
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
@@ -78,7 +77,7 @@ func (s *UserService) GetMe(
 
 func (s *UserService) GetMeEmail(
 	ctx context.Context,
-	request *api_v1.GetMeEmailRequest,
+	_ *api_v1.GetMeEmailRequest,
 ) (*api_v1.GetMeEmailResponse, error) {
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
@@ -132,20 +131,25 @@ func (s *UserService) UpdateMeNotificationTimeSpan(
 	}
 
 	// TODO: validation
-	timeSpanService := model.NewNotificationTimeSpanService(s.db)
-	timeSpans := timeSpanService.NewNotificationTimeSpansFromPB(user.ID, request.NotificationTimeSpans)
-	if err := timeSpanService.UpdateAll(user.ID, timeSpans); err != nil {
+	userID := uint(user.ID)
+	timeSpans := NotificationTimeSpansModel(request.NotificationTimeSpans, userID)
+	if err := s.notificationTimeSpanUsecase.UpdateAll(ctx, userID, timeSpans); err != nil {
 		return nil, err
 	}
 
-	go s.sendGAMeasurementEvent(
-		ctx,
-		ga_measurement.CategoryUser,
-		"updateNotificationTimeSpan",
-		fmt.Sprint(user.ID),
-		0,
-		user.ID,
-	)
+	go func() {
+		if err := s.gaMeasurementUsecase.SendEvent(
+			ctx,
+			mustGAMeasurementEvent(ctx),
+			model2.GAMeasurementEventCategoryUser,
+			"updateNotificationTimeSpan",
+			fmt.Sprint(user.ID),
+			0,
+			user.ID,
+		); err != nil {
+			panic(err) // TODO: Better error handling
+		}
+	}()
 
 	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
 }
@@ -153,25 +157,4 @@ func (s *UserService) UpdateMeNotificationTimeSpan(
 func validateEmail(email string) bool {
 	// TODO: better validation
 	return strings.Contains(email, "@")
-}
-
-func (s *UserService) sendGAMeasurementEvent(
-	ctx context.Context,
-	category,
-	action,
-	label string,
-	value int64,
-	userID uint32,
-) {
-	err := s.gaMeasurementClient.SendEvent(
-		ga_measurement.MustEventValues(ctx),
-		category,
-		action,
-		fmt.Sprint(userID),
-		0,
-		userID,
-	)
-	if err != nil {
-		s.appLogger.Warn("SendEvent() failed", zap.Error(err))
-	}
 }

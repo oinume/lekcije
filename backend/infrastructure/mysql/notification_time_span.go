@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.opencensus.io/trace"
 
@@ -37,4 +38,40 @@ func (r *notificationTimeSpanRepository) FindByUserID(ctx context.Context, userI
 		)
 	}
 	return timeSpans, nil
+}
+
+func (r *notificationTimeSpanRepository) UpdateAll(ctx context.Context, userID uint, timeSpans []*model2.NotificationTimeSpan) error {
+	for _, ts := range timeSpans {
+		if userID != ts.UserID {
+			return errors.NewInvalidArgumentError(
+				errors.WithMessage("Given userID and userID of timeSpans must be same"),
+			)
+		}
+	}
+	if err := repository.Transaction(ctx, r.db, func(exec repository.Executor) error {
+		if _, err := model2.NotificationTimeSpans(qm.Where("user_id = ?", userID)).DeleteAll(ctx, exec); err != nil {
+			return errors.NewInternalError(
+				errors.WithError(err),
+				errors.WithMessage("UpdateAll delete failed"),
+				errors.WithResource(errors.NewResource("notification_time_spans", "userID", userID)),
+			)
+		}
+		for _, ts := range timeSpans {
+			if err := ts.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.NewInternalError(
+					errors.WithError(err),
+					errors.WithMessage("UpdateAll insert failed"),
+					errors.WithResource(errors.NewResource("notification_time_spans", "userID", userID)),
+				)
+			}
+		}
+		return nil
+	}); err != nil {
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("UpdateAll commit failed"),
+			errors.WithResource(errors.NewResource("notification_time_spans", "userID", userID)),
+		)
+	}
+	return nil
 }

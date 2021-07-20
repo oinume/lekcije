@@ -158,6 +158,7 @@ func getRemoteAddress(req *http.Request) string {
 	return strings.TrimSpace((strings.Split(xForwardedFor, ","))[0])
 }
 
+// TODO: Define this method as twirp hook
 func authenticateFromContext(ctx context.Context, db *gorm.DB) (*model.User, error) {
 	apiToken, err := context_data.GetAPIToken(ctx)
 	if err != nil {
