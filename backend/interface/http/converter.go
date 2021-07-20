@@ -8,7 +8,7 @@ import (
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
-func NotificationTimeSpansProto(timeSpans []*model2.NotificationTimeSpan) ([]*api_v1.NotificationTimeSpan, error){
+func NotificationTimeSpansProto(timeSpans []*model2.NotificationTimeSpan) ([]*api_v1.NotificationTimeSpan, error) {
 	values := make([]*api_v1.NotificationTimeSpan, 0, len(timeSpans))
 	for _, v := range timeSpans {
 		fromTime, err := time.Parse("15:04:05", v.FromTime)
