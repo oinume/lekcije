@@ -216,7 +216,7 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		go func() {
 			if err := s.gaMeasurementUsecase.SendEvent(
 				r.Context(),
-				MustEventValues(ctx),
+				mustGAMeasurementEvent(ctx),
 				model2.GAMeasurementEventCategoryUser,
 				"login",
 				fmt.Sprint(user.ID),
@@ -242,7 +242,7 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		go func() {
 			if err := s.gaMeasurementUsecase.SendEvent(
 				r.Context(),
-				MustEventValues(ctx),
+				mustGAMeasurementEvent(ctx),
 				model2.GAMeasurementEventCategoryUser,
 				"create",
 				fmt.Sprint(user.ID),

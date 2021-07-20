@@ -108,7 +108,7 @@ func (s *UserService) UpdateMeEmail(
 	go func() {
 		if err := s.gaMeasurementUsecase.SendEvent(
 			ctx,
-			MustEventValues(ctx),
+			mustGAMeasurementEvent(ctx),
 			model2.GAMeasurementEventCategoryUser,
 			"update",
 			fmt.Sprint(user.ID),

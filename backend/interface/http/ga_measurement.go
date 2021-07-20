@@ -11,7 +11,7 @@ import (
 
 type eventValuesKey struct{}
 
-func NewEventValuesFromRequest(req *http.Request) *model2.GAMeasurementEvent {
+func newGAMeasurementEventFromRequest(req *http.Request) *model2.GAMeasurementEvent {
 	// Ignore if client id is not set
 	clientID, _ := context_data.GetTrackingID(req.Context())
 	return &model2.GAMeasurementEvent{
@@ -25,11 +25,11 @@ func NewEventValuesFromRequest(req *http.Request) *model2.GAMeasurementEvent {
 	}
 }
 
-func WithEventValues(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
+func withGAMeasurementEvent(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
 	return context.WithValue(ctx, eventValuesKey{}, v)
 }
 
-func GetEventValues(ctx context.Context) (*model2.GAMeasurementEvent, error) {
+func getGAMeasurementEvent(ctx context.Context) (*model2.GAMeasurementEvent, error) {
 	v := ctx.Value(eventValuesKey{})
 	if value, ok := v.(*model2.GAMeasurementEvent); ok {
 		return value, nil
@@ -40,8 +40,8 @@ func GetEventValues(ctx context.Context) (*model2.GAMeasurementEvent, error) {
 	}
 }
 
-func MustEventValues(ctx context.Context) *model2.GAMeasurementEvent {
-	v, err := GetEventValues(ctx)
+func mustGAMeasurementEvent(ctx context.Context) *model2.GAMeasurementEvent {
+	v, err := getGAMeasurementEvent(ctx)
 	if err != nil {
 		panic(err)
 	}

@@ -148,9 +148,9 @@ func setTrackingID(h http.Handler) http.Handler {
 
 func setGAMeasurementEventValues(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		c := WithEventValues(
+		c := withGAMeasurementEvent(
 			r.Context(),
-			NewEventValuesFromRequest(r),
+			newGAMeasurementEventFromRequest(r),
 		)
 		h.ServeHTTP(w, r.WithContext(c))
 	}
