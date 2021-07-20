@@ -11,6 +11,12 @@ type NotificationTimeSpan struct {
 	notificationTimeSpanRepo repository.NotificationTimeSpan
 }
 
+func NewNotificationTimeSpan(notificationTimeSpanRepo repository.NotificationTimeSpan) *NotificationTimeSpan {
+	return &NotificationTimeSpan{
+		notificationTimeSpanRepo: notificationTimeSpanRepo,
+	}
+}
+
 func (u *NotificationTimeSpan) FindByUserID(ctx context.Context, userID uint) ([]*model2.NotificationTimeSpan, error) {
 	return u.notificationTimeSpanRepo.FindByUserID(ctx, userID)
 }

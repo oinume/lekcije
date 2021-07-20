@@ -33,6 +33,12 @@ func NewUserServer(
 	db *gorm.DB,
 	gaMeasurementClient ga_measurement.Client,
 ) api_v1.TwirpServer {
-	userService := ihttp.NewUserService(db, appLogger, gaMeasurementClient)
+	userService := ihttp.NewUserService(
+		db, appLogger,
+		gaMeasurementClient,
+		NewGAMeasurementUsecase(gaMeasurementClient),
+		NewNotificationTimeSpanUsecase(db.DB()),
+		NewUserUsecase(db.DB()),
+	)
 	return api_v1.NewUserServer(userService)
 }
