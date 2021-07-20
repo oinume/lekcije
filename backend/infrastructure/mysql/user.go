@@ -56,3 +56,20 @@ func (r *userRepository) findByGoogleIDWithExec(ctx context.Context, exec reposi
 
 	return u, nil
 }
+
+func (r *userRepository) UpdateEmail(ctx context.Context, id uint, email string) error {
+	const query = `UPDATE user SET email = ?, updated_at = NOW() WHERE id = ?`
+	_, err := queries.Raw(query, email, id).ExecContext(ctx, r.db)
+	if err != nil {
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update user email"),
+			errors.WithResource(errors.NewResourceWithEntries(
+				"user", []errors.ResourceEntry{
+					{Key: "id", Value: id}, {Key: "email", Value: email},
+				},
+			)),
+		)
+	}
+	return nil
+}

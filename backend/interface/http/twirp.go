@@ -11,24 +11,31 @@ import (
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/usecase"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
 type UserService struct {
-	appLogger           *zap.Logger
-	db                  *gorm.DB
-	gaMeasurementClient ga_measurement.Client
+	appLogger                   *zap.Logger
+	db                          *gorm.DB
+	gaMeasurementClient         ga_measurement.Client
+	notificationTimeSpanUsecase *usecase.NotificationTimeSpan
+	userUsecase                 *usecase.User
 }
 
 func NewUserService(
 	db *gorm.DB,
 	appLogger *zap.Logger,
 	gaMeasurementClient ga_measurement.Client,
+	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
+	userUsecase *usecase.User,
 ) api_v1.User {
 	return &UserService{
-		appLogger:           appLogger,
-		db:                  db,
-		gaMeasurementClient: gaMeasurementClient,
+		appLogger:                   appLogger,
+		db:                          db,
+		gaMeasurementClient:         gaMeasurementClient,
+		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
+		userUsecase:                 userUsecase,
 	}
 }
 
@@ -48,17 +55,11 @@ func (s *UserService) GetMe(
 		return nil, err
 	}
 
-	timeSpansService := model.NewNotificationTimeSpanService(s.db)
-	timeSpans, err := timeSpansService.FindByUserID(ctx, user.ID)
+	timeSpans, err := s.notificationTimeSpanUsecase.FindByUserID(ctx, uint(user.ID))
 	if err != nil {
 		return nil, err
 	}
-	timeSpansPB, err := timeSpansService.NewNotificationTimeSpansPB(timeSpans)
-	if err != nil {
-		return nil, err
-	}
-
-	mPlan, err := model.NewMPlanService(s.db).FindByPK(user.PlanID)
+	timeSpansProto, err := NotificationTimeSpansProto(timeSpans)
 	if err != nil {
 		return nil, err
 	}
@@ -66,11 +67,8 @@ func (s *UserService) GetMe(
 	return &api_v1.GetMeResponse{
 		UserId:                int32(user.ID),
 		Email:                 user.Email,
-		NotificationTimeSpans: timeSpansPB,
-		MPlan: &api_v1.MPlan{
-			Id:   int32(mPlan.ID),
-			Name: mPlan.Name,
-		},
+		NotificationTimeSpans: timeSpansProto,
+		MPlan:                 nil, // TODO: Remove
 	}, nil
 }
 
@@ -99,11 +97,13 @@ func (s *UserService) UpdateMeEmail(
 	if email == "" || !validateEmail(email) {
 		return nil, twirp.InvalidArgumentError("email", "invalid email")
 	}
-
-	userService := model.NewUserService(s.db)
-	if err := userService.UpdateEmail(user, request.Email); err != nil {
+	if err := s.userUsecase.UpdateEmail(ctx, uint(user.ID), request.Email); err != nil {
 		return nil, err
 	}
+	//userService := model.NewUserService(s.db)
+	//if err := userService.UpdateEmail(user, request.Email); err != nil {
+	//	return nil, err
+	//}
 
 	go s.sendGAMeasurementEvent(
 		ctx,
