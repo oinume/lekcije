@@ -11,6 +11,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/usecase"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
@@ -19,6 +20,7 @@ type UserService struct {
 	appLogger                   *zap.Logger
 	db                          *gorm.DB
 	gaMeasurementClient         ga_measurement.Client
+	gaMeasurementUsecase        *usecase.GAMeasurement
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan
 	userUsecase                 *usecase.User
 }
@@ -27,6 +29,7 @@ func NewUserService(
 	db *gorm.DB,
 	appLogger *zap.Logger,
 	gaMeasurementClient ga_measurement.Client,
+	gaMeasurementUsecase *usecase.GAMeasurement,
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
 	userUsecase *usecase.User,
 ) api_v1.User {
@@ -34,6 +37,7 @@ func NewUserService(
 		appLogger:                   appLogger,
 		db:                          db,
 		gaMeasurementClient:         gaMeasurementClient,
+		gaMeasurementUsecase:        gaMeasurementUsecase,
 		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
 		userUsecase:                 userUsecase,
 	}
@@ -100,19 +104,20 @@ func (s *UserService) UpdateMeEmail(
 	if err := s.userUsecase.UpdateEmail(ctx, uint(user.ID), request.Email); err != nil {
 		return nil, err
 	}
-	//userService := model.NewUserService(s.db)
-	//if err := userService.UpdateEmail(user, request.Email); err != nil {
-	//	return nil, err
-	//}
 
-	go s.sendGAMeasurementEvent(
-		ctx,
-		ga_measurement.CategoryUser,
-		"update",
-		fmt.Sprint(user.ID),
-		0,
-		user.ID,
-	)
+	go func() {
+		if err := s.gaMeasurementUsecase.SendEvent(
+			ctx,
+			MustEventValues(ctx),
+			model2.GAMeasurementEventCategoryUser,
+			"update",
+			fmt.Sprint(user.ID),
+			0,
+			user.ID,
+		); err != nil {
+			panic(err) // TODO: Better error handling
+		}
+	}()
 
 	return &api_v1.UpdateMeEmailResponse{}, nil
 }

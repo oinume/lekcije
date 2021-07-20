@@ -1,29 +1,20 @@
-package ga_measurement
+package http
 
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	model2 "github.com/oinume/lekcije/backend/model2c"
 )
 
-const (
-	CategoryEmail            = "email"
-	CategoryUser             = "user"
-	CategoryFollowingTeacher = "followingTeacher"
-)
-
 type eventValuesKey struct{}
 
-type EventValues = model2.GAMeasurementEvent
-
-func NewEventValuesFromRequest(req *http.Request) *EventValues {
+func NewEventValuesFromRequest(req *http.Request) *model2.GAMeasurementEvent {
 	// Ignore if client id is not set
 	clientID, _ := context_data.GetTrackingID(req.Context())
-	return &EventValues{
+	return &model2.GAMeasurementEvent{
 		UserAgentOverride: req.UserAgent(),
 		ClientID:          clientID,
 		DocumentHostName:  req.Host,
@@ -34,13 +25,13 @@ func NewEventValuesFromRequest(req *http.Request) *EventValues {
 	}
 }
 
-func WithEventValues(ctx context.Context, v *EventValues) context.Context {
+func WithEventValues(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
 	return context.WithValue(ctx, eventValuesKey{}, v)
 }
 
-func GetEventValues(ctx context.Context) (*EventValues, error) {
+func GetEventValues(ctx context.Context) (*model2.GAMeasurementEvent, error) {
 	v := ctx.Value(eventValuesKey{})
-	if value, ok := v.(*EventValues); ok {
+	if value, ok := v.(*model2.GAMeasurementEvent); ok {
 		return value, nil
 	} else {
 		return nil, errors.NewInternalError(
@@ -49,18 +40,10 @@ func GetEventValues(ctx context.Context) (*EventValues, error) {
 	}
 }
 
-func MustEventValues(ctx context.Context) *EventValues { // TODO: Move this func into interface/http package
+func MustEventValues(ctx context.Context) *model2.GAMeasurementEvent {
 	v, err := GetEventValues(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return v
-}
-
-func getRemoteAddress(req *http.Request) string {
-	xForwardedFor := req.Header.Get("X-Forwarded-For")
-	if xForwardedFor == "" {
-		return (strings.Split(req.RemoteAddr, ":"))[0]
-	}
-	return strings.TrimSpace((strings.Split(xForwardedFor, ","))[0])
 }
