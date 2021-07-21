@@ -51,6 +51,7 @@ func Test_UserService_GetMe(t *testing.T) {
 				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
 					uat.UserID = user.ID
 				})
+				// TODO: Setup NotificationTimeSpan
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
 
 				return &testCase{

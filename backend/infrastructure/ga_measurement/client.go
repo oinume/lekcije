@@ -8,7 +8,6 @@ import (
 
 	ga "github.com/jpillora/go-ogle-analytics"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/event_logger"
@@ -71,22 +70,22 @@ func (c *client) SendEvent(
 	gaClient.DocumentReferrer(values.DocumentReferrer)
 	gaClient.IPOverride(values.IPOverride)
 
-	logFields := []zapcore.Field{
-		zap.String("category", category),
-		zap.String("action", action),
-	}
+	//logFields := []zapcore.Field{
+	//	zap.String("category", category),
+	//	zap.String("action", action),
+	//}
 	event := ga.NewEvent(category, action)
 	if label != "" {
 		event.Label(label)
-		logFields = append(logFields, zap.String("label", label))
+		//logFields = append(logFields, zap.String("label", label))
 	}
 	if value != 0 {
 		event.Value(value)
-		logFields = append(logFields, zap.Int64("value", value))
+		//logFields = append(logFields, zap.Int64("value", value))
 	}
 	if userID != 0 {
 		gaClient.UserID(fmt.Sprint(userID))
-		logFields = append(logFields, zap.Uint("userID", uint(userID)))
+		//logFields = append(logFields, zap.Uint("userID", uint(userID)))
 	}
 
 	c.eventLogger.Log(userID, category, action, zap.String("label", label), zap.Int64("value", value))
