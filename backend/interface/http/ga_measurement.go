@@ -25,7 +25,8 @@ func newGAMeasurementEventFromRequest(req *http.Request) *model2.GAMeasurementEv
 	}
 }
 
-func withGAMeasurementEvent(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
+// TODO: Move to context_data package
+func WithGAMeasurementEvent(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
 	return context.WithValue(ctx, eventValuesKey{}, v)
 }
 

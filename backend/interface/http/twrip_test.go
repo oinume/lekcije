@@ -3,6 +3,7 @@ package http_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -20,7 +21,9 @@ import (
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
+	model2c "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/usecase"
+	"github.com/oinume/lekcije/backend/util"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
@@ -76,7 +79,6 @@ func Test_UserService_GetMe(t *testing.T) {
 
 			client := twirptest.NewJSONClient()
 			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
-
 			gotResponse := &api_v1.GetMeResponse{}
 			err := client.SendRequest(
 				ctx, t, handler, api_v1.UserPathPrefix+"GetMe",
@@ -90,6 +92,78 @@ func Test_UserService_GetMe(t *testing.T) {
 	}
 }
 
+func Test_UserService_UpdateMeEmail(t *testing.T) {
+	t.Parallel()
+
+	helper := model.NewTestHelper()
+	db := helper.DB(t)
+	var log bytes.Buffer
+	appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
+	service := newUserService(db, appLogger)
+	handler := api_v1.NewUserServer(service)
+
+	repos := mysqltest.NewRepositories(db.DB())
+	type testCase struct {
+		apiToken       string
+		request        *api_v1.UpdateMeEmailRequest
+		user           *model2.User
+		wantStatusCode int
+	}
+	tests := map[string]struct {
+		setup func(ctx context.Context) *testCase
+	}{
+		"ok": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				// TODO: Setup NotificationTimeSpan
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+
+				wantEmail := fmt.Sprintf("update-me-email-%s@example.com", util.RandomString(8))
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					user:     user,
+					request: &api_v1.UpdateMeEmailRequest{
+						Email: wantEmail,
+					},
+					wantStatusCode: http.StatusOK,
+				}
+			},
+		},
+	}
+	for name, test := range tests {
+		test := test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			tc := test.setup(ctx)
+
+			client := twirptest.NewJSONClient()
+			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
+			//ctx = context_data.SetTrackingID(ctx, fmt.Sprint(tc.user.ID))
+			ctx = interface_http.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
+			gotResponse := &api_v1.UpdateMeEmailResponse{}
+			err := client.SendRequest(
+				ctx, t, handler, api_v1.UserPathPrefix+"UpdateMeEmail",
+				tc.request, gotResponse, tc.wantStatusCode,
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			gotUser, err := repos.User().FindByEmail(ctx, tc.request.Email)
+			if err != nil {
+				t.Fatalf("failed to find user by email: %v", err)
+			}
+			assertion.AssertEqual(t, tc.request.Email, gotUser.Email, "")
+		})
+	}
+}
+
 func newUserService(db *gorm.DB, appLogger *zap.Logger) api_v1.User {
 	gaMeasurement := usecase.NewGAMeasurement(ga_measurement.NewGAMeasurementRepository(ga_measurement.NewFakeClient()))
 	return interface_http.NewUserService(
@@ -98,4 +172,16 @@ func newUserService(db *gorm.DB, appLogger *zap.Logger) api_v1.User {
 		di.NewNotificationTimeSpanUsecase(db.DB()),
 		di.NewUserUsecase(db.DB()),
 	)
+}
+
+func newGAMeasurementEvent() *model2c.GAMeasurementEvent {
+	return &model2c.GAMeasurementEvent{
+		UserAgentOverride: "ua",
+		ClientID:          "test",
+		DocumentHostName:  "localhost",
+		DocumentPath:      "",
+		DocumentTitle:     "",
+		DocumentReferrer:  "",
+		IPOverride:        "",
+	}
 }

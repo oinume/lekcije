@@ -6,6 +6,7 @@ import (
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
@@ -24,6 +25,10 @@ func NewUserRepository(db *sql.DB) repository.User {
 
 func (r *userRepository) CreateWithExec(ctx context.Context, exec repository.Executor, user *model2.User) error {
 	return user.Insert(ctx, exec, boil.Infer())
+}
+
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model2.User, error) {
+	return model2.Users(qm.Where("email = ?", email)).One(ctx, r.db)
 }
 
 func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*model2.User, error) {
