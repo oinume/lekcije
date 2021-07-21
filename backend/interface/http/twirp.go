@@ -9,7 +9,6 @@ import (
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
 	model2 "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/usecase"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
@@ -18,16 +17,14 @@ import (
 type UserService struct {
 	appLogger                   *zap.Logger
 	db                          *gorm.DB
-	gaMeasurementClient         ga_measurement.Client
 	gaMeasurementUsecase        *usecase.GAMeasurement
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan
 	userUsecase                 *usecase.User
 }
 
 func NewUserService(
-	db *gorm.DB,
+	db *gorm.DB, // TODO: Remove
 	appLogger *zap.Logger,
-	gaMeasurementClient ga_measurement.Client,
 	gaMeasurementUsecase *usecase.GAMeasurement,
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
 	userUsecase *usecase.User,
@@ -35,7 +32,6 @@ func NewUserService(
 	return &UserService{
 		appLogger:                   appLogger,
 		db:                          db,
-		gaMeasurementClient:         gaMeasurementClient,
 		gaMeasurementUsecase:        gaMeasurementUsecase,
 		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
 		userUsecase:                 userUsecase,

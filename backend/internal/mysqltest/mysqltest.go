@@ -48,7 +48,16 @@ func (r *Repositories) CreateUsers(ctx context.Context, t *testing.T, users ...*
 	t.Helper()
 	for _, u := range users {
 		if err := r.user.CreateWithExec(ctx, r.sqlDB, u); err != nil {
-			t.Fatalf("CreateUser failed: %v", err)
+			t.Fatalf("CreateUsers failed: %v", err)
+		}
+	}
+}
+
+func (r *Repositories) CreateUserAPITokens(ctx context.Context, t *testing.T, userAPITokens ...*model2.UserAPIToken) {
+	t.Helper()
+	for _, uat := range userAPITokens {
+		if err := r.userAPIToken.Create(ctx, uat); err != nil {
+			t.Fatalf("CreateUserAPITokens failed: %v", err)
 		}
 	}
 }
@@ -57,7 +66,7 @@ func (r *Repositories) CreateUserGoogles(ctx context.Context, t *testing.T, user
 	t.Helper()
 	for _, ug := range userGoogles {
 		if err := r.userGoogle.CreateWithExec(ctx, r.sqlDB, ug); err != nil {
-			t.Fatalf("CreateUserGoogle failed: %v", err)
+			t.Fatalf("CreateUserGoogles failed: %v", err)
 		}
 	}
 }

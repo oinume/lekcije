@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	ihttp "github.com/oinume/lekcije/backend/interface/http"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
@@ -35,7 +35,6 @@ func NewUserServer(
 ) api_v1.TwirpServer {
 	userService := ihttp.NewUserService(
 		db, appLogger,
-		gaMeasurementClient,
 		NewGAMeasurementUsecase(gaMeasurementClient),
 		NewNotificationTimeSpanUsecase(db.DB()),
 		NewUserUsecase(db.DB()),

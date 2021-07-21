@@ -25,6 +25,20 @@ func NewUser(setters ...func(u *model2.User)) *model2.User {
 	return user
 }
 
+func NewUserAPIToken(setters ...func(uat *model2.UserAPIToken)) *model2.UserAPIToken {
+	userAPIToken := &model2.UserAPIToken{}
+	for _, setter := range setters {
+		setter(userAPIToken)
+	}
+	if userAPIToken.Token == "" {
+		userAPIToken.Token = util.RandomString(32)
+	}
+	if userAPIToken.UserID == 0 {
+		userAPIToken.UserID = uint(util.RandomInt(10000000))
+	}
+	return userAPIToken
+}
+
 func NewUserGoogle(setters ...func(ug *model2.UserGoogle)) *model2.UserGoogle {
 	userGoogle := &model2.UserGoogle{}
 	for _, setter := range setters {
