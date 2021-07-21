@@ -3,12 +3,9 @@ package http_test
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 
@@ -19,6 +16,7 @@ import (
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
+	"github.com/oinume/lekcije/backend/internal/twirptest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -68,43 +66,25 @@ func Test_UserService_GetMe(t *testing.T) {
 		},
 	}
 	for name, test := range tests {
+		test := test
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			ctx := context.Background()
 			tc := test.setup(ctx)
-			var body bytes.Buffer
-			marshaler := &jsonpb.Marshaler{}
-			if err := marshaler.Marshal(&body, tc.request); err != nil {
-				t.Fatalf("Marshal failed: %v", err)
-			}
-			req, err := http.NewRequest("POST", api_v1.UserPathPrefix+"GetMe", &body)
+
+			client := twirptest.NewJSONClient()
+			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
+
+			gotResponse := &api_v1.GetMeResponse{}
+			err := client.SendRequest(
+				ctx, t, handler, api_v1.UserPathPrefix+"GetMe",
+				tc.request, gotResponse, tc.wantStatusCode,
+			)
 			if err != nil {
 				t.Fatal(err)
 			}
-			req.Header.Set("Content-Type", "application/json")
-			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
-			req = req.WithContext(ctx)
-
-			w := httptest.NewRecorder()
-			handler.ServeHTTP(w, req)
-
-			resp := w.Result()
-			if resp.StatusCode != tc.wantStatusCode {
-				b, err := ioutil.ReadAll(resp.Body)
-				if err != nil {
-					t.Fatal(err)
-				}
-				t.Fatalf("want %d but got %d\n%s", tc.wantStatusCode, resp.StatusCode, string(b))
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				gotResponse := &api_v1.GetMeResponse{}
-				unmarshaler := &jsonpb.Unmarshaler{}
-				if err := unmarshaler.Unmarshal(resp.Body, gotResponse); err != nil {
-					t.Fatal(err)
-				}
-				assertion.AssertEqual(t, tc.wantResponse, gotResponse, "")
-			}
+			assertion.AssertEqual(t, tc.wantResponse, gotResponse, "")
 		})
 	}
 }
