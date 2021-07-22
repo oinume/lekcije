@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/repository"
 )
 
@@ -19,7 +19,7 @@ func NewGAMeasurement(gaMeasurementRepo repository.GAMeasurement) *GAMeasurement
 
 func (u *GAMeasurement) SendEvent(
 	ctx context.Context,
-	values *ga_measurement.EventValues,
+	values *model2.GAMeasurementEvent,
 	category, action, label string,
 	value int64,
 	userID uint32,

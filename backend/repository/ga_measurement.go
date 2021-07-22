@@ -3,13 +3,13 @@ package repository
 import (
 	"context"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 )
 
 type GAMeasurement interface {
 	SendEvent(
 		ctx context.Context,
-		values *ga_measurement.EventValues,
+		values *model2.GAMeasurementEvent,
 		category,
 		action,
 		label string,

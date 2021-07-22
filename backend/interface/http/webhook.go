@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -71,7 +71,7 @@ func (v *SendGridEventValues) LogToFile(logger *zap.Logger) {
 
 	event_logger.New(logger).Log(
 		userID,
-		ga_measurement.CategoryEmail,
+		model2.GAMeasurementEventCategoryEmail,
 		v.Event,
 		fields...,
 	)

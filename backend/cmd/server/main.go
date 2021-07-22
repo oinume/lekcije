@@ -14,8 +14,8 @@ import (
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/event_logger"
-	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/gcp"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/interface/http/flash_message"
@@ -74,16 +74,12 @@ func main() {
 	accessLogger := logger.NewAccessLogger(os.Stdout)
 	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel("info")) // TODO: flag
 	args := &interfaces.ServerArgs{
-		AccessLogger:      accessLogger,
-		AppLogger:         appLogger,
-		DB:                gormDB.DB(),
-		FlashMessageStore: flash_message.NewStoreMySQL(gormDB),
-		GAMeasurementClient: ga_measurement.NewClient(
-			nil,
-			appLogger,
-			event_logger.New(accessLogger),
-		),
-		GormDB: gormDB,
+		AccessLogger:        accessLogger,
+		AppLogger:           appLogger,
+		DB:                  gormDB.DB(),
+		FlashMessageStore:   flash_message.NewStoreMySQL(gormDB),
+		GAMeasurementClient: ga_measurement.NewClient(nil, event_logger.New(accessLogger)),
+		GormDB:              gormDB,
 		SenderHTTPClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},

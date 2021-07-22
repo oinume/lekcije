@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	"github.com/oinume/lekcije/backend/logger"
 )
