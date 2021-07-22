@@ -16,6 +16,7 @@ import (
 	"google.golang.org/api/option"
 
 	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
@@ -216,7 +217,7 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		go func() {
 			if err := s.gaMeasurementUsecase.SendEvent(
 				r.Context(),
-				mustGAMeasurementEvent(ctx),
+				context_data.MustGAMeasurementEvent(ctx),
 				model2.GAMeasurementEventCategoryUser,
 				"login",
 				fmt.Sprint(user.ID),
@@ -242,7 +243,7 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		go func() {
 			if err := s.gaMeasurementUsecase.SendEvent(
 				r.Context(),
-				mustGAMeasurementEvent(ctx),
+				context_data.MustGAMeasurementEvent(ctx),
 				model2.GAMeasurementEventCategoryUser,
 				"create",
 				fmt.Sprint(user.ID),

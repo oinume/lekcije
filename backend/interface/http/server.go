@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 
+	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	"github.com/oinume/lekcije/backend/interface/http/flash_message"
@@ -43,7 +44,7 @@ func (s *server) sendGAMeasurementEvent(
 ) {
 	err := s.gaMeasurementClient.SendEvent(
 		ctx,
-		mustGAMeasurementEvent(ctx),
+		context_data.MustGAMeasurementEvent(ctx),
 		category,
 		action,
 		fmt.Sprint(userID),
