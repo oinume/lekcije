@@ -1,6 +1,7 @@
 package ga_measurement
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -22,6 +23,7 @@ var defaultHTTPClient = &http.Client{
 
 type Client interface {
 	SendEvent(
+		ctx context.Context,
 		values *model2.GAMeasurementEvent,
 		category,
 		action,
@@ -35,6 +37,11 @@ type client struct {
 	eventLogger *event_logger.Logger
 	httpClient  *http.Client
 }
+
+var (
+	_ Client = (*client)(nil)
+	_ Client = (*fakeClient)(nil)
+)
 
 func NewClient(
 	httpClient *http.Client,
@@ -50,6 +57,7 @@ func NewClient(
 }
 
 func (c *client) SendEvent(
+	ctx context.Context,
 	values *model2.GAMeasurementEvent,
 	category,
 	action,
@@ -106,6 +114,7 @@ func NewFakeClient() *fakeClient {
 }
 
 func (fc *fakeClient) SendEvent(
+	ctx context.Context,
 	values *model2.GAMeasurementEvent,
 	category,
 	action,

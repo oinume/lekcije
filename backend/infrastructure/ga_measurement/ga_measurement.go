@@ -3,23 +3,23 @@ package ga_measurement
 import (
 	"context"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 )
 
 type gaMeasurementRepository struct {
-	client ga_measurement.Client
+	client Client
 }
 
-func NewGAMeasurementRepository(client ga_measurement.Client) *gaMeasurementRepository {
+func NewGAMeasurementRepository(client Client) *gaMeasurementRepository {
 	return &gaMeasurementRepository{client: client}
 }
 
 func (r *gaMeasurementRepository) SendEvent(
 	ctx context.Context,
-	values *ga_measurement.EventValues,
+	values *model2.GAMeasurementEvent,
 	category, action, label string,
 	value int64,
 	userID uint32,
 ) error {
-	return r.client.SendEvent(values, category, action, label, value, userID)
+	return r.client.SendEvent(ctx, values, category, action, label, value, userID)
 }

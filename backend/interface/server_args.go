@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 )
 

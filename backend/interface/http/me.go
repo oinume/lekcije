@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
@@ -163,7 +163,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 
 	go s.sendGAMeasurementEvent(
 		r.Context(),
-		ga_measurement.CategoryFollowingTeacher,
+		model2.GAMeasurementEventCategoryFollowingTeacher,
 		"follow",
 		strings.Join(teacherIDs, ","),
 		int64(len(teacherIDs)),
@@ -173,7 +173,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 	if updateFollowedTeacherAt {
 		go s.sendGAMeasurementEvent(
 			r.Context(),
-			ga_measurement.CategoryUser,
+			model2.GAMeasurementEventCategoryUser,
 			"followFirstTime",
 			fmt.Sprint(user.ID),
 			0,
@@ -219,7 +219,7 @@ func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Re
 
 	go s.sendGAMeasurementEvent(
 		r.Context(),
-		ga_measurement.CategoryUser,
+		model2.GAMeasurementEventCategoryUser,
 		"unfollow",
 		strings.Join(teacherIDs, ","),
 		int64(len(teacherIDs)),
@@ -289,7 +289,7 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 	}
 	go s.sendGAMeasurementEvent(
 		r.Context(),
-		ga_measurement.CategoryUser,
+		model2.GAMeasurementEventCategoryUser,
 		"logout",
 		fmt.Sprint(user.ID),
 		0,
