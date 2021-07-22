@@ -14,9 +14,10 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/sclevine/agouti"
 	"go.uber.org/zap/zapcore"
+	"goji.io/v3"
 
 	"github.com/oinume/lekcije/backend/config"
-	"github.com/oinume/lekcije/backend/ga_measurement"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/logger"
@@ -48,9 +49,10 @@ func TestMain(m *testing.M) {
 		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	}
 	s := interfaces_http.NewServer(args)
-	routes := s.Setup()
+	mux := goji.NewMux()
+	s.Setup(mux)
 	port := config.DefaultVars.HTTPPort + 1
-	server = newTestServer(routes, port)
+	server = newTestServer(mux, port)
 	fmt.Printf("Test HTTP server created: port=%d, url=%s\n", port, server.URL)
 	defer server.Close()
 
