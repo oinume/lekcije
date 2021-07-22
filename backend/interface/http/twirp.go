@@ -9,6 +9,7 @@ import (
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 
+	"github.com/oinume/lekcije/backend/context_data"
 	model2 "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/usecase"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
@@ -103,7 +104,7 @@ func (s *UserService) UpdateMeEmail(
 	go func() {
 		if err := s.gaMeasurementUsecase.SendEvent(
 			ctx,
-			mustGAMeasurementEvent(ctx),
+			context_data.MustGAMeasurementEvent(ctx),
 			model2.GAMeasurementEventCategoryUser,
 			"update",
 			fmt.Sprint(user.ID),
@@ -136,7 +137,7 @@ func (s *UserService) UpdateMeNotificationTimeSpan(
 	go func() {
 		if err := s.gaMeasurementUsecase.SendEvent(
 			ctx,
-			mustGAMeasurementEvent(ctx),
+			context_data.MustGAMeasurementEvent(ctx),
 			model2.GAMeasurementEventCategoryUser,
 			"updateNotificationTimeSpan",
 			fmt.Sprint(user.ID),

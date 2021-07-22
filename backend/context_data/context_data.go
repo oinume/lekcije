@@ -7,12 +7,16 @@ import (
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 )
 
-type dbKey struct{}
-type loggedInUserKey struct{}
-type trackingIDKey struct{}
-type apiTokenKey struct{}
+type (
+	apiTokenKey     struct{}
+	eventValuesKey  struct{}
+	dbKey           struct{}
+	loggedInUserKey struct{}
+	trackingIDKey   struct{}
+)
 
 func SetDB(ctx context.Context, db *gorm.DB) context.Context {
 	return context.WithValue(ctx, dbKey{}, db)
@@ -72,6 +76,29 @@ func GetAPIToken(ctx context.Context) (string, error) {
 
 func MustAPIToken(ctx context.Context) string {
 	v, err := GetAPIToken(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func WithGAMeasurementEvent(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
+	return context.WithValue(ctx, eventValuesKey{}, v)
+}
+
+func GetGAMeasurementEvent(ctx context.Context) (*model2.GAMeasurementEvent, error) {
+	v := ctx.Value(eventValuesKey{})
+	if value, ok := v.(*model2.GAMeasurementEvent); ok {
+		return value, nil
+	} else {
+		return nil, errors.NewInternalError(
+			errors.WithMessage("failed get value from context"),
+		)
+	}
+}
+
+func MustGAMeasurementEvent(ctx context.Context) *model2.GAMeasurementEvent {
+	v, err := GetGAMeasurementEvent(ctx)
 	if err != nil {
 		panic(err)
 	}
