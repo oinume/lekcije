@@ -8,6 +8,26 @@ import (
 	"github.com/oinume/lekcije/backend/util"
 )
 
+func NewNotificationTimeSpan(setters ...func(nts *model2.NotificationTimeSpan)) *model2.NotificationTimeSpan {
+	timeSpan := &model2.NotificationTimeSpan{}
+	for _, setter := range setters {
+		setter(timeSpan)
+	}
+	if timeSpan.UserID == 0 {
+		timeSpan.UserID = uint(util.RandomInt(10000000))
+	}
+	if timeSpan.Number == 0 {
+		timeSpan.Number = uint8(util.RandomInt(255))
+	}
+	if timeSpan.FromTime == "" {
+		timeSpan.FromTime = ""
+	}
+	if timeSpan.ToTime == "" {
+		timeSpan.ToTime = ""
+	}
+	return timeSpan
+}
+
 func NewUser(setters ...func(u *model2.User)) *model2.User {
 	user := &model2.User{}
 	for _, setter := range setters {
