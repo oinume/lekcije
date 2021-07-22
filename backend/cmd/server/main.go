@@ -103,7 +103,9 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	// TODO: graceful shutdown
 	server := interfaces_http.NewServer(args)
 	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.SenderHTTPClient)
-	userServer := di.NewUserServer(args.AppLogger, args.GormDB, args.GAMeasurementClient) // TODO:
+	userServer := di.NewUserServer(
+		args.AppLogger, args.GormDB, args.GAMeasurementClient,
+	)
 
 	mux := goji.NewMux()
 	server.Setup(mux)

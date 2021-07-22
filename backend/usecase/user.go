@@ -23,7 +23,6 @@ func NewUser(dbRepo repository.DB, userRepo repository.User, userGoogleRepo repo
 	}
 }
 
-// TODO: unit test
 func (u *User) CreateWithGoogle(ctx context.Context, name, email, googleID string) (*model2.User, *model2.UserGoogle, error) {
 	var (
 		retUser       *model2.User
@@ -74,4 +73,8 @@ func (u *User) CreateWithGoogle(ctx context.Context, name, email, googleID strin
 
 func (u *User) FindByGoogleID(ctx context.Context, googleID string) (*model2.User, error) {
 	return u.userRepo.FindByGoogleID(ctx, googleID)
+}
+
+func (u *User) UpdateEmail(ctx context.Context, id uint, email string) error {
+	return u.userRepo.UpdateEmail(ctx, id, email)
 }

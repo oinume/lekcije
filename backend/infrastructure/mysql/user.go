@@ -6,6 +6,7 @@ import (
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
@@ -24,6 +25,10 @@ func NewUserRepository(db *sql.DB) repository.User {
 
 func (r *userRepository) CreateWithExec(ctx context.Context, exec repository.Executor, user *model2.User) error {
 	return user.Insert(ctx, exec, boil.Infer())
+}
+
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model2.User, error) {
+	return model2.Users(qm.Where("email = ?", email)).One(ctx, r.db)
 }
 
 func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*model2.User, error) {
@@ -55,4 +60,21 @@ func (r *userRepository) findByGoogleIDWithExec(ctx context.Context, exec reposi
 	// TODO: expose User.doAfterSelectHooks in template
 
 	return u, nil
+}
+
+func (r *userRepository) UpdateEmail(ctx context.Context, id uint, email string) error {
+	const query = `UPDATE user SET email = ?, updated_at = NOW() WHERE id = ?`
+	_, err := queries.Raw(query, email, id).ExecContext(ctx, r.db)
+	if err != nil {
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update user email"),
+			errors.WithResource(errors.NewResourceWithEntries(
+				"user", []errors.ResourceEntry{
+					{Key: "id", Value: id}, {Key: "email", Value: email},
+				},
+			)),
+		)
+	}
+	return nil
 }

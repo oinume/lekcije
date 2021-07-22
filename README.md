@@ -1,4 +1,5 @@
-[![CircleCI](https://circleci.com/gh/oinume/lekcije/tree/master.svg?style=svg)](https://circleci.com/gh/oinume/lekcije/tree/master)
+[![Actions/backend](https://github.com/oinume/lekcije/workflows/backend/badge.svg?branch=master)](https://github.com/oinume/lekcije/actions?query=workflow%3Abackend+branch%3Amaster)
+[![Actions/frontend](https://github.com/oinume/lekcije/workflows/frontend/badge.svg?branch=master)](https://github.com/oinume/lekcije/actions?query=workflow%3Abackend+branch%3Amaster)
 [![codecov](https://codecov.io/gh/oinume/lekcije/branch/master/graph/badge.svg)](https://codecov.io/gh/oinume/lekcije)
 
 # lekcije

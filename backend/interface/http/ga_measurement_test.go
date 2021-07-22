@@ -1,24 +1,26 @@
-package ga_measurement
+package http
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	model2 "github.com/oinume/lekcije/backend/model2c"
 )
 
-func TestNewEventValuesFromRequest(t *testing.T) {
+func TestNewGAMeasurementEventFromRequest(t *testing.T) {
 	const (
 		userAgent  = "go-test"
 		ipOverride = "1.1.1.1"
 	)
 	tests := map[string]struct {
 		request *http.Request
-		want    *EventValues
+		want    *model2.GAMeasurementEvent
 	}{
 		"normal": {
 			request: httptest.NewRequest("POST", "http://localhost/event", nil),
-			want: &EventValues{
+			want: &model2.GAMeasurementEvent{
 				UserAgentOverride: userAgent,
 				ClientID:          "",
 				DocumentHostName:  "localhost",
@@ -33,8 +35,8 @@ func TestNewEventValuesFromRequest(t *testing.T) {
 		test.request.Header.Set("User-Agent", userAgent)
 		test.request.Header.Set("X-Forwarded-For", ipOverride)
 		t.Run(name, func(t *testing.T) {
-			if got := NewEventValuesFromRequest(test.request); !reflect.DeepEqual(got, test.want) {
-				t.Errorf("NewEventValuesFromRequest() = %v, want %v", got, test.want)
+			if got := newGAMeasurementEventFromRequest(test.request); !reflect.DeepEqual(got, test.want) {
+				t.Errorf("newGAMeasurementEventFromRequest() = %v, want %v", got, test.want)
 			}
 		})
 	}

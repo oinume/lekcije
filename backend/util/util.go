@@ -19,12 +19,147 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 )
 
+/* TODO: race condition problem
+==================
+WARNING: DATA RACE
+Read at 0x00c00014ea00 by goroutine 82:
+  math/rand.(*rngSource).Uint64()
+      /usr/local/go/src/math/rand/rng.go:239 +0x3e
+  math/rand.(*rngSource).Int63()
+      /usr/local/go/src/math/rand/rng.go:234 +0x1d9
+  math/rand.(*Rand).Int63()
+      /usr/local/go/src/math/rand/rand.go:85 +0x85
+  math/rand.(*Rand).Int31()
+      /usr/local/go/src/math/rand/rand.go:99 +0x9a
+  math/rand.(*Rand).Int31n()
+      /usr/local/go/src/math/rand/rand.go:134 +0x4f
+  math/rand.(*Rand).Intn()
+      /usr/local/go/src/math/rand/rand.go:172 +0x59
+  github.com/oinume/lekcije/backend/util.RandomString()
+      /go/src/github.com/oinume/lekcije/backend/util/util.go:35 +0x106
+  github.com/oinume/lekcije/backend/internal/modeltest.NewUser()
+      /go/src/github.com/oinume/lekcije/backend/internal/modeltest/modeltest.go:17 +0x257
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_UpdateMeEmail.func1()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:117 +0x76
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_UpdateMeEmail.func2()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:143 +0xd0
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+
+Previous write at 0x00c00014ea00 by goroutine 81:
+  math/rand.(*rngSource).Uint64()
+      /usr/local/go/src/math/rand/rng.go:239 +0x54
+  math/rand.(*rngSource).Int63()
+      /usr/local/go/src/math/rand/rng.go:234 +0x1d9
+  math/rand.(*Rand).Int63()
+      /usr/local/go/src/math/rand/rand.go:85 +0x85
+  math/rand.(*Rand).Int31()
+      /usr/local/go/src/math/rand/rand.go:99 +0x9a
+  math/rand.(*Rand).Int31n()
+      /usr/local/go/src/math/rand/rand.go:134 +0x4f
+  math/rand.(*Rand).Intn()
+      /usr/local/go/src/math/rand/rand.go:172 +0x59
+  github.com/oinume/lekcije/backend/util.RandomString()
+      /go/src/github.com/oinume/lekcije/backend/util/util.go:35 +0x106
+  github.com/oinume/lekcije/backend/internal/modeltest.NewUser()
+      /go/src/github.com/oinume/lekcije/backend/internal/modeltest/modeltest.go:17 +0x257
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_GetMe.func1()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:52 +0x76
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_GetMe.func2()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:78 +0xc1
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+
+Goroutine 82 (running) created at:
+  testing.(*T).Run()
+      /usr/local/go/src/testing/testing.go:1168 +0x5bb
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_UpdateMeEmail()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:139 +0x648
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+
+Goroutine 81 (running) created at:
+  testing.(*T).Run()
+      /usr/local/go/src/testing/testing.go:1168 +0x5bb
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_GetMe()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:74 +0x648
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c00014ea08 by goroutine 82:
+  math/rand.(*rngSource).Uint64()
+      /usr/local/go/src/math/rand/rng.go:244 +0x8e
+  math/rand.(*rngSource).Int63()
+      /usr/local/go/src/math/rand/rng.go:234 +0x1d9
+  math/rand.(*Rand).Int63()
+      /usr/local/go/src/math/rand/rand.go:85 +0x85
+  math/rand.(*Rand).Int31()
+      /usr/local/go/src/math/rand/rand.go:99 +0x9a
+  math/rand.(*Rand).Int31n()
+      /usr/local/go/src/math/rand/rand.go:134 +0x4f
+  math/rand.(*Rand).Intn()
+      /usr/local/go/src/math/rand/rand.go:172 +0x59
+  github.com/oinume/lekcije/backend/util.RandomString()
+      /go/src/github.com/oinume/lekcije/backend/util/util.go:35 +0x106
+  github.com/oinume/lekcije/backend/internal/modeltest.NewUser()
+      /go/src/github.com/oinume/lekcije/backend/internal/modeltest/modeltest.go:17 +0x257
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_UpdateMeEmail.func1()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:117 +0x76
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_UpdateMeEmail.func2()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:143 +0xd0
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+
+Previous write at 0x00c00014ea08 by goroutine 81:
+  math/rand.(*rngSource).Uint64()
+      /usr/local/go/src/math/rand/rng.go:244 +0xaa
+  math/rand.(*rngSource).Int63()
+      /usr/local/go/src/math/rand/rng.go:234 +0x1d9
+  math/rand.(*Rand).Int63()
+      /usr/local/go/src/math/rand/rand.go:85 +0x85
+  math/rand.(*Rand).Int31()
+      /usr/local/go/src/math/rand/rand.go:99 +0x9a
+  math/rand.(*Rand).Int31n()
+      /usr/local/go/src/math/rand/rand.go:134 +0x4f
+  math/rand.(*Rand).Intn()
+      /usr/local/go/src/math/rand/rand.go:172 +0x59
+  github.com/oinume/lekcije/backend/util.RandomString()
+      /go/src/github.com/oinume/lekcije/backend/util/util.go:35 +0x106
+  github.com/oinume/lekcije/backend/internal/modeltest.NewUser()
+      /go/src/github.com/oinume/lekcije/backend/internal/modeltest/modeltest.go:17 +0x257
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_GetMe.func1()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:52 +0x76
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_GetMe.func2()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:78 +0xc1
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+
+Goroutine 82 (running) created at:
+  testing.(*T).Run()
+      /usr/local/go/src/testing/testing.go:1168 +0x5bb
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_UpdateMeEmail()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:139 +0x648
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+
+Goroutine 81 (running) created at:
+  testing.(*T).Run()
+      /usr/local/go/src/testing/testing.go:1168 +0x5bb
+  github.com/oinume/lekcije/backend/interface/http_test.Test_UserService_GetMe()
+      /go/src/github.com/oinume/lekcije/backend/interface/http/twrip_test.go:74 +0x648
+  testing.tRunner()
+      /usr/local/go/src/testing/testing.go:1123 +0x202
+==================
+*/
 var (
 	letters  = []rune(`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`)
 	commonIV = []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
 	random   = mrand.New(mrand.NewSource(time.Now().UnixNano()))
 )
 
+// TODO: Make randoms package and move to it
 func RandomInt(n int) int {
 	return random.Intn(n)
 }

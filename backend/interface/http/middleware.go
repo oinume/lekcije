@@ -14,7 +14,6 @@ import (
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
 )
 
@@ -149,9 +148,9 @@ func setTrackingID(h http.Handler) http.Handler {
 
 func setGAMeasurementEventValues(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		c := ga_measurement.WithEventValues(
+		c := WithGAMeasurementEvent(
 			r.Context(),
-			ga_measurement.NewEventValuesFromRequest(r),
+			newGAMeasurementEventFromRequest(r),
 		)
 		h.ServeHTTP(w, r.WithContext(c))
 	}

@@ -19,6 +19,7 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
+	model2 "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/registration_email"
 	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
@@ -215,8 +216,8 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		go func() {
 			if err := s.gaMeasurementUsecase.SendEvent(
 				r.Context(),
-				ga_measurement.MustEventValues(ctx),
-				ga_measurement.CategoryUser,
+				mustGAMeasurementEvent(ctx),
+				model2.GAMeasurementEventCategoryUser,
 				"login",
 				fmt.Sprint(user.ID),
 				0,
@@ -241,8 +242,8 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		go func() {
 			if err := s.gaMeasurementUsecase.SendEvent(
 				r.Context(),
-				ga_measurement.MustEventValues(ctx),
-				ga_measurement.CategoryUser,
+				mustGAMeasurementEvent(ctx),
+				model2.GAMeasurementEventCategoryUser,
 				"create",
 				fmt.Sprint(user.ID),
 				0,
