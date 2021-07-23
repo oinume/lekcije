@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jinzhu/gorm"
+	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/context_data"
@@ -81,14 +82,18 @@ func Test_UserService_GetMe(t *testing.T) {
 			client := twirptest.NewJSONClient()
 			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
 			gotResponse := &api_v1.GetMeResponse{}
-			err := client.SendRequest(
+			statusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.UserPathPrefix+"GetMe",
-				tc.request, gotResponse, tc.wantStatusCode,
+				tc.request, gotResponse,
 			)
-			if err != nil {
-				t.Fatal(err)
+			assertion.RequireEqual(t, tc.wantStatusCode, statusCode, "unexpected status code")
+			if statusCode == http.StatusOK {
+				assertion.AssertEqual(t, tc.wantResponse, gotResponse, "")
+			} else {
+				if err == nil {
+					t.Fatal("err must not be nil")
+				}
 			}
-			assertion.AssertEqual(t, tc.wantResponse, gotResponse, "")
 		})
 	}
 }
@@ -108,6 +113,7 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 		request        *api_v1.UpdateMeEmailRequest
 		user           *model2.User
 		wantStatusCode int
+		wantError      *twirptest.JSONError
 	}
 	tests := map[string]struct {
 		setup func(ctx context.Context) *testCase
@@ -119,7 +125,6 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
 					uat.UserID = user.ID
 				})
-				// TODO: Setup NotificationTimeSpan
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
 
 				wantEmail := fmt.Sprintf("update-me-email-%s@example.com", util.RandomString(8))
@@ -130,6 +135,30 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 						Email: wantEmail,
 					},
 					wantStatusCode: http.StatusOK,
+				}
+			},
+		},
+		"invalid email": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+
+				wantEmail := "invalid-email"
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					user:     user,
+					request: &api_v1.UpdateMeEmailRequest{
+						Email: wantEmail,
+					},
+					wantStatusCode: http.StatusBadRequest,
+					wantError: &twirptest.JSONError{
+						Code: string(twirp.InvalidArgument),
+						Msg:  "email invalid email",
+					},
 				}
 			},
 		},
@@ -146,19 +175,23 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
 			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.UpdateMeEmailResponse{}
-			err := client.SendRequest(
+			statusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.UserPathPrefix+"UpdateMeEmail",
-				tc.request, gotResponse, tc.wantStatusCode,
+				tc.request, gotResponse,
 			)
-			if err != nil {
-				t.Fatal(err)
+			assertion.RequireEqual(t, tc.wantStatusCode, statusCode, "unexpected status code")
+			if tc.wantStatusCode == http.StatusOK {
+				gotUser, err := repos.User().FindByEmail(ctx, tc.request.Email)
+				if err != nil {
+					t.Fatalf("failed to find user by email: %v", err)
+				}
+				assertion.AssertEqual(t, tc.request.Email, gotUser.Email, "")
+			} else {
+				assertion.AssertEqual(
+					t, tc.wantError, err, "",
+					cmpopts.IgnoreFields(twirptest.JSONError{}, "Meta"),
+				)
 			}
-
-			gotUser, err := repos.User().FindByEmail(ctx, tc.request.Email)
-			if err != nil {
-				t.Fatalf("failed to find user by email: %v", err)
-			}
-			assertion.AssertEqual(t, tc.request.Email, gotUser.Email, "")
 		})
 	}
 }
@@ -230,22 +263,29 @@ func Test_UserService_UpdateMeNotificationTimeSpan(t *testing.T) {
 			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
 			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.UpdateMeNotificationTimeSpanResponse{}
-			err := client.SendRequest(
+			statusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.UserPathPrefix+"UpdateMeNotificationTimeSpan",
-				tc.request, gotResponse, tc.wantStatusCode,
+				tc.request, gotResponse,
 			)
-			if err != nil {
-				t.Fatal(err)
+			assertion.RequireEqual(t, tc.wantStatusCode, statusCode, "unexpected status code")
+			if statusCode == http.StatusOK {
+				if err != nil {
+					t.Fatal(err)
+				}
+				gotTimeSpans, err := repos.NotificationTimeSpan().FindByUserID(ctx, tc.user.ID)
+				if err != nil {
+					t.Fatalf("FindByUserID failed: %v", err)
+				}
+				assertion.AssertEqual(
+					t, tc.wantNotificationTimeSpans, gotTimeSpans,
+					"", cmpopts.EquateApproxTime(10*time.Second),
+				)
+			} else {
+				if err == nil {
+					t.Fatal("err must not be nil")
+				}
 			}
 
-			gotTimeSpans, err := repos.NotificationTimeSpan().FindByUserID(ctx, tc.user.ID)
-			if err != nil {
-				t.Fatalf("FindByUserID failed: %v", err)
-			}
-			assertion.AssertEqual(
-				t, tc.wantNotificationTimeSpans, gotTimeSpans,
-				"", cmpopts.EquateApproxTime(10*time.Second),
-			)
 		})
 	}
 }
