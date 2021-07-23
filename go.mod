@@ -15,7 +15,7 @@ require (
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/golang/protobuf v1.4.2
+	github.com/golang/protobuf v1.5.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.7.4 // indirect
@@ -51,7 +51,7 @@ require (
 	google.golang.org/api v0.30.0
 	google.golang.org/genproto v0.0.0-20200815001618-f69a88009b70
 	google.golang.org/grpc v1.33.1 // indirect
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
