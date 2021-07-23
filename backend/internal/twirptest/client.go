@@ -32,7 +32,7 @@ type Client interface {
 		request proto.Message,
 		response proto.Message,
 		wantStatusCode int,
-	) (int, error)
+	) (int, *JSONError)
 }
 
 type JSONClient struct{}
@@ -48,7 +48,7 @@ func (jc *JSONClient) SendRequest(
 	path string,
 	request proto.Message,
 	response proto.Message,
-) (int, error) {
+) (int, *JSONError) {
 	t.Helper()
 
 	var body bytes.Buffer
