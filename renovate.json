@@ -1,0 +1,19 @@
+{
+  "extends": [
+    ":separateMajorReleases",
+    ":ignoreUnstable",
+    ":prNotPending",
+    ":updateNotScheduled",
+    ":prHourlyLimitNone",
+    ":prConcurrentLimitNone",
+    ":automergeLinters",
+    ":automergeTesters",
+    ":automergeTypes",
+    ":automergePr",
+    "group:monorepos",
+    "group:recommended",
+    "schedule:weekends"
+  ],
+  "prNotPendingHours": 1,
+  "timezone": "Asia/Tokyo"
+}
