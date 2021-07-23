@@ -5,7 +5,7 @@ module github.com/oinume/lekcije
 go 1.15
 
 require (
-	cloud.google.com/go v0.63.0
+	cloud.google.com/go v0.65.0
 	cloud.google.com/go/storage v1.10.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.3
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2
@@ -44,12 +44,11 @@ require (
 	go.uber.org/zap v1.15.0
 	goji.io/v3 v3.0.0
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/text v0.3.3
-	golang.org/x/tools v0.0.0-20200817023811-d00afeaade8f // indirect
 	google.golang.org/api v0.30.0
-	google.golang.org/genproto v0.0.0-20200815001618-f69a88009b70
+	google.golang.org/genproto v0.0.0-20200825200019-8632dd797987
 	google.golang.org/grpc v1.33.1 // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
