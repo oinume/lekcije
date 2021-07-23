@@ -15,5 +15,8 @@
     "schedule:weekends"
   ],
   "prNotPendingHours": 1,
+  "postUpdateOptions": [
+    "gomodTidy"
+  ],
   "timezone": "Asia/Tokyo"
 }
