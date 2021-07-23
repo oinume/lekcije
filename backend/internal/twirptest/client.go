@@ -3,8 +3,8 @@ package twirptest
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,18 +13,14 @@ import (
 	"github.com/golang/protobuf/proto"  //nolint:staticcheck
 )
 
-type HTTPError struct {
-	StatusCode int
-	BodyString string
-	BodyBytes  []byte
+type JSONError struct {
+	Code string            `json:"code"`
+	Msg  string            `json:"msg"`
+	Meta map[string]string `json:"meta,omitempty"`
 }
 
-func (e *HTTPError) Error() string {
-	if e.BodyString != "" {
-		return fmt.Sprintf("StatusCode=%d, BodyString=%q", e.StatusCode, e.BodyString)
-	} else {
-		return fmt.Sprintf("StatusCode=%d, BodyBytes=%q", e.StatusCode, e.BodyBytes)
-	}
+func (e *JSONError) Error() string {
+	return fmt.Sprintf("Code=%s, Msg=%s, Meta=%v", e.Code, e.Msg, e.Meta)
 }
 
 type Client interface {
@@ -36,7 +32,7 @@ type Client interface {
 		request proto.Message,
 		response proto.Message,
 		wantStatusCode int,
-	)
+	) (int, error)
 }
 
 type JSONClient struct{}
@@ -52,8 +48,7 @@ func (jc *JSONClient) SendRequest(
 	path string,
 	request proto.Message,
 	response proto.Message,
-	wantStatusCode int,
-) error {
+) (int, error) {
 	t.Helper()
 
 	var body bytes.Buffer
@@ -73,15 +68,12 @@ func (jc *JSONClient) SendRequest(
 
 	resp := w.Result()
 	defer resp.Body.Close()
-	if resp.StatusCode != wantStatusCode {
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("ReadAll failed: %v", err)
+	if resp.StatusCode >= 300 {
+		var je JSONError
+		if err := json.NewDecoder(resp.Body).Decode(&je); err != nil {
+			t.Fatalf("Decode failed: %v", err)
 		}
-		return &HTTPError{
-			StatusCode: resp.StatusCode,
-			BodyString: string(b),
-		}
+		return resp.StatusCode, &je
 	}
 
 	unmarshaler := &jsonpb.Unmarshaler{}
@@ -89,5 +81,5 @@ func (jc *JSONClient) SendRequest(
 		t.Fatalf("Unmarshal failed: %v", err)
 	}
 
-	return nil
+	return resp.StatusCode, nil
 }
