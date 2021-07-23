@@ -84,6 +84,7 @@
     "react-loader-spinner": "^4.0.0",
     "react-loading-overlay": "^1.0.1",
     "react-micro-container": "^1.2.0",
+    "react-query": "^3.19.0",
     "react-spinners": "^0.10.6",
     "sprintf-js": "^1.1.2"
   },
