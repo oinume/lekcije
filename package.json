@@ -4,7 +4,7 @@
   "description": "",
   "engines": {
     "node": "14.17.3",
-    "npm": "7.20.0"
+    "npm": "7.20.1"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js --progress --color",
