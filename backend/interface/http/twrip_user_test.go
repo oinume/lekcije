@@ -26,8 +26,8 @@ import (
 	"github.com/oinume/lekcije/backend/model2"
 	model2c "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/usecase"
-	"github.com/oinume/lekcije/backend/util"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	"github.com/oinume/lekcije/randoms"
 )
 
 func Test_UserService_GetMe(t *testing.T) {
@@ -127,7 +127,7 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 				})
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
 
-				wantEmail := fmt.Sprintf("update-me-email-%s@example.com", util.RandomString(8))
+				wantEmail := fmt.Sprintf("update-me-email-%s@example.com", randoms.MustNewString(8))
 				return &testCase{
 					apiToken: userAPIToken.Token,
 					user:     user,
@@ -147,7 +147,7 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 				})
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
 
-				wantEmail := "invalid-email"
+				wantEmail := "invalid-email@"
 				return &testCase{
 					apiToken: userAPIToken.Token,
 					user:     user,
@@ -158,6 +158,29 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 					wantError: &twirptest.JSONError{
 						Code: string(twirp.InvalidArgument),
 						Msg:  "email invalid email",
+					},
+				}
+			},
+		},
+		"duplicate email": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					user:     user,
+					request: &api_v1.UpdateMeEmailRequest{
+						Email: user.Email,
+					},
+					wantStatusCode: http.StatusBadRequest,
+					wantError: &twirptest.JSONError{
+						Code: string(twirp.InvalidArgument),
+						Msg:  "email email exists",
 					},
 				}
 			},
