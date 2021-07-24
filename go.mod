@@ -30,7 +30,7 @@ require (
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/openzipkin/zipkin-go v0.2.3
 	github.com/pkg/errors v0.9.1
-	github.com/rs/cors v1.7.0
+	github.com/rs/cors v1.8.0
 	github.com/sclevine/agouti v3.0.0+incompatible
 	github.com/sendgrid/rest v2.6.4+incompatible
 	github.com/sendgrid/sendgrid-go v3.6.1+incompatible
