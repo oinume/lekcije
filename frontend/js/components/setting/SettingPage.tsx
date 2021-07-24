@@ -1,28 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from 'react-query';
 import { createHttpClient } from '../../http/client';
+import { sendRequest } from '../../http/fetch';
 import { Loader } from '../Loader';
 import { Alert } from '../Alert';
+import { ToggleAlert } from '../ToggleAlert';
 import { EmailForm } from './EmailForm';
-import { MPlanForm } from './MPlanForm';
 import {
   NotificationTimeSpan,
   NotificationTimeSpanForm,
 } from './NotificationTimeSpanForm';
 
-type AlertState = {
+type ToggleAlertState = {
   visible: boolean;
   kind: string;
   message: string;
 };
 
+interface GetMeResult {
+  email: string;
+  notificationTimeSpans: NotificationTimeSpan[];
+}
+
 export const SettingPage: React.FC<{}> = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
-  const [alert, setAlert] = useState<AlertState>({
+  const [alert, setAlert] = useState<ToggleAlertState>({
     visible: false,
     kind: '',
     message: '',
   });
+  const [email, setEmail] = useState<string>('');
   const [notificationTimeSpans, setNotificationTimeSpans] = useState<
     NotificationTimeSpan[]
   >([]);
@@ -31,27 +37,54 @@ export const SettingPage: React.FC<{}> = () => {
     setNotificationTimeSpanEditable,
   ] = useState<boolean>(false);
 
-  useEffect(() => {
-    setLoading(true);
-    const client = createHttpClient();
-    client
-      .post('/twirp/api.v1.User/GetMe', {})
-      .then((response) => {
-        console.log(response.data);
-        const timeSpans = response.data['notificationTimeSpans']
-          ? response.data['notificationTimeSpans']
-          : [];
-        setEmail(response.data['email']);
-        setNotificationTimeSpans(timeSpans);
-      })
-      .catch((error) => {
-        console.log(error);
-        handleShowAlert('danger', 'システムエラーが発生しました');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+  console.log('BEFORE useQuery');
+  const { isLoading, isIdle, error, data } = useQuery<GetMeResult, Error>(
+    'me',
+    async () => {
+      console.log('BEFORE fetch');
+      const response = await sendRequest('/twirp/api.v1.User/GetMe', '{}');
+      if (!response.ok) {
+        // TODO: error
+        type TwirpError = {
+          code: string;
+          msg: string;
+        };
+        const e: TwirpError = await response.json();
+        throw new Error(`${response.status}:${e.msg}`);
+      }
+      const data = await response.json();
+      console.log('----- data -----');
+      console.log(data);
+      return data as GetMeResult;
+    },
+    {
+      retry: 0,
+    }
+  );
+  console.log('AFTER useQuery: isLoading = %s', isLoading);
+
+  if (isLoading || isIdle) {
+    return (
+      <Loader
+        loading={isLoading}
+        message={'Loading data ...'}
+        css={'background: rgba(255, 255, 255, 0)'}
+        size={50}
+      />
+    );
+  }
+
+  if (error) {
+    console.error('error = %s', error);
+    return (
+      <Alert
+        kind={'danger'}
+        message={'システムエラーが発生しました。' + error.message}
+      />
+    );
+  }
+
+  const safeData = data as GetMeResult;
 
   const handleShowAlert = (kind: string, message: string) => {
     setAlert({ visible: true, kind: kind, message: message });
@@ -156,35 +189,25 @@ export const SettingPage: React.FC<{}> = () => {
   return (
     <div>
       <h1 className="page-title">設定</h1>
-      {loading ? (
-        <Loader
-          loading={loading}
-          message={'Loading data ...'}
-          css={'background: rgba(255, 255, 255, 0)'}
-          size={50}
+      <>
+        <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
+        <EmailForm
+          email={email || safeData.email}
+          handleOnChange={(e) => {
+            setEmail(e.currentTarget.value);
+          }}
+          handleUpdateEmail={handleUpdateEmail} // TODO: inline function
         />
-      ) : (
-        <>
-          <Alert handleCloseAlert={handleHideAlert} {...alert} />
-          <EmailForm
-            email={email}
-            handleOnChange={(e) => {
-              setEmail(e.currentTarget.value);
-            }}
-            handleUpdateEmail={handleUpdateEmail} // TODO: inline function
-          />
-          <NotificationTimeSpanForm
-            handleAdd={handleAddTimeSpan}
-            handleDelete={handleDeleteTimeSpan}
-            handleUpdate={handleUpdateTimeSpan}
-            handleOnChange={handleOnChangeTimeSpan}
-            handleSetEditable={setNotificationTimeSpanEditable}
-            editable={notificationTimeSpanEditable}
-            timeSpans={notificationTimeSpans}
-          />
-          {/*<MPlanForm {...this.state.mPlan} />*/}
-        </>
-      )}
+        <NotificationTimeSpanForm
+          handleAdd={handleAddTimeSpan}
+          handleDelete={handleDeleteTimeSpan}
+          handleUpdate={handleUpdateTimeSpan}
+          handleOnChange={handleOnChangeTimeSpan}
+          handleSetEditable={setNotificationTimeSpanEditable}
+          editable={notificationTimeSpanEditable}
+          timeSpans={notificationTimeSpans}
+        />
+      </>
     </div>
   );
 };

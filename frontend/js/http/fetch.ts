@@ -1,17 +1,18 @@
-import axios from 'axios';
 import cookie from 'cookie';
+import fetch from 'cross-fetch';
 
-export const createHttpClient = () => {
+export const sendRequest = async (path: string, body: string) => {
+  const headers: { [key: string]: string } = {
+    'Content-Type': 'application/json',
+  };
   const cookies = cookie.parse(document.cookie);
-  const headers: { [key: string]: string } = {};
   if (cookies['apiToken']) {
     headers['X-Api-Token'] = cookies['apiToken'];
     headers['Authorization'] = 'Bearer ' + cookies['apiToken'];
   }
-  headers['Content-Type'] = 'application/json';
-  return axios.create({
-    //baseURL: 'https://some-domain.com/api/',
-    timeout: 3000,
+  return fetch(path, {
+    body: body,
+    method: 'POST',
     headers: headers,
   });
 };

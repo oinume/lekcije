@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 type Props = {
   kind: string;
   message: string;
+  visible: boolean;
+  handleCloseAlert: () => void;
 };
 
-export const Alert: React.FC<Props> = ({ kind, message }) => {
-  const [visible, setVisible] = useState<boolean>(true);
+export const ToggleAlert: React.FC<Props> = ({
+  kind,
+  message,
+  visible,
+  handleCloseAlert,
+}) => {
   if (visible) {
     return (
       <div className={'alert alert-' + kind} role="alert">
         <button
           type="button"
           className="close"
-          onClick={() => setVisible(false)}
+          onClick={() => handleCloseAlert()}
         >
           &times;
         </button>
