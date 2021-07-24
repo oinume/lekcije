@@ -34,7 +34,7 @@ require (
 	github.com/sclevine/agouti v3.0.0+incompatible
 	github.com/sendgrid/rest v2.6.4+incompatible
 	github.com/sendgrid/sendgrid-go v3.6.1+incompatible
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
 	github.com/twitchtv/twirp v8.1.0+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
