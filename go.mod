@@ -26,7 +26,7 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/onsi/ginkgo v1.14.0 // indirect
-	github.com/openzipkin/zipkin-go v0.2.3
+	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.8.0
 	github.com/sclevine/agouti v3.0.0+incompatible
