@@ -2,11 +2,11 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"go.opencensus.io/trace"
 
@@ -19,8 +19,8 @@ type User struct {
 	Email              string
 	EmailVerified      bool
 	PlanID             uint8
-	FollowedTeacherAt  mysql.NullTime
-	OpenNotificationAt mysql.NullTime
+	FollowedTeacherAt  sql.NullTime
+	OpenNotificationAt sql.NullTime
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 }
