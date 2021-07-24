@@ -5,7 +5,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/randoms"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 func NewNotificationTimeSpan(setters ...func(nts *model2.NotificationTimeSpan)) *model2.NotificationTimeSpan {
