@@ -78,3 +78,14 @@ func (u *User) FindByGoogleID(ctx context.Context, googleID string) (*model2.Use
 func (u *User) UpdateEmail(ctx context.Context, id uint, email string) error {
 	return u.userRepo.UpdateEmail(ctx, id, email)
 }
+
+func (u *User) IsDuplicateEmail(ctx context.Context, email string) (bool, error) {
+	_, err := u.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}

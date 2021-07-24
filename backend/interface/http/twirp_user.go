@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
-	"strings"
+	"net/mail"
 
 	"github.com/jinzhu/gorm"
 	"github.com/twitchtv/twirp"
@@ -92,12 +92,19 @@ func (s *UserService) UpdateMeEmail(
 		return nil, err
 	}
 
-	// TODO: better validation
 	email := request.Email
 	if email == "" || !validateEmail(email) {
 		return nil, twirp.InvalidArgumentError("email", "invalid email")
 	}
-	if err := s.userUsecase.UpdateEmail(ctx, uint(user.ID), request.Email); err != nil {
+	duplicate, err := s.userUsecase.IsDuplicateEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	if duplicate {
+		return nil, twirp.InvalidArgumentError("email", "email exists")
+	}
+
+	if err := s.userUsecase.UpdateEmail(ctx, uint(user.ID), email); err != nil {
 		return nil, err
 	}
 
@@ -152,6 +159,6 @@ func (s *UserService) UpdateMeNotificationTimeSpan(
 }
 
 func validateEmail(email string) bool {
-	// TODO: better validation
-	return strings.Contains(email, "@")
+	_, err := mail.ParseAddress(email)
+	return err == nil
 }
