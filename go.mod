@@ -46,7 +46,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.6
 	google.golang.org/api v0.51.0
-	google.golang.org/genproto v0.0.0-20210721163202-f1cecdd8b78a
+	google.golang.org/genproto v0.0.0-20210722135532-667f2b7c528f
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
