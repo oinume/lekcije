@@ -33,7 +33,7 @@ require (
 	github.com/sendgrid/rest v2.6.4+incompatible
 	github.com/sendgrid/sendgrid-go v3.6.1+incompatible
 	github.com/stretchr/testify v1.7.0
-	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
+	github.com/stvp/rollbar v0.5.1
 	github.com/twitchtv/twirp v8.1.0+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.6.0
