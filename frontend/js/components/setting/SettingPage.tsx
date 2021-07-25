@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from 'react-query';
+import {useMutation, useQuery, useQueryClient} from 'react-query';
 import { createHttpClient } from '../../http/client';
 import { sendRequest } from '../../http/fetch';
 import { Loader } from '../Loader';
@@ -36,6 +36,18 @@ export const SettingPage: React.FC<{}> = () => {
     notificationTimeSpanEditable,
     setNotificationTimeSpanEditable,
   ] = useState<boolean>(false);
+  const queryClient = useQueryClient();
+  // https://react-query.tanstack.com/guides/mutations
+  type UpdateMeEmailResult = {};
+  const updateMeEmailMutation = useMutation((email: string): Promise<UpdateMeEmailResult> => {
+    return sendRequest('/twirp/api.v1.User/UpdateMeEmail', JSON.stringify({
+      email: email,
+    }));
+  }, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('me');
+    }
+  });
 
   console.log('BEFORE useQuery');
   const { isLoading, isIdle, error, data } = useQuery<GetMeResult, Error>(
@@ -94,27 +106,28 @@ export const SettingPage: React.FC<{}> = () => {
     setAlert({ ...alert, visible: false });
   };
 
-  const handleUpdateEmail = (email: string): void => {
-    const client = createHttpClient();
-    client
-      .post('/twirp/api.v1.User/UpdateMeEmail', {
-        email: email,
-      })
-      .then((_) => {
-        handleShowAlert('success', 'メールアドレスを更新しました！');
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response.status === 400) {
-          handleShowAlert('danger', '正しいメールアドレスを入力してください');
-        } else {
-          // TODO: external message
-          handleShowAlert('danger', 'システムエラーが発生しました');
-        }
-      });
-  };
+  // const handleUpdateEmail = (em: string):void => {
+  //   updateMeEmailMutation.mutate(em);
+  //   const client = createHttpClient();
+  //   client
+  //     .post('/twirp/api.v1.User/UpdateMeEmail', {
+  //       email: email,
+  //     })
+  //     .then((_) => {
+  //       handleShowAlert('success', 'メールアドレスを更新しました！');
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //       if (error.response.status === 400) {
+  //         handleShowAlert('danger', '正しいメールアドレスを入力してください');
+  //       } else {
+  //         // TODO: external message
+  //         handleShowAlert('danger', 'システムエラーが発生しました');
+  //       }
+  //     });
+  // };
 
-  const handleAddTimeSpan = () => {
+    const handleAddTimeSpan = () => {
     if (notificationTimeSpans.length === 3) {
       return;
     }
@@ -186,17 +199,31 @@ export const SettingPage: React.FC<{}> = () => {
     setNotificationTimeSpanEditable(false);
   };
 
+  const showUpdateMeEmailAlert = () => {
+    switch (updateMeEmailMutation.status) {
+      case 'success':
+        return <Alert kind={'success'} message={'メールアドレスを更新しました！'} />;
+      case 'error':
+        return <Alert kind={'danger'} message={updateMeEmailMutation.error as string} />;
+      default:
+        return <></>
+    }
+  }
+
   return (
     <div>
       <h1 className="page-title">設定</h1>
       <>
         <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
+        { showUpdateMeEmailAlert() }
         <EmailForm
-          email={email || safeData.email}
+          email={email || safeData.email /* TODO: emailを画面から空にするとsafeData.emailに戻ってしまう */ }
           handleOnChange={(e) => {
             setEmail(e.currentTarget.value);
           }}
-          handleUpdateEmail={handleUpdateEmail} // TODO: inline function
+          handleUpdateEmail={
+            (em):void => { updateMeEmailMutation.mutate(em) }
+          }
         />
         <NotificationTimeSpanForm
           handleAdd={handleAddTimeSpan}
@@ -211,3 +238,4 @@ export const SettingPage: React.FC<{}> = () => {
     </div>
   );
 };
+
