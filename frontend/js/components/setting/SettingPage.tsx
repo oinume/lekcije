@@ -11,13 +11,15 @@ import {
   NotificationTimeSpanForm,
 } from './NotificationTimeSpanForm';
 
+const queryKeyMe = 'me';
+
 type ToggleAlertState = {
   visible: boolean;
   kind: string;
   message: string;
 };
 
-interface GetMeResult {
+type GetMeResult = {
   email: string;
   notificationTimeSpans: NotificationTimeSpan[];
 }
@@ -28,7 +30,7 @@ export const SettingPage: React.FC<{}> = () => {
     kind: '',
     message: '',
   });
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string | undefined>(undefined);
   const [notificationTimeSpans, setNotificationTimeSpans] = useState<
     NotificationTimeSpan[]
   >([]);
@@ -41,17 +43,20 @@ export const SettingPage: React.FC<{}> = () => {
   type UpdateMeEmailResult = {};
   const updateMeEmailMutation = useMutation((email: string): Promise<UpdateMeEmailResult> => {
     return sendRequest('/twirp/api.v1.User/UpdateMeEmail', JSON.stringify({
+      // TODO: Use proto generated code
       email: email,
     }));
   }, {
     onSuccess: () => {
-      queryClient.invalidateQueries('me');
+      queryClient.invalidateQueries(queryKeyMe).then((_) => {}).catch((e) => {
+        console.error(e);
+      });
     }
   });
 
   console.log('BEFORE useQuery');
   const { isLoading, isIdle, error, data } = useQuery<GetMeResult, Error>(
-    'me',
+    queryKeyMe,
     async () => {
       console.log('BEFORE fetch');
       const response = await sendRequest('/twirp/api.v1.User/GetMe', '{}');
@@ -105,27 +110,6 @@ export const SettingPage: React.FC<{}> = () => {
   const handleHideAlert = () => {
     setAlert({ ...alert, visible: false });
   };
-
-  // const handleUpdateEmail = (em: string):void => {
-  //   updateMeEmailMutation.mutate(em);
-  //   const client = createHttpClient();
-  //   client
-  //     .post('/twirp/api.v1.User/UpdateMeEmail', {
-  //       email: email,
-  //     })
-  //     .then((_) => {
-  //       handleShowAlert('success', 'メールアドレスを更新しました！');
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //       if (error.response.status === 400) {
-  //         handleShowAlert('danger', '正しいメールアドレスを入力してください');
-  //       } else {
-  //         // TODO: external message
-  //         handleShowAlert('danger', 'システムエラーが発生しました');
-  //       }
-  //     });
-  // };
 
     const handleAddTimeSpan = () => {
     if (notificationTimeSpans.length === 3) {
@@ -217,7 +201,7 @@ export const SettingPage: React.FC<{}> = () => {
         <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
         { showUpdateMeEmailAlert() }
         <EmailForm
-          email={email || safeData.email /* TODO: emailを画面から空にするとsafeData.emailに戻ってしまう */ }
+          email={email ?? safeData.email}
           handleOnChange={(e) => {
             setEmail(e.currentTarget.value);
           }}
