@@ -12,34 +12,30 @@ export type NotificationTimeSpan = {
 };
 
 type Props = {
-  editable: boolean;
   timeSpans: Array<any>;
   handleAdd: () => void;
   handleDelete: (index: number) => void;
   handleUpdate: () => void;
   handleOnChange: (name: string, index: number, value: any) => void;
-  handleSetEditable: (editable: boolean) => void;
 };
 
 export const NotificationTimeSpanForm: React.FC<Props> = ({
-  editable,
   timeSpans,
   handleAdd,
   handleDelete,
   handleUpdate,
   handleOnChange,
-  handleSetEditable,
 }) => {
+  const [editable, setEditable] = useState<boolean>(false);
+
   const onClickPlus = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     event.preventDefault();
     handleAdd();
   };
-
   const onClickMinus = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, index: number): void => {
     event.preventDefault();
     handleDelete(index);
   };
-
   const onChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const [name, index] = event.target.name.split('_');
     handleOnChange(name, Number(index), event.target.value);
@@ -86,10 +82,10 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
             editable={editable}
             handleOnClick={(_) => {
               if (editable) {
-                handleSetEditable(false);
+                setEditable(false);
                 handleUpdate();
               } else {
-                handleSetEditable(true);
+                setEditable(true);
               }
             }}
           />

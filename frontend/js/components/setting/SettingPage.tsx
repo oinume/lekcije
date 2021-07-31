@@ -27,9 +27,10 @@ export const SettingPage: React.FC<{}> = () => {
     kind: '',
     message: '',
   });
-  const [email, setEmail] = useState<string | undefined>(undefined);
-  const [notificationTimeSpans, setNotificationTimeSpans] = useState<NotificationTimeSpan[]>([]);
-  const [notificationTimeSpanEditable, setNotificationTimeSpanEditable] = useState<boolean>(false);
+  const [emailState, setEmailState] = useState<string | undefined>(undefined);
+  const [notificationTimeSpansState, setNotificationTimeSpansState] = useState<NotificationTimeSpan[] | undefined>(
+    undefined
+  );
   const queryClient = useQueryClient();
   // https://react-query.tanstack.com/guides/mutations
   type UpdateMeEmailResult = {};
@@ -93,7 +94,9 @@ export const SettingPage: React.FC<{}> = () => {
     return <Alert kind={'danger'} message={'システムエラーが発生しました。' + error.message} />;
   }
 
-  const safeData = data as GetMeResult;
+  const safeData = data as GetMeResult; // TODO: better name
+  const email = emailState ?? safeData.email;
+  const notificationTimeSpans = notificationTimeSpansState ?? safeData.notificationTimeSpans;
 
   const handleShowAlert = (kind: string, message: string) => {
     setAlert({ visible: true, kind: kind, message: message });
@@ -107,7 +110,7 @@ export const SettingPage: React.FC<{}> = () => {
     if (notificationTimeSpans.length === 3) {
       return;
     }
-    setNotificationTimeSpans([...notificationTimeSpans, { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 }]);
+    setNotificationTimeSpansState([...notificationTimeSpans, { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 }]);
   };
 
   const handleDeleteTimeSpan = (index: number) => {
@@ -116,13 +119,13 @@ export const SettingPage: React.FC<{}> = () => {
       return;
     }
     timeSpans.splice(index, 1);
-    setNotificationTimeSpans(timeSpans);
+    setNotificationTimeSpansState(timeSpans);
   };
 
   const handleOnChangeTimeSpan = (name: string, index: number, value: number) => {
     let timeSpans = notificationTimeSpans.slice();
     timeSpans[index][name as keyof NotificationTimeSpan] = value;
-    setNotificationTimeSpans(timeSpans);
+    setNotificationTimeSpansState(timeSpans);
   };
 
   const handleUpdateTimeSpan = () => {
@@ -156,8 +159,7 @@ export const SettingPage: React.FC<{}> = () => {
         }
       });
 
-    setNotificationTimeSpans(timeSpans);
-    setNotificationTimeSpanEditable(false);
+    setNotificationTimeSpansState(timeSpans);
   };
 
   const showUpdateMeEmailAlert = () => {
@@ -178,9 +180,9 @@ export const SettingPage: React.FC<{}> = () => {
         <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
         {showUpdateMeEmailAlert()}
         <EmailForm
-          email={email ?? safeData.email}
+          email={email}
           handleOnChange={(e) => {
-            setEmail(e.currentTarget.value);
+            setEmailState(e.currentTarget.value);
           }}
           handleUpdateEmail={(em): void => {
             updateMeEmailMutation.mutate(em);
@@ -191,8 +193,6 @@ export const SettingPage: React.FC<{}> = () => {
           handleDelete={handleDeleteTimeSpan}
           handleUpdate={handleUpdateTimeSpan}
           handleOnChange={handleOnChangeTimeSpan}
-          handleSetEditable={setNotificationTimeSpanEditable}
-          editable={notificationTimeSpanEditable}
           timeSpans={notificationTimeSpans}
         />
       </>
