@@ -31,6 +31,7 @@ export const SettingPage: React.FC<{}> = () => {
   const [notificationTimeSpansState, setNotificationTimeSpansState] = useState<NotificationTimeSpan[] | undefined>(
     undefined
   );
+
   const queryClient = useQueryClient();
   // https://react-query.tanstack.com/guides/mutations
   type UpdateMeEmailResult = {};
@@ -41,6 +42,28 @@ export const SettingPage: React.FC<{}> = () => {
         JSON.stringify({
           // TODO: Use proto generated code
           email: email,
+        })
+      );
+    },
+    {
+      onSuccess: () => {
+        queryClient
+          .invalidateQueries(queryKeyMe)
+          .then((_) => {})
+          .catch((e) => {
+            console.error(e);
+          });
+      },
+    }
+  );
+
+  type UpdateMeNotificationTimeSPanResult = {};
+  const updateMeNotificationTimeSpanMutation = useMutation(
+    (timeSpans: NotificationTimeSpan[]): Promise<UpdateMeNotificationTimeSPanResult> => {
+      return sendRequest(
+        '/twirp/api.v1.User/UpdateMeNotificationTimeSpan',
+        JSON.stringify({
+          notificationTimeSpans: timeSpans,
         })
       );
     },
@@ -140,28 +163,12 @@ export const SettingPage: React.FC<{}> = () => {
       }
       timeSpans.push(timeSpan);
     }
-
-    const client = createHttpClient();
-    client
-      .post('/twirp/api.v1.User/UpdateMeNotificationTimeSpan', {
-        notificationTimeSpans: timeSpans,
-      })
-      .then((_) => {
-        handleShowAlert('success', 'レッスン希望時間帯を更新しました！');
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response.status === 400) {
-          handleShowAlert('danger', '正しいレッスン希望時間帯を選択してください');
-        } else {
-          // TODO: external message
-          handleShowAlert('danger', 'システムエラーが発生しました');
-        }
-      });
-
     setNotificationTimeSpansState(timeSpans);
+    console.log('BEFORE updateMeNotificationTimeSpanMutation.mutate()');
+    updateMeNotificationTimeSpanMutation.mutate(timeSpans);
   };
 
+  // TODO: component
   const showUpdateMeEmailAlert = () => {
     switch (updateMeEmailMutation.status) {
       case 'success':
@@ -173,12 +180,25 @@ export const SettingPage: React.FC<{}> = () => {
     }
   };
 
+  // TODO: component
+  const showUpdateMeNotificationTimeSpanAlert = () => {
+    switch (updateMeNotificationTimeSpanMutation.status) {
+      case 'success':
+        return <Alert kind={'success'} message={'レッスン希望時間帯を更新しました！'} />;
+      case 'error':
+        return <Alert kind={'danger'} message={updateMeNotificationTimeSpanMutation.error as string} />;
+      default:
+        return <></>;
+    }
+  };
+
   return (
     <div>
       <h1 className="page-title">設定</h1>
       <>
         <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
         {showUpdateMeEmailAlert()}
+        {showUpdateMeNotificationTimeSpanAlert()}
         <EmailForm
           email={email}
           handleOnChange={(e) => {
