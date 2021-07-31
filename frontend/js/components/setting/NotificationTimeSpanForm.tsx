@@ -45,81 +45,25 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
     handleOnChange(name, Number(index), event.target.value);
   };
 
-  const createTimeSpanItem = (timeSpan: any, index: number) => {
-    const hourOptions = range(0, 24).map((v) => {
-      return { value: String(v), label: String(v) };
+  let content: any = [];
+  if (timeSpans.length > 0) {
+    content = timeSpans.map((timeSpan, i) => {
+      return (
+        <TimeSpanItem
+          editable={editable}
+          timeSpan={timeSpan}
+          index={i}
+          handleOnChange={onChange}
+          handleOnClickPlus={onClickPlus}
+          handleOnClickMinus={onClickMinus}
+        />
+      );
     });
-    const minuteOptions = [0, 30].map((v) => {
-      return { value: String(v), label: sprintf('%02d', v) };
-    });
-
-    return (
-      // TODO: Use <ul><li>
-      <p style={{ marginBottom: '0px' }}>
-        <Select
-          name={'fromHour_' + index}
-          value={timeSpan.fromHour}
-          onChange={onChange}
-          options={hourOptions}
-          className="custom-select custom-select-sm"
-        />
-        時 &nbsp;
-        <Select
-          name={'fromMinute_' + index}
-          value={timeSpan.fromMinute}
-          onChange={onChange}
-          options={minuteOptions}
-          className="custom-select custom-select-sm"
-        />
-        分 &nbsp; 〜 &nbsp;&nbsp;
-        <Select
-          name={'toHour_' + index}
-          value={timeSpan.toHour}
-          onChange={onChange}
-          options={hourOptions}
-          className="custom-select custom-select-sm"
-        />
-        時 &nbsp;
-        <Select
-          name={'toMinute_' + index}
-          value={timeSpan.toMinute}
-          onChange={onChange}
-          options={minuteOptions}
-          className="custom-select custom-select-sm"
-        />
-        分
-        <button type="button" className="btn btn-link button-plus" onClick={(event) => onClickPlus(event)}>
-          <i className="fas fa-plus-circle button-plus" aria-hidden="true" />
-        </button>
-        <button type="button" className="btn btn-link button-plus" onClick={(event) => onClickMinus(event, index)}>
-          {/* TODO: no need to pass index */}
-          <i className="fas fa-minus-circle button-plus" aria-hidden="true" />
-        </button>
-      </p>
-    );
-  };
-
-  let content = [];
-  if (editable) {
-    if (timeSpans.length > 0) {
-      timeSpans.map((timeSpan, i) => {
-        content.push(createTimeSpanItem(timeSpan, i));
-      });
-    } else {
-      handleAdd();
-    }
   } else {
-    if (timeSpans.length > 0) {
-      for (let timeSpan of timeSpans) {
-        content.push(
-          <p>
-            {timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:
-            {sprintf('%02d', timeSpan.toMinute)}
-          </p>
-        );
-      }
+    if (editable) {
+      handleAdd();
     } else {
-      content.push(<p>データがありません。編集ボタンで追加できます。</p>);
+      content = [<p>データがありません。編集ボタンで追加できます。</p>];
     }
   }
 
@@ -153,6 +97,89 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
       </div>
     </form>
   );
+};
+
+type TimeSpanItemProps = {
+  editable: boolean;
+  timeSpan: any;
+  index: number;
+  handleOnChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleOnClickPlus: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  handleOnClickMinus: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, index: number) => void;
+};
+
+const TimeSpanItem = ({
+  editable,
+  timeSpan,
+  index,
+  handleOnChange,
+  handleOnClickPlus,
+  handleOnClickMinus,
+}: TimeSpanItemProps) => {
+  const hourOptions = range(0, 24).map((v) => {
+    return { value: String(v), label: String(v) };
+  });
+  const minuteOptions = [0, 30].map((v) => {
+    return { value: String(v), label: sprintf('%02d', v) };
+  });
+
+  if (editable) {
+    return (
+      // TODO: Use <ul><li>
+      <p style={{ marginBottom: '0px' }}>
+        <Select
+          name={'fromHour_' + index}
+          value={timeSpan.fromHour}
+          onChange={handleOnChange}
+          options={hourOptions}
+          className="custom-select custom-select-sm"
+        />
+        時 &nbsp;
+        <Select
+          name={'fromMinute_' + index}
+          value={timeSpan.fromMinute}
+          onChange={handleOnChange}
+          options={minuteOptions}
+          className="custom-select custom-select-sm"
+        />
+        分 &nbsp; 〜 &nbsp;&nbsp;
+        <Select
+          name={'toHour_' + index}
+          value={timeSpan.toHour}
+          onChange={handleOnChange}
+          options={hourOptions}
+          className="custom-select custom-select-sm"
+        />
+        時 &nbsp;
+        <Select
+          name={'toMinute_' + index}
+          value={timeSpan.toMinute}
+          onChange={handleOnChange}
+          options={minuteOptions}
+          className="custom-select custom-select-sm"
+        />
+        分
+        <button type="button" className="btn btn-link button-plus" onClick={(event) => handleOnClickPlus(event)}>
+          <i className="fas fa-plus-circle button-plus" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="btn btn-link button-plus"
+          onClick={(event) => handleOnClickMinus(event, index)}
+        >
+          {/* TODO: no need to pass index */}
+          <i className="fas fa-minus-circle button-plus" aria-hidden="true" />
+        </button>
+      </p>
+    );
+  } else {
+    return (
+      <p>
+        {timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:
+        {sprintf('%02d', timeSpan.toMinute)}
+      </p>
+    );
+  }
 };
 
 type UpdateButtonProps = {
