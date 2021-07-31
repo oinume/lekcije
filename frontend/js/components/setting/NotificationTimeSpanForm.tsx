@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Option, Select } from '../Select';
 import { sprintf } from 'sprintf-js';
 import { range } from 'lodash-es';
@@ -30,17 +30,12 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
   handleOnChange,
   handleSetEditable,
 }) => {
-  const onClickPlus = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void => {
+  const onClickPlus = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     event.preventDefault();
     handleAdd();
   };
 
-  const onClickMinus = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    index: number
-  ): void => {
+  const onClickMinus = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, index: number): void => {
     event.preventDefault();
     handleDelete(index);
   };
@@ -93,18 +88,10 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
           className="custom-select custom-select-sm"
         />
         分
-        <button
-          type="button"
-          className="btn btn-link button-plus"
-          onClick={(event) => onClickPlus(event)}
-        >
+        <button type="button" className="btn btn-link button-plus" onClick={(event) => onClickPlus(event)}>
           <i className="fas fa-plus-circle button-plus" aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          className="btn btn-link button-plus"
-          onClick={(event) => onClickMinus(event, index)}
-        >
+        <button type="button" className="btn btn-link button-plus" onClick={(event) => onClickMinus(event, index)}>
           {/* TODO: no need to pass index */}
           <i className="fas fa-minus-circle button-plus" aria-hidden="true" />
         </button>
@@ -126,37 +113,14 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
       for (let timeSpan of timeSpans) {
         content.push(
           <p>
-            {timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜{' '}
-            {timeSpan.toHour}:{sprintf('%02d', timeSpan.toMinute)}
+            {timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:
+            {sprintf('%02d', timeSpan.toMinute)}
           </p>
         );
       }
     } else {
       content.push(<p>データがありません。編集ボタンで追加できます。</p>);
     }
-  }
-
-  let updateButton;
-  if (editable) {
-    updateButton = (
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={() => handleUpdate()}
-      >
-        更新
-      </button>
-    );
-  } else {
-    updateButton = (
-      <button
-        type="button"
-        className="btn btn-outline-primary"
-        onClick={() => handleSetEditable(true)}
-      >
-        編集
-      </button>
-    );
   }
 
   return (
@@ -167,17 +131,47 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
             レッスン希望時間帯
           </label>
           <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
-            <i
-              className="fas fa-question-circle button-help"
-              aria-hidden="true"
-            />
+            <i className="fas fa-question-circle button-help" aria-hidden="true" />
           </a>
         </div>
         <div className="col-sm-7">{content}</div>
       </div>
       <div className="form-group">
-        <div className="col-sm-offset-2 col-sm-8">{updateButton}</div>
+        <div className="col-sm-offset-2 col-sm-8">
+          <UpdateButton
+            editable={editable}
+            handleOnClick={(_) => {
+              if (editable) {
+                handleSetEditable(false);
+                handleUpdate();
+              } else {
+                handleSetEditable(true);
+              }
+            }}
+          />
+        </div>
       </div>
     </form>
+  );
+};
+
+type UpdateButtonProps = {
+  editable: boolean;
+  handleOnClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+};
+
+const UpdateButton = ({ editable, handleOnClick }: UpdateButtonProps) => {
+  const className = editable ? 'btn btn-primary' : 'btn btn-outline-primary';
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={(event) => {
+        event.preventDefault();
+        handleOnClick(event);
+      }}
+    >
+      {editable ? '更新' : '編集'}
+    </button>
   );
 };
