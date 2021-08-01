@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { createHttpClient } from '../../http/client';
 import { sendRequest } from '../../http/fetch';
 import { Loader } from '../Loader';
 import { Alert } from '../Alert';
