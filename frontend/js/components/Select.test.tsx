@@ -1,8 +1,5 @@
-/**
- * @jest-environment jsdom
- */
 import React from 'react';
-import { Select } from '../js/components/Select';
+import { Select } from './Select';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
