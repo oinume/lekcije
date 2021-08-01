@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/mail"
-	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/twitchtv/twirp"
@@ -51,7 +50,6 @@ func (s *UserService) GetMe(
 	ctx context.Context,
 	_ *api_v1.GetMeRequest,
 ) (*api_v1.GetMeResponse, error) {
-	time.Sleep(3 * time.Second)
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
