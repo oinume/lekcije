@@ -1,17 +1,14 @@
+/** @type {import('@ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-  verbose: true,
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  rootDir: './frontend',
-  //  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
-  testPathIgnorePatterns: ['.next', 'node_modules'],
-  //  snapshotSerializers: ['enzyme-to-json/serializer'],
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '^lodash-es$': 'lodash',
+  },
+  preset: 'ts-jest',
+  rootDir: './frontend',
+  testEnvironment: 'jsdom',
+  testPathIgnorePatterns: ['.next', 'node_modules'],
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest',
   },
   // https://github.com/zeit/next.js/issues/8663#issue-490553899
   globals: {

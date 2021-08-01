@@ -1,16 +1,17 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from 'react';
 import { Select } from '../js/components/Select';
-import { configure, shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-
-configure({ adapter: new Adapter() });
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
 test('Select initial state', () => {
   const options = [
     { value: 'japan', label: 'Japan' },
     { value: 'china', label: 'China' },
   ];
-  const wrapper = shallow(
+  render(
     <Select
       name="country"
       value=""
@@ -20,6 +21,5 @@ test('Select initial state', () => {
     />
   );
 
-  expect(wrapper.find('[name="country"]')).toHaveLength(1);
-  expect(wrapper.find('[name="country"]').children()).toHaveLength(2);
+  expect(screen.getByTestId('select')).toBeInTheDocument();
 });

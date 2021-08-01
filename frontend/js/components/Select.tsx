@@ -13,13 +13,7 @@ type Props = {
   options: Option[];
 };
 
-export const Select: React.FC<Props> = ({
-  name,
-  value,
-  className,
-  onChange,
-  options,
-}) => {
+export const Select: React.FC<Props> = ({ name, value, className, onChange, options }) => {
   return (
     <select
       name={name}
@@ -27,6 +21,7 @@ export const Select: React.FC<Props> = ({
       className={className}
       onChange={onChange}
       style={{ width: 'auto' }}
+      data-testid={'select'}
     >
       {options.map((o: Option) => {
         return (
