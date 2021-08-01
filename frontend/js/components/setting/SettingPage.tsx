@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient, UseMutationResult } from 'react-query';
 import { sendRequest } from '../../http/fetch';
 import { Loader } from '../Loader';
 import { Alert } from '../Alert';
@@ -20,6 +20,10 @@ type GetMeResult = {
   notificationTimeSpans: NotificationTimeSpan[];
 };
 
+type UpdateMeEmailResult = {};
+
+type UpdateMeNotificationTimeSPanResult = {};
+
 export const SettingPage: React.FC<{}> = () => {
   const [alert, setAlert] = useState<ToggleAlertState>({
     visible: false,
@@ -33,7 +37,6 @@ export const SettingPage: React.FC<{}> = () => {
 
   const queryClient = useQueryClient();
   // https://react-query.tanstack.com/guides/mutations
-  type UpdateMeEmailResult = {};
   const updateMeEmailMutation = useMutation(
     (email: string): Promise<UpdateMeEmailResult> => {
       return sendRequest(
@@ -56,7 +59,6 @@ export const SettingPage: React.FC<{}> = () => {
     }
   );
 
-  type UpdateMeNotificationTimeSPanResult = {};
   const updateMeNotificationTimeSpanMutation = useMutation(
     (timeSpans: NotificationTimeSpan[]): Promise<UpdateMeNotificationTimeSPanResult> => {
       return sendRequest(
@@ -78,11 +80,11 @@ export const SettingPage: React.FC<{}> = () => {
     }
   );
 
-  console.log('BEFORE useQuery');
+  //console.log('BEFORE useQuery');
   const { isLoading, isIdle, error, data } = useQuery<GetMeResult, Error>(
     queryKeyMe,
     async () => {
-      console.log('BEFORE fetch');
+      // console.log('BEFORE fetch');
       const response = await sendRequest('/twirp/api.v1.User/GetMe', '{}');
       if (!response.ok) {
         // TODO: error
@@ -94,15 +96,15 @@ export const SettingPage: React.FC<{}> = () => {
         throw new Error(`${response.status}:${e.msg}`);
       }
       const data = await response.json();
-      console.log('----- data -----');
-      console.log(data);
+      // console.log('----- data -----');
+      // console.log(data);
       return data as GetMeResult;
     },
     {
       retry: 0,
     }
   );
-  console.log('AFTER useQuery: isLoading = %s', isLoading);
+  // console.log('AFTER useQuery: isLoading = %s', isLoading);
 
   if (isLoading || isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
@@ -120,16 +122,13 @@ export const SettingPage: React.FC<{}> = () => {
   const email = emailState ?? safeData.email;
   const notificationTimeSpans = notificationTimeSpansState ?? safeData.notificationTimeSpans;
 
-  const handleShowAlert = (kind: string, message: string) => {
-    setAlert({ visible: true, kind: kind, message: message });
-  };
-
   const handleHideAlert = () => {
     setAlert({ ...alert, visible: false });
   };
 
   const handleAddTimeSpan = () => {
-    if (notificationTimeSpans.length === 3) {
+    const maxTimeSpans = 3;
+    if (notificationTimeSpans.length >= maxTimeSpans) {
       return;
     }
     setNotificationTimeSpansState([...notificationTimeSpans, { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 }]);
@@ -167,37 +166,13 @@ export const SettingPage: React.FC<{}> = () => {
     updateMeNotificationTimeSpanMutation.mutate(timeSpans);
   };
 
-  // TODO: component
-  const showUpdateMeEmailAlert = () => {
-    switch (updateMeEmailMutation.status) {
-      case 'success':
-        return <Alert kind={'success'} message={'メールアドレスを更新しました！'} />;
-      case 'error':
-        return <Alert kind={'danger'} message={updateMeEmailMutation.error as string} />;
-      default:
-        return <></>;
-    }
-  };
-
-  // TODO: component
-  const showUpdateMeNotificationTimeSpanAlert = () => {
-    switch (updateMeNotificationTimeSpanMutation.status) {
-      case 'success':
-        return <Alert kind={'success'} message={'レッスン希望時間帯を更新しました！'} />;
-      case 'error':
-        return <Alert kind={'danger'} message={updateMeNotificationTimeSpanMutation.error as string} />;
-      default:
-        return <></>;
-    }
-  };
-
   return (
     <div>
       <h1 className="page-title">設定</h1>
       <>
         <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
-        {showUpdateMeEmailAlert()}
-        {showUpdateMeNotificationTimeSpanAlert()}
+        <UseMutationResultAlert result={updateMeEmailMutation} name={'メールアドレス'} />
+        <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name={'レッスン希望時間帯'} />
         <EmailForm
           email={email}
           handleOnChange={(e) => {
@@ -217,4 +192,21 @@ export const SettingPage: React.FC<{}> = () => {
       </>
     </div>
   );
+};
+
+type UseMutationResultAlertProps = {
+  result: UseMutationResult<any, any, any, any>;
+  name: string;
+};
+
+// TODO: external component
+const UseMutationResultAlert = ({ result, name }: UseMutationResultAlertProps) => {
+  switch (result.status) {
+    case 'success':
+      return <Alert kind={'success'} message={name + 'を更新しました！'} />;
+    case 'error':
+      return <Alert kind={'danger'} message={result.error as string} />;
+    default:
+      return <></>;
+  }
 };
