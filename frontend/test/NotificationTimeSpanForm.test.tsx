@@ -5,18 +5,16 @@ import { NotificationTimeSpanForm } from '../js/components/setting/NotificationT
 
 configure({ adapter: new Adapter() });
 
-test('<NotificationTimeSpanFormFC>', () => {
+test('<NotificationTimeSpanForm>', () => {
   const wrapper = shallow(
     <NotificationTimeSpanForm
-      editable={false}
       timeSpans={[]}
       handleAdd={() => {}}
       handleDelete={() => {}}
       handleUpdate={() => {}}
       handleOnChange={() => {}}
-      handleSetEditable={() => {}}
     />
   );
-  expect(wrapper.find('button')).toHaveLength(1);
+  expect(wrapper.find('UpdateButton')).toHaveLength(1);
   // expect(wrapper.find('[name="email"]')).toHaveLength(1);
 });

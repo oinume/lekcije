@@ -1,94 +1,137 @@
-import React, { useEffect, useState } from 'react';
-import { createHttpClient } from '../../http/client';
+import React, { useState } from 'react';
+import { useMutation, useQuery, useQueryClient, UseMutationResult } from 'react-query';
+import { sendRequest } from '../../http/fetch';
 import { Loader } from '../Loader';
 import { Alert } from '../Alert';
+import { ToggleAlert } from '../ToggleAlert';
 import { EmailForm } from './EmailForm';
-import { MPlanForm } from './MPlanForm';
-import {
-  NotificationTimeSpan,
-  NotificationTimeSpanForm,
-} from './NotificationTimeSpanForm';
+import { NotificationTimeSpan, NotificationTimeSpanForm } from './NotificationTimeSpanForm';
 
-type AlertState = {
+const queryKeyMe = 'me';
+
+type ToggleAlertState = {
   visible: boolean;
   kind: string;
   message: string;
 };
 
+type GetMeResult = {
+  email: string;
+  notificationTimeSpans: NotificationTimeSpan[];
+};
+
+type UpdateMeEmailResult = {};
+
+type UpdateMeNotificationTimeSPanResult = {};
+
 export const SettingPage: React.FC<{}> = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
-  const [alert, setAlert] = useState<AlertState>({
+  const [alert, setAlert] = useState<ToggleAlertState>({
     visible: false,
     kind: '',
     message: '',
   });
-  const [notificationTimeSpans, setNotificationTimeSpans] = useState<
-    NotificationTimeSpan[]
-  >([]);
-  const [
-    notificationTimeSpanEditable,
-    setNotificationTimeSpanEditable,
-  ] = useState<boolean>(false);
+  const [emailState, setEmailState] = useState<string | undefined>(undefined);
+  const [notificationTimeSpansState, setNotificationTimeSpansState] = useState<NotificationTimeSpan[] | undefined>(
+    undefined
+  );
 
-  useEffect(() => {
-    setLoading(true);
-    const client = createHttpClient();
-    client
-      .post('/twirp/api.v1.User/GetMe', {})
-      .then((response) => {
-        console.log(response.data);
-        const timeSpans = response.data['notificationTimeSpans']
-          ? response.data['notificationTimeSpans']
-          : [];
-        setEmail(response.data['email']);
-        setNotificationTimeSpans(timeSpans);
-      })
-      .catch((error) => {
-        console.log(error);
-        handleShowAlert('danger', 'システムエラーが発生しました');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+  const queryClient = useQueryClient();
+  // https://react-query.tanstack.com/guides/mutations
+  const updateMeEmailMutation = useMutation(
+    (email: string): Promise<UpdateMeEmailResult> => {
+      return sendRequest(
+        '/twirp/api.v1.User/UpdateMeEmail',
+        JSON.stringify({
+          // TODO: Use proto generated code
+          email: email,
+        })
+      );
+    },
+    {
+      onSuccess: () => {
+        queryClient
+          .invalidateQueries(queryKeyMe)
+          .then((_) => {})
+          .catch((e) => {
+            console.error(e);
+          });
+      },
+    }
+  );
 
-  const handleShowAlert = (kind: string, message: string) => {
-    setAlert({ visible: true, kind: kind, message: message });
-  };
+  const updateMeNotificationTimeSpanMutation = useMutation(
+    (timeSpans: NotificationTimeSpan[]): Promise<UpdateMeNotificationTimeSPanResult> => {
+      return sendRequest(
+        '/twirp/api.v1.User/UpdateMeNotificationTimeSpan',
+        JSON.stringify({
+          notificationTimeSpans: timeSpans,
+        })
+      );
+    },
+    {
+      onSuccess: () => {
+        queryClient
+          .invalidateQueries(queryKeyMe)
+          .then((_) => {})
+          .catch((e) => {
+            console.error(e);
+          });
+      },
+    }
+  );
+
+  //console.log('BEFORE useQuery');
+  const { isLoading, isIdle, error, data } = useQuery<GetMeResult, Error>(
+    queryKeyMe,
+    async () => {
+      // console.log('BEFORE fetch');
+      const response = await sendRequest('/twirp/api.v1.User/GetMe', '{}');
+      if (!response.ok) {
+        // TODO: error
+        type TwirpError = {
+          code: string;
+          msg: string;
+        };
+        const e: TwirpError = await response.json();
+        throw new Error(`${response.status}:${e.msg}`);
+      }
+      const data = await response.json();
+      // console.log('----- data -----');
+      // console.log(data);
+      return data as GetMeResult;
+    },
+    {
+      retry: 0,
+    }
+  );
+  // console.log('AFTER useQuery: isLoading = %s', isLoading);
+
+  if (isLoading || isIdle) {
+    // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
+    return (
+      <Loader loading={isLoading} message={'Loading data ...'} css={'background: rgba(255, 255, 255, 0)'} size={50} />
+    );
+  }
+
+  if (error) {
+    console.error('error = %s', error);
+    return <Alert kind={'danger'} message={'システムエラーが発生しました。' + error.message} />;
+  }
+
+  const safeData = data as GetMeResult; // TODO: better name
+  const email = emailState ?? safeData.email;
+  const notificationTimeSpans = notificationTimeSpansState ?? safeData.notificationTimeSpans;
 
   const handleHideAlert = () => {
     setAlert({ ...alert, visible: false });
   };
 
-  const handleUpdateEmail = (email: string): void => {
-    const client = createHttpClient();
-    client
-      .post('/twirp/api.v1.User/UpdateMeEmail', {
-        email: email,
-      })
-      .then((_) => {
-        handleShowAlert('success', 'メールアドレスを更新しました！');
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response.status === 400) {
-          handleShowAlert('danger', '正しいメールアドレスを入力してください');
-        } else {
-          // TODO: external message
-          handleShowAlert('danger', 'システムエラーが発生しました');
-        }
-      });
-  };
-
   const handleAddTimeSpan = () => {
-    if (notificationTimeSpans.length === 3) {
+    const maxTimeSpans = 3;
+    if (notificationTimeSpans.length >= maxTimeSpans) {
       return;
     }
-    setNotificationTimeSpans([
-      ...notificationTimeSpans,
-      { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 },
-    ]);
+    setNotificationTimeSpansState([...notificationTimeSpans, { fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0 }]);
   };
 
   const handleDeleteTimeSpan = (index: number) => {
@@ -97,17 +140,13 @@ export const SettingPage: React.FC<{}> = () => {
       return;
     }
     timeSpans.splice(index, 1);
-    setNotificationTimeSpans(timeSpans);
+    setNotificationTimeSpansState(timeSpans);
   };
 
-  const handleOnChangeTimeSpan = (
-    name: string,
-    index: number,
-    value: number
-  ) => {
+  const handleOnChangeTimeSpan = (name: string, index: number, value: number) => {
     let timeSpans = notificationTimeSpans.slice();
     timeSpans[index][name as keyof NotificationTimeSpan] = value;
-    setNotificationTimeSpans(timeSpans);
+    setNotificationTimeSpansState(timeSpans);
   };
 
   const handleUpdateTimeSpan = () => {
@@ -116,75 +155,58 @@ export const SettingPage: React.FC<{}> = () => {
       for (const [k, v] of Object.entries(timeSpan)) {
         timeSpan[k as keyof NotificationTimeSpan] = v;
       }
-      if (
-        timeSpan.fromHour === 0 &&
-        timeSpan.fromMinute === 0 &&
-        timeSpan.toHour === 0 &&
-        timeSpan.toMinute === 0
-      ) {
+      if (timeSpan.fromHour === 0 && timeSpan.fromMinute === 0 && timeSpan.toHour === 0 && timeSpan.toMinute === 0) {
         // Ignore zero value
         continue;
       }
       timeSpans.push(timeSpan);
     }
-
-    const client = createHttpClient();
-    client
-      .post('/twirp/api.v1.User/UpdateMeNotificationTimeSpan', {
-        notificationTimeSpans: timeSpans,
-      })
-      .then((_) => {
-        handleShowAlert('success', 'レッスン希望時間帯を更新しました！');
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response.status === 400) {
-          handleShowAlert(
-            'danger',
-            '正しいレッスン希望時間帯を選択してください'
-          );
-        } else {
-          // TODO: external message
-          handleShowAlert('danger', 'システムエラーが発生しました');
-        }
-      });
-
-    setNotificationTimeSpans(timeSpans);
-    setNotificationTimeSpanEditable(false);
+    setNotificationTimeSpansState(timeSpans);
+    console.log('BEFORE updateMeNotificationTimeSpanMutation.mutate()');
+    updateMeNotificationTimeSpanMutation.mutate(timeSpans);
   };
 
   return (
     <div>
       <h1 className="page-title">設定</h1>
-      {loading ? (
-        <Loader
-          loading={loading}
-          message={'Loading data ...'}
-          css={'background: rgba(255, 255, 255, 0)'}
-          size={50}
+      <>
+        <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
+        <UseMutationResultAlert result={updateMeEmailMutation} name={'メールアドレス'} />
+        <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name={'レッスン希望時間帯'} />
+        <EmailForm
+          email={email}
+          handleOnChange={(e) => {
+            setEmailState(e.currentTarget.value);
+          }}
+          handleUpdateEmail={(em): void => {
+            updateMeEmailMutation.mutate(em);
+          }}
         />
-      ) : (
-        <>
-          <Alert handleCloseAlert={handleHideAlert} {...alert} />
-          <EmailForm
-            email={email}
-            handleOnChange={(e) => {
-              setEmail(e.currentTarget.value);
-            }}
-            handleUpdateEmail={handleUpdateEmail} // TODO: inline function
-          />
-          <NotificationTimeSpanForm
-            handleAdd={handleAddTimeSpan}
-            handleDelete={handleDeleteTimeSpan}
-            handleUpdate={handleUpdateTimeSpan}
-            handleOnChange={handleOnChangeTimeSpan}
-            handleSetEditable={setNotificationTimeSpanEditable}
-            editable={notificationTimeSpanEditable}
-            timeSpans={notificationTimeSpans}
-          />
-          {/*<MPlanForm {...this.state.mPlan} />*/}
-        </>
-      )}
+        <NotificationTimeSpanForm
+          handleAdd={handleAddTimeSpan}
+          handleDelete={handleDeleteTimeSpan}
+          handleUpdate={handleUpdateTimeSpan}
+          handleOnChange={handleOnChangeTimeSpan}
+          timeSpans={notificationTimeSpans}
+        />
+      </>
     </div>
   );
+};
+
+type UseMutationResultAlertProps = {
+  result: UseMutationResult<any, any, any, any>;
+  name: string;
+};
+
+// TODO: external component
+const UseMutationResultAlert = ({ result, name }: UseMutationResultAlertProps) => {
+  switch (result.status) {
+    case 'success':
+      return <Alert kind={'success'} message={name + 'を更新しました！'} />;
+    case 'error':
+      return <Alert kind={'danger'} message={result.error as string} />;
+    default:
+      return <></>;
+  }
 };

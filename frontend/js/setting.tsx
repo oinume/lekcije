@@ -1,5 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import { SettingPage } from './components/setting/SettingPage';
 
-ReactDOM.render(<SettingPage />, document.getElementById('root'));
+const queryClient = new QueryClient();
+
+ReactDOM.render(
+  <QueryClientProvider client={queryClient}>
+    <SettingPage />
+  </QueryClientProvider>,
+  document.getElementById('root')
+);
