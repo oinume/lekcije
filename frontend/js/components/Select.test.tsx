@@ -3,7 +3,7 @@ import { Select } from './Select';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-test('Select initial state', () => {
+test('<Select> initial state', () => {
   const options = [
     { value: 'japan', label: 'Japan' },
     { value: 'china', label: 'China' },
@@ -18,5 +18,6 @@ test('Select initial state', () => {
     />
   );
 
-  expect(screen.getByTestId('select')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('Japan')).toBeInTheDocument();
+  // TODO: write more assertions
 });

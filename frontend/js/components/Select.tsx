@@ -21,7 +21,7 @@ export const Select: React.FC<Props> = ({ name, value, className, onChange, opti
       className={className}
       onChange={onChange}
       style={{ width: 'auto' }}
-      data-testid={'select'}
+      data-testid={'select-' + name}
     >
       {options.map((o: Option) => {
         return (
