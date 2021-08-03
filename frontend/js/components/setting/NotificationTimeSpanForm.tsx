@@ -52,6 +52,7 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
           handleOnChange={onChange}
           handleOnClickPlus={onClickPlus}
           handleOnClickMinus={onClickMinus}
+          key={i}
         />
       );
     });
@@ -59,7 +60,7 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
     if (editable) {
       handleAdd();
     } else {
-      content = [<p>データがありません。編集ボタンで追加できます。</p>];
+      content = [<p key="noTimeSpans">データがありません。編集ボタンで追加できます。</p>];
     }
   }
 
