@@ -13,13 +13,13 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/util"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 var _ = fmt.Print
@@ -56,7 +56,7 @@ func TestEmailSender_Send(t *testing.T) {
 	r := require.New(t)
 
 	user := modeltest.NewUser(func(u *model2.User) {
-		u.ID = uint(util.RandomInt(10000000)) // TODO: Create randoms package
+		u.ID = uint(randoms.MustNewInt64(10000000))
 	})
 	transport := &mockSenderTransport{}
 	httpClient := &http.Client{

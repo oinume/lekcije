@@ -10,14 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/oinume/lekcije/backend/config"
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 func TestLessonService_UpdateLessons(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	teacherID := uint32(util.RandomInt(999999))
+	teacherID := uint32(randoms.MustNewInt64(999999))
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons := createLessons(teacherID, datetime, "Reserved", 5)
 
@@ -44,7 +44,7 @@ func TestLessonService_UpdateLessonsOverwrite(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	teacherID := uint32(util.RandomInt(999999))
+	teacherID := uint32(randoms.MustNewInt64(999999))
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons := createLessons(teacherID, datetime, "Available", 5)
 	affected, err := lessonService.UpdateLessons(lessons)
@@ -70,7 +70,7 @@ func TestLessonService_UpdateLessonsNoChange(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	teacherID := uint32(util.RandomInt(999999))
+	teacherID := uint32(randoms.MustNewInt64(999999))
 	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
 	lessons := createLessons(teacherID, datetime, "Available", 5)
 	affected, err := lessonService.UpdateLessons(lessons)

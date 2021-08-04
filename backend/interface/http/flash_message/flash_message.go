@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 var _ = fmt.Print
@@ -58,7 +58,7 @@ type FlashMessage struct {
 func New(kind Kind, messages ...string) *FlashMessage {
 	return &FlashMessage{
 		Kind:     kind,
-		Key:      util.RandomString(32),
+		Key:      randoms.MustNewString(32),
 		Messages: messages,
 	}
 }

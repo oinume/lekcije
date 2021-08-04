@@ -21,6 +21,7 @@ import (
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
 	model2 "github.com/oinume/lekcije/backend/model2c"
+	"github.com/oinume/lekcije/backend/randoms"
 	"github.com/oinume/lekcije/backend/registration_email"
 	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
@@ -176,7 +177,7 @@ func (s *OAuthServer) Setup(mux *goji.Mux) {
 }
 
 func (s *OAuthServer) oauthGoogle(w http.ResponseWriter, r *http.Request) {
-	state := util.RandomString(32)
+	state := randoms.MustNewString(32)
 	cookie := &http.Cookie{
 		Name:     "oauthState",
 		Value:    state,

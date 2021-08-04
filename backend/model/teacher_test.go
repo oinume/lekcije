@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 func TestNewTeachersFromIDOrURL(t *testing.T) {
@@ -57,7 +57,7 @@ func TestTeacherService_CreateOrUpdate(t *testing.T) {
 	r := require.New(t)
 
 	teacher := &Teacher{
-		ID:                uint32(util.RandomInt(9999999)),
+		ID:                uint32(randoms.MustNewInt64(9999999)),
 		Name:              "Donald",
 		CountryID:         688, // Serbia
 		Gender:            "male",
@@ -91,7 +91,7 @@ func TestTeacherService_CreateOrUpdate2(t *testing.T) {
 	r := require.New(t)
 
 	teacher := &Teacher{
-		ID:                uint32(util.RandomInt(9999999)),
+		ID:                uint32(randoms.MustNewInt64(9999999)),
 		Name:              "Donald",
 		CountryID:         688, // Serbia
 		Gender:            "male",

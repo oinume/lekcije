@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 var _ = fmt.Print
@@ -45,14 +45,14 @@ func TestUserService_CreateWithGoogle(t *testing.T) {
 	r := require.New(t)
 
 	email := randomEmail()
-	googleID := util.RandomString(16)
+	googleID := randoms.MustNewString(16)
 	user, userGoogle, err := userService.CreateWithGoogle(googleID, email, googleID)
 	r.NoError(err)
 	a.Equal(email, user.Email)
 	a.Equal(user.ID, userGoogle.UserID)
 	a.Equal(googleID, userGoogle.GoogleID)
 
-	googleID2 := util.RandomString(16)
+	googleID2 := randoms.MustNewString(16)
 	user2, _, err := userService.CreateWithGoogle(googleID2, email, googleID2)
 	r.NoError(err)
 	a.Equal(user.ID, user2.ID)
@@ -86,5 +86,5 @@ func TestUserService_UpdateEmail(t *testing.T) {
 }
 
 func randomEmail() string {
-	return util.RandomString(16) + "@example.com"
+	return randoms.MustNewString(16) + "@example.com"
 }

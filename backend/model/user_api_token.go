@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 const UserAPITokenExpiration = time.Hour * 24 * 30
@@ -31,7 +31,7 @@ func NewUserAPITokenService(db *gorm.DB) *UserAPITokenService {
 }
 
 func (s *UserAPITokenService) Create(userID uint32) (*UserAPIToken, error) {
-	apiToken := util.RandomString(64)
+	apiToken := randoms.MustNewString(64)
 	userAPIToken := UserAPIToken{
 		UserID: userID,
 		Token:  apiToken,

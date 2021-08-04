@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 func createUserAndLogin(name, email, googleID string) (*model.User, string, error) {
@@ -22,7 +22,7 @@ func createUserAndLogin(name, email, googleID string) (*model.User, string, erro
 }
 
 func randomEmail(prefix string) string {
-	return fmt.Sprintf("%s-%s@gmail.com", prefix, util.RandomString(8))
+	return fmt.Sprintf("%s-%s@gmail.com", prefix, randoms.MustNewString(16))
 }
 
 func getCookie(cookies []*http.Cookie, name string) (*http.Cookie, error) {
