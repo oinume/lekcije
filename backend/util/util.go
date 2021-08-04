@@ -106,6 +106,8 @@ func DecryptString(cipherText string, encryptionKey string) (string, error) {
 	return string(plainBytes), nil
 }
 
+// TODO: Move to user_agent package
+
 func IsUserAgentPC(req *http.Request) bool {
 	return !IsUserAgentSP(req) && !IsUserAgentTablet(req)
 }
@@ -119,6 +121,8 @@ func IsUserAgentTablet(req *http.Request) bool {
 	ua := strings.ToLower(req.UserAgent())
 	return strings.Contains(ua, "ipad")
 }
+
+// TODO: Create usecase.ErrorReporter
 
 func SendErrorToRollbar(err error, id string) {
 	if rollbar.Token == "" {
