@@ -1,11 +1,22 @@
 coverage:
   status:
     project:
-      default:
+      default: off
+      backend:
         # required coverage value
         target: 40%
         # this allows a 25% drop from the previous base commit coverage
-        threshold: 25%
+        threshold: 10%
+      frontend:
+        target: 5%
+        threshold: 1%
+flags:
+  backend:
+    paths:
+      - backend
+  frontend:
+    paths:
+      - frontend
 ignore:
   - "**/*.pb.go"
   - "**/*.twirp.go"
