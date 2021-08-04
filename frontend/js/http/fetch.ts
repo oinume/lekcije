@@ -7,7 +7,6 @@ export const sendRequest = async (path: string, body: string) => {
   };
   const cookies = cookie.parse(document.cookie);
   if (cookies['apiToken']) {
-    headers['X-Api-Token'] = cookies['apiToken'];
     headers['Authorization'] = 'Bearer ' + cookies['apiToken'];
   }
   return fetch(path, {

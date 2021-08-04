@@ -227,7 +227,7 @@ func setAuthorizationContext(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		r = r.WithContext(context_data.WithAPIToken(r.Context(), strings.TrimSpace(auth[1])))
+		r = r.WithContext(context_data.SetAPIToken(r.Context(), strings.TrimSpace(auth[1])))
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)

@@ -11,8 +11,7 @@
         "Cache-Control",
         "Keep-Alive",
         "X-Requested-With",
-        "If-Modified-Since",
-        "X-Api-Token"
+        "If-Modified-Since"
       ],
       "method": ["GET", "HEAD", "DELETE"],
       "maxAgeSeconds": 3600
