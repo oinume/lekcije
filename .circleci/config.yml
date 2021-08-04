@@ -98,10 +98,10 @@ jobs:
           command: |
             export MYSQL_USER=lekcije
             make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
-      - run:
-          name: "Upload to codecov"
-          command: |
-            bash <(curl -s https://codecov.io/bash)
+#      - run:
+#          name: "Upload to codecov"
+#          command: |
+#            bash <(curl -s https://codecov.io/bash)
 
 workflows:
   version: 2

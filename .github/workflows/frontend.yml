@@ -41,7 +41,14 @@ jobs:
           fi
       - name: Run tests
         run: |
-          npm test
+          npm test -- --coverage
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v2.0.2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          flags: frontend
+  #          name: codecov-umbrella # optional
 
   deploy:
     name: deploy

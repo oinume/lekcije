@@ -82,7 +82,14 @@ jobs:
         run: |
           export
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
-
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v2.0.2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.txt
+          fail_ci_if_error: false
+          flags: backend
+  #          name: codecov-umbrella # optional
   lint:
     name: lint
     runs-on: ubuntu-latest
