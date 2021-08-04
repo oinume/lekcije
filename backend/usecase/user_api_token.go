@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/oinume/lekcije/backend/model2"
+	"github.com/oinume/lekcije/backend/randoms"
 	"github.com/oinume/lekcije/backend/repository"
-	"github.com/oinume/lekcije/backend/util"
 )
 
 type UserAPIToken struct {
@@ -21,7 +21,7 @@ func NewUserAPIToken(userAPITokenRepo repository.UserAPIToken) *UserAPIToken {
 func (u *UserAPIToken) Create(ctx context.Context, userID uint) (*model2.UserAPIToken, error) {
 	// TODO: Idempotency
 	uat := &model2.UserAPIToken{
-		Token:  util.RandomString(64),
+		Token:  randoms.MustNewString(64),
 		UserID: userID,
 	}
 	if err := u.userAPITokenRepo.Create(ctx, uat); err != nil {

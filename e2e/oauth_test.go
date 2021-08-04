@@ -15,7 +15,7 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 var _ = time.UTC
@@ -89,7 +89,7 @@ func TestOAuthGoogleLogout(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	_, apiToken, err := createUserAndLogin("oinume", randomEmail("oinume"), util.RandomString(16))
+	_, apiToken, err := createUserAndLogin("oinume", randomEmail("oinume"), randoms.MustNewString(16))
 	r.NoError(err)
 
 	driver := newWebDriver()

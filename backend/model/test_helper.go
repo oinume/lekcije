@@ -10,7 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/oinume/lekcije/backend/config"
-	"github.com/oinume/lekcije/backend/util"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 type TestHelper struct {
@@ -103,7 +103,7 @@ func (h *TestHelper) CreateUser(t *testing.T, name, email string) *User {
 }
 
 func (h *TestHelper) CreateRandomUser(t *testing.T) *User {
-	name := util.RandomString(16)
+	name := randoms.MustNewString(16)
 	return h.CreateUser(t, name, name+"@example.com")
 }
 
@@ -134,7 +134,7 @@ func (h *TestHelper) CreateTeacher(t *testing.T, id uint32, name string) *Teache
 }
 
 func (h *TestHelper) CreateRandomTeacher(t *testing.T) *Teacher {
-	return h.CreateTeacher(t, uint32(util.RandomInt(9999999)), util.RandomString(6))
+	return h.CreateTeacher(t, uint32(randoms.MustNewInt64(9999999)), randoms.MustNewString(6))
 }
 
 func (h *TestHelper) LoadMCountries(t *testing.T) *MCountries {
