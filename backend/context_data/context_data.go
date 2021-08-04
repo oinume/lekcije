@@ -62,7 +62,7 @@ func MustTrackingID(ctx context.Context) string {
 	return trackingID
 }
 
-func WithAPIToken(ctx context.Context, apiToken string) context.Context {
+func SetAPIToken(ctx context.Context, apiToken string) context.Context {
 	return context.WithValue(ctx, apiTokenKey{}, apiToken)
 }
 

@@ -80,7 +80,7 @@ func Test_UserService_GetMe(t *testing.T) {
 			tc := test.setup(ctx)
 
 			client := twirptest.NewJSONClient()
-			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			gotResponse := &api_v1.GetMeResponse{}
 			statusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.UserPathPrefix+"GetMe",
@@ -195,7 +195,7 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 			tc := test.setup(ctx)
 
 			client := twirptest.NewJSONClient()
-			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.UpdateMeEmailResponse{}
 			statusCode, err := client.SendRequest(
@@ -283,7 +283,7 @@ func Test_UserService_UpdateMeNotificationTimeSpan(t *testing.T) {
 			tc := test.setup(ctx)
 
 			client := twirptest.NewJSONClient()
-			ctx = context_data.WithAPIToken(ctx, tc.apiToken)
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.UpdateMeNotificationTimeSpanResponse{}
 			statusCode, err := client.SendRequest(
