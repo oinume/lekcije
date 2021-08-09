@@ -16,7 +16,7 @@
   ],
   "packageRules": [
     {
-      "packagePatterns": ["^google.golang.org/api$"],
+      "packagePatterns": ["^cloud.google.com/go$"],
       "automerge": true,
       "major": {
         "automerge": false
@@ -30,7 +30,21 @@
       }
     },
     {
-      "packagePatterns": ["^cloud.google.com/go$"],
+      "packagePatterns": ["^golang.org/x/net$"],
+      "automerge": true,
+      "major": {
+        "automerge": false
+      }
+    },
+    {
+      "packagePatterns": ["^google.golang.org/api$"],
+      "automerge": true,
+      "major": {
+        "automerge": false
+      }
+    },
+    {
+      "packagePatterns": ["^google.golang.org/genproto$"],
       "automerge": true,
       "major": {
         "automerge": false
