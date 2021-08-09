@@ -42,7 +42,7 @@ require (
 	go.uber.org/zap v1.18.1
 	goji.io/v3 v3.0.0
 	golang.org/x/net v0.0.0-20210716203947-853a461950ff
-	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
+	golang.org/x/oauth2 v0.0.0-20210805134026-6f1e6394065a
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.6
 	google.golang.org/api v0.52.0
