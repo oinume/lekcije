@@ -14,6 +14,29 @@
     "group:recommended",
     "schedule:weekends"
   ],
+  "packageRules": [
+    {
+      "packagePatterns": ["^google.golang.org/api$"],
+      "automerge": true,
+      "major": {
+        "automerge": false
+      }
+    },
+    {
+      "packagePatterns": ["^golang.org/x/oauth2$"],
+      "automerge": true,
+      "major": {
+        "automerge": false
+      }
+    },
+    {
+      "packagePatterns": ["^cloud.google.com/go$"],
+      "automerge": true,
+      "major": {
+        "automerge": false
+      }
+    }
+  ],
   "prNotPendingHours": 1,
   "postUpdateOptions": [
     "gomodTidy"
