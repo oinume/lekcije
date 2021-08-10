@@ -14,6 +14,7 @@
     "group:recommended",
     "schedule:weekends"
   ],
+  "ignoreDeps": ["node", "npm"],
   "packageRules": [
     {
       "packagePatterns": ["^cloud.google.com/go$"],
