@@ -41,7 +41,7 @@ require (
 	go.opencensus.io v0.23.0
 	go.uber.org/zap v1.18.1
 	goji.io/v3 v3.0.0
-	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
+	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	golang.org/x/oauth2 v0.0.0-20210810183815-faf39c7919d5
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.6
