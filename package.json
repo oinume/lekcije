@@ -28,7 +28,7 @@
     "@types/cookie": "^0.4.0",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^27.0.0",
     "@types/react-test-renderer": "^17.0.1",
     "@types/sprintf-js": "^1.1.2",
     "babel-core": "^7.0.0-bridge.0",
