@@ -1,7 +1,6 @@
 package http
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -12,8 +11,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/twitchtv/twirp"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/context_data"
@@ -55,22 +52,22 @@ func internalServerError(ctx context.Context, errorRecorder *usecase.ErrorRecord
 		sUserID = fmt.Sprint(userID)
 	}
 
-	// TODO: move to this logic to errorRecorder
-	util.SendErrorToRollbar(err, sUserID)
-	fields := []zapcore.Field{
-		zap.Error(err),
-	}
-	if e, ok := err.(errors.StackTracer); ok {
-		b := &bytes.Buffer{}
-		for _, f := range e.StackTrace() {
-			fmt.Fprintf(b, "%+v\n", f)
-		}
-		fields = append(fields, zap.String("stacktrace", b.String()))
-	}
+	errorRecorder.Record(ctx, err, sUserID)
+	// TODO: Remove
+	// util.SendErrorToRollbar(err, sUserID)
+	//fields := []zapcore.Field{
+	//	zap.Error(err),
+	//}
+	//if e, ok := err.(errors.StackTracer); ok {
+	//	b := &bytes.Buffer{}
+	//	for _, f := range e.StackTrace() {
+	//		fmt.Fprintf(b, "%+v\n", f)
+	//	}
+	//	fields = append(fields, zap.String("stacktrace", b.String()))
+	//}
 	//if appLogger != nil {
 	//	appLogger.Error("internalServerError", fields...)
 	//}
-	errorRecorder.Record(ctx, err, sUserID)
 
 	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
 	if !config.IsProductionEnv() {
