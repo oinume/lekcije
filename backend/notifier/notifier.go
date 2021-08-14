@@ -161,7 +161,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 					}
 					n.appLogger.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
 				}
-				// TODO: Handle a case eikaiwa.dmm.com is down
+				// TODO: Record a case eikaiwa.dmm.com is down
 				n.appLogger.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				return
 			}

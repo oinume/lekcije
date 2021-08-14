@@ -15,33 +15,37 @@ import (
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/usecase"
 )
 
 var _ = fmt.Print
 
-func panicHandler(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if r := recover(); r != nil {
-				var err error
-				switch errorType := r.(type) {
-				case string:
-					err = fmt.Errorf(errorType)
-				case error:
-					err = errorType
-				default:
-					err = fmt.Errorf("unknown error type: %v", errorType)
+func panicHandler(errorRecorder *usecase.ErrorRecorder) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			req := r
+			defer func() {
+				if r := recover(); r != nil {
+					var err error
+					switch errorType := r.(type) {
+					case string:
+						err = fmt.Errorf(errorType)
+					case error:
+						err = errorType
+					default:
+						err = fmt.Errorf("unknown error type: %v", errorType)
+					}
+					internalServerError(req.Context(), errorRecorder, w, errors.NewInternalError(
+						errors.WithError(err),
+						errors.WithMessage("panic occurred"),
+					), 0)
+					return
 				}
-				internalServerError(nil, w, errors.NewInternalError(
-					errors.WithError(err),
-					errors.WithMessage("panic occurred"),
-				), 0)
-				return
-			}
-		}()
-		h.ServeHTTP(w, r)
+			}()
+			h.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(fn)
 	}
-	return http.HandlerFunc(fn)
 }
 
 func accessLogger(logger *zap.Logger) func(http.Handler) http.Handler {
@@ -157,7 +161,7 @@ func setGAMeasurementEventValues(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func loginRequiredFilter(db *gorm.DB, appLogger *zap.Logger) func(http.Handler) http.Handler {
+func loginRequiredFilter(db *gorm.DB, appLogger *zap.Logger, errorRecorder *usecase.ErrorRecorder) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -181,7 +185,7 @@ func loginRequiredFilter(db *gorm.DB, appLogger *zap.Logger) func(http.Handler) 
 					http.Redirect(w, r, config.WebURL(), http.StatusFound)
 					return
 				}
-				internalServerError(appLogger, w, err, 0)
+				internalServerError(r.Context(), errorRecorder, w, err, 0)
 				return
 			}
 			appLogger.Debug("Logged in user", zap.String("name", user.Name))

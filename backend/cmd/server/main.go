@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/profiler"
+	"github.com/rollbar/rollbar-go"
 	"go.opencensus.io/trace"
 	"goji.io/v3"
 
@@ -31,7 +32,8 @@ const (
 
 func main() {
 	config.MustProcessDefault()
-	port := config.DefaultVars.HTTPPort
+	configVars := config.DefaultVars
+	port := configVars.HTTPPort
 
 	exporter, flush, err := open_census.NewExporter(
 		config.DefaultVars,
@@ -45,14 +47,14 @@ func main() {
 	trace.RegisterExporter(exporter)
 
 	if config.DefaultVars.EnableStackdriverProfiler {
-		credential, err := gcp.WithCredentialsJSONFromBase64String(config.DefaultVars.GCPServiceAccountKey)
+		credential, err := gcp.WithCredentialsJSONFromBase64String(configVars.GCPServiceAccountKey)
 		if err != nil {
 			log.Fatalf("WithCredentialsJSONFromBase64String failed: %v", err)
 		}
 
 		// TODO: Move to gcp package
 		if err := profiler.Start(profiler.Config{
-			ProjectID:      config.DefaultVars.GCPProjectID,
+			ProjectID:      configVars.GCPProjectID,
 			Service:        serviceName,
 			ServiceVersion: "1.0.0", // TODO: release version?
 			DebugLogging:   false,
@@ -62,9 +64,9 @@ func main() {
 	}
 
 	gormDB, err := model.OpenDB(
-		config.DefaultVars.DBURL(),
+		configVars.DBURL(),
 		maxDBConnections,
-		config.DefaultVars.DebugSQL,
+		configVars.DebugSQL,
 	)
 	if err != nil {
 		log.Fatalf("model.OpenDB failed: %v", err)
@@ -73,6 +75,14 @@ func main() {
 
 	accessLogger := logger.NewAccessLogger(os.Stdout)
 	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel("info")) // TODO: flag
+	rollbarClient := rollbar.New(
+		configVars.RollbarAccessToken,
+		configVars.ServiceEnv,
+		configVars.VersionHash,
+		"", "/",
+	)
+	defer rollbarClient.Close()
+
 	args := &interfaces.ServerArgs{
 		AccessLogger:        accessLogger,
 		AppLogger:           appLogger,
@@ -80,6 +90,7 @@ func main() {
 		FlashMessageStore:   flash_message.NewStoreMySQL(gormDB),
 		GAMeasurementClient: ga_measurement.NewClient(nil, event_logger.New(accessLogger)),
 		GormDB:              gormDB,
+		RollbarClient:       rollbarClient,
 		SenderHTTPClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},
@@ -97,10 +108,12 @@ func main() {
 
 func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	// TODO: graceful shutdown
-	server := interfaces_http.NewServer(args)
-	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.SenderHTTPClient)
+	errorRecorder := di.NewErrorRecorderUsecase(args.AppLogger, args.RollbarClient)
+	server := interfaces_http.NewServer(args, errorRecorder)
+	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
+	errorRecorderHooks := interfaces_http.NewErrorRecorderHooks(errorRecorder)
 	userServer := di.NewUserServer(
-		args.AppLogger, args.GormDB, args.GAMeasurementClient,
+		args.AppLogger, args.GormDB, errorRecorderHooks, args.GAMeasurementClient,
 	)
 
 	mux := goji.NewMux()

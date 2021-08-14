@@ -20,6 +20,7 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
 )
 
@@ -45,7 +46,7 @@ func ParseHTMLTemplates(files ...string) *template.Template {
 	return template.Must(template.ParseFiles(f...))
 }
 
-func internalServerError(appLogger *zap.Logger, w http.ResponseWriter, err error, userID uint32) {
+func internalServerError(ctx context.Context, errorRecorder *usecase.ErrorRecorder, w http.ResponseWriter, err error, userID uint32) {
 	//switch _ := errors.Cause(err).(type) { // TODO:
 	//default:
 	// unknown error
@@ -53,6 +54,8 @@ func internalServerError(appLogger *zap.Logger, w http.ResponseWriter, err error
 	if userID == 0 {
 		sUserID = fmt.Sprint(userID)
 	}
+
+	// TODO: move to this logic to errorRecorder
 	util.SendErrorToRollbar(err, sUserID)
 	fields := []zapcore.Field{
 		zap.Error(err),
@@ -64,9 +67,10 @@ func internalServerError(appLogger *zap.Logger, w http.ResponseWriter, err error
 		}
 		fields = append(fields, zap.String("stacktrace", b.String()))
 	}
-	if appLogger != nil {
-		appLogger.Error("internalServerError", fields...)
-	}
+	//if appLogger != nil {
+	//	appLogger.Error("internalServerError", fields...)
+	//}
+	errorRecorder.Record(ctx, err, sUserID)
 
 	http.Error(w, fmt.Sprintf("Internal Server Error\n\n%v", err), http.StatusInternalServerError)
 	if !config.IsProductionEnv() {

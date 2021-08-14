@@ -99,7 +99,7 @@ func (c *client) SendEvent(
 	c.eventLogger.Log(userID, category, action, zap.String("label", label), zap.Int64("value", value))
 	if err := gaClient.Send(event); err != nil {
 		return errors.NewInternalError(
-			errors.WithMessage("gaClient.Send failed"),
+			errors.WithMessage("gaClient.Record failed"),
 			errors.WithError(err),
 		)
 	}
