@@ -6,6 +6,8 @@ import (
 	"github.com/rollbar/rollbar-go"
 )
 
+//go:generate moq -out=client.moq.go . Client
+
 // Client abstracts rollbar.Client
 type Client interface {
 	ErrorWithStackSkipWithExtrasAndContext(

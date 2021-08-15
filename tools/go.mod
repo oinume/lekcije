@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/ClickHouse/clickhouse-go v1.4.5 // indirect
 	github.com/golang/protobuf v1.5.2
+	github.com/matryer/moq v0.2.3 // indirect
 	github.com/mattn/go-sqlite3 v1.14.8 // indirect
 	github.com/pressly/goose v2.7.0+incompatible
 	github.com/twitchtv/twirp v8.1.0+incompatible

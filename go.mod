@@ -23,6 +23,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.8.0 // indirect
+	github.com/matryer/moq v0.2.3 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/onsi/ginkgo v1.14.0 // indirect
