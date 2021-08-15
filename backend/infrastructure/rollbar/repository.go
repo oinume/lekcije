@@ -15,7 +15,7 @@ type errorRecorderRepository struct {
 	client Client
 }
 
-func NewErrorRecorderRepository(client *rollbar.Client) repository.ErrorRecorder {
+func NewErrorRecorderRepository(client Client) repository.ErrorRecorder {
 	client.SetStackTracer(StackTracer)
 	return &errorRecorderRepository{
 		client: client,

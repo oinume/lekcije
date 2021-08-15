@@ -1,6 +1,10 @@
 package rollbar
 
-import "context"
+import (
+	"context"
+
+	"github.com/rollbar/rollbar-go"
+)
 
 // Client abstracts rollbar.Client
 type Client interface {
@@ -11,4 +15,6 @@ type Client interface {
 		skip int,
 		extras map[string]interface{},
 	)
+
+	SetStackTracer(stackTracer rollbar.StackTracerFunc)
 }
