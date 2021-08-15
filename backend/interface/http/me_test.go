@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +17,8 @@ func TestGetMe(t *testing.T) {
 	//t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	s := newTestServer(t, nil)
+	var accessLog, appLog bytes.Buffer
+	s := newTestServer(t, &accessLog, &appLog)
 
 	req, err := http.NewRequest("GET", "/me", nil)
 	r.NoError(err)
@@ -36,7 +38,8 @@ func TestGetMeSetting(t *testing.T) {
 	//t.Parallel()
 	a := assert.New(t)
 	r := require.New(t)
-	s := newTestServer(t, nil)
+	var accessLog, appLog bytes.Buffer
+	s := newTestServer(t, &accessLog, &appLog)
 
 	req, err := http.NewRequest("GET", "/me/setting", nil)
 	r.NoError(err)
