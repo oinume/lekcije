@@ -23,7 +23,6 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.8.0 // indirect
-	github.com/matryer/moq v0.2.3 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/onsi/ginkgo v1.14.0 // indirect
@@ -35,7 +34,6 @@ require (
 	github.com/sendgrid/rest v2.6.4+incompatible
 	github.com/sendgrid/sendgrid-go v3.6.1+incompatible
 	github.com/stretchr/testify v1.7.0
-	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
 	github.com/twitchtv/twirp v8.1.0+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.6.0
