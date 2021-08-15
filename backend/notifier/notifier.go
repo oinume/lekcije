@@ -323,7 +323,6 @@ func (n *Notifier) sendNotificationToUser(
 				"Failed to sendNotificationToUser",
 				zap.String("email", user.Email), zap.Error(err),
 			)
-			//util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
 			n.errorRecorder.Record(ctx, err, fmt.Sprint(user.ID))
 		}
 	}(email)
@@ -380,7 +379,6 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 					)
-					//util.SendErrorToRollbar(err, "")
 					n.errorRecorder.Record(ctx, err, "")
 				}
 			}
@@ -389,7 +387,6 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 				)
-				//util.SendErrorToRollbar(err, "")
 				n.errorRecorder.Record(ctx, err, "")
 			}
 		}

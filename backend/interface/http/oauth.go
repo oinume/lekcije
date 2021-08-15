@@ -270,12 +270,11 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		go func() {
 			sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
 			if err := sender.Send(r.Context(), user); err != nil {
+				s.appLogger.Error(
+					"Failed to send registration email",
+					zap.String("email", user.Email), zap.Error(err),
+				)
 				s.errorRecorder.Record(r.Context(), err, fmt.Sprint(user.ID))
-				//s.appLogger.Error(
-				//	"Failed to send registration email",
-				//	zap.String("email", user.Email), zap.Error(err),
-				//)
-				//util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
 			}
 		}()
 	}
