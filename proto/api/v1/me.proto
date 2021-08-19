@@ -3,74 +3,20 @@ syntax = "proto3";
 package api.v1;
 option go_package = "proto/api/v1;api_v1";
 
-import "google/api/annotations.proto";
+service Me {
+    rpc Ping(PingRequest) returns (PingResponse);
 
-//service Me {
-//    rpc GetUser();
-//    rpc UpdateUser();
-//    rpc ListNotificationTimeSpans();
-//    rpc UpdateNotificationTimeSpans();
+    rpc GetMe(GetMeRequest) returns (GetMeResponse);
+
+    rpc GetEmail(GetEmailRequest) returns (GetEmailResponse);
+
+    rpc UpdateEmail(UpdateEmailRequest) returns (UpdateEmailResponse);
+
+    rpc UpdateNotificationTimeSpan(UpdateNotificationTimeSpanRequest) returns (UpdateNotificationTimeSpanResponse);
+
 //    rpc ListFollowingTeachers();
 //    rpc CreateFollowingTeacher();
 //    rpc DeleteFollowingTeacher();
-//}
-
-service API {
-    rpc GetMe(GetMeRequest) returns (GetMeResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/me"
-        };
-    }
-
-    rpc GetMeEmail(GetMeEmailRequest) returns (GetMeEmailResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/me/email"
-        };
-    }
-
-    rpc UpdateMeEmail(UpdateMeEmailRequest) returns (UpdateMeEmailResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/me/email"
-            body: "*"
-        };
-    }
-
-    rpc UpdateMeNotificationTimeSpan(UpdateMeNotificationTimeSpanRequest) returns (UpdateMeNotificationTimeSpanResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/me/notificationTimeSpan"
-            body: "*"
-        };
-    }
-}
-
-service User {
-    rpc Ping(PingRequest) returns (PingResponse);
-
-    rpc GetMe(GetMeRequest) returns (GetMeResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/me"
-        };
-    }
-
-    rpc GetMeEmail(GetMeEmailRequest) returns (GetMeEmailResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/me/email"
-        };
-    }
-
-    rpc UpdateMeEmail(UpdateMeEmailRequest) returns (UpdateMeEmailResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/me/email"
-            body: "*"
-        };
-    }
-
-    rpc UpdateMeNotificationTimeSpan(UpdateMeNotificationTimeSpanRequest) returns (UpdateMeNotificationTimeSpanResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/me/notificationTimeSpan"
-            body: "*"
-        };
-    }
 }
 
 message NotificationTimeSpan {
@@ -78,11 +24,6 @@ message NotificationTimeSpan {
     int32 fromMinute = 2;
     int32 toHour = 3;
     int32 toMinute = 4;
-}
-
-message MPlan {
-    int32 id = 1;
-    string name = 2;
 }
 
 message PingRequest {}
@@ -95,23 +36,22 @@ message GetMeResponse {
     int32 userId = 1;
     string email = 2;
     repeated NotificationTimeSpan notificationTimeSpans = 3;
-    MPlan mPlan = 4;
 }
 
-message GetMeEmailRequest {}
+message GetEmailRequest {}
 
-message GetMeEmailResponse {
+message GetEmailResponse {
     string email = 1;
 }
 
-message UpdateMeEmailRequest {
+message UpdateEmailRequest {
     string email = 1;
 }
 
-message UpdateMeEmailResponse {}
+message UpdateEmailResponse {}
 
-message UpdateMeNotificationTimeSpanRequest {
+message UpdateNotificationTimeSpanRequest {
     repeated NotificationTimeSpan notificationTimeSpans = 1;
 }
 
-message UpdateMeNotificationTimeSpanResponse {}
+message UpdateNotificationTimeSpanResponse {}
