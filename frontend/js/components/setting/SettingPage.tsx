@@ -40,7 +40,7 @@ export const SettingPage: React.FC<{}> = () => {
   const updateMeEmailMutation = useMutation(
     (email: string): Promise<UpdateMeEmailResult> => {
       return sendRequest(
-        '/twirp/api.v1.User/UpdateMeEmail',
+        '/twirp/api.v1.Me/UpdateEmail',
         JSON.stringify({
           // TODO: Use proto generated code
           email: email,
@@ -62,7 +62,7 @@ export const SettingPage: React.FC<{}> = () => {
   const updateMeNotificationTimeSpanMutation = useMutation(
     (timeSpans: NotificationTimeSpan[]): Promise<UpdateMeNotificationTimeSPanResult> => {
       return sendRequest(
-        '/twirp/api.v1.User/UpdateMeNotificationTimeSpan',
+        '/twirp/api.v1.Me/UpdateNotificationTimeSpan',
         JSON.stringify({
           notificationTimeSpans: timeSpans,
         })
@@ -85,7 +85,7 @@ export const SettingPage: React.FC<{}> = () => {
     queryKeyMe,
     async () => {
       // console.log('BEFORE fetch');
-      const response = await sendRequest('/twirp/api.v1.User/GetMe', '{}');
+      const response = await sendRequest('/twirp/api.v1.Me/GetMe', '{}');
       if (!response.ok) {
         // TODO: error
         type TwirpError = {

@@ -38,7 +38,7 @@ func NewUserServer(
 	errorRecorderHooks *twirp.ServerHooks,
 	gaMeasurementClient ga_measurement.Client,
 ) api_v1.TwirpServer {
-	userService := ihttp.NewUserService(
+	userService := ihttp.NewMeService(
 		db, appLogger,
 		NewGAMeasurementUsecase(gaMeasurementClient),
 		NewNotificationTimeSpanUsecase(db.DB()),
