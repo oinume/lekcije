@@ -38,6 +38,13 @@
       }
     },
     {
+      "packagePatterns": ["^golang.org/x/text"],
+      "automerge": true,
+      "major": {
+        "automerge": false
+      }
+    },
+    {
       "packagePatterns": ["^google.golang.org/api$"],
       "automerge": true,
       "major": {
