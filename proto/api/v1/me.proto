@@ -5,6 +5,16 @@ option go_package = "proto/api/v1;api_v1";
 
 import "google/api/annotations.proto";
 
+//service Me {
+//    rpc GetUser();
+//    rpc UpdateUser();
+//    rpc ListNotificationTimeSpans();
+//    rpc UpdateNotificationTimeSpans();
+//    rpc ListFollowingTeachers();
+//    rpc CreateFollowingTeacher();
+//    rpc DeleteFollowingTeacher();
+//}
+
 service API {
     rpc GetMe(GetMeRequest) returns (GetMeResponse) {
         option (google.api.http) = {
