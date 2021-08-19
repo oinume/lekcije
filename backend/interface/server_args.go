@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/jinzhu/gorm"
+	"github.com/rollbar/rollbar-go"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
@@ -18,5 +19,6 @@ type ServerArgs struct {
 	FlashMessageStore   flash_message.Store
 	GAMeasurementClient ga_measurement.Client
 	GormDB              *gorm.DB
+	RollbarClient       *rollbar.Client
 	SenderHTTPClient    *http.Client
 }

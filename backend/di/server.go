@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/jinzhu/gorm"
+	"github.com/rollbar/rollbar-go"
+	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
@@ -16,10 +18,12 @@ func NewOAuthServer(
 	appLogger *zap.Logger,
 	db *sql.DB,
 	gaMeasurementClient ga_measurement.Client,
+	rollbarClient *rollbar.Client,
 	senderHTTPClient *http.Client,
 ) *ihttp.OAuthServer {
 	return ihttp.NewOAuthServer(
 		appLogger,
+		NewErrorRecorderUsecase(appLogger, rollbarClient),
 		gaMeasurementClient,
 		NewGAMeasurementUsecase(gaMeasurementClient),
 		senderHTTPClient,
@@ -31,6 +35,7 @@ func NewOAuthServer(
 func NewUserServer(
 	appLogger *zap.Logger,
 	db *gorm.DB,
+	errorRecorderHooks *twirp.ServerHooks,
 	gaMeasurementClient ga_measurement.Client,
 ) api_v1.TwirpServer {
 	userService := ihttp.NewUserService(
@@ -39,5 +44,8 @@ func NewUserServer(
 		NewNotificationTimeSpanUsecase(db.DB()),
 		NewUserUsecase(db.DB()),
 	)
-	return api_v1.NewUserServer(userService)
+	return api_v1.NewUserServer(
+		userService,
+		twirp.WithServerHooks(errorRecorderHooks),
+	)
 }

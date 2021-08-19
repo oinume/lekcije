@@ -28,12 +28,12 @@ require (
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/pkg/errors v0.9.1
+	github.com/rollbar/rollbar-go v1.4.1
 	github.com/rs/cors v1.8.0
 	github.com/sclevine/agouti v3.0.0+incompatible
 	github.com/sendgrid/rest v2.6.4+incompatible
 	github.com/sendgrid/sendgrid-go v3.6.1+incompatible
 	github.com/stretchr/testify v1.7.0
-	github.com/stvp/rollbar v0.0.0-20171113052335-4a50daf855af
 	github.com/twitchtv/twirp v8.1.0+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.6.0

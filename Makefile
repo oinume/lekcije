@@ -75,6 +75,10 @@ proto/go:
   		--twirp_out=paths=source_relative:$(PROTO_GEN_DIR)/go \
   		proto/api/v1/*.proto
 
+mock/generate:
+	find . -name "*.moq.go" | xargs rm -f
+	cd backend && go generate ./...
+
 .PHONY: ngrok
 ngrok:
 	ngrok http -subdomain=lekcije -host-header=localhost 4000

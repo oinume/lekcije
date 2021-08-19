@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/rollbar/rollbar-go"
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 
@@ -15,11 +16,13 @@ import (
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/fetcher"
+	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/notifier"
 	"github.com/oinume/lekcije/backend/open_census"
 	"github.com/oinume/lekcije/backend/stopwatch"
+	"github.com/oinume/lekcije/backend/usecase"
 )
 
 func main() {
@@ -111,15 +114,24 @@ func (m *notifierMain) run(args []string) error {
 		sender = &emailer.NoSender{}
 	}
 
-	statNotifier := &model.StatNotifier{
+	rollbarClient := rollbar.New(
+		config.DefaultVars.RollbarAccessToken,
+		config.DefaultVars.ServiceEnv,
+		config.DefaultVars.VersionHash,
+		"", "/",
+	)
+	errorRecorder := usecase.NewErrorRecorder(
+		appLogger,
+		irollbar.NewErrorRecorderRepository(rollbarClient),
+	)
+	n := notifier.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, sender, sw, nil)
+	defer n.Close(ctx, &model.StatNotifier{
 		Datetime:             startedAt,
 		Interval:             uint8(*notificationInterval),
 		Elapsed:              0,
 		UserCount:            uint32(len(users)),
 		FollowedTeacherCount: 0,
-	}
-	n := notifier.NewNotifier(appLogger, db, lessonFetcher, *dryRun, sender, sw, nil)
-	defer n.Close(ctx, statNotifier)
+	})
 	for _, user := range users {
 		if err := n.SendNotification(ctx, user); err != nil {
 			return err

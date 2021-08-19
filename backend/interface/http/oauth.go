@@ -24,7 +24,6 @@ import (
 	"github.com/oinume/lekcije/backend/randoms"
 	"github.com/oinume/lekcije/backend/registration_email"
 	"github.com/oinume/lekcije/backend/usecase"
-	"github.com/oinume/lekcije/backend/util"
 )
 
 var _ = fmt.Print
@@ -146,6 +145,7 @@ func getGoogleOAuthConfig(r *http.Request) oauth2.Config {
 
 type OAuthServer struct {
 	appLogger            *zap.Logger
+	errorRecorder        *usecase.ErrorRecorder
 	gaMeasurementClient  ga_measurement.Client
 	gaMeasurementUsecase *usecase.GAMeasurement
 	senderHTTPClient     *http.Client
@@ -155,6 +155,7 @@ type OAuthServer struct {
 
 func NewOAuthServer(
 	appLogger *zap.Logger,
+	errorRecorder *usecase.ErrorRecorder,
 	gaMeasurementClient ga_measurement.Client,
 	gaMeasurementUsecase *usecase.GAMeasurement,
 	senderHTTPClient *http.Client,
@@ -163,6 +164,7 @@ func NewOAuthServer(
 ) *OAuthServer {
 	return &OAuthServer{
 		appLogger:            appLogger,
+		errorRecorder:        errorRecorder,
 		gaMeasurementClient:  gaMeasurementClient,
 		gaMeasurementUsecase: gaMeasurementUsecase,
 		senderHTTPClient:     senderHTTPClient,
@@ -193,7 +195,7 @@ func (s *OAuthServer) oauthGoogle(w http.ResponseWriter, r *http.Request) {
 
 func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	if err := checkState(r); err != nil {
-		internalServerError(s.appLogger, w, err, 0)
+		internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 		return
 	}
 	token, idToken, err := exchange(r)
@@ -202,12 +204,12 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
-		internalServerError(s.appLogger, w, err, 0)
+		internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 		return
 	}
 	googleID, name, email, err := getGoogleUserInfo(token, idToken)
 	if err != nil {
-		internalServerError(s.appLogger, w, err, 0)
+		internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 		return
 	}
 
@@ -225,18 +227,17 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 				0,
 				uint32(user.ID),
 			); err != nil {
-				// TODO: Define usecase.ErrorRecorder.Warn and Error
-				s.appLogger.Warn("SendEvent() failed", zap.Error(err))
+				s.errorRecorder.Record(ctx, err, fmt.Sprint(user.ID))
 			}
 		}()
 	} else {
 		if !errors.IsNotFound(err) {
-			internalServerError(s.appLogger, w, err, 0)
+			internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 			return
 		}
 		u, _, err := s.userUsecase.CreateWithGoogle(ctx, name, email, googleID)
 		if err != nil {
-			internalServerError(s.appLogger, w, err, 0)
+			internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 			return
 		}
 		userCreated = true
@@ -251,21 +252,21 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 				0,
 				uint32(user.ID),
 			); err != nil {
-				s.appLogger.Warn("SendEvent() failed", zap.Error(err))
+				s.errorRecorder.Record(ctx, err, fmt.Sprint(user.ID))
 			}
 		}()
 	}
 
 	userAPIToken, err := s.userAPITokenUsecase.Create(ctx, user.ID)
 	if err != nil {
-		internalServerError(s.appLogger, w, err, uint32(user.ID))
+		internalServerError(r.Context(), s.errorRecorder, w, err, uint32(user.ID))
 		return
 	}
 	s.appLogger.Debug(fmt.Sprintf("userCreated = %v", userCreated))
 
 	if userCreated {
 		// TODO: Move to usecase layer
-		// Send registration email
+		// Record registration email
 		go func() {
 			sender := registration_email.NewEmailSender(s.senderHTTPClient, s.appLogger)
 			if err := sender.Send(r.Context(), user); err != nil {
@@ -273,7 +274,7 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 					"Failed to send registration email",
 					zap.String("email", user.Email), zap.Error(err),
 				)
-				util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
+				s.errorRecorder.Record(r.Context(), err, fmt.Sprint(user.ID))
 			}
 		}()
 	}

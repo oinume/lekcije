@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +17,8 @@ func TestIndex(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
 
-	s := newTestServer(t, nil)
+	var accessLog, appLog bytes.Buffer
+	s := newTestServer(t, &accessLog, &appLog)
 	testCases := []struct {
 		path     string
 		handler  http.HandlerFunc

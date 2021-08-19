@@ -73,7 +73,7 @@ func NewSendGridSender(httpClient *http.Client, appLogger *zap.Logger) Sender {
 }
 
 func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
-	_, span := trace.StartSpan(ctx, "SendGridSender.Send")
+	_, span := trace.StartSpan(ctx, "SendGridSender.Record")
 	defer span.End()
 
 	from := mail.NewEmail(email.From.Name, email.From.Address)

@@ -12,22 +12,25 @@ import (
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	"github.com/oinume/lekcije/backend/interface/http/flash_message"
+	"github.com/oinume/lekcije/backend/usecase"
 )
 
 type server struct {
 	accessLogger        *zap.Logger
 	appLogger           *zap.Logger
 	db                  *gorm.DB
+	errorRecorder       *usecase.ErrorRecorder
 	flashMessageStore   flash_message.Store
 	senderHTTPClient    *http.Client
 	gaMeasurementClient ga_measurement.Client
 }
 
-func NewServer(args *interfaces.ServerArgs) *server {
+func NewServer(args *interfaces.ServerArgs, errorRecorder *usecase.ErrorRecorder) *server {
 	return &server{
 		accessLogger:        args.AccessLogger,
 		appLogger:           args.AppLogger,
 		db:                  args.GormDB,
+		errorRecorder:       errorRecorder,
 		flashMessageStore:   args.FlashMessageStore,
 		senderHTTPClient:    args.SenderHTTPClient,
 		gaMeasurementClient: args.GAMeasurementClient,

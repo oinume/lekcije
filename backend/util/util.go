@@ -12,8 +12,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/stvp/rollbar"
-
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -120,36 +118,6 @@ func IsUserAgentSP(req *http.Request) bool {
 func IsUserAgentTablet(req *http.Request) bool {
 	ua := strings.ToLower(req.UserAgent())
 	return strings.Contains(ua, "ipad")
-}
-
-// TODO: Create usecase.ErrorReporter
-
-func SendErrorToRollbar(err error, id string) {
-	if rollbar.Token == "" {
-		return
-	}
-
-	fields := make([]*rollbar.Field, 0, 10)
-	if id != "" {
-		fields = append(fields, &rollbar.Field{
-			Name: "person",
-			Data: map[string]string{
-				"id": id,
-			},
-		})
-	}
-
-	if e, ok := err.(*errors.AnnotatedError); ok && e.OutputStackTrace() {
-		stackTrace := e.StackTrace()
-		frames := make([]uintptr, 0, len(stackTrace))
-		for _, frame := range stackTrace {
-			frames = append(frames, uintptr(frame))
-		}
-		stack := rollbar.BuildStackWithCallers(frames)
-		rollbar.ErrorWithStack(rollbar.ERR, err, stack, fields...)
-	} else {
-		rollbar.Error(rollbar.ERR, err, fields...)
-	}
 }
 
 func GenerateTempFileFromBase64String(dir, prefix, source string) (*os.File, error) {

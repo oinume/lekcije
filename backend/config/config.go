@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
-	"github.com/stvp/rollbar"
 )
 
 var (
@@ -45,16 +44,10 @@ func Process() (*Vars, error) {
 	if err := envconfig.Process("", &vars); err != nil {
 		return nil, err
 	}
-
 	vars.LocalLocation = asiaTokyo
 	if vars.VersionHash == "" {
 		vars.VersionHash = timestamp.Format("20060102150405")
 	}
-	// TODO: Make it optional
-	rollbar.Token = vars.RollbarAccessToken
-	rollbar.Endpoint = "https://api.rollbar.com/api/1/item/"
-	rollbar.Environment = vars.NodeEnv // TODO: lekcije_env
-
 	return &vars, nil
 }
 

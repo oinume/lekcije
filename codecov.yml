@@ -5,8 +5,8 @@ coverage:
       backend:
         # required coverage value
         target: 40%
-        # this allows a 25% drop from the previous base commit coverage
-        threshold: 10%
+        # this allows a 80% drop from the previous base commit coverage
+        threshold: 80%
       frontend:
         target: 5%
         threshold: 1%

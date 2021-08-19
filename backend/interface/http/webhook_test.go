@@ -43,9 +43,10 @@ func TestPostAPISendGridEventWebhook(t *testing.T) {
 	req, err := http.NewRequest("POST", "/api/sendGrid/eventWebhook", reqBody)
 	r.NoError(err)
 
-	w := httptest.NewRecorder()
-	s := newTestServer(t, new(bytes.Buffer))
+	var accessLog, appLog bytes.Buffer
+	s := newTestServer(t, &accessLog, &appLog)
 	handler := s.postAPISendGridEventWebhookHandler()
+	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
 	a.Equal(http.StatusOK, w.Code)

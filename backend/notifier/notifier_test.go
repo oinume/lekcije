@@ -19,7 +19,9 @@ import (
 	"github.com/oinume/lekcije/backend/fetcher"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/repository"
 	"github.com/oinume/lekcije/backend/stopwatch"
+	"github.com/oinume/lekcije/backend/usecase"
 )
 
 var helper = model.NewTestHelper()
@@ -156,13 +158,14 @@ func TestNotifier_SendNotification(t *testing.T) {
 			users = append(users, user)
 		}
 
+		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), appLogger)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
+		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
 
 		ctx := context.Background()
 		for _, user := range users {
@@ -198,13 +201,14 @@ func TestNotifier_SendNotification(t *testing.T) {
 			t.Fatalf("UpdateAll failed: err=%v", err)
 		}
 
+		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), nil)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
+		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
 		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -254,7 +258,8 @@ func TestNotifier_Close(t *testing.T) {
 	teacher := helper.CreateTeacher(t, 3982, "Hena")
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
-	n := NewNotifier(appLogger, db, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
+	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(context.Background(), &model.StatNotifier{

@@ -20,12 +20,14 @@ import (
 	"github.com/oinume/lekcije/backend/fetcher"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/stopwatch"
+	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
 )
 
 type Notifier struct {
 	appLogger       *zap.Logger
 	db              *gorm.DB
+	errorRecorder   *usecase.ErrorRecorder
 	fetcher         *fetcher.LessonFetcher
 	dryRun          bool
 	lessonService   *model.LessonService
@@ -52,7 +54,7 @@ func (tal *teachersAndLessons) CountLessons() int {
 	return count
 }
 
-// Filter out by NotificationTimeSpanList.
+// FilterBy filters out by NotificationTimeSpanList.
 // If a lesson is within NotificationTimeSpanList, it'll be included in returned value.
 func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *teachersAndLessons {
 	if len(list) == 0 {
@@ -96,6 +98,7 @@ func NewTeachersAndLessons(length int) *teachersAndLessons {
 func NewNotifier(
 	appLogger *zap.Logger,
 	db *gorm.DB,
+	errorRecorder *usecase.ErrorRecorder,
 	fetcher *fetcher.LessonFetcher,
 	dryRun bool,
 	sender emailer.Sender,
@@ -108,6 +111,7 @@ func NewNotifier(
 	return &Notifier{
 		appLogger:       appLogger,
 		db:              db,
+		errorRecorder:   errorRecorder,
 		fetcher:         fetcher,
 		dryRun:          dryRun,
 		teachers:        make(map[uint32]*model.Teacher, 1000),
@@ -161,7 +165,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 					}
 					n.appLogger.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
 				}
-				// TODO: Handle a case eikaiwa.dmm.com is down
+				// TODO: Record a case eikaiwa.dmm.com is down
 				n.appLogger.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
 				return
 			}
@@ -319,7 +323,7 @@ func (n *Notifier) sendNotificationToUser(
 				"Failed to sendNotificationToUser",
 				zap.String("email", user.Email), zap.Error(err),
 			)
-			util.SendErrorToRollbar(err, fmt.Sprint(user.ID))
+			n.errorRecorder.Record(ctx, err, fmt.Sprint(user.ID))
 		}
 	}(email)
 
@@ -375,7 +379,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 					)
-					util.SendErrorToRollbar(err, "")
+					n.errorRecorder.Record(ctx, err, "")
 				}
 			}
 			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
@@ -383,7 +387,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
 				)
-				util.SendErrorToRollbar(err, "")
+				n.errorRecorder.Record(ctx, err, "")
 			}
 		}
 	}()
