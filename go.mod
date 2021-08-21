@@ -49,7 +49,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	google.golang.org/api v0.54.0
-	google.golang.org/genproto v0.0.0-20210820002220-43fce44e7af1
+	google.golang.org/genproto v0.0.0-20210821163610-241b8fcbd6c8 // indirect
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
