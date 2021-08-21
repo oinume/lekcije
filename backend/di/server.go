@@ -32,20 +32,20 @@ func NewOAuthServer(
 	)
 }
 
-func NewUserServer(
+func NewMeServer(
 	appLogger *zap.Logger,
 	db *gorm.DB,
 	errorRecorderHooks *twirp.ServerHooks,
 	gaMeasurementClient ga_measurement.Client,
 ) api_v1.TwirpServer {
-	userService := ihttp.NewUserService(
+	meService := ihttp.NewMeService(
 		db, appLogger,
 		NewGAMeasurementUsecase(gaMeasurementClient),
 		NewNotificationTimeSpanUsecase(db.DB()),
 		NewUserUsecase(db.DB()),
 	)
-	return api_v1.NewUserServer(
-		userService,
+	return api_v1.NewMeServer(
+		meService,
 		twirp.WithServerHooks(errorRecorderHooks),
 	)
 }

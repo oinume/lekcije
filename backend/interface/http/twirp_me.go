@@ -15,7 +15,7 @@ import (
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
-type UserService struct {
+type MeService struct {
 	appLogger                   *zap.Logger
 	db                          *gorm.DB
 	gaMeasurementUsecase        *usecase.GAMeasurement
@@ -23,14 +23,14 @@ type UserService struct {
 	userUsecase                 *usecase.User
 }
 
-func NewUserService(
+func NewMeService(
 	db *gorm.DB, // TODO: Remove
 	appLogger *zap.Logger,
 	gaMeasurementUsecase *usecase.GAMeasurement,
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
 	userUsecase *usecase.User,
-) api_v1.User {
-	return &UserService{
+) api_v1.Me {
+	return &MeService{
 		appLogger:                   appLogger,
 		db:                          db,
 		gaMeasurementUsecase:        gaMeasurementUsecase,
@@ -39,14 +39,14 @@ func NewUserService(
 	}
 }
 
-func (s *UserService) Ping(
+func (s *MeService) Ping(
 	_ context.Context,
 	_ *api_v1.PingRequest,
 ) (*api_v1.PingResponse, error) {
 	return &api_v1.PingResponse{}, nil
 }
 
-func (s *UserService) GetMe(
+func (s *MeService) GetMe(
 	ctx context.Context,
 	_ *api_v1.GetMeRequest,
 ) (*api_v1.GetMeResponse, error) {
@@ -68,25 +68,24 @@ func (s *UserService) GetMe(
 		UserId:                int32(user.ID),
 		Email:                 user.Email,
 		NotificationTimeSpans: timeSpansProto,
-		MPlan:                 nil, // TODO: Remove
 	}, nil
 }
 
-func (s *UserService) GetMeEmail(
+func (s *MeService) GetEmail(
 	ctx context.Context,
-	_ *api_v1.GetMeEmailRequest,
-) (*api_v1.GetMeEmailResponse, error) {
+	_ *api_v1.GetEmailRequest,
+) (*api_v1.GetEmailResponse, error) {
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
 	}
-	return &api_v1.GetMeEmailResponse{Email: user.Email}, nil
+	return &api_v1.GetEmailResponse{Email: user.Email}, nil
 }
 
-func (s *UserService) UpdateMeEmail(
+func (s *MeService) UpdateEmail(
 	ctx context.Context,
-	request *api_v1.UpdateMeEmailRequest,
-) (*api_v1.UpdateMeEmailResponse, error) {
+	request *api_v1.UpdateEmailRequest,
+) (*api_v1.UpdateEmailResponse, error) {
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
@@ -122,13 +121,13 @@ func (s *UserService) UpdateMeEmail(
 		}
 	}()
 
-	return &api_v1.UpdateMeEmailResponse{}, nil
+	return &api_v1.UpdateEmailResponse{}, nil
 }
 
-func (s *UserService) UpdateMeNotificationTimeSpan(
+func (s *MeService) UpdateNotificationTimeSpan(
 	ctx context.Context,
-	request *api_v1.UpdateMeNotificationTimeSpanRequest,
-) (*api_v1.UpdateMeNotificationTimeSpanResponse, error) {
+	request *api_v1.UpdateNotificationTimeSpanRequest,
+) (*api_v1.UpdateNotificationTimeSpanResponse, error) {
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
@@ -155,7 +154,7 @@ func (s *UserService) UpdateMeNotificationTimeSpan(
 		}
 	}()
 
-	return &api_v1.UpdateMeNotificationTimeSpanResponse{}, nil
+	return &api_v1.UpdateNotificationTimeSpanResponse{}, nil
 }
 
 func validateEmail(email string) bool {

@@ -38,7 +38,7 @@ func (s *server) Setup(mux *goji.Mux) {
 	mux.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
 }
 
-func SetupTwirpServer(mux *goji.Mux, userServer api_v1.TwirpServer) {
+func SetupTwirpServer(mux *goji.Mux, meServer api_v1.TwirpServer) {
 	// TODO: Define UserServer etc in *server and setup mux inside it
-	mux.Handle(pat.Post(api_v1.UserPathPrefix+"*"), userServer)
+	mux.Handle(pat.Post(api_v1.MePathPrefix+"*"), meServer)
 }
