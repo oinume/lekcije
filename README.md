@@ -1,6 +1,7 @@
 [![Actions/backend](https://github.com/oinume/lekcije/workflows/backend/badge.svg?branch=master)](https://github.com/oinume/lekcije/actions?query=workflow%3Abackend+branch%3Amaster)
 [![Actions/frontend](https://github.com/oinume/lekcije/workflows/frontend/badge.svg?branch=master)](https://github.com/oinume/lekcije/actions?query=workflow%3Abackend+branch%3Amaster)
-[![codecov](https://codecov.io/gh/oinume/lekcije/branch/master/graph/badge.svg)](https://codecov.io/gh/oinume/lekcije)
+[![codecov/backend](https://codecov.io/gh/oinume/lekcije/branch/master/graph/badge.svg?flag=backend)](https://codecov.io/gh/oinume/lekcije?flag=backend)
+[![codecov/frontend](https://codecov.io/gh/oinume/lekcije/branch/master/graph/badge.svg?flag=frontend)](https://codecov.io/gh/oinume/lekcije?flag=frontend)
 
 # lekcije
 Follow your favorite teachers in DMM Eikaiwa and receive notification when favorite teachers open lessons.
