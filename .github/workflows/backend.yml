@@ -2,17 +2,16 @@ name: backend
 on:
   push:
     paths:
-      - "**.go"
-      - "**.json"
-      - "**.html"
+      - "backend/**"
+      - "tools/**"
       - "**.proto"
       - "**.py"
       - "**.sh"
+      - "**.txt"
       - "**.ya?ml"
       - "go.mod"
       - "go.sum"
       - "Makefile"
-      - "tools/**"
 env:
   CACHE_VERSION: 1
   GOPATH: /home/runner/go
