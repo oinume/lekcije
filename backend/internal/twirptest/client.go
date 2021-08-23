@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
-	"github.com/golang/protobuf/proto"  //nolint:staticcheck
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 type JSONError struct {
@@ -51,12 +51,14 @@ func (jc *JSONClient) SendRequest(
 ) (int, *JSONError) {
 	t.Helper()
 
-	var body bytes.Buffer
-	marshaler := &jsonpb.Marshaler{}
-	if err := marshaler.Marshal(&body, request); err != nil {
+	marshaler := protojson.MarshalOptions{
+		UseProtoNames: true,
+	}
+	body, err := marshaler.Marshal(request)
+	if err != nil {
 		t.Fatalf("Marshal failed: %v", err)
 	}
-	req, err := http.NewRequest("POST", path, &body)
+	req, err := http.NewRequest("POST", path, bytes.NewReader(body))
 	if err != nil {
 		t.Fatalf("NewRequest failed: %v", err)
 	}
@@ -76,8 +78,12 @@ func (jc *JSONClient) SendRequest(
 		return resp.StatusCode, &je
 	}
 
-	unmarshaler := &jsonpb.Unmarshaler{}
-	if err := unmarshaler.Unmarshal(resp.Body, response); err != nil {
+	rawRespBody := json.RawMessage{}
+	if err := json.NewDecoder(resp.Body).Decode(&rawRespBody); err != nil {
+		t.Fatalf("Decode failed: %v", err)
+	}
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawRespBody, response); err != nil {
 		t.Fatalf("Unmarshal failed: %v", err)
 	}
 
