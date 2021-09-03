@@ -6,7 +6,7 @@ go 1.16
 
 require (
 	cloud.google.com/go/monitoring v0.1.0 // indirect
-	cloud.google.com/go/profiler v0.1.0
+	cloud.google.com/go/profiler v0.94.1
 	cloud.google.com/go/storage v1.10.0
 	cloud.google.com/go/trace v0.1.0 // indirect
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.8
