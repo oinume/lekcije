@@ -37,32 +37,39 @@
 <body>
 <div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
+    <div class="container-fluid">
       <div class="row">
-        <div class="col order-first"><a class="navbar-brand" href="/">lekcije</a></div>
+        <div class="col order-first">
+          <a class="navbar-brand" href="/">lekcije</a>
+        </div>
       </div>
       <div class="row">
         <div class="col order-last">
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          {{ $currentURL := .CurrentURL -}}
-          {{ if ne $currentURL "/" -}}
-            <ul class="navbar-nav mr-auto">
-            {{ range $item := .NavigationItems }}
-              <li {{ if eq $.CurrentURL $item.URL }}class="active"{{ end }}>
-                <a class="nav-link" href="{{ $item.URL }}" {{ if $item.NewWindow }} target="_blank"{{ end }}>{{ $item.Text }}</a>
+          <div class="collapse navbar-collapse" id="navbarText">
+            {{ $currentURL := .CurrentURL -}}
+            {{ if ne $currentURL "/" -}}
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              {{ range $item := .NavigationItems }}
+              <li>
+                <a
+                  class="nav-link {{ if eq $.CurrentURL $item.URL }} active{{ end }}"
+                  href="{{ $item.URL }}"
+                  {{ if $item.NewWindow }} target="_blank"{{ end }}>
+                    {{ $item.Text }}
+                </a>
               </li>
-            {{ end }}
+              {{ end }}
             </ul>
-          {{ end -}}
-          {{ if eq $currentURL "/" -}}
+            {{ end -}}
+            {{ if eq $currentURL "/" -}}
             <ul class="navbar-nav">
               <li><a class="nav-link" href="/oauth/google">ログイン</a></li>
               <li><a class="nav-link" href="/signup">新規登録</a></li>
             </ul>
-          {{ end -}}
+            {{ end -}}
           </div>
         </div>
       </div>
