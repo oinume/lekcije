@@ -49,12 +49,17 @@ export const SettingPage: React.FC<{}> = () => {
     },
     {
       onSuccess: () => {
+        console.log('onSuccess!!!');
         queryClient
           .invalidateQueries(queryKeyMe)
           .then((_) => {})
           .catch((e) => {
             console.error(e);
           });
+      },
+      onError: (error) => {
+        console.log('onError!!!');
+        console.log(error);
       },
     }
   );
@@ -182,6 +187,7 @@ export const SettingPage: React.FC<{}> = () => {
             updateMeEmailMutation.mutate(em);
           }}
         />
+        <div className="mb-3" />
         <NotificationTimeSpanForm
           handleAdd={handleAddTimeSpan}
           handleDelete={handleDeleteTimeSpan}

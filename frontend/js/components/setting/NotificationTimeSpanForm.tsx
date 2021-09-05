@@ -65,16 +65,14 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
   }
 
   return (
-    <form className="form-horizontal">
+    <form>
+      <h4>
+        レッスン希望時間帯
+        <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
+          <i className="fas fa-question-circle button-help" aria-hidden="true" />
+        </a>
+      </h4>
       <div className="form-group">
-        <div className="col-sm-3">
-          <label htmlFor="notificationTimeSpan" className="control-label">
-            レッスン希望時間帯
-          </label>
-          <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
-            <i className="fas fa-question-circle button-help" aria-hidden="true" />
-          </a>
-        </div>
         <div className="col-sm-7">{content}</div>
       </div>
       <div className="form-group">
