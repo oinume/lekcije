@@ -17,24 +17,24 @@ services:
 #      - "./volume/mysql/var/lib/mysql:/var/lib/mysql"
 #      - ./log/mysql:/var/log/mysql
 
-  zipkin_storage:
-    image: openzipkin/zipkin-mysql
-    container_name: zipkin_mysql
-
-  zipkin:
-    image: "openzipkin/zipkin"
-    container_name: zipkin
-    ports:
-      - "19411:9411"
-    environment:
-      - STORAGE_TYPE=mysql
-      # Point the zipkin at the storage backend
-      - MYSQL_HOST=zipkin_mysql
-      # Uncomment to enable scribe
-      # - SCRIBE_ENABLED=true
-      # Uncomment to enable self-tracing
-      # - SELF_TRACING_ENABLED=true
-      # Uncomment to enable debug logging
-      # - JAVA_OPTS=-Dlogging.level.zipkin2=DEBUG
-    depends_on:
-      - zipkin_storage
+#  zipkin_storage:
+#    image: openzipkin/zipkin-mysql
+#    container_name: zipkin_mysql
+#
+#  zipkin:
+#    image: "openzipkin/zipkin"
+#    container_name: zipkin
+#    ports:
+#      - "19411:9411"
+#    environment:
+#      - STORAGE_TYPE=mysql
+#      # Point the zipkin at the storage backend
+#      - MYSQL_HOST=zipkin_mysql
+#      # Uncomment to enable scribe
+#      # - SCRIBE_ENABLED=true
+#      # Uncomment to enable self-tracing
+#      # - SELF_TRACING_ENABLED=true
+#      # Uncomment to enable debug logging
+#      # - JAVA_OPTS=-Dlogging.level.zipkin2=DEBUG
+#    depends_on:
+#      - zipkin_storage
