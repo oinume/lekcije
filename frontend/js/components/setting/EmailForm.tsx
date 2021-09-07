@@ -16,7 +16,7 @@ export const EmailForm: React.FC<Props> = ({ email, handleOnChange, handleUpdate
         handleUpdateEmail(email);
       }}
     >
-      <h4>Email</h4>
+      <h5>通知先メールアドレス</h5>
       <div className="mb-3">
         <input
           type="email"

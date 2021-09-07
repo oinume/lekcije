@@ -66,12 +66,12 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 
   return (
     <form>
-      <h4>
+      <h5>
         レッスン希望時間帯
         <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
           <i className="fas fa-question-circle button-help" aria-hidden="true" />
         </a>
-      </h4>
+      </h5>
       <div className="form-group">
         <div className="col-sm-7">{content}</div>
       </div>
