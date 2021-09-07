@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient, UseMutationResult } from 'react-query';
-import { sendRequest } from '../../http/fetch';
+import { sendRequest, HttpError } from '../../http/fetch';
 import { Loader } from '../Loader';
 import { Alert } from '../Alert';
 import { ToggleAlert } from '../ToggleAlert';
@@ -49,17 +49,12 @@ export const SettingPage: React.FC<{}> = () => {
     },
     {
       onSuccess: () => {
-        console.log('onSuccess!!!');
         queryClient
           .invalidateQueries(queryKeyMe)
           .then((_) => {})
           .catch((e) => {
             console.error(e);
           });
-      },
-      onError: (error) => {
-        console.log('onError!!!');
-        console.log(error);
       },
     }
   );
@@ -85,7 +80,7 @@ export const SettingPage: React.FC<{}> = () => {
     }
   );
 
-  //console.log('BEFORE useQuery');
+  //console.log('BEFORE useQuery<GetMeResult, Error>');
   const { isLoading, isIdle, error, data } = useQuery<GetMeResult, Error>(
     queryKeyMe,
     async () => {
@@ -109,7 +104,7 @@ export const SettingPage: React.FC<{}> = () => {
       retry: 0,
     }
   );
-  // console.log('AFTER useQuery: isLoading = %s', isLoading);
+  //console.log('AFTER useQuery: isLoading = %s', isLoading);
 
   if (isLoading || isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
@@ -167,7 +162,7 @@ export const SettingPage: React.FC<{}> = () => {
       timeSpans.push(timeSpan);
     }
     setNotificationTimeSpansState(timeSpans);
-    console.log('BEFORE updateMeNotificationTimeSpanMutation.mutate()');
+    //console.log('BEFORE updateMeNotificationTimeSpanMutation.mutate()');
     updateMeNotificationTimeSpanMutation.mutate(timeSpans);
   };
 
@@ -206,12 +201,17 @@ type UseMutationResultAlertProps = {
 };
 
 // TODO: external component
-const UseMutationResultAlert = ({ result, name }: UseMutationResultAlertProps) => {
+const UseMutationResultAlert: React.FC<UseMutationResultAlertProps> = ({
+  result,
+  name,
+}: UseMutationResultAlertProps) => {
+  const e: HttpError = result.error as HttpError;
+  // TODO: error handlingをまともにする
   switch (result.status) {
     case 'success':
       return <Alert kind={'success'} message={name + 'を更新しました！'} />;
     case 'error':
-      return <Alert kind={'danger'} message={result.error as string} />;
+      return <Alert kind={'danger'} message={name + `の更新に失敗しました。(${e.response.statusText})`} />;
     default:
       return <></>;
   }

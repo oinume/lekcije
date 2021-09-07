@@ -103,8 +103,13 @@ var WebFontConfig = {
 </script>
 <script src="{{ .StaticURL }}/lib/jquery/dist/jquery.min.js"></script>
 <script src="{{ .StaticURL }}/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+{{ if eq .ServiceEnv "production" -}}
 <script src="{{ .StaticURL }}/lib/react/umd/react.production.min.js"></script>
 <script src="{{ .StaticURL }}/lib/react-dom/umd/react-dom.production.min.js"></script>
+{{ else -}}
+<script src="{{ .StaticURL }}/lib/react/umd/react.development.js"></script>
+<script src="{{ .StaticURL }}/lib/react-dom/umd/react-dom.development.js"></script>
+{{ end -}}
 <script src="{{ .StaticURL }}/js/vendor.bundle.js"></script>
 <script src="{{ .StaticURL }}/js/main.bundle.js"></script>
 {{- block "extraJs" . }}<!-- Put extra js here -->{{- end }}

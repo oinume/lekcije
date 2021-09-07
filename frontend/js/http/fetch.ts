@@ -1,8 +1,8 @@
 import cookie from 'cookie';
 import fetch, { Response } from 'cross-fetch';
 
-class HttpError extends Error {
-  constructor(message: string, public response: Response) {
+export class HttpError extends Error {
+  constructor(public message: string, public response: Response) {
     super(message);
   }
 }
