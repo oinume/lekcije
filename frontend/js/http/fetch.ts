@@ -1,5 +1,11 @@
 import cookie from 'cookie';
-import fetch from 'cross-fetch';
+import fetch, { Response } from 'cross-fetch';
+
+export class HttpError extends Error {
+  constructor(public message: string, public response: Response) {
+    super(message);
+  }
+}
 
 export const sendRequest = async (path: string, body: string) => {
   const headers: { [key: string]: string } = {
@@ -9,9 +15,13 @@ export const sendRequest = async (path: string, body: string) => {
   if (cookies['apiToken']) {
     headers['Authorization'] = 'Bearer ' + cookies['apiToken'];
   }
-  return fetch(path, {
+  const res = await fetch(path, {
     body: body,
     method: 'POST',
     headers: headers,
   });
+  if (res.status >= 400) {
+    throw new HttpError('HTTP request failed on ' + path, res);
+  }
+  return res;
 };

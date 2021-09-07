@@ -85,6 +85,7 @@ type commonTemplateData struct {
 	UserID            string
 	NavigationItems   []navigationItem
 	FlashMessage      *flash_message.FlashMessage
+	ServiceEnv        string
 }
 
 type navigationItem struct {
@@ -115,6 +116,7 @@ func (s *server) getCommonTemplateData(req *http.Request, loggedIn bool, userID 
 		IsUserAgentPC:     util.IsUserAgentPC(req),
 		IsUserAgentSP:     util.IsUserAgentSP(req),
 		IsUserAgentTablet: util.IsUserAgentTablet(req),
+		ServiceEnv:        config.DefaultVars.ServiceEnv,
 	}
 
 	if loggedIn {
