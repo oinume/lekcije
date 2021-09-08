@@ -28,1367 +28,36 @@ import url "net/url"
 // See https://twitchtv.github.io/twirp/docs/version_matrix.html
 const _ = twirp.TwirpPackageMinVersion_8_1_0
 
-// =============
-// API Interface
-// =============
-
-type API interface {
-	GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error)
-
-	GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error)
-
-	UpdateMeEmail(context.Context, *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error)
-
-	UpdateMeNotificationTimeSpan(context.Context, *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error)
-}
-
-// ===================
-// API Protobuf Client
-// ===================
-
-type aPIProtobufClient struct {
-	client      HTTPClient
-	urls        [4]string
-	interceptor twirp.Interceptor
-	opts        twirp.ClientOptions
-}
-
-// NewAPIProtobufClient creates a Protobuf client that implements the API interface.
-// It communicates using Protobuf and can be configured with a custom HTTPClient.
-func NewAPIProtobufClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) API {
-	if c, ok := client.(*http.Client); ok {
-		client = withoutRedirects(c)
-	}
-
-	clientOpts := twirp.ClientOptions{}
-	for _, o := range opts {
-		o(&clientOpts)
-	}
-
-	// Using ReadOpt allows backwards and forwads compatibility with new options in the future
-	literalURLs := false
-	_ = clientOpts.ReadOpt("literalURLs", &literalURLs)
-	var pathPrefix string
-	if ok := clientOpts.ReadOpt("pathPrefix", &pathPrefix); !ok {
-		pathPrefix = "/twirp" // default prefix
-	}
-
-	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
-	serviceURL := sanitizeBaseURL(baseURL)
-	serviceURL += baseServicePath(pathPrefix, "api.v1", "API")
-	urls := [4]string{
-		serviceURL + "GetMe",
-		serviceURL + "GetMeEmail",
-		serviceURL + "UpdateMeEmail",
-		serviceURL + "UpdateMeNotificationTimeSpan",
-	}
-
-	return &aPIProtobufClient{
-		client:      client,
-		urls:        urls,
-		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
-		opts:        clientOpts,
-	}
-}
-
-func (c *aPIProtobufClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
-	caller := c.callGetMe
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetMeRequest) (*GetMeResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeRequest) when calling interceptor")
-					}
-					return c.callGetMe(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIProtobufClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
-	out := new(GetMeResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *aPIProtobufClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
-	caller := c.callGetMeEmail
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
-					}
-					return c.callGetMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIProtobufClient) callGetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-	out := new(GetMeEmailResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *aPIProtobufClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
-	caller := c.callUpdateMeEmail
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
-					}
-					return c.callUpdateMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIProtobufClient) callUpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-	out := new(UpdateMeEmailResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *aPIProtobufClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
-	caller := c.callUpdateMeNotificationTimeSpan
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
-					}
-					return c.callUpdateMeNotificationTimeSpan(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIProtobufClient) callUpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-	out := new(UpdateMeNotificationTimeSpanResponse)
-	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-// ===============
-// API JSON Client
-// ===============
-
-type aPIJSONClient struct {
-	client      HTTPClient
-	urls        [4]string
-	interceptor twirp.Interceptor
-	opts        twirp.ClientOptions
-}
-
-// NewAPIJSONClient creates a JSON client that implements the API interface.
-// It communicates using JSON and can be configured with a custom HTTPClient.
-func NewAPIJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) API {
-	if c, ok := client.(*http.Client); ok {
-		client = withoutRedirects(c)
-	}
-
-	clientOpts := twirp.ClientOptions{}
-	for _, o := range opts {
-		o(&clientOpts)
-	}
-
-	// Using ReadOpt allows backwards and forwads compatibility with new options in the future
-	literalURLs := false
-	_ = clientOpts.ReadOpt("literalURLs", &literalURLs)
-	var pathPrefix string
-	if ok := clientOpts.ReadOpt("pathPrefix", &pathPrefix); !ok {
-		pathPrefix = "/twirp" // default prefix
-	}
-
-	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
-	serviceURL := sanitizeBaseURL(baseURL)
-	serviceURL += baseServicePath(pathPrefix, "api.v1", "API")
-	urls := [4]string{
-		serviceURL + "GetMe",
-		serviceURL + "GetMeEmail",
-		serviceURL + "UpdateMeEmail",
-		serviceURL + "UpdateMeNotificationTimeSpan",
-	}
-
-	return &aPIJSONClient{
-		client:      client,
-		urls:        urls,
-		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
-		opts:        clientOpts,
-	}
-}
-
-func (c *aPIJSONClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
-	caller := c.callGetMe
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetMeRequest) (*GetMeResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeRequest) when calling interceptor")
-					}
-					return c.callGetMe(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIJSONClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
-	out := new(GetMeResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *aPIJSONClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
-	caller := c.callGetMeEmail
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
-					}
-					return c.callGetMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIJSONClient) callGetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-	out := new(GetMeEmailResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *aPIJSONClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
-	caller := c.callUpdateMeEmail
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
-					}
-					return c.callUpdateMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIJSONClient) callUpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-	out := new(UpdateMeEmailResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-func (c *aPIJSONClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
-	caller := c.callUpdateMeNotificationTimeSpan
-	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-			resp, err := c.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
-					}
-					return c.callUpdateMeNotificationTimeSpan(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-	return caller(ctx, in)
-}
-
-func (c *aPIJSONClient) callUpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-	out := new(UpdateMeNotificationTimeSpanResponse)
-	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
-	if err != nil {
-		twerr, ok := err.(twirp.Error)
-		if !ok {
-			twerr = twirp.InternalErrorWith(err)
-		}
-		callClientError(ctx, c.opts.Hooks, twerr)
-		return nil, err
-	}
-
-	callClientResponseReceived(ctx, c.opts.Hooks)
-
-	return out, nil
-}
-
-// ==================
-// API Server Handler
-// ==================
-
-type aPIServer struct {
-	API
-	interceptor      twirp.Interceptor
-	hooks            *twirp.ServerHooks
-	pathPrefix       string // prefix for routing
-	jsonSkipDefaults bool   // do not include unpopulated fields (default values) in the response
-	jsonCamelCase    bool   // JSON fields are serialized as lowerCamelCase rather than keeping the original proto names
-}
-
-// NewAPIServer builds a TwirpServer that can be used as an http.Handler to handle
-// HTTP requests that are routed to the right method in the provided svc implementation.
-// The opts are twirp.ServerOption modifiers, for example twirp.WithServerHooks(hooks).
-func NewAPIServer(svc API, opts ...interface{}) TwirpServer {
-	serverOpts := newServerOpts(opts)
-
-	// Using ReadOpt allows backwards and forwads compatibility with new options in the future
-	jsonSkipDefaults := false
-	_ = serverOpts.ReadOpt("jsonSkipDefaults", &jsonSkipDefaults)
-	jsonCamelCase := false
-	_ = serverOpts.ReadOpt("jsonCamelCase", &jsonCamelCase)
-	var pathPrefix string
-	if ok := serverOpts.ReadOpt("pathPrefix", &pathPrefix); !ok {
-		pathPrefix = "/twirp" // default prefix
-	}
-
-	return &aPIServer{
-		API:              svc,
-		hooks:            serverOpts.Hooks,
-		interceptor:      twirp.ChainInterceptors(serverOpts.Interceptors...),
-		pathPrefix:       pathPrefix,
-		jsonSkipDefaults: jsonSkipDefaults,
-		jsonCamelCase:    jsonCamelCase,
-	}
-}
-
-// writeError writes an HTTP response with a valid Twirp error format, and triggers hooks.
-// If err is not a twirp.Error, it will get wrapped with twirp.InternalErrorWith(err)
-func (s *aPIServer) writeError(ctx context.Context, resp http.ResponseWriter, err error) {
-	writeError(ctx, resp, err, s.hooks)
-}
-
-// handleRequestBodyError is used to handle error when the twirp server cannot read request
-func (s *aPIServer) handleRequestBodyError(ctx context.Context, resp http.ResponseWriter, msg string, err error) {
-	if context.Canceled == ctx.Err() {
-		s.writeError(ctx, resp, twirp.NewError(twirp.Canceled, "failed to read request: context canceled"))
-		return
-	}
-	if context.DeadlineExceeded == ctx.Err() {
-		s.writeError(ctx, resp, twirp.NewError(twirp.DeadlineExceeded, "failed to read request: deadline exceeded"))
-		return
-	}
-	s.writeError(ctx, resp, twirp.WrapError(malformedRequestError(msg), err))
-}
-
-// APIPathPrefix is a convenience constant that may identify URL paths.
-// Should be used with caution, it only matches routes generated by Twirp Go clients,
-// with the default "/twirp" prefix and default CamelCase service and method names.
-// More info: https://twitchtv.github.io/twirp/docs/routing.html
-const APIPathPrefix = "/twirp/api.v1.API/"
-
-func (s *aPIServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
-	ctx := req.Context()
-	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "API")
-	ctx = ctxsetters.WithResponseWriter(ctx, resp)
-
-	var err error
-	ctx, err = callRequestReceived(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	if req.Method != "POST" {
-		msg := fmt.Sprintf("unsupported method %q (only POST is allowed)", req.Method)
-		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
-		return
-	}
-
-	// Verify path format: [<prefix>]/<package>.<Service>/<Method>
-	prefix, pkgService, method := parseTwirpPath(req.URL.Path)
-	if pkgService != "api.v1.API" {
-		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
-		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
-		return
-	}
-	if prefix != s.pathPrefix {
-		msg := fmt.Sprintf("invalid path prefix %q, expected %q, on path %q", prefix, s.pathPrefix, req.URL.Path)
-		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
-		return
-	}
-
-	switch method {
-	case "GetMe":
-		s.serveGetMe(ctx, resp, req)
-		return
-	case "GetMeEmail":
-		s.serveGetMeEmail(ctx, resp, req)
-		return
-	case "UpdateMeEmail":
-		s.serveUpdateMeEmail(ctx, resp, req)
-		return
-	case "UpdateMeNotificationTimeSpan":
-		s.serveUpdateMeNotificationTimeSpan(ctx, resp, req)
-		return
-	default:
-		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
-		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
-		return
-	}
-}
-
-func (s *aPIServer) serveGetMe(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveGetMeJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveGetMeProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *aPIServer) serveGetMeJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(GetMeRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.API.GetMe
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetMeRequest) (*GetMeResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeRequest) when calling interceptor")
-					}
-					return s.API.GetMe(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *GetMeResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetMeResponse and nil error while calling GetMe. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) serveGetMeProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(GetMeRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.API.GetMe
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetMeRequest) (*GetMeResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeRequest) when calling interceptor")
-					}
-					return s.API.GetMe(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *GetMeResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetMeResponse and nil error while calling GetMe. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) serveGetMeEmail(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveGetMeEmailJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveGetMeEmailProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *aPIServer) serveGetMeEmailJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(GetMeEmailRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.API.GetMeEmail
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
-					}
-					return s.API.GetMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *GetMeEmailResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetMeEmailResponse and nil error while calling GetMeEmail. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) serveGetMeEmailProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(GetMeEmailRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.API.GetMeEmail
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
-					}
-					return s.API.GetMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *GetMeEmailResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetMeEmailResponse and nil error while calling GetMeEmail. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) serveUpdateMeEmail(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveUpdateMeEmailJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveUpdateMeEmailProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *aPIServer) serveUpdateMeEmailJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(UpdateMeEmailRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.API.UpdateMeEmail
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
-					}
-					return s.API.UpdateMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *UpdateMeEmailResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeEmailResponse and nil error while calling UpdateMeEmail. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) serveUpdateMeEmailProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(UpdateMeEmailRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.API.UpdateMeEmail
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
-					}
-					return s.API.UpdateMeEmail(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *UpdateMeEmailResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeEmailResponse and nil error while calling UpdateMeEmail. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) serveUpdateMeNotificationTimeSpan(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	header := req.Header.Get("Content-Type")
-	i := strings.Index(header, ";")
-	if i == -1 {
-		i = len(header)
-	}
-	switch strings.TrimSpace(strings.ToLower(header[:i])) {
-	case "application/json":
-		s.serveUpdateMeNotificationTimeSpanJSON(ctx, resp, req)
-	case "application/protobuf":
-		s.serveUpdateMeNotificationTimeSpanProtobuf(ctx, resp, req)
-	default:
-		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
-		twerr := badRouteError(msg, req.Method, req.URL.Path)
-		s.writeError(ctx, resp, twerr)
-	}
-}
-
-func (s *aPIServer) serveUpdateMeNotificationTimeSpanJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	d := json.NewDecoder(req.Body)
-	rawReqBody := json.RawMessage{}
-	if err := d.Decode(&rawReqBody); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-	reqContent := new(UpdateMeNotificationTimeSpanRequest)
-	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
-		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
-		return
-	}
-
-	handler := s.API.UpdateMeNotificationTimeSpan
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
-					}
-					return s.API.UpdateMeNotificationTimeSpan(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *UpdateMeNotificationTimeSpanResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeNotificationTimeSpanResponse and nil error while calling UpdateMeNotificationTimeSpan. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
-	respBytes, err := marshaler.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/json")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) serveUpdateMeNotificationTimeSpanProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
-	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
-	ctx, err = callRequestRouted(ctx, s.hooks)
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-
-	buf, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
-		return
-	}
-	reqContent := new(UpdateMeNotificationTimeSpanRequest)
-	if err = proto.Unmarshal(buf, reqContent); err != nil {
-		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
-		return
-	}
-
-	handler := s.API.UpdateMeNotificationTimeSpan
-	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-			resp, err := s.interceptor(
-				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
-					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
-					}
-					return s.API.UpdateMeNotificationTimeSpan(ctx, typedReq)
-				},
-			)(ctx, req)
-			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
-				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
-				}
-				return typedResp, err
-			}
-			return nil, err
-		}
-	}
-
-	// Call service method
-	var respContent *UpdateMeNotificationTimeSpanResponse
-	func() {
-		defer ensurePanicResponses(ctx, resp, s.hooks)
-		respContent, err = handler(ctx, reqContent)
-	}()
-
-	if err != nil {
-		s.writeError(ctx, resp, err)
-		return
-	}
-	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeNotificationTimeSpanResponse and nil error while calling UpdateMeNotificationTimeSpan. nil responses are not supported"))
-		return
-	}
-
-	ctx = callResponsePrepared(ctx, s.hooks)
-
-	respBytes, err := proto.Marshal(respContent)
-	if err != nil {
-		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
-		return
-	}
-
-	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
-	resp.Header().Set("Content-Type", "application/protobuf")
-	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
-	resp.WriteHeader(http.StatusOK)
-	if n, err := resp.Write(respBytes); err != nil {
-		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
-		twerr := twirp.NewError(twirp.Unknown, msg)
-		ctx = callError(ctx, s.hooks, twerr)
-	}
-	callResponseSent(ctx, s.hooks)
-}
-
-func (s *aPIServer) ServiceDescriptor() ([]byte, int) {
-	return twirpFileDescriptor0, 0
-}
-
-func (s *aPIServer) ProtocGenTwirpVersion() string {
-	return "v8.1.0"
-}
-
-// PathPrefix returns the base service path, in the form: "/<prefix>/<package>.<Service>/"
-// that is everything in a Twirp route except for the <Method>. This can be used for routing,
-// for example to identify the requests that are targeted to this service in a mux.
-func (s *aPIServer) PathPrefix() string {
-	return baseServicePath(s.pathPrefix, "api.v1", "API")
-}
-
-// ==============
-// User Interface
-// ==============
-
-type User interface {
+// ============
+// Me Interface
+// ============
+
+type Me interface {
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 
 	GetMe(context.Context, *GetMeRequest) (*GetMeResponse, error)
 
-	GetMeEmail(context.Context, *GetMeEmailRequest) (*GetMeEmailResponse, error)
+	GetEmail(context.Context, *GetEmailRequest) (*GetEmailResponse, error)
 
-	UpdateMeEmail(context.Context, *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error)
+	UpdateEmail(context.Context, *UpdateEmailRequest) (*UpdateEmailResponse, error)
 
-	UpdateMeNotificationTimeSpan(context.Context, *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error)
+	UpdateNotificationTimeSpan(context.Context, *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error)
 }
 
-// ====================
-// User Protobuf Client
-// ====================
+// ==================
+// Me Protobuf Client
+// ==================
 
-type userProtobufClient struct {
+type meProtobufClient struct {
 	client      HTTPClient
 	urls        [5]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
 
-// NewUserProtobufClient creates a Protobuf client that implements the User interface.
+// NewMeProtobufClient creates a Protobuf client that implements the Me interface.
 // It communicates using Protobuf and can be configured with a custom HTTPClient.
-func NewUserProtobufClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) User {
+func NewMeProtobufClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) Me {
 	if c, ok := client.(*http.Client); ok {
 		client = withoutRedirects(c)
 	}
@@ -1408,16 +77,16 @@ func NewUserProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Clie
 
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
-	serviceURL += baseServicePath(pathPrefix, "api.v1", "User")
+	serviceURL += baseServicePath(pathPrefix, "api.v1", "Me")
 	urls := [5]string{
 		serviceURL + "Ping",
 		serviceURL + "GetMe",
-		serviceURL + "GetMeEmail",
-		serviceURL + "UpdateMeEmail",
-		serviceURL + "UpdateMeNotificationTimeSpan",
+		serviceURL + "GetEmail",
+		serviceURL + "UpdateEmail",
+		serviceURL + "UpdateNotificationTimeSpan",
 	}
 
-	return &userProtobufClient{
+	return &meProtobufClient{
 		client:      client,
 		urls:        urls,
 		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
@@ -1425,9 +94,9 @@ func NewUserProtobufClient(baseURL string, client HTTPClient, opts ...twirp.Clie
 	}
 }
 
-func (c *userProtobufClient) Ping(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+func (c *meProtobufClient) Ping(ctx context.Context, in *PingRequest) (*PingResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
 	ctx = ctxsetters.WithMethodName(ctx, "Ping")
 	caller := c.callPing
 	if c.interceptor != nil {
@@ -1454,7 +123,7 @@ func (c *userProtobufClient) Ping(ctx context.Context, in *PingRequest) (*PingRe
 	return caller(ctx, in)
 }
 
-func (c *userProtobufClient) callPing(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+func (c *meProtobufClient) callPing(ctx context.Context, in *PingRequest) (*PingResponse, error) {
 	out := new(PingResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
@@ -1471,9 +140,9 @@ func (c *userProtobufClient) callPing(ctx context.Context, in *PingRequest) (*Pi
 	return out, nil
 }
 
-func (c *userProtobufClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
+func (c *meProtobufClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
 	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
 	caller := c.callGetMe
 	if c.interceptor != nil {
@@ -1500,7 +169,7 @@ func (c *userProtobufClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetM
 	return caller(ctx, in)
 }
 
-func (c *userProtobufClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
+func (c *meProtobufClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
 	out := new(GetMeResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
@@ -1517,26 +186,26 @@ func (c *userProtobufClient) callGetMe(ctx context.Context, in *GetMeRequest) (*
 	return out, nil
 }
 
-func (c *userProtobufClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+func (c *meProtobufClient) GetEmail(ctx context.Context, in *GetEmailRequest) (*GetEmailResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
-	caller := c.callGetMeEmail
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEmail")
+	caller := c.callGetEmail
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+		caller = func(ctx context.Context, req *GetEmailRequest) (*GetEmailResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
+					typedReq, ok := req.(*GetEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*GetEmailRequest) when calling interceptor")
 					}
-					return c.callGetMeEmail(ctx, typedReq)
+					return c.callGetEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
+				typedResp, ok := resp.(*GetEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1546,8 +215,8 @@ func (c *userProtobufClient) GetMeEmail(ctx context.Context, in *GetMeEmailReque
 	return caller(ctx, in)
 }
 
-func (c *userProtobufClient) callGetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-	out := new(GetMeEmailResponse)
+func (c *meProtobufClient) callGetEmail(ctx context.Context, in *GetEmailRequest) (*GetEmailResponse, error) {
+	out := new(GetEmailResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1563,26 +232,26 @@ func (c *userProtobufClient) callGetMeEmail(ctx context.Context, in *GetMeEmailR
 	return out, nil
 }
 
-func (c *userProtobufClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+func (c *meProtobufClient) UpdateEmail(ctx context.Context, in *UpdateEmailRequest) (*UpdateEmailResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
-	caller := c.callUpdateMeEmail
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEmail")
+	caller := c.callUpdateEmail
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+		caller = func(ctx context.Context, req *UpdateEmailRequest) (*UpdateEmailResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
+					typedReq, ok := req.(*UpdateEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEmailRequest) when calling interceptor")
 					}
-					return c.callUpdateMeEmail(ctx, typedReq)
+					return c.callUpdateEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
+				typedResp, ok := resp.(*UpdateEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1592,8 +261,8 @@ func (c *userProtobufClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmai
 	return caller(ctx, in)
 }
 
-func (c *userProtobufClient) callUpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-	out := new(UpdateMeEmailResponse)
+func (c *meProtobufClient) callUpdateEmail(ctx context.Context, in *UpdateEmailRequest) (*UpdateEmailResponse, error) {
+	out := new(UpdateEmailResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1609,26 +278,26 @@ func (c *userProtobufClient) callUpdateMeEmail(ctx context.Context, in *UpdateMe
 	return out, nil
 }
 
-func (c *userProtobufClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+func (c *meProtobufClient) UpdateNotificationTimeSpan(ctx context.Context, in *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
-	caller := c.callUpdateMeNotificationTimeSpan
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateNotificationTimeSpan")
+	caller := c.callUpdateNotificationTimeSpan
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+		caller = func(ctx context.Context, req *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
+					typedReq, ok := req.(*UpdateNotificationTimeSpanRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateNotificationTimeSpanRequest) when calling interceptor")
 					}
-					return c.callUpdateMeNotificationTimeSpan(ctx, typedReq)
+					return c.callUpdateNotificationTimeSpan(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
+				typedResp, ok := resp.(*UpdateNotificationTimeSpanResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateNotificationTimeSpanResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1638,8 +307,8 @@ func (c *userProtobufClient) UpdateMeNotificationTimeSpan(ctx context.Context, i
 	return caller(ctx, in)
 }
 
-func (c *userProtobufClient) callUpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-	out := new(UpdateMeNotificationTimeSpanResponse)
+func (c *meProtobufClient) callUpdateNotificationTimeSpan(ctx context.Context, in *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
+	out := new(UpdateNotificationTimeSpanResponse)
 	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1655,20 +324,20 @@ func (c *userProtobufClient) callUpdateMeNotificationTimeSpan(ctx context.Contex
 	return out, nil
 }
 
-// ================
-// User JSON Client
-// ================
+// ==============
+// Me JSON Client
+// ==============
 
-type userJSONClient struct {
+type meJSONClient struct {
 	client      HTTPClient
 	urls        [5]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
 
-// NewUserJSONClient creates a JSON client that implements the User interface.
+// NewMeJSONClient creates a JSON client that implements the Me interface.
 // It communicates using JSON and can be configured with a custom HTTPClient.
-func NewUserJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) User {
+func NewMeJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) Me {
 	if c, ok := client.(*http.Client); ok {
 		client = withoutRedirects(c)
 	}
@@ -1688,16 +357,16 @@ func NewUserJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOp
 
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
-	serviceURL += baseServicePath(pathPrefix, "api.v1", "User")
+	serviceURL += baseServicePath(pathPrefix, "api.v1", "Me")
 	urls := [5]string{
 		serviceURL + "Ping",
 		serviceURL + "GetMe",
-		serviceURL + "GetMeEmail",
-		serviceURL + "UpdateMeEmail",
-		serviceURL + "UpdateMeNotificationTimeSpan",
+		serviceURL + "GetEmail",
+		serviceURL + "UpdateEmail",
+		serviceURL + "UpdateNotificationTimeSpan",
 	}
 
-	return &userJSONClient{
+	return &meJSONClient{
 		client:      client,
 		urls:        urls,
 		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
@@ -1705,9 +374,9 @@ func NewUserJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOp
 	}
 }
 
-func (c *userJSONClient) Ping(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+func (c *meJSONClient) Ping(ctx context.Context, in *PingRequest) (*PingResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
 	ctx = ctxsetters.WithMethodName(ctx, "Ping")
 	caller := c.callPing
 	if c.interceptor != nil {
@@ -1734,7 +403,7 @@ func (c *userJSONClient) Ping(ctx context.Context, in *PingRequest) (*PingRespon
 	return caller(ctx, in)
 }
 
-func (c *userJSONClient) callPing(ctx context.Context, in *PingRequest) (*PingResponse, error) {
+func (c *meJSONClient) callPing(ctx context.Context, in *PingRequest) (*PingResponse, error) {
 	out := new(PingResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
 	if err != nil {
@@ -1751,9 +420,9 @@ func (c *userJSONClient) callPing(ctx context.Context, in *PingRequest) (*PingRe
 	return out, nil
 }
 
-func (c *userJSONClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
+func (c *meJSONClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
 	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
 	caller := c.callGetMe
 	if c.interceptor != nil {
@@ -1780,7 +449,7 @@ func (c *userJSONClient) GetMe(ctx context.Context, in *GetMeRequest) (*GetMeRes
 	return caller(ctx, in)
 }
 
-func (c *userJSONClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
+func (c *meJSONClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetMeResponse, error) {
 	out := new(GetMeResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
 	if err != nil {
@@ -1797,26 +466,26 @@ func (c *userJSONClient) callGetMe(ctx context.Context, in *GetMeRequest) (*GetM
 	return out, nil
 }
 
-func (c *userJSONClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+func (c *meJSONClient) GetEmail(ctx context.Context, in *GetEmailRequest) (*GetEmailResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
-	caller := c.callGetMeEmail
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEmail")
+	caller := c.callGetEmail
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+		caller = func(ctx context.Context, req *GetEmailRequest) (*GetEmailResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
+					typedReq, ok := req.(*GetEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*GetEmailRequest) when calling interceptor")
 					}
-					return c.callGetMeEmail(ctx, typedReq)
+					return c.callGetEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
+				typedResp, ok := resp.(*GetEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1826,8 +495,8 @@ func (c *userJSONClient) GetMeEmail(ctx context.Context, in *GetMeEmailRequest) 
 	return caller(ctx, in)
 }
 
-func (c *userJSONClient) callGetMeEmail(ctx context.Context, in *GetMeEmailRequest) (*GetMeEmailResponse, error) {
-	out := new(GetMeEmailResponse)
+func (c *meJSONClient) callGetEmail(ctx context.Context, in *GetEmailRequest) (*GetEmailResponse, error) {
+	out := new(GetEmailResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[2], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1843,26 +512,26 @@ func (c *userJSONClient) callGetMeEmail(ctx context.Context, in *GetMeEmailReque
 	return out, nil
 }
 
-func (c *userJSONClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+func (c *meJSONClient) UpdateEmail(ctx context.Context, in *UpdateEmailRequest) (*UpdateEmailResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
-	caller := c.callUpdateMeEmail
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEmail")
+	caller := c.callUpdateEmail
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+		caller = func(ctx context.Context, req *UpdateEmailRequest) (*UpdateEmailResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
+					typedReq, ok := req.(*UpdateEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEmailRequest) when calling interceptor")
 					}
-					return c.callUpdateMeEmail(ctx, typedReq)
+					return c.callUpdateEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
+				typedResp, ok := resp.(*UpdateEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1872,8 +541,8 @@ func (c *userJSONClient) UpdateMeEmail(ctx context.Context, in *UpdateMeEmailReq
 	return caller(ctx, in)
 }
 
-func (c *userJSONClient) callUpdateMeEmail(ctx context.Context, in *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
-	out := new(UpdateMeEmailResponse)
+func (c *meJSONClient) callUpdateEmail(ctx context.Context, in *UpdateEmailRequest) (*UpdateEmailResponse, error) {
+	out := new(UpdateEmailResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[3], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1889,26 +558,26 @@ func (c *userJSONClient) callUpdateMeEmail(ctx context.Context, in *UpdateMeEmai
 	return out, nil
 }
 
-func (c *userJSONClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+func (c *meJSONClient) UpdateNotificationTimeSpan(ctx context.Context, in *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
-	caller := c.callUpdateMeNotificationTimeSpan
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateNotificationTimeSpan")
+	caller := c.callUpdateNotificationTimeSpan
 	if c.interceptor != nil {
-		caller = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+		caller = func(ctx context.Context, req *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
 			resp, err := c.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
+					typedReq, ok := req.(*UpdateNotificationTimeSpanRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateNotificationTimeSpanRequest) when calling interceptor")
 					}
-					return c.callUpdateMeNotificationTimeSpan(ctx, typedReq)
+					return c.callUpdateNotificationTimeSpan(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
+				typedResp, ok := resp.(*UpdateNotificationTimeSpanResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateNotificationTimeSpanResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -1918,8 +587,8 @@ func (c *userJSONClient) UpdateMeNotificationTimeSpan(ctx context.Context, in *U
 	return caller(ctx, in)
 }
 
-func (c *userJSONClient) callUpdateMeNotificationTimeSpan(ctx context.Context, in *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
-	out := new(UpdateMeNotificationTimeSpanResponse)
+func (c *meJSONClient) callUpdateNotificationTimeSpan(ctx context.Context, in *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
+	out := new(UpdateNotificationTimeSpanResponse)
 	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
 	if err != nil {
 		twerr, ok := err.(twirp.Error)
@@ -1935,12 +604,12 @@ func (c *userJSONClient) callUpdateMeNotificationTimeSpan(ctx context.Context, i
 	return out, nil
 }
 
-// ===================
-// User Server Handler
-// ===================
+// =================
+// Me Server Handler
+// =================
 
-type userServer struct {
-	User
+type meServer struct {
+	Me
 	interceptor      twirp.Interceptor
 	hooks            *twirp.ServerHooks
 	pathPrefix       string // prefix for routing
@@ -1948,10 +617,10 @@ type userServer struct {
 	jsonCamelCase    bool   // JSON fields are serialized as lowerCamelCase rather than keeping the original proto names
 }
 
-// NewUserServer builds a TwirpServer that can be used as an http.Handler to handle
+// NewMeServer builds a TwirpServer that can be used as an http.Handler to handle
 // HTTP requests that are routed to the right method in the provided svc implementation.
 // The opts are twirp.ServerOption modifiers, for example twirp.WithServerHooks(hooks).
-func NewUserServer(svc User, opts ...interface{}) TwirpServer {
+func NewMeServer(svc Me, opts ...interface{}) TwirpServer {
 	serverOpts := newServerOpts(opts)
 
 	// Using ReadOpt allows backwards and forwads compatibility with new options in the future
@@ -1964,8 +633,8 @@ func NewUserServer(svc User, opts ...interface{}) TwirpServer {
 		pathPrefix = "/twirp" // default prefix
 	}
 
-	return &userServer{
-		User:             svc,
+	return &meServer{
+		Me:               svc,
 		hooks:            serverOpts.Hooks,
 		interceptor:      twirp.ChainInterceptors(serverOpts.Interceptors...),
 		pathPrefix:       pathPrefix,
@@ -1976,12 +645,12 @@ func NewUserServer(svc User, opts ...interface{}) TwirpServer {
 
 // writeError writes an HTTP response with a valid Twirp error format, and triggers hooks.
 // If err is not a twirp.Error, it will get wrapped with twirp.InternalErrorWith(err)
-func (s *userServer) writeError(ctx context.Context, resp http.ResponseWriter, err error) {
+func (s *meServer) writeError(ctx context.Context, resp http.ResponseWriter, err error) {
 	writeError(ctx, resp, err, s.hooks)
 }
 
 // handleRequestBodyError is used to handle error when the twirp server cannot read request
-func (s *userServer) handleRequestBodyError(ctx context.Context, resp http.ResponseWriter, msg string, err error) {
+func (s *meServer) handleRequestBodyError(ctx context.Context, resp http.ResponseWriter, msg string, err error) {
 	if context.Canceled == ctx.Err() {
 		s.writeError(ctx, resp, twirp.NewError(twirp.Canceled, "failed to read request: context canceled"))
 		return
@@ -1993,16 +662,16 @@ func (s *userServer) handleRequestBodyError(ctx context.Context, resp http.Respo
 	s.writeError(ctx, resp, twirp.WrapError(malformedRequestError(msg), err))
 }
 
-// UserPathPrefix is a convenience constant that may identify URL paths.
+// MePathPrefix is a convenience constant that may identify URL paths.
 // Should be used with caution, it only matches routes generated by Twirp Go clients,
 // with the default "/twirp" prefix and default CamelCase service and method names.
 // More info: https://twitchtv.github.io/twirp/docs/routing.html
-const UserPathPrefix = "/twirp/api.v1.User/"
+const MePathPrefix = "/twirp/api.v1.Me/"
 
-func (s *userServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	ctx = ctxsetters.WithPackageName(ctx, "api.v1")
-	ctx = ctxsetters.WithServiceName(ctx, "User")
+	ctx = ctxsetters.WithServiceName(ctx, "Me")
 	ctx = ctxsetters.WithResponseWriter(ctx, resp)
 
 	var err error
@@ -2020,7 +689,7 @@ func (s *userServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 
 	// Verify path format: [<prefix>]/<package>.<Service>/<Method>
 	prefix, pkgService, method := parseTwirpPath(req.URL.Path)
-	if pkgService != "api.v1.User" {
+	if pkgService != "api.v1.Me" {
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
 		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
 		return
@@ -2038,14 +707,14 @@ func (s *userServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	case "GetMe":
 		s.serveGetMe(ctx, resp, req)
 		return
-	case "GetMeEmail":
-		s.serveGetMeEmail(ctx, resp, req)
+	case "GetEmail":
+		s.serveGetEmail(ctx, resp, req)
 		return
-	case "UpdateMeEmail":
-		s.serveUpdateMeEmail(ctx, resp, req)
+	case "UpdateEmail":
+		s.serveUpdateEmail(ctx, resp, req)
 		return
-	case "UpdateMeNotificationTimeSpan":
-		s.serveUpdateMeNotificationTimeSpan(ctx, resp, req)
+	case "UpdateNotificationTimeSpan":
+		s.serveUpdateNotificationTimeSpan(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -2054,7 +723,7 @@ func (s *userServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (s *userServer) servePing(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) servePing(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2072,7 +741,7 @@ func (s *userServer) servePing(ctx context.Context, resp http.ResponseWriter, re
 	}
 }
 
-func (s *userServer) servePingJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) servePingJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
 	ctx = ctxsetters.WithMethodName(ctx, "Ping")
 	ctx, err = callRequestRouted(ctx, s.hooks)
@@ -2094,7 +763,7 @@ func (s *userServer) servePingJSON(ctx context.Context, resp http.ResponseWriter
 		return
 	}
 
-	handler := s.User.Ping
+	handler := s.Me.Ping
 	if s.interceptor != nil {
 		handler = func(ctx context.Context, req *PingRequest) (*PingResponse, error) {
 			resp, err := s.interceptor(
@@ -2103,7 +772,7 @@ func (s *userServer) servePingJSON(ctx context.Context, resp http.ResponseWriter
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*PingRequest) when calling interceptor")
 					}
-					return s.User.Ping(ctx, typedReq)
+					return s.Me.Ping(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2155,7 +824,7 @@ func (s *userServer) servePingJSON(ctx context.Context, resp http.ResponseWriter
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) servePingProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) servePingProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
 	ctx = ctxsetters.WithMethodName(ctx, "Ping")
 	ctx, err = callRequestRouted(ctx, s.hooks)
@@ -2175,7 +844,7 @@ func (s *userServer) servePingProtobuf(ctx context.Context, resp http.ResponseWr
 		return
 	}
 
-	handler := s.User.Ping
+	handler := s.Me.Ping
 	if s.interceptor != nil {
 		handler = func(ctx context.Context, req *PingRequest) (*PingResponse, error) {
 			resp, err := s.interceptor(
@@ -2184,7 +853,7 @@ func (s *userServer) servePingProtobuf(ctx context.Context, resp http.ResponseWr
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*PingRequest) when calling interceptor")
 					}
-					return s.User.Ping(ctx, typedReq)
+					return s.Me.Ping(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2234,7 +903,7 @@ func (s *userServer) servePingProtobuf(ctx context.Context, resp http.ResponseWr
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveGetMe(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveGetMe(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2252,7 +921,7 @@ func (s *userServer) serveGetMe(ctx context.Context, resp http.ResponseWriter, r
 	}
 }
 
-func (s *userServer) serveGetMeJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveGetMeJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
 	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
 	ctx, err = callRequestRouted(ctx, s.hooks)
@@ -2274,7 +943,7 @@ func (s *userServer) serveGetMeJSON(ctx context.Context, resp http.ResponseWrite
 		return
 	}
 
-	handler := s.User.GetMe
+	handler := s.Me.GetMe
 	if s.interceptor != nil {
 		handler = func(ctx context.Context, req *GetMeRequest) (*GetMeResponse, error) {
 			resp, err := s.interceptor(
@@ -2283,7 +952,7 @@ func (s *userServer) serveGetMeJSON(ctx context.Context, resp http.ResponseWrite
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*GetMeRequest) when calling interceptor")
 					}
-					return s.User.GetMe(ctx, typedReq)
+					return s.Me.GetMe(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2335,7 +1004,7 @@ func (s *userServer) serveGetMeJSON(ctx context.Context, resp http.ResponseWrite
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveGetMeProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveGetMeProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
 	ctx = ctxsetters.WithMethodName(ctx, "GetMe")
 	ctx, err = callRequestRouted(ctx, s.hooks)
@@ -2355,7 +1024,7 @@ func (s *userServer) serveGetMeProtobuf(ctx context.Context, resp http.ResponseW
 		return
 	}
 
-	handler := s.User.GetMe
+	handler := s.Me.GetMe
 	if s.interceptor != nil {
 		handler = func(ctx context.Context, req *GetMeRequest) (*GetMeResponse, error) {
 			resp, err := s.interceptor(
@@ -2364,7 +1033,7 @@ func (s *userServer) serveGetMeProtobuf(ctx context.Context, resp http.ResponseW
 					if !ok {
 						return nil, twirp.InternalError("failed type assertion req.(*GetMeRequest) when calling interceptor")
 					}
-					return s.User.GetMe(ctx, typedReq)
+					return s.Me.GetMe(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
@@ -2414,7 +1083,7 @@ func (s *userServer) serveGetMeProtobuf(ctx context.Context, resp http.ResponseW
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveGetMeEmail(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveGetEmail(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2422,9 +1091,9 @@ func (s *userServer) serveGetMeEmail(ctx context.Context, resp http.ResponseWrit
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveGetMeEmailJSON(ctx, resp, req)
+		s.serveGetEmailJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveGetMeEmailProtobuf(ctx, resp, req)
+		s.serveGetEmailProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2432,9 +1101,9 @@ func (s *userServer) serveGetMeEmail(ctx context.Context, resp http.ResponseWrit
 	}
 }
 
-func (s *userServer) serveGetMeEmailJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveGetEmailJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEmail")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2447,29 +1116,29 @@ func (s *userServer) serveGetMeEmailJSON(ctx context.Context, resp http.Response
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(GetMeEmailRequest)
+	reqContent := new(GetEmailRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.User.GetMeEmail
+	handler := s.Me.GetEmail
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+		handler = func(ctx context.Context, req *GetEmailRequest) (*GetEmailResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
+					typedReq, ok := req.(*GetEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*GetEmailRequest) when calling interceptor")
 					}
-					return s.User.GetMeEmail(ctx, typedReq)
+					return s.Me.GetEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
+				typedResp, ok := resp.(*GetEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2478,7 +1147,7 @@ func (s *userServer) serveGetMeEmailJSON(ctx context.Context, resp http.Response
 	}
 
 	// Call service method
-	var respContent *GetMeEmailResponse
+	var respContent *GetEmailResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2489,7 +1158,7 @@ func (s *userServer) serveGetMeEmailJSON(ctx context.Context, resp http.Response
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetMeEmailResponse and nil error while calling GetMeEmail. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEmailResponse and nil error while calling GetEmail. nil responses are not supported"))
 		return
 	}
 
@@ -2515,9 +1184,9 @@ func (s *userServer) serveGetMeEmailJSON(ctx context.Context, resp http.Response
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveGetMeEmailProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveGetEmailProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "GetMeEmail")
+	ctx = ctxsetters.WithMethodName(ctx, "GetEmail")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2529,28 +1198,28 @@ func (s *userServer) serveGetMeEmailProtobuf(ctx context.Context, resp http.Resp
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(GetMeEmailRequest)
+	reqContent := new(GetEmailRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.User.GetMeEmail
+	handler := s.Me.GetEmail
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *GetMeEmailRequest) (*GetMeEmailResponse, error) {
+		handler = func(ctx context.Context, req *GetEmailRequest) (*GetEmailResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*GetMeEmailRequest)
+					typedReq, ok := req.(*GetEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*GetMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*GetEmailRequest) when calling interceptor")
 					}
-					return s.User.GetMeEmail(ctx, typedReq)
+					return s.Me.GetEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*GetMeEmailResponse)
+				typedResp, ok := resp.(*GetEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*GetMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*GetEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2559,7 +1228,7 @@ func (s *userServer) serveGetMeEmailProtobuf(ctx context.Context, resp http.Resp
 	}
 
 	// Call service method
-	var respContent *GetMeEmailResponse
+	var respContent *GetEmailResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2570,7 +1239,7 @@ func (s *userServer) serveGetMeEmailProtobuf(ctx context.Context, resp http.Resp
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetMeEmailResponse and nil error while calling GetMeEmail. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetEmailResponse and nil error while calling GetEmail. nil responses are not supported"))
 		return
 	}
 
@@ -2594,7 +1263,7 @@ func (s *userServer) serveGetMeEmailProtobuf(ctx context.Context, resp http.Resp
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveUpdateMeEmail(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveUpdateEmail(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2602,9 +1271,9 @@ func (s *userServer) serveUpdateMeEmail(ctx context.Context, resp http.ResponseW
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveUpdateMeEmailJSON(ctx, resp, req)
+		s.serveUpdateEmailJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveUpdateMeEmailProtobuf(ctx, resp, req)
+		s.serveUpdateEmailProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2612,9 +1281,9 @@ func (s *userServer) serveUpdateMeEmail(ctx context.Context, resp http.ResponseW
 	}
 }
 
-func (s *userServer) serveUpdateMeEmailJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveUpdateEmailJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEmail")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2627,29 +1296,29 @@ func (s *userServer) serveUpdateMeEmailJSON(ctx context.Context, resp http.Respo
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(UpdateMeEmailRequest)
+	reqContent := new(UpdateEmailRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.User.UpdateMeEmail
+	handler := s.Me.UpdateEmail
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+		handler = func(ctx context.Context, req *UpdateEmailRequest) (*UpdateEmailResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
+					typedReq, ok := req.(*UpdateEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEmailRequest) when calling interceptor")
 					}
-					return s.User.UpdateMeEmail(ctx, typedReq)
+					return s.Me.UpdateEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
+				typedResp, ok := resp.(*UpdateEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2658,7 +1327,7 @@ func (s *userServer) serveUpdateMeEmailJSON(ctx context.Context, resp http.Respo
 	}
 
 	// Call service method
-	var respContent *UpdateMeEmailResponse
+	var respContent *UpdateEmailResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2669,7 +1338,7 @@ func (s *userServer) serveUpdateMeEmailJSON(ctx context.Context, resp http.Respo
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeEmailResponse and nil error while calling UpdateMeEmail. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEmailResponse and nil error while calling UpdateEmail. nil responses are not supported"))
 		return
 	}
 
@@ -2695,9 +1364,9 @@ func (s *userServer) serveUpdateMeEmailJSON(ctx context.Context, resp http.Respo
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveUpdateMeEmailProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveUpdateEmailProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeEmail")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateEmail")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2709,28 +1378,28 @@ func (s *userServer) serveUpdateMeEmailProtobuf(ctx context.Context, resp http.R
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(UpdateMeEmailRequest)
+	reqContent := new(UpdateEmailRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.User.UpdateMeEmail
+	handler := s.Me.UpdateEmail
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeEmailRequest) (*UpdateMeEmailResponse, error) {
+		handler = func(ctx context.Context, req *UpdateEmailRequest) (*UpdateEmailResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeEmailRequest)
+					typedReq, ok := req.(*UpdateEmailRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeEmailRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateEmailRequest) when calling interceptor")
 					}
-					return s.User.UpdateMeEmail(ctx, typedReq)
+					return s.Me.UpdateEmail(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeEmailResponse)
+				typedResp, ok := resp.(*UpdateEmailResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeEmailResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateEmailResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2739,7 +1408,7 @@ func (s *userServer) serveUpdateMeEmailProtobuf(ctx context.Context, resp http.R
 	}
 
 	// Call service method
-	var respContent *UpdateMeEmailResponse
+	var respContent *UpdateEmailResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2750,7 +1419,7 @@ func (s *userServer) serveUpdateMeEmailProtobuf(ctx context.Context, resp http.R
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeEmailResponse and nil error while calling UpdateMeEmail. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateEmailResponse and nil error while calling UpdateEmail. nil responses are not supported"))
 		return
 	}
 
@@ -2774,7 +1443,7 @@ func (s *userServer) serveUpdateMeEmailProtobuf(ctx context.Context, resp http.R
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveUpdateMeNotificationTimeSpan(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveUpdateNotificationTimeSpan(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	header := req.Header.Get("Content-Type")
 	i := strings.Index(header, ";")
 	if i == -1 {
@@ -2782,9 +1451,9 @@ func (s *userServer) serveUpdateMeNotificationTimeSpan(ctx context.Context, resp
 	}
 	switch strings.TrimSpace(strings.ToLower(header[:i])) {
 	case "application/json":
-		s.serveUpdateMeNotificationTimeSpanJSON(ctx, resp, req)
+		s.serveUpdateNotificationTimeSpanJSON(ctx, resp, req)
 	case "application/protobuf":
-		s.serveUpdateMeNotificationTimeSpanProtobuf(ctx, resp, req)
+		s.serveUpdateNotificationTimeSpanProtobuf(ctx, resp, req)
 	default:
 		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
 		twerr := badRouteError(msg, req.Method, req.URL.Path)
@@ -2792,9 +1461,9 @@ func (s *userServer) serveUpdateMeNotificationTimeSpan(ctx context.Context, resp
 	}
 }
 
-func (s *userServer) serveUpdateMeNotificationTimeSpanJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveUpdateNotificationTimeSpanJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateNotificationTimeSpan")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2807,29 +1476,29 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanJSON(ctx context.Context, 
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
-	reqContent := new(UpdateMeNotificationTimeSpanRequest)
+	reqContent := new(UpdateNotificationTimeSpanRequest)
 	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
 		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
 		return
 	}
 
-	handler := s.User.UpdateMeNotificationTimeSpan
+	handler := s.Me.UpdateNotificationTimeSpan
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+		handler = func(ctx context.Context, req *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
+					typedReq, ok := req.(*UpdateNotificationTimeSpanRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateNotificationTimeSpanRequest) when calling interceptor")
 					}
-					return s.User.UpdateMeNotificationTimeSpan(ctx, typedReq)
+					return s.Me.UpdateNotificationTimeSpan(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
+				typedResp, ok := resp.(*UpdateNotificationTimeSpanResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateNotificationTimeSpanResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2838,7 +1507,7 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanJSON(ctx context.Context, 
 	}
 
 	// Call service method
-	var respContent *UpdateMeNotificationTimeSpanResponse
+	var respContent *UpdateNotificationTimeSpanResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2849,7 +1518,7 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanJSON(ctx context.Context, 
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeNotificationTimeSpanResponse and nil error while calling UpdateMeNotificationTimeSpan. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateNotificationTimeSpanResponse and nil error while calling UpdateNotificationTimeSpan. nil responses are not supported"))
 		return
 	}
 
@@ -2875,9 +1544,9 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanJSON(ctx context.Context, 
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) serveUpdateMeNotificationTimeSpanProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+func (s *meServer) serveUpdateNotificationTimeSpanProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx = ctxsetters.WithMethodName(ctx, "UpdateMeNotificationTimeSpan")
+	ctx = ctxsetters.WithMethodName(ctx, "UpdateNotificationTimeSpan")
 	ctx, err = callRequestRouted(ctx, s.hooks)
 	if err != nil {
 		s.writeError(ctx, resp, err)
@@ -2889,28 +1558,28 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanProtobuf(ctx context.Conte
 		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
 		return
 	}
-	reqContent := new(UpdateMeNotificationTimeSpanRequest)
+	reqContent := new(UpdateNotificationTimeSpanRequest)
 	if err = proto.Unmarshal(buf, reqContent); err != nil {
 		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
 		return
 	}
 
-	handler := s.User.UpdateMeNotificationTimeSpan
+	handler := s.Me.UpdateNotificationTimeSpan
 	if s.interceptor != nil {
-		handler = func(ctx context.Context, req *UpdateMeNotificationTimeSpanRequest) (*UpdateMeNotificationTimeSpanResponse, error) {
+		handler = func(ctx context.Context, req *UpdateNotificationTimeSpanRequest) (*UpdateNotificationTimeSpanResponse, error) {
 			resp, err := s.interceptor(
 				func(ctx context.Context, req interface{}) (interface{}, error) {
-					typedReq, ok := req.(*UpdateMeNotificationTimeSpanRequest)
+					typedReq, ok := req.(*UpdateNotificationTimeSpanRequest)
 					if !ok {
-						return nil, twirp.InternalError("failed type assertion req.(*UpdateMeNotificationTimeSpanRequest) when calling interceptor")
+						return nil, twirp.InternalError("failed type assertion req.(*UpdateNotificationTimeSpanRequest) when calling interceptor")
 					}
-					return s.User.UpdateMeNotificationTimeSpan(ctx, typedReq)
+					return s.Me.UpdateNotificationTimeSpan(ctx, typedReq)
 				},
 			)(ctx, req)
 			if resp != nil {
-				typedResp, ok := resp.(*UpdateMeNotificationTimeSpanResponse)
+				typedResp, ok := resp.(*UpdateNotificationTimeSpanResponse)
 				if !ok {
-					return nil, twirp.InternalError("failed type assertion resp.(*UpdateMeNotificationTimeSpanResponse) when calling interceptor")
+					return nil, twirp.InternalError("failed type assertion resp.(*UpdateNotificationTimeSpanResponse) when calling interceptor")
 				}
 				return typedResp, err
 			}
@@ -2919,7 +1588,7 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanProtobuf(ctx context.Conte
 	}
 
 	// Call service method
-	var respContent *UpdateMeNotificationTimeSpanResponse
+	var respContent *UpdateNotificationTimeSpanResponse
 	func() {
 		defer ensurePanicResponses(ctx, resp, s.hooks)
 		respContent, err = handler(ctx, reqContent)
@@ -2930,7 +1599,7 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanProtobuf(ctx context.Conte
 		return
 	}
 	if respContent == nil {
-		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateMeNotificationTimeSpanResponse and nil error while calling UpdateMeNotificationTimeSpan. nil responses are not supported"))
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *UpdateNotificationTimeSpanResponse and nil error while calling UpdateNotificationTimeSpan. nil responses are not supported"))
 		return
 	}
 
@@ -2954,19 +1623,19 @@ func (s *userServer) serveUpdateMeNotificationTimeSpanProtobuf(ctx context.Conte
 	callResponseSent(ctx, s.hooks)
 }
 
-func (s *userServer) ServiceDescriptor() ([]byte, int) {
-	return twirpFileDescriptor0, 1
+func (s *meServer) ServiceDescriptor() ([]byte, int) {
+	return twirpFileDescriptor0, 0
 }
 
-func (s *userServer) ProtocGenTwirpVersion() string {
+func (s *meServer) ProtocGenTwirpVersion() string {
 	return "v8.1.0"
 }
 
 // PathPrefix returns the base service path, in the form: "/<prefix>/<package>.<Service>/"
 // that is everything in a Twirp route except for the <Method>. This can be used for routing,
 // for example to identify the requests that are targeted to this service in a mux.
-func (s *userServer) PathPrefix() string {
-	return baseServicePath(s.pathPrefix, "api.v1", "User")
+func (s *meServer) PathPrefix() string {
+	return baseServicePath(s.pathPrefix, "api.v1", "Me")
 }
 
 // =====
@@ -3538,39 +2207,31 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 540 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x55, 0xcf, 0x8a, 0xd3, 0x40,
-	0x18, 0x27, 0x4d, 0x53, 0xf4, 0xeb, 0x76, 0xd1, 0xaf, 0x89, 0xd6, 0x58, 0x75, 0xc9, 0x2e, 0xb2,
-	0x74, 0x97, 0x96, 0xd6, 0xdb, 0x7a, 0x52, 0x10, 0x77, 0x0f, 0x95, 0x12, 0xdd, 0x8b, 0x20, 0x32,
-	0xda, 0x69, 0x19, 0x68, 0x66, 0x62, 0x32, 0x2d, 0x78, 0xf5, 0xe0, 0x0b, 0xf8, 0x0c, 0xbe, 0x82,
-	0x77, 0x9f, 0xc1, 0x57, 0xf0, 0x15, 0xbc, 0x4b, 0x66, 0x26, 0x6d, 0x5a, 0xd3, 0x22, 0xde, 0x84,
-	0xbd, 0xe5, 0xfb, 0x33, 0xbf, 0xdf, 0xef, 0xfb, 0x7d, 0x33, 0x04, 0xbc, 0x38, 0x11, 0x52, 0xf4,
-	0x48, 0xcc, 0x7a, 0x8b, 0x7e, 0x2f, 0xa2, 0x5d, 0x15, 0x63, 0x8d, 0xc4, 0xac, 0xbb, 0xe8, 0xfb,
-	0xed, 0xa9, 0x10, 0xd3, 0x19, 0x55, 0x75, 0xc2, 0xb9, 0x90, 0x44, 0x32, 0xc1, 0x53, 0xdd, 0x15,
-	0x7c, 0xb6, 0xc0, 0x7d, 0x21, 0x24, 0x9b, 0xb0, 0xf7, 0x2a, 0xff, 0x8a, 0x45, 0xf4, 0x65, 0x4c,
-	0x38, 0xfa, 0x70, 0x6d, 0x92, 0x88, 0xe8, 0x5c, 0xcc, 0x93, 0x96, 0x75, 0x60, 0x1d, 0x3b, 0xe1,
-	0x32, 0xc6, 0xfb, 0x00, 0xd9, 0xf7, 0x90, 0xf1, 0xb9, 0xa4, 0xad, 0x8a, 0xaa, 0x16, 0x32, 0x78,
-	0x0b, 0x6a, 0x52, 0xa8, 0x93, 0xb6, 0xaa, 0x99, 0x28, 0xc3, 0x94, 0xc2, 0x9c, 0xaa, 0x6a, 0xcc,
-	0x3c, 0x0e, 0x4e, 0xc0, 0x19, 0x8e, 0x66, 0x84, 0xe3, 0x3e, 0x54, 0xd8, 0xd8, 0x50, 0x56, 0xd8,
-	0x18, 0x11, 0xaa, 0x9c, 0x44, 0x9a, 0xe6, 0x7a, 0xa8, 0xbe, 0x83, 0x06, 0xd4, 0x47, 0x8c, 0x4f,
-	0x43, 0xfa, 0x61, 0x4e, 0x53, 0x19, 0xec, 0xc3, 0x9e, 0x0e, 0xd3, 0x58, 0xf0, 0x94, 0x66, 0xf1,
-	0x73, 0x2a, 0x87, 0x34, 0xaf, 0x7f, 0xb3, 0xa0, 0x61, 0x12, 0xba, 0x23, 0x53, 0x38, 0x4f, 0x69,
-	0x72, 0x91, 0x13, 0x99, 0x08, 0x5d, 0x70, 0x68, 0x44, 0xd8, 0xcc, 0xb0, 0xe9, 0x00, 0x43, 0xf0,
-	0x78, 0x89, 0x47, 0x69, 0xcb, 0x3e, 0xb0, 0x8f, 0xeb, 0x83, 0x76, 0x57, 0x5b, 0xdd, 0x2d, 0x33,
-	0x32, 0x2c, 0x3f, 0x8a, 0x87, 0xe0, 0x44, 0xd9, 0xbc, 0xca, 0x88, 0xfa, 0xa0, 0x91, 0x63, 0x28,
-	0x13, 0x42, 0x5d, 0x0b, 0x9a, 0x70, 0x53, 0xe9, 0x7e, 0x96, 0xc9, 0xc8, 0xa7, 0xe9, 0x00, 0x16,
-	0x93, 0x66, 0xa2, 0xa5, 0x72, 0xab, 0xa0, 0x3c, 0x38, 0x05, 0xf7, 0x32, 0x1e, 0x13, 0x49, 0xd7,
-	0x31, 0xb6, 0x74, 0xdf, 0x06, 0x6f, 0xa3, 0xdb, 0x18, 0xfa, 0x11, 0x0e, 0xf3, 0x42, 0xe9, 0x8c,
-	0x06, 0x75, 0xab, 0x4f, 0xd6, 0x3f, 0xfb, 0x14, 0x3c, 0x84, 0xa3, 0xdd, 0xd4, 0x5a, 0xe2, 0xe0,
-	0xbb, 0x0d, 0xf6, 0x93, 0xd1, 0x05, 0x9e, 0x83, 0xa3, 0xdc, 0x41, 0x37, 0x67, 0x2b, 0x5e, 0x05,
-	0xdf, 0xdb, 0xc8, 0x9a, 0x01, 0xf1, 0xd3, 0x8f, 0x9f, 0x5f, 0x2a, 0x7b, 0x08, 0xab, 0x67, 0x84,
-	0x6f, 0x00, 0x56, 0x3e, 0xe3, 0x9d, 0xb5, 0x83, 0x45, 0x33, 0x7d, 0xbf, 0xac, 0x64, 0x80, 0x5b,
-	0x0a, 0x18, 0xf1, 0xc6, 0x0a, 0xb8, 0xa7, 0x2f, 0x15, 0x83, 0xc6, 0x9a, 0xd9, 0xb8, 0xb4, 0xa7,
-	0x6c, 0x63, 0xfe, 0xbd, 0x2d, 0x55, 0xc3, 0x73, 0x57, 0xf1, 0x78, 0xc1, 0x1f, 0x3c, 0x67, 0x56,
-	0x07, 0xbf, 0x5a, 0xd0, 0xde, 0x65, 0x22, 0x9e, 0x6c, 0x82, 0xef, 0xd8, 0xb2, 0x7f, 0xfa, 0x77,
-	0xcd, 0x46, 0x58, 0x47, 0x09, 0x3b, 0x0a, 0x1e, 0x14, 0x84, 0x95, 0x6d, 0xfa, 0xcc, 0xea, 0x0c,
-	0x7e, 0xd9, 0x50, 0xbd, 0x4c, 0x69, 0x82, 0x7d, 0xa8, 0x66, 0x0f, 0x1a, 0x9b, 0x39, 0x55, 0xe1,
-	0xb5, 0xfb, 0xee, 0x7a, 0xd2, 0xdc, 0xff, 0xab, 0xbd, 0xff, 0xb7, 0x7b, 0x7f, 0xea, 0xbd, 0x6e,
-	0x16, 0xff, 0x61, 0x8f, 0x49, 0xcc, 0xde, 0x2e, 0xfa, 0xef, 0x6a, 0x2a, 0xf9, 0xe8, 0x77, 0x00,
-	0x00, 0x00, 0xff, 0xff, 0x68, 0x89, 0x53, 0x2a, 0xe1, 0x06, 0x00, 0x00,
+	// 407 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x53, 0x4d, 0x4f, 0xea, 0x40,
+	0x14, 0x4d, 0xf9, 0x0a, 0xef, 0xf2, 0x78, 0x4f, 0x07, 0xaa, 0xcd, 0x68, 0x0c, 0x36, 0x2e, 0x90,
+	0x45, 0x49, 0xd1, 0x9d, 0x71, 0x63, 0xa2, 0xe8, 0x02, 0x63, 0xaa, 0x6e, 0xdc, 0x98, 0x2a, 0x83,
+	0x99, 0xc4, 0x76, 0x6a, 0x3b, 0xc5, 0x7f, 0xe0, 0xde, 0x9f, 0xe9, 0xbf, 0x30, 0x9d, 0x99, 0xe2,
+	0x20, 0x85, 0x18, 0x77, 0x9c, 0x73, 0xef, 0xb9, 0xf7, 0xcc, 0xb9, 0x14, 0xcc, 0x28, 0x66, 0x9c,
+	0xf5, 0xfd, 0x88, 0xf6, 0xa7, 0x6e, 0x3f, 0x20, 0x8e, 0xc0, 0xa8, 0xe6, 0x47, 0xd4, 0x99, 0xba,
+	0xf6, 0x9b, 0x01, 0xed, 0x4b, 0xc6, 0xe9, 0x84, 0x3e, 0xfa, 0x9c, 0xb2, 0xf0, 0x86, 0x06, 0xe4,
+	0x3a, 0xf2, 0x43, 0x84, 0xa1, 0x3e, 0x89, 0x59, 0x70, 0xce, 0xd2, 0xd8, 0x32, 0x3a, 0x46, 0xb7,
+	0xea, 0xcd, 0x30, 0xda, 0x01, 0xc8, 0x7e, 0x8f, 0x68, 0x98, 0x72, 0x62, 0x95, 0x44, 0x55, 0x63,
+	0xd0, 0x06, 0xd4, 0x38, 0x13, 0xca, 0xb2, 0xa8, 0x29, 0x94, 0xcd, 0xe4, 0x4c, 0xa9, 0x2a, 0x72,
+	0x66, 0x8e, 0xed, 0x26, 0x34, 0xae, 0x68, 0xf8, 0xe4, 0x91, 0x97, 0x94, 0x24, 0xdc, 0xfe, 0x07,
+	0x7f, 0x25, 0x4c, 0x22, 0x16, 0x26, 0x24, 0xc3, 0x43, 0xc2, 0x47, 0x24, 0xaf, 0xbf, 0x1b, 0xd0,
+	0x54, 0x84, 0xec, 0xc8, 0x96, 0xa6, 0x09, 0x89, 0x2f, 0xc6, 0xca, 0xae, 0x42, 0xa8, 0x0d, 0x55,
+	0x12, 0xf8, 0xf4, 0x59, 0xf8, 0xfc, 0xe3, 0x49, 0x80, 0x3c, 0x30, 0xc3, 0x82, 0x67, 0x27, 0x56,
+	0xb9, 0x53, 0xee, 0x36, 0x06, 0xdb, 0x8e, 0xcc, 0xc7, 0x29, 0xca, 0xc6, 0x2b, 0x96, 0xda, 0xeb,
+	0xf0, 0x7f, 0x48, 0xf8, 0x69, 0x36, 0x3f, 0xb7, 0xd9, 0x85, 0xb5, 0x2f, 0x4a, 0x19, 0x9d, 0x19,
+	0x32, 0x34, 0x43, 0x76, 0x0f, 0xd0, 0x6d, 0x34, 0xf6, 0x39, 0xd1, 0xf5, 0x4b, 0x7a, 0x4d, 0x68,
+	0xcd, 0xf5, 0xaa, 0x8c, 0x5e, 0x61, 0x57, 0xd2, 0x85, 0xa6, 0xd5, 0xc4, 0xa5, 0x0f, 0x37, 0x7e,
+	0xff, 0xf0, 0x3d, 0xb0, 0x57, 0x2d, 0x96, 0xf6, 0x06, 0x1f, 0x25, 0x28, 0x8d, 0x08, 0x72, 0xa1,
+	0x92, 0x5d, 0x16, 0xb5, 0xf2, 0x4d, 0xda, 0xd9, 0x71, 0x7b, 0x9e, 0x54, 0x89, 0x1d, 0x42, 0x55,
+	0xdc, 0x1a, 0xcd, 0xca, 0xfa, 0x7f, 0x01, 0x9b, 0xdf, 0x58, 0xa5, 0x3a, 0x86, 0x7a, 0x9e, 0x3d,
+	0xda, 0xd4, 0x5a, 0xf4, 0x80, 0xb1, 0xb5, 0x58, 0x50, 0xf2, 0x33, 0x68, 0x68, 0x21, 0x23, 0x9c,
+	0x37, 0x2e, 0x5e, 0x09, 0x6f, 0x15, 0xd6, 0xd4, 0x9c, 0x04, 0xf0, 0xf2, 0x70, 0xd0, 0xfe, 0xbc,
+	0x74, 0xc5, 0xe5, 0x70, 0xef, 0x27, 0xad, 0x72, 0xe9, 0x89, 0x79, 0xd7, 0xd2, 0xbf, 0xfb, 0x23,
+	0x3f, 0xa2, 0xf7, 0x53, 0xf7, 0xa1, 0x26, 0xc8, 0x83, 0xcf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x25,
+	0x74, 0x7e, 0x5f, 0x15, 0x04, 0x00, 0x00,
 }

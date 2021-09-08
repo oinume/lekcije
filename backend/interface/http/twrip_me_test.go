@@ -30,14 +30,14 @@ import (
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
-func Test_UserService_GetMe(t *testing.T) {
+func Test_MeService_GetMe(t *testing.T) {
 	t.Parallel()
 
 	helper := model.NewTestHelper()
 	db := helper.DB(t)
 	var log bytes.Buffer
 	appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
-	handler := api_v1.NewUserServer(newUserService(db, appLogger))
+	handler := api_v1.NewMeServer(newMeService(db, appLogger))
 
 	repos := mysqltest.NewRepositories(db.DB())
 	type testCase struct {
@@ -83,7 +83,7 @@ func Test_UserService_GetMe(t *testing.T) {
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			gotResponse := &api_v1.GetMeResponse{}
 			statusCode, err := client.SendRequest(
-				ctx, t, handler, api_v1.UserPathPrefix+"GetMe",
+				ctx, t, handler, api_v1.MePathPrefix+"GetMe",
 				tc.request, gotResponse,
 			)
 			assertion.RequireEqual(t, tc.wantStatusCode, statusCode, "unexpected status code")
@@ -98,19 +98,19 @@ func Test_UserService_GetMe(t *testing.T) {
 	}
 }
 
-func Test_UserService_UpdateMeEmail(t *testing.T) {
+func Test_MeService_UpdateMeEmail(t *testing.T) {
 	t.Parallel()
 
 	helper := model.NewTestHelper()
 	db := helper.DB(t)
 	var log bytes.Buffer
 	appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
-	handler := api_v1.NewUserServer(newUserService(db, appLogger))
+	handler := api_v1.NewMeServer(newMeService(db, appLogger))
 
 	repos := mysqltest.NewRepositories(db.DB())
 	type testCase struct {
 		apiToken       string
-		request        *api_v1.UpdateMeEmailRequest
+		request        *api_v1.UpdateEmailRequest
 		user           *model2.User
 		wantStatusCode int
 		wantError      *twirptest.JSONError
@@ -131,7 +131,7 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 				return &testCase{
 					apiToken: userAPIToken.Token,
 					user:     user,
-					request: &api_v1.UpdateMeEmailRequest{
+					request: &api_v1.UpdateEmailRequest{
 						Email: wantEmail,
 					},
 					wantStatusCode: http.StatusOK,
@@ -151,7 +151,7 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 				return &testCase{
 					apiToken: userAPIToken.Token,
 					user:     user,
-					request: &api_v1.UpdateMeEmailRequest{
+					request: &api_v1.UpdateEmailRequest{
 						Email: wantEmail,
 					},
 					wantStatusCode: http.StatusBadRequest,
@@ -174,7 +174,7 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 				return &testCase{
 					apiToken: userAPIToken.Token,
 					user:     user,
-					request: &api_v1.UpdateMeEmailRequest{
+					request: &api_v1.UpdateEmailRequest{
 						Email: user.Email,
 					},
 					wantStatusCode: http.StatusBadRequest,
@@ -197,9 +197,9 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 			client := twirptest.NewJSONClient()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
-			gotResponse := &api_v1.UpdateMeEmailResponse{}
+			gotResponse := &api_v1.UpdateEmailResponse{}
 			statusCode, err := client.SendRequest(
-				ctx, t, handler, api_v1.UserPathPrefix+"UpdateMeEmail",
+				ctx, t, handler, api_v1.MePathPrefix+"UpdateEmail",
 				tc.request, gotResponse,
 			)
 			assertion.RequireEqual(t, tc.wantStatusCode, statusCode, "unexpected status code")
@@ -219,19 +219,19 @@ func Test_UserService_UpdateMeEmail(t *testing.T) {
 	}
 }
 
-func Test_UserService_UpdateMeNotificationTimeSpan(t *testing.T) {
+func Test_MeService_UpdateMeNotificationTimeSpan(t *testing.T) {
 	t.Parallel()
 
 	helper := model.NewTestHelper()
 	db := helper.DB(t)
 	var log bytes.Buffer
 	appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
-	handler := api_v1.NewUserServer(newUserService(db, appLogger))
+	handler := api_v1.NewMeServer(newMeService(db, appLogger))
 
 	repos := mysqltest.NewRepositories(db.DB())
 	type testCase struct {
 		apiToken                  string
-		request                   *api_v1.UpdateMeNotificationTimeSpanRequest
+		request                   *api_v1.UpdateNotificationTimeSpanRequest
 		user                      *model2.User
 		wantStatusCode            int
 		wantNotificationTimeSpans []*model2.NotificationTimeSpan
@@ -265,7 +265,7 @@ func Test_UserService_UpdateMeNotificationTimeSpan(t *testing.T) {
 				return &testCase{
 					apiToken: userAPIToken.Token,
 					user:     user,
-					request: &api_v1.UpdateMeNotificationTimeSpanRequest{
+					request: &api_v1.UpdateNotificationTimeSpanRequest{
 						NotificationTimeSpans: timeSpansProto,
 					},
 					wantStatusCode:            http.StatusOK,
@@ -285,9 +285,9 @@ func Test_UserService_UpdateMeNotificationTimeSpan(t *testing.T) {
 			client := twirptest.NewJSONClient()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
-			gotResponse := &api_v1.UpdateMeNotificationTimeSpanResponse{}
+			gotResponse := &api_v1.UpdateNotificationTimeSpanResponse{}
 			statusCode, err := client.SendRequest(
-				ctx, t, handler, api_v1.UserPathPrefix+"UpdateMeNotificationTimeSpan",
+				ctx, t, handler, api_v1.MePathPrefix+"UpdateNotificationTimeSpan",
 				tc.request, gotResponse,
 			)
 			assertion.RequireEqual(t, tc.wantStatusCode, statusCode, "unexpected status code")
@@ -313,9 +313,9 @@ func Test_UserService_UpdateMeNotificationTimeSpan(t *testing.T) {
 	}
 }
 
-func newUserService(db *gorm.DB, appLogger *zap.Logger) api_v1.User {
+func newMeService(db *gorm.DB, appLogger *zap.Logger) api_v1.Me {
 	gaMeasurement := usecase.NewGAMeasurement(ga_measurement.NewGAMeasurementRepository(ga_measurement.NewFakeClient()))
-	return interface_http.NewUserService(
+	return interface_http.NewMeService(
 		db, appLogger,
 		gaMeasurement,
 		di.NewNotificationTimeSpanUsecase(db.DB()),

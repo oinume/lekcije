@@ -112,14 +112,14 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	server := interfaces_http.NewServer(args, errorRecorder)
 	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
 	errorRecorderHooks := interfaces_http.NewErrorRecorderHooks(errorRecorder)
-	userServer := di.NewUserServer(
+	meServer := di.NewMeServer(
 		args.AppLogger, args.GormDB, errorRecorderHooks, args.GAMeasurementClient,
 	)
 
 	mux := goji.NewMux()
 	server.Setup(mux)
 	oauthServer.Setup(mux)
-	interfaces_http.SetupTwirpServer(mux, userServer)
+	interfaces_http.SetupTwirpServer(mux, meServer)
 
 	fmt.Printf("Starting HTTP server on %v\n", port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)

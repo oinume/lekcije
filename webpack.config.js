@@ -21,6 +21,7 @@ let plugins = [
       { context: 'frontend', from: '**/*.woff' },
       { context: 'frontend', from: '**/*.woff2' },
       { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
+      { context: nodeModulesPath, from: 'bootstrap-icons/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
       { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
       { context: nodeModulesPath, from: 'react/umd/**', to: 'lib' },

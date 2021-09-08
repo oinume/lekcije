@@ -2,13 +2,14 @@ name: frontend
 on:
   push:
     paths:
-      - "**.css"
-      - "**.html"
+      - "frontend/**"
+      - "package*.json"
       - "**.json"
       - "**.jsx?"
       - "**.md"
       - "**.proto"
       - "**.tsx?"
+      - "**.txt"
       - "**.ya?ml"
       - ".babelrc"
       - "Makefile"
@@ -43,7 +44,7 @@ jobs:
         run: |
           npm test -- --coverage
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v2.0.2
+        uses: codecov/codecov-action@v2.0.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false

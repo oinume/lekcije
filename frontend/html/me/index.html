@@ -5,31 +5,31 @@
     {{ template "_flashMessage.html" . }}
 
     {{ if .ShowTutorial }}
-    <div class="alert alert-success" role="alert">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      <h4><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 講師をフォローするには</h4>
+    <div class="alert alert-success alert-dismissible" role="alert">
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <h4><i class="bi bi-info-square-fill"></i></span> 講師をフォローするには</h4>
       <ol>
-        <li><a href="https://eikaiwa.dmm.com/list/" class="alert-link" target="_blank">DMM英会話</a>でお気に入りの講師のページを表示しよう</li>
-        <li>講師のURLをコピーしよう(<a href="https://lekcije.amebaownd.com/posts/1577091" class="alert-link" target="_blank">ヘルプ</a>)</li>
-        <li>URLを下の入力欄にペーストしてフォローしよう</li>
-        <li>フォローすると、その講師の空きレッスンがあった時にメールでお知らせ</li>
+        <li><a href="https://eikaiwa.dmm.com/list/" class="alert-link" target="_blank">DMM英会話</a>でお気に入りの講師のページにアクセスしましょう</li>
+        <li>講師のURLをコピーしましょう(<a href="https://lekcije.amebaownd.com/posts/1577091" class="alert-link" target="_blank">ヘルプ</a>)</li>
+        <li>URLを下の入力欄にペーストしてフォローしましょう</li>
+        <li>フォローすると、その講師の空きレッスンがあった時にメールでお知らせします</li>
       </ol>
     </div>
     {{ end }}
 
     <form method="POST" action="/me/followingTeachers/create">
-      <div class="form-group">
-        <p>
-          講師のURLまたはIDを入力してフォローします <a href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}" target="_blank"><i class="fas fa-question-circle button-help" aria-hidden="true"></i></a><br>
-          <small><a href="https://eikaiwa.dmm.com/" target="_blank">DMM英会話で講師を検索</a></small>
-        </p>
-        <input id="teacherIdsOrUrl"
-               type="text"
-               class="form-control"
-               name="teacherIdsOrUrl"
-               placeholder="https://eikaiwa.dmm.com/teacher/index/492/" />
-      </div>
-      <div class="form-group">
+      <p>
+        講師のURLまたはIDを入力してフォローします <a href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}" target="_blank"><i class="fas fa-question-circle button-help" aria-hidden="true"></i></a><br>
+        <small><a href="https://eikaiwa.dmm.com/" target="_blank">DMM英会話で講師を検索</a></small>
+      </p>
+      <div class="input-group mb-3">
+        <input
+          id="teacherIdsOrUrl"
+          type="text"
+          class="form-control"
+          name="teacherIdsOrUrl"
+          placeholder="https://eikaiwa.dmm.com/teacher/index/492/"
+        />
         <button type="submit" class="btn btn-primary">送信</button>
       </div>
     </form>

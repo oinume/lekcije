@@ -2,17 +2,16 @@ name: backend
 on:
   push:
     paths:
-      - "**.go"
-      - "**.json"
-      - "**.html"
+      - "backend/**"
+      - "tools/**"
       - "**.proto"
       - "**.py"
       - "**.sh"
+      - "**.txt"
       - "**.ya?ml"
       - "go.mod"
       - "go.sum"
       - "Makefile"
-      - "tools/**"
 env:
   CACHE_VERSION: 1
   GOPATH: /home/runner/go
@@ -83,7 +82,7 @@ jobs:
           export
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v2.0.2
+        uses: codecov/codecov-action@v2.0.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.txt

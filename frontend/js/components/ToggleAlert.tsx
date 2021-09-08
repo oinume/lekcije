@@ -7,22 +7,17 @@ type Props = {
   handleCloseAlert: () => void;
 };
 
-export const ToggleAlert: React.FC<Props> = ({
-  kind,
-  message,
-  visible,
-  handleCloseAlert,
-}) => {
+export const ToggleAlert: React.FC<Props> = ({ kind, message, visible, handleCloseAlert }) => {
   if (visible) {
     return (
-      <div className={'alert alert-' + kind} role="alert">
+      <div className={'alert alert-dismissible alert-' + kind} role="alert">
         <button
           type="button"
-          className="close"
+          className="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
           onClick={() => handleCloseAlert()}
-        >
-          &times;
-        </button>
+        />
         {message}
       </div>
     );
