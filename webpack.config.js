@@ -142,9 +142,8 @@ const config = {
   },
   // Dev server Configuration options
   devServer: {
-    contentBase: 'frontend', // Relative directory for base of server
+    //    contentBase: 'frontend', // Relative directory for base of server
     hot: true, // Live-reload
-    inline: true,
     port: 4000,
     host: '0.0.0.0', // Change to '0.0.0.0' for external facing server
     proxy: {
@@ -160,6 +159,9 @@ const config = {
         //     //}
         // }
       },
+    },
+    static: {
+      directory: path.resolve(__dirname, 'frontend'),
     },
   },
 };
