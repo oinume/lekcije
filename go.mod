@@ -40,7 +40,7 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.6.0
 	github.com/volatiletech/strmangle v0.0.1
 	go.opencensus.io v0.23.0
-	go.uber.org/zap v1.19.0
+	go.uber.org/zap v1.19.1
 	goji.io/v3 v3.0.0
 	golang.org/x/net v0.0.0-20210917221730-978cfadd31cf
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
