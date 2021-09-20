@@ -11,10 +11,9 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/oinume/lekcije/backend/model2"
-
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 type SendGridEventValues struct {
