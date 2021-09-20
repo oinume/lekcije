@@ -35,6 +35,7 @@ func NewMeService(
 	return &MeService{
 		appLogger:                   appLogger,
 		db:                          db,
+		followingTeacherUsecase:     followingTeacherUsecase,
 		gaMeasurementUsecase:        gaMeasurementUsecase,
 		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
 		userUsecase:                 userUsecase,
@@ -172,7 +173,7 @@ func (s *MeService) ListFollowingTeachers(
 	if err != nil {
 		return nil, err
 	}
-	teachers, err := s.followingTeacherUsecase.ListTeachersByUserID(ctx, user.ID)
+	teachers, err := s.followingTeacherUsecase.FindTeachersByUserID(ctx, uint(user.ID))
 	if err != nil {
 		return nil, err
 	}

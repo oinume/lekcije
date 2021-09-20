@@ -2,11 +2,26 @@ package modeltest
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/randoms"
 )
+
+func NewFollowingTeacher(setters ...func(nts *model2.FollowingTeacher)) *model2.FollowingTeacher {
+	followingTeacher := &model2.FollowingTeacher{}
+	for _, setter := range setters {
+		setter(followingTeacher)
+	}
+	if followingTeacher.UserID == 0 {
+		followingTeacher.UserID = uint(randoms.MustNewInt64(10000000))
+	}
+	if followingTeacher.TeacherID == 0 {
+		followingTeacher.TeacherID = uint(randoms.MustNewInt64(10000000))
+	}
+	return followingTeacher
+}
 
 func NewNotificationTimeSpan(setters ...func(nts *model2.NotificationTimeSpan)) *model2.NotificationTimeSpan {
 	timeSpan := &model2.NotificationTimeSpan{}
@@ -26,6 +41,26 @@ func NewNotificationTimeSpan(setters ...func(nts *model2.NotificationTimeSpan)) 
 		timeSpan.ToTime = ""
 	}
 	return timeSpan
+}
+
+func NewTeacher(setters ...func(u *model2.Teacher)) *model2.Teacher {
+	teacher := &model2.Teacher{}
+	for _, setter := range setters {
+		setter(teacher)
+	}
+	if teacher.ID == 0 {
+		teacher.ID = uint(randoms.MustNewInt64(100000))
+	}
+	if teacher.Name == "" {
+		teacher.Name = "teacher " + randoms.MustNewString(8)
+	}
+	if teacher.Birthday.IsZero() {
+		teacher.Birthday = time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC)
+	}
+	if teacher.LastLessonAt.IsZero() {
+		teacher.LastLessonAt = time.Now().UTC().Add(72 * time.Hour)
+	}
+	return teacher
 }
 
 func NewUser(setters ...func(u *model2.User)) *model2.User {
