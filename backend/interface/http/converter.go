@@ -37,16 +37,27 @@ func NotificationTimeSpansProto(timeSpans []*model2.NotificationTimeSpan) ([]*ap
 }
 
 func NotificationTimeSpansModel(timeSpans []*api_v1.NotificationTimeSpan, userID uint) []*model2.NotificationTimeSpan {
-	values := make([]*model2.NotificationTimeSpan, 0, len(timeSpans))
+	values := make([]*model2.NotificationTimeSpan, len(timeSpans))
 	for i, v := range timeSpans {
 		fromTime := fmt.Sprintf("%v:%v", v.FromHour, v.FromMinute)
 		toTime := fmt.Sprintf("%v:%v", v.ToHour, v.ToMinute)
-		values = append(values, &model2.NotificationTimeSpan{
+		values[i] = &model2.NotificationTimeSpan{
 			UserID:   userID,
 			Number:   uint8(i + 1),
 			FromTime: fromTime,
 			ToTime:   toTime,
-		})
+		}
+	}
+	return values
+}
+
+func TeachersProto(teachers []*model2.Teacher) []*api_v1.Teacher {
+	values := make([]*api_v1.Teacher, len(teachers))
+	for i, t := range teachers {
+		values[i] = &api_v1.Teacher{
+			Id:   uint32(t.ID),
+			Name: t.Name,
+		}
 	}
 	return values
 }

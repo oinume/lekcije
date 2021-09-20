@@ -317,6 +317,7 @@ func newMeService(db *gorm.DB, appLogger *zap.Logger) api_v1.Me {
 	gaMeasurement := usecase.NewGAMeasurement(ga_measurement.NewGAMeasurementRepository(ga_measurement.NewFakeClient()))
 	return interface_http.NewMeService(
 		db, appLogger,
+		di.NewFollowingTeacherUsecase(db.DB()),
 		gaMeasurement,
 		di.NewNotificationTimeSpanUsecase(db.DB()),
 		di.NewUserUsecase(db.DB()),
