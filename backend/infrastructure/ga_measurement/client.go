@@ -13,7 +13,7 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/logger"
-	model2 "github.com/oinume/lekcije/backend/model2c"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 var defaultHTTPClient = &http.Client{

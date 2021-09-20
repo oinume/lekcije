@@ -20,7 +20,7 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/model"
-	model2 "github.com/oinume/lekcije/backend/model2c"
+	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/randoms"
 	"github.com/oinume/lekcije/backend/registration_email"
 	"github.com/oinume/lekcije/backend/usecase"

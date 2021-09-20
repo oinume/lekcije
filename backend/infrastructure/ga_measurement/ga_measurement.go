@@ -3,7 +3,7 @@ package ga_measurement
 import (
 	"context"
 
-	model2 "github.com/oinume/lekcije/backend/model2c"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 type gaMeasurementRepository struct {
