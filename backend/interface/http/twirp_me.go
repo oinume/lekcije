@@ -114,7 +114,7 @@ func (s *MeService) UpdateEmail(
 		if err := s.gaMeasurementUsecase.SendEvent(
 			ctx,
 			context_data.MustGAMeasurementEvent(ctx),
-			model2c.GAMeasurementEventCategoryUser,
+			model2.GAMeasurementEventCategoryUser,
 			"update",
 			fmt.Sprint(user.ID),
 			0,
@@ -147,7 +147,7 @@ func (s *MeService) UpdateNotificationTimeSpan(
 		if err := s.gaMeasurementUsecase.SendEvent(
 			ctx,
 			context_data.MustGAMeasurementEvent(ctx),
-			model2c.GAMeasurementEventCategoryUser,
+			model2.GAMeasurementEventCategoryUser,
 			"updateNotificationTimeSpan",
 			fmt.Sprint(user.ID),
 			0,
@@ -169,6 +169,7 @@ func (s *MeService) CreateFollowingTeacher(
 	ctx context.Context,
 	request *api_v1.CreateFollowingTeacherRequest,
 ) (*api_v1.CreateFollowingTeacherResponse, error) {
+	// TODO: See postMeFollowingTeachersCreate
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
