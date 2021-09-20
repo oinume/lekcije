@@ -40,6 +40,7 @@ func NewMeServer(
 ) api_v1.TwirpServer {
 	meService := ihttp.NewMeService(
 		db, appLogger,
+		NewFollowingTeacherUsecase(db.DB()),
 		NewGAMeasurementUsecase(gaMeasurementClient),
 		NewNotificationTimeSpanUsecase(db.DB()),
 		NewUserUsecase(db.DB()),

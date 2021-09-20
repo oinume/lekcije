@@ -1,5 +1,7 @@
 package mysql
 
+// TODO: move this package to interface/mysql package
+
 import (
 	"context"
 	"database/sql"

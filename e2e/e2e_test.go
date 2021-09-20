@@ -48,7 +48,7 @@ func TestMain(m *testing.M) {
 		GormDB:              helper.DB(nil),
 		GAMeasurementClient: ga_measurement.NewFakeClient(),
 	}
-	s := interfaces_http.NewServer(args)
+	s := interfaces_http.NewServer(args, nil)
 	mux := goji.NewMux()
 	s.Setup(mux)
 	port := config.DefaultVars.HTTPPort + 1

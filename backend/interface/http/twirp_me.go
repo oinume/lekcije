@@ -18,6 +18,7 @@ import (
 type MeService struct {
 	appLogger                   *zap.Logger
 	db                          *gorm.DB
+	followingTeacherUsecase     *usecase.FollowingTeacher
 	gaMeasurementUsecase        *usecase.GAMeasurement
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan
 	userUsecase                 *usecase.User
@@ -26,6 +27,7 @@ type MeService struct {
 func NewMeService(
 	db *gorm.DB, // TODO: Remove
 	appLogger *zap.Logger,
+	followingTeacherUsecase *usecase.FollowingTeacher,
 	gaMeasurementUsecase *usecase.GAMeasurement,
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
 	userUsecase *usecase.User,
@@ -33,6 +35,7 @@ func NewMeService(
 	return &MeService{
 		appLogger:                   appLogger,
 		db:                          db,
+		followingTeacherUsecase:     followingTeacherUsecase,
 		gaMeasurementUsecase:        gaMeasurementUsecase,
 		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
 		userUsecase:                 userUsecase,
@@ -160,4 +163,21 @@ func (s *MeService) UpdateNotificationTimeSpan(
 func validateEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
+}
+
+func (s *MeService) ListFollowingTeachers(
+	ctx context.Context,
+	_ *api_v1.ListFollowingTeachersRequest,
+) (*api_v1.ListFollowingTeachersResponse, error) {
+	user, err := authenticateFromContext(ctx, s.db)
+	if err != nil {
+		return nil, err
+	}
+	teachers, err := s.followingTeacherUsecase.FindTeachersByUserID(ctx, uint(user.ID))
+	if err != nil {
+		return nil, err
+	}
+	return &api_v1.ListFollowingTeachersResponse{
+		Teachers: TeachersProto(teachers),
+	}, nil
 }

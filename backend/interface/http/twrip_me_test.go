@@ -98,6 +98,92 @@ func Test_MeService_GetMe(t *testing.T) {
 	}
 }
 
+func Test_MeService_ListFollowingTeachers(t *testing.T) {
+	t.Parallel()
+
+	helper := model.NewTestHelper()
+	db := helper.DB(t)
+	var log bytes.Buffer
+	appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
+	handler := api_v1.NewMeServer(newMeService(db, appLogger))
+
+	repos := mysqltest.NewRepositories(db.DB())
+	type testCase struct {
+		apiToken       string
+		wantResponse   *api_v1.ListFollowingTeachersResponse
+		wantStatusCode int
+	}
+	tests := map[string]struct {
+		setup func(ctx context.Context) *testCase
+	}{
+		"ok": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+
+				teachers := make([]*model2.Teacher, 2)
+				for i := range teachers {
+					teachers[i] = modeltest.NewTeacher()
+				}
+				repos.CreateTeachers(ctx, t, teachers...)
+
+				fts := make([]*model2.FollowingTeacher, len(teachers))
+				for i, teacher := range teachers {
+					fts[i] = modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+						ft.UserID = user.ID
+						ft.TeacherID = teacher.ID
+					})
+				}
+				repos.CreateFollowingTeachers(ctx, t, fts...)
+
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					wantResponse: &api_v1.ListFollowingTeachersResponse{
+						Teachers: interface_http.TeachersProto(teachers),
+					},
+					wantStatusCode: http.StatusOK,
+				}
+			},
+		},
+	}
+	for name, test := range tests {
+		test := test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			tc := test.setup(ctx)
+
+			client := twirptest.NewJSONClient()
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
+			gotResponse := &api_v1.ListFollowingTeachersResponse{}
+			gotStatusCode, err := client.SendRequest(
+				ctx, t, handler, api_v1.MePathPrefix+"ListFollowingTeachers",
+				&api_v1.ListFollowingTeachersRequest{}, gotResponse,
+			)
+			assertion.RequireEqual(t, tc.wantStatusCode, gotStatusCode, "unexpected status code")
+
+			if gotStatusCode == http.StatusOK {
+				sortOpt := cmpopts.SortSlices(func(i, j *api_v1.Teacher) bool {
+					return i.Id < j.Id
+				})
+				assertion.AssertEqual(
+					t, tc.wantResponse.Teachers, gotResponse.Teachers, "",
+					sortOpt, cmpopts.IgnoreUnexported(api_v1.Teacher{}),
+				)
+			} else {
+				if err == nil {
+					t.Fatal("error must not be nil")
+				}
+			}
+		})
+	}
+}
+
 func Test_MeService_UpdateMeEmail(t *testing.T) {
 	t.Parallel()
 
@@ -291,6 +377,7 @@ func Test_MeService_UpdateMeNotificationTimeSpan(t *testing.T) {
 				tc.request, gotResponse,
 			)
 			assertion.RequireEqual(t, tc.wantStatusCode, statusCode, "unexpected status code")
+
 			if statusCode == http.StatusOK {
 				if err != nil {
 					t.Fatal(err)
@@ -317,6 +404,7 @@ func newMeService(db *gorm.DB, appLogger *zap.Logger) api_v1.Me {
 	gaMeasurement := usecase.NewGAMeasurement(ga_measurement.NewGAMeasurementRepository(ga_measurement.NewFakeClient()))
 	return interface_http.NewMeService(
 		db, appLogger,
+		di.NewFollowingTeacherUsecase(db.DB()),
 		gaMeasurement,
 		di.NewNotificationTimeSpanUsecase(db.DB()),
 		di.NewUserUsecase(db.DB()),
