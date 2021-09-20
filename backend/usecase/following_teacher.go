@@ -19,6 +19,10 @@ func NewFollowingTeacher(dbRepo repository.DB, followingTeacherRepo repository.F
 	}
 }
 
+func (u *FollowingTeacher) Create(ctx context.Context, followingTeacher *model2.FollowingTeacher) error {
+	return u.followingTeacherRepo.Create(ctx, followingTeacher)
+}
+
 func (u *FollowingTeacher) FindTeachersByUserID(ctx context.Context, userID uint) ([]*model2.Teacher, error) {
 	return u.followingTeacherRepo.FindTeachersByUserID(ctx, userID)
 }

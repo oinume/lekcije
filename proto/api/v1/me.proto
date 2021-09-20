@@ -14,7 +14,8 @@ service Me {
 
     rpc UpdateNotificationTimeSpan(UpdateNotificationTimeSpanRequest) returns (UpdateNotificationTimeSpanResponse);
 
-//    rpc CreateFollowingTeacher();
+    rpc CreateFollowingTeacher(CreateFollowingTeacherRequest) returns (CreateFollowingTeacherResponse);
+
 //    rpc DeleteFollowingTeacher();
     rpc ListFollowingTeachers(ListFollowingTeachersRequest) returns (ListFollowingTeachersResponse);
 }
@@ -60,6 +61,12 @@ message Teacher {
     uint32 id = 1;
     string name = 2;
 }
+
+message CreateFollowingTeacherRequest {
+    uint32 teacher_id = 1;
+}
+
+message CreateFollowingTeacherResponse {}
 
 message ListFollowingTeachersRequest {}
 
