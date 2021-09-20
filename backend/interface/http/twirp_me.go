@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/context_data"
-	model2 "github.com/oinume/lekcije/backend/model2c"
+	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/usecase"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )

@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"time"
 
-	model2 "github.com/oinume/lekcije/backend/model2c"
-
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/oinume/lekcije/backend/model2"
 
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/model"

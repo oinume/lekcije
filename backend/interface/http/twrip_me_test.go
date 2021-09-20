@@ -24,7 +24,6 @@ import (
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
-	model2c "github.com/oinume/lekcije/backend/model2c"
 	"github.com/oinume/lekcije/backend/randoms"
 	"github.com/oinume/lekcije/backend/usecase"
 	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
@@ -411,8 +410,8 @@ func newMeService(db *gorm.DB, appLogger *zap.Logger) api_v1.Me {
 	)
 }
 
-func newGAMeasurementEvent() *model2c.GAMeasurementEvent {
-	return &model2c.GAMeasurementEvent{
+func newGAMeasurementEvent() *model2.GAMeasurementEvent {
+	return &model2.GAMeasurementEvent{
 		UserAgentOverride: "ua",
 		ClientID:          "test",
 		DocumentHostName:  "localhost",

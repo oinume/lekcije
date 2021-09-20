@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/oinume/lekcije/backend/context_data"
-	model2 "github.com/oinume/lekcije/backend/model2c"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 func newGAMeasurementEventFromRequest(req *http.Request) *model2.GAMeasurementEvent {
