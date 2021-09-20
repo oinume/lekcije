@@ -8,15 +8,17 @@ import (
 )
 
 type FollowingTeacher struct {
-	dbRepo repository.DB
+	dbRepo               repository.DB
+	followingTeacherRepo repository.FollowingTeacher
 }
 
-func NewFollowingTeacher(dbRepo repository.DB) *FollowingTeacher {
+func NewFollowingTeacher(dbRepo repository.DB, followingTeacherRepo repository.FollowingTeacher) *FollowingTeacher {
 	return &FollowingTeacher{
-		dbRepo: dbRepo,
+		dbRepo:               dbRepo,
+		followingTeacherRepo: followingTeacherRepo,
 	}
 }
 
-func (u *FollowingTeacher) ListTeachersByUserID(ctx context.Context, userID uint32) ([]*model2.Teacher, error) {
-	return nil, nil
+func (u *FollowingTeacher) FindTeachersByUserID(ctx context.Context, userID uint) ([]*model2.Teacher, error) {
+	return u.followingTeacherRepo.FindTeachersByUserID(ctx, userID)
 }
