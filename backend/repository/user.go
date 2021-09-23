@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/oinume/lekcije/backend/model2"
 )
@@ -12,4 +13,6 @@ type User interface {
 	FindByGoogleID(ctx context.Context, googleID string) (*model2.User, error)
 	FindByGoogleIDWithExec(ctx context.Context, exec Executor, googleID string) (*model2.User, error)
 	UpdateEmail(ctx context.Context, id uint, email string) error
+	UpdateFollowedTeacherAt(ctx context.Context, id uint, time time.Time) error
+	UpdateOpenNotificationAt(ctx context.Context, id uint, time time.Time) error
 }

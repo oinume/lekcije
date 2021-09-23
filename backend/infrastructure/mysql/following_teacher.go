@@ -22,6 +22,19 @@ func NewFollowingTeacherRepository(db *sql.DB) repository.FollowingTeacher {
 	}
 }
 
+func (r *followingTeacherRepository) CountFollowingTeachersByUserID(ctx context.Context, userID uint) (int, error) {
+	count := struct{ Count int }{}
+	query := `SELECT COUNT(*) AS count FROM following_teacher WHERE user_id = ?`
+	if err := queries.Raw(query, userID).Bind(ctx, r.db, &count); err != nil {
+		return 0, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("count failed"),
+			errors.WithResource(errors.NewResource("following_teacher", "userID", userID)),
+		)
+	}
+	return count.Count, nil
+}
+
 func (r *followingTeacherRepository) Create(ctx context.Context, followingTeacher *model2.FollowingTeacher) error {
 	return followingTeacher.Insert(ctx, r.db, boil.Infer())
 }

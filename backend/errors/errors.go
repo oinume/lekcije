@@ -16,9 +16,10 @@ type StackTracer interface {
 type Code int
 
 const (
-	CodeNotFound        Code = 1
-	CodeInvalidArgument Code = 2
-	CodeInternal        Code = 3
+	CodeNotFound           Code = 1
+	CodeInvalidArgument    Code = 2
+	CodeInternal           Code = 3
+	CodeFailedPrecondition Code = 4
 )
 
 func (c Code) String() string {
@@ -30,6 +31,8 @@ func (c Code) String() string {
 		s = "InvalidArgument"
 	case CodeInternal:
 		s = "Internal"
+	case CodeFailedPrecondition:
+		s = "FailedPrecondition"
 	}
 	return "code." + s
 }
@@ -111,6 +114,10 @@ func NewNotFoundError(options ...Option) *AnnotatedError {
 
 func NewInvalidArgumentError(options ...Option) *AnnotatedError {
 	return NewAnnotatedError(CodeInvalidArgument, options...)
+}
+
+func NewFailedPreconditionError(options ...Option) *AnnotatedError {
+	return NewAnnotatedError(CodeFailedPrecondition, options...)
 }
 
 // Functional Option Pattern

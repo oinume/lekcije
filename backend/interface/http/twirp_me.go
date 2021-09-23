@@ -169,17 +169,43 @@ func (s *MeService) CreateFollowingTeacher(
 	ctx context.Context,
 	request *api_v1.CreateFollowingTeacherRequest,
 ) (*api_v1.CreateFollowingTeacherResponse, error) {
-	// TODO: See postMeFollowingTeachersCreate
 	user, err := authenticateFromContext(ctx, s.db)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.followingTeacherUsecase.Create(ctx, &model2.FollowingTeacher{
-		UserID:    uint(user.ID),
-		TeacherID: uint(request.TeacherId),
-	}); err != nil {
+	teacherIDOrURL := request.TeacherIdOrUrl
+	if teacherIDOrURL == "" {
+		return nil, twirp.InvalidArgumentError("teacher_id_or_url", "講師のURLまたはIDを入力して下さい")
+	}
+	teacher, err := model2.NewTeacherFromIDOrURL(teacherIDOrURL)
+	if err != nil {
+		return nil, twirp.InvalidArgumentError("teacher_id_or_url", "講師のURLまたはIDが正しくありません")
+	}
+
+	updateFollowedTeacherAt, err := s.followingTeacherUsecase.FollowTeacher(ctx, model2.NewUserFromModel(user), teacher)
+	if err != nil {
 		return nil, err
 	}
+
+	go func() {
+		if err := s.gaMeasurementUsecase.SendEvent(
+			ctx, context_data.MustGAMeasurementEvent(ctx),
+			model2.GAMeasurementEventCategoryFollowingTeacher,
+			"follow", fmt.Sprint(teacher.ID), 1, user.ID,
+		); err != nil {
+			panic(err)
+		}
+		if updateFollowedTeacherAt {
+			if err := s.gaMeasurementUsecase.SendEvent(
+				ctx, context_data.MustGAMeasurementEvent(ctx),
+				model2.GAMeasurementEventCategoryUser,
+				"followFirstTime", fmt.Sprint(user.ID), 0, user.ID,
+			); err != nil {
+				panic(err)
+			}
+		}
+	}()
+
 	return &api_v1.CreateFollowingTeacherResponse{}, nil
 }
 

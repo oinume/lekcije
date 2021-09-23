@@ -64,6 +64,7 @@ message Teacher {
 
 message CreateFollowingTeacherRequest {
     uint32 teacher_id = 1;
+    string teacher_id_or_url = 2;
 }
 
 message CreateFollowingTeacherResponse {}
