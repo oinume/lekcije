@@ -31,6 +31,7 @@ func NewFollowingTeacher(
 	userRepo repository.User,
 ) *FollowingTeacher {
 	return &FollowingTeacher{
+		appLogger:            appLogger,
 		dbRepo:               dbRepo,
 		followingTeacherRepo: followingTeacherRepo,
 		mCountryRepo:         mCountryRepo,
