@@ -5,6 +5,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
@@ -76,6 +77,30 @@ func (r *userRepository) UpdateEmail(ctx context.Context, id uint, email string)
 					{Key: "id", Value: id}, {Key: "email", Value: email},
 				},
 			)),
+		)
+	}
+	return nil
+}
+
+func (r *userRepository) UpdateFollowedTeacherAt(ctx context.Context, id uint, time time.Time) error {
+	const query = "UPDATE user SET followed_teacher_at = ? WHERE id = ?"
+	_, err := queries.Raw(query, FormatDateTime(time), id).ExecContext(ctx, r.db)
+	if err != nil {
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update user followed_teacher_at"),
+		)
+	}
+	return nil
+}
+
+func (r *userRepository) UpdateOpenNotificationAt(ctx context.Context, id uint, time time.Time) error {
+	const query = "UPDATE user SET open_notification_at = ? WHERE id = ?"
+	_, err := queries.Raw(query, FormatDateTime(time), id).ExecContext(ctx, r.db)
+	if err != nil {
+		return errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to update user open_notification_at"),
 		)
 	}
 	return nil

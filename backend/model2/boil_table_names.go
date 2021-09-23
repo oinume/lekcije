@@ -7,6 +7,7 @@ var TableNames = struct {
 	FlashMessage                   string
 	FollowingTeacher               string
 	Lesson                         string
+	MCountry                       string
 	MPlan                          string
 	NotificationTimeSpan           string
 	StatDailyNotificationEvent     string
@@ -21,6 +22,7 @@ var TableNames = struct {
 	FlashMessage:                   "flash_message",
 	FollowingTeacher:               "following_teacher",
 	Lesson:                         "lesson",
+	MCountry:                       "m_country",
 	MPlan:                          "m_plan",
 	NotificationTimeSpan:           "notification_time_span",
 	StatDailyNotificationEvent:     "stat_daily_notification_event",

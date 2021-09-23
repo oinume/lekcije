@@ -19,10 +19,13 @@ func NewErrorRecorderUsecase(appLogger *zap.Logger, rollbarClient *rollbar.Clien
 	)
 }
 
-func NewFollowingTeacherUsecase(db *sql.DB) *usecase.FollowingTeacher {
+func NewFollowingTeacherUsecase(appLogger *zap.Logger, db *sql.DB) *usecase.FollowingTeacher {
 	return usecase.NewFollowingTeacher(
+		appLogger,
 		mysql.NewDBRepository(db),
 		mysql.NewFollowingTeacherRepository(db),
+		mysql.NewMCountryRepository(db),
+		mysql.NewUserRepository(db),
 	)
 }
 
