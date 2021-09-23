@@ -6,6 +6,7 @@ import (
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
@@ -59,4 +60,17 @@ func (r *followingTeacherRepository) FindTeachersByUserID(ctx context.Context, u
 	}
 	// TODO: expose FollowingTeacher.doAfterSelectHooks in template
 	return teachers, nil
+}
+
+func (r *followingTeacherRepository) FindByUserID(
+	ctx context.Context, userID uint,
+) ([]*model2.FollowingTeacher, error) {
+	fts, err := model2.FollowingTeachers(qm.Where("user_id = ?", userID)).All(ctx, r.db)
+	if err != nil {
+		return nil, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithResource(errors.NewResource("following_teacher", "userID", userID)),
+		)
+	}
+	return fts, nil
 }

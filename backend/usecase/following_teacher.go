@@ -82,6 +82,7 @@ func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User,
 			NameJA: mc.NameJa,
 		}
 	}
+	// TODO: DI
 	f := fetcher.NewLessonFetcher(nil, 1, false, model.NewMCountries(mcs), u.appLogger)
 	defer f.Close()
 	if _, _, err := f.Fetch(ctx, uint32(teacher.ID)); err != nil {

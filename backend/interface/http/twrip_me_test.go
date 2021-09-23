@@ -97,6 +97,98 @@ func Test_MeService_GetMe(t *testing.T) {
 	}
 }
 
+func Test_MeService_CreateFollowingTeacher(t *testing.T) {
+	t.Parallel()
+
+	helper := model.NewTestHelper()
+	db := helper.DB(t)
+	var log bytes.Buffer
+	appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
+	handler := api_v1.NewMeServer(newMeService(db, appLogger))
+
+	repos := mysqltest.NewRepositories(db.DB())
+	type testCase struct {
+		apiToken             string
+		request              *api_v1.CreateFollowingTeacherRequest
+		user                 *model2.User
+		wantFollowingTeacher *model2.FollowingTeacher
+		wantStatusCode       int
+	}
+	tests := map[string]struct {
+		setup func(ctx context.Context) *testCase
+	}{
+		"ok_with_id": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+
+				const teacherID = 46602
+				ft := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+					ft.UserID = user.ID
+					ft.TeacherID = teacherID
+				})
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					request: &api_v1.CreateFollowingTeacherRequest{
+						TeacherIdOrUrl: fmt.Sprint(teacherID),
+					},
+					user:                 user,
+					wantFollowingTeacher: ft,
+					wantStatusCode:       http.StatusOK,
+				}
+			},
+		},
+	}
+
+	for name, test := range tests {
+		test := test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			tc := test.setup(ctx)
+
+			client := twirptest.NewJSONClient()
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
+			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
+			gotResponse := &api_v1.CreateFollowingTeacherResponse{}
+			gotStatusCode, err := client.SendRequest(
+				ctx, t, handler, api_v1.MePathPrefix+"CreateFollowingTeacher",
+				tc.request, gotResponse,
+			)
+			assertion.RequireEqual(t, tc.wantStatusCode, gotStatusCode, "unexpected status code")
+
+			if gotStatusCode == http.StatusOK {
+				gotFollowingTeachers, err := repos.FollowingTeacher().FindByUserID(ctx, tc.wantFollowingTeacher.UserID)
+				if err != nil {
+					t.Fatal(err)
+				}
+				assertion.RequireEqual(t, 1, len(gotFollowingTeachers), "unexpected gotFollowingTeachers length")
+				assertion.AssertEqual(
+					t, tc.wantFollowingTeacher, gotFollowingTeachers[0], "",
+					cmpopts.IgnoreFields(model2.FollowingTeacher{}, "CreatedAt", "UpdatedAt"),
+				)
+
+				gotUser, err := repos.User().FindByEmail(ctx, tc.user.Email)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if gotUser.FollowedTeacherAt.Time.IsZero() {
+					t.Fatalf("user.FollowedTeacherAt must be updated but zero: %v", gotUser.FollowedTeacherAt)
+				}
+			} else {
+				if err == nil {
+					t.Fatal("error must not be nil")
+				}
+			}
+		})
+	}
+}
+
 func Test_MeService_ListFollowingTeachers(t *testing.T) {
 	t.Parallel()
 
