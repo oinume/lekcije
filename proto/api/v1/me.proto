@@ -16,7 +16,7 @@ service Me {
 
   rpc CreateFollowingTeacher(CreateFollowingTeacherRequest) returns (CreateFollowingTeacherResponse);
 
-  rpc DeleteFollowingTeacher(DeleteFollowingTeacherRequest) returns (DeleteFollowingTeacherResponse);
+  rpc DeleteFollowingTeachers(DeleteFollowingTeachersRequest) returns (DeleteFollowingTeachersResponse);
 
   rpc ListFollowingTeachers(ListFollowingTeachersRequest) returns (ListFollowingTeachersResponse);
 }
@@ -69,11 +69,11 @@ message CreateFollowingTeacherRequest {
 
 message CreateFollowingTeacherResponse {}
 
-message DeleteFollowingTeacherRequest {
+message DeleteFollowingTeachersRequest {
   repeated uint32 teacherIds = 1;
 }
 
-message DeleteFollowingTeacherResponse {}
+message DeleteFollowingTeachersResponse {}
 
 message ListFollowingTeachersRequest {}
 

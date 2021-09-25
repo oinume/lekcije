@@ -201,7 +201,7 @@ func Test_MeService_DeleteFollowingTeacher(t *testing.T) {
 	repos := mysqltest.NewRepositories(db.DB())
 	type testCase struct {
 		apiToken       string
-		request        *api_v1.DeleteFollowingTeacherRequest
+		request        *api_v1.DeleteFollowingTeachersRequest
 		user           *model2.User
 		wantStatusCode int
 	}
@@ -231,7 +231,7 @@ func Test_MeService_DeleteFollowingTeacher(t *testing.T) {
 				}
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					request: &api_v1.DeleteFollowingTeacherRequest{
+					request: &api_v1.DeleteFollowingTeachersRequest{
 						TeacherIds: teacherIDs,
 					},
 					user:           user,
@@ -252,9 +252,9 @@ func Test_MeService_DeleteFollowingTeacher(t *testing.T) {
 			client := twirptest.NewJSONClient()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
-			gotResponse := &api_v1.DeleteFollowingTeacherResponse{}
+			gotResponse := &api_v1.DeleteFollowingTeachersResponse{}
 			gotStatusCode, err := client.SendRequest(
-				ctx, t, handler, api_v1.MePathPrefix+"DeleteFollowingTeacher",
+				ctx, t, handler, api_v1.MePathPrefix+"DeleteFollowingTeachers",
 				tc.request, gotResponse,
 			)
 			assertion.RequireEqual(
