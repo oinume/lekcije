@@ -64,7 +64,7 @@ message Teacher {
 }
 
 message CreateFollowingTeacherRequest {
-  string teacher_id_or_url = 1;
+  string teacherIdOrUrl = 1;
 }
 
 message CreateFollowingTeacherResponse {}
