@@ -209,6 +209,28 @@ func (s *MeService) CreateFollowingTeacher(
 	return &api_v1.CreateFollowingTeacherResponse{}, nil
 }
 
+func (s *MeService) DeleteFollowingTeacher(
+	ctx context.Context, request *api_v1.DeleteFollowingTeacherRequest,
+) (*api_v1.DeleteFollowingTeacherResponse, error) {
+	user, err := authenticateFromContext(ctx, s.db)
+	if err != nil {
+		return nil, err
+	}
+	ids := request.GetTeacherIds()
+	if len(ids) == 0 {
+		return &api_v1.DeleteFollowingTeacherResponse{}, nil
+	}
+	teacherIDs := make([]uint, len(ids))
+	for i, id := range ids {
+		teacherIDs[i] = uint(id)
+	}
+
+	if err := s.followingTeacherUsecase.DeleteFollowingTeachers(ctx, uint(user.ID), teacherIDs); err != nil {
+		return nil, err
+	}
+	return &api_v1.DeleteFollowingTeacherResponse{}, nil
+}
+
 func (s *MeService) ListFollowingTeachers(
 	ctx context.Context,
 	_ *api_v1.ListFollowingTeachersRequest,

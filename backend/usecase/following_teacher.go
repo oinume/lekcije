@@ -43,6 +43,10 @@ func (u *FollowingTeacher) Create(ctx context.Context, followingTeacher *model2.
 	return u.followingTeacherRepo.Create(ctx, followingTeacher)
 }
 
+func (u *FollowingTeacher) DeleteFollowingTeachers(ctx context.Context, userID uint, teacherIDs []uint) error {
+	return u.followingTeacherRepo.DeleteByUserIDAndTeacherIDs(ctx, userID, teacherIDs)
+}
+
 func (u *FollowingTeacher) FindTeachersByUserID(ctx context.Context, userID uint) ([]*model2.Teacher, error) {
 	return u.followingTeacherRepo.FindTeachersByUserID(ctx, userID)
 }
