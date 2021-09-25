@@ -45,7 +45,11 @@ func (r *followingTeacherRepository) Create(ctx context.Context, followingTeache
 func (r *followingTeacherRepository) DeleteByUserIDAndTeacherIDs(ctx context.Context, userID uint, teacherIDs []uint) error {
 	placeholder := strings.TrimRight(strings.Repeat("?,", len(teacherIDs)), ",")
 	where := fmt.Sprintf("user_id = ? AND teacher_id IN (%s)", placeholder)
-	_, err := model2.FollowingTeachers(qm.Where(where)).DeleteAll(ctx, r.db)
+	args := []interface{}{userID}
+	for _, teacherID := range teacherIDs {
+		args = append(args, teacherID)
+	}
+	_, err := model2.FollowingTeachers(qm.Where(where, args...)).DeleteAll(ctx, r.db)
 	return err
 }
 
