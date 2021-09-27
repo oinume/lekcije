@@ -33,7 +33,7 @@ require (
 	github.com/rs/cors v1.8.0
 	github.com/sclevine/agouti v3.0.0+incompatible
 	github.com/sendgrid/rest v2.6.5+incompatible
-	github.com/sendgrid/sendgrid-go v3.10.0+incompatible
+	github.com/sendgrid/sendgrid-go v3.10.1+incompatible
 	github.com/stretchr/testify v1.7.0
 	github.com/twitchtv/twirp v8.1.0+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
