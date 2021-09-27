@@ -4,27 +4,28 @@ package api.v1;
 option go_package = "proto/api/v1;api_v1";
 
 service Me {
-    rpc Ping(PingRequest) returns (PingResponse);
+  rpc Ping(PingRequest) returns (PingResponse);
 
-    rpc GetMe(GetMeRequest) returns (GetMeResponse);
+  rpc GetMe(GetMeRequest) returns (GetMeResponse);
 
-    rpc GetEmail(GetEmailRequest) returns (GetEmailResponse);
+  rpc GetEmail(GetEmailRequest) returns (GetEmailResponse);
 
-    rpc UpdateEmail(UpdateEmailRequest) returns (UpdateEmailResponse);
+  rpc UpdateEmail(UpdateEmailRequest) returns (UpdateEmailResponse);
 
-    rpc UpdateNotificationTimeSpan(UpdateNotificationTimeSpanRequest) returns (UpdateNotificationTimeSpanResponse);
+  rpc UpdateNotificationTimeSpan(UpdateNotificationTimeSpanRequest) returns (UpdateNotificationTimeSpanResponse);
 
-    rpc CreateFollowingTeacher(CreateFollowingTeacherRequest) returns (CreateFollowingTeacherResponse);
+  rpc CreateFollowingTeacher(CreateFollowingTeacherRequest) returns (CreateFollowingTeacherResponse);
 
-//    rpc DeleteFollowingTeacher();
-    rpc ListFollowingTeachers(ListFollowingTeachersRequest) returns (ListFollowingTeachersResponse);
+  rpc DeleteFollowingTeachers(DeleteFollowingTeachersRequest) returns (DeleteFollowingTeachersResponse);
+
+  rpc ListFollowingTeachers(ListFollowingTeachersRequest) returns (ListFollowingTeachersResponse);
 }
 
 message NotificationTimeSpan {
-    int32 fromHour = 1;
-    int32 fromMinute = 2;
-    int32 toHour = 3;
-    int32 toMinute = 4;
+  int32 fromHour = 1;
+  int32 fromMinute = 2;
+  int32 toHour = 3;
+  int32 toMinute = 4;
 }
 
 message PingRequest {}
@@ -34,43 +35,48 @@ message PingResponse {}
 message GetMeRequest {}
 
 message GetMeResponse {
-    int32 userId = 1;
-    string email = 2;
-    repeated NotificationTimeSpan notificationTimeSpans = 3;
+  int32 userId = 1;
+  string email = 2;
+  repeated NotificationTimeSpan notificationTimeSpans = 3;
 }
 
 message GetEmailRequest {}
 
 message GetEmailResponse {
-    string email = 1;
+  string email = 1;
 }
 
 message UpdateEmailRequest {
-    string email = 1;
+  string email = 1;
 }
 
 message UpdateEmailResponse {}
 
 message UpdateNotificationTimeSpanRequest {
-    repeated NotificationTimeSpan notificationTimeSpans = 1;
+  repeated NotificationTimeSpan notificationTimeSpans = 1;
 }
 
 message UpdateNotificationTimeSpanResponse {}
 
 message Teacher {
-    uint32 id = 1;
-    string name = 2;
+  uint32 id = 1;
+  string name = 2;
 }
 
 message CreateFollowingTeacherRequest {
-    uint32 teacher_id = 1;
-    string teacher_id_or_url = 2;
+  string teacherIdOrUrl = 1;
 }
 
 message CreateFollowingTeacherResponse {}
 
+message DeleteFollowingTeachersRequest {
+  repeated uint32 teacherIds = 1;
+}
+
+message DeleteFollowingTeachersResponse {}
+
 message ListFollowingTeachersRequest {}
 
 message ListFollowingTeachersResponse {
-    repeated Teacher teachers = 1;
+  repeated Teacher teachers = 1;
 }

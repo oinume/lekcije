@@ -189,6 +189,94 @@ func Test_MeService_CreateFollowingTeacher(t *testing.T) {
 	}
 }
 
+func Test_MeService_DeleteFollowingTeacher(t *testing.T) {
+	t.Parallel()
+
+	helper := model.NewTestHelper()
+	db := helper.DB(t)
+	var log bytes.Buffer
+	appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
+	handler := api_v1.NewMeServer(newMeService(db, appLogger))
+
+	repos := mysqltest.NewRepositories(db.DB())
+	type testCase struct {
+		apiToken       string
+		request        *api_v1.DeleteFollowingTeachersRequest
+		user           *model2.User
+		wantStatusCode int
+	}
+	tests := map[string]struct {
+		setup func(ctx context.Context) *testCase
+	}{
+		"ok": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+
+				fts := []*model2.FollowingTeacher{
+					modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+						ft.UserID = user.ID
+					}),
+					modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+						ft.UserID = user.ID
+					}),
+				}
+				teacherIDs := make([]uint32, len(fts))
+				for i, ft := range fts {
+					teacherIDs[i] = uint32(ft.TeacherID)
+				}
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					request: &api_v1.DeleteFollowingTeachersRequest{
+						TeacherIds: teacherIDs,
+					},
+					user:           user,
+					wantStatusCode: http.StatusOK,
+				}
+			},
+		},
+	}
+
+	for name, test := range tests {
+		test := test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			tc := test.setup(ctx)
+
+			client := twirptest.NewJSONClient()
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
+			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
+			gotResponse := &api_v1.DeleteFollowingTeachersResponse{}
+			gotStatusCode, err := client.SendRequest(
+				ctx, t, handler, api_v1.MePathPrefix+"DeleteFollowingTeachers",
+				tc.request, gotResponse,
+			)
+			assertion.RequireEqual(
+				t, tc.wantStatusCode, gotStatusCode,
+				fmt.Sprintf("unexpected status code:%v", err),
+			)
+
+			if gotStatusCode == http.StatusOK {
+				got, err := repos.FollowingTeacher().FindByUserID(ctx, tc.user.ID)
+				if err != nil {
+					t.Fatalf("unexpected error:%v", err)
+				}
+				assertion.AssertEqual(t, 0, len(got), "unexpected FollowingTeacher length")
+			} else {
+				if err == nil {
+					t.Fatal("error must not be nil")
+				}
+			}
+		})
+	}
+}
+
 func Test_MeService_ListFollowingTeachers(t *testing.T) {
 	t.Parallel()
 
