@@ -9,6 +9,7 @@
     ":automergeLinters",
     ":automergeTesters",
     ":automergeTypes",
+    ":automergePatch",
     ":automergePr",
     "group:monorepos",
     "group:recommended",
