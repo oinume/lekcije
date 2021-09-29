@@ -43,17 +43,19 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 
   let content: any = [];
   if (timeSpans.length > 0) {
-    content = timeSpans.map((timeSpan, i) => (
-      <TimeSpanItem
-        editable={editable}
-        timeSpan={timeSpan}
-        index={i}
-        handleOnChange={onChange}
-        handleOnClickPlus={onClickPlus}
-        handleOnClickMinus={onClickMinus}
-        key={i}
-      />
-    ));
+    content = timeSpans.map((timeSpan, i) => {
+      return (
+        <TimeSpanItem
+          editable={editable}
+          timeSpan={timeSpan}
+          index={i}
+          handleOnChange={onChange}
+          handleOnClickPlus={onClickPlus}
+          handleOnClickMinus={onClickMinus}
+          key={i}
+        />
+      );
+    });
   } else if (editable) {
     handleAdd();
   } else {
@@ -107,8 +109,12 @@ const TimeSpanItem = ({
   handleOnClickPlus,
   handleOnClickMinus,
 }: TimeSpanItemProps) => {
-  const hourOptions = range(0, 24).map((v) => ({ value: String(v), label: String(v) }));
-  const minuteOptions = [0, 30].map((v) => ({ value: String(v), label: sprintf('%02d', v) }));
+  const hourOptions = range(0, 24).map((v) => {
+    return { value: String(v), label: String(v) };
+  });
+  const minuteOptions = [0, 30].map((v) => {
+    return { value: String(v), label: sprintf('%02d', v) };
+  });
 
   if (editable) {
     return (
@@ -146,13 +152,21 @@ const TimeSpanItem = ({
           className="custom-select custom-select-sm"
         />
         分
-        <button type="button" className="btn btn-link button-plus" onClick={(event) => handleOnClickPlus(event)}>
+        <button
+          type="button"
+          className="btn btn-link button-plus"
+          onClick={(event) => {
+            return handleOnClickPlus(event);
+          }}
+        >
           <i className="fas fa-plus-circle button-plus" aria-hidden="true" />
         </button>
         <button
           type="button"
           className="btn btn-link button-plus"
-          onClick={(event) => handleOnClickMinus(event, index)}
+          onClick={(event) => {
+            return handleOnClickMinus(event, index);
+          }}
         >
           {/* TODO: no need to pass index */}
           <i className="fas fa-minus-circle button-plus" aria-hidden="true" />

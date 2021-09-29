@@ -16,7 +16,9 @@ export const ToggleAlert: React.FC<Props> = ({ kind, message, visible, handleClo
           className="btn-close"
           data-bs-dismiss="alert"
           aria-label="Close"
-          onClick={() => handleCloseAlert()}
+          onClick={() => {
+            return handleCloseAlert();
+          }}
         />
         {message}
       </div>
