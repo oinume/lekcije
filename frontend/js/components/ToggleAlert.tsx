@@ -10,7 +10,7 @@ type Props = {
 export const ToggleAlert: React.FC<Props> = ({ kind, message, visible, handleCloseAlert }) => {
   if (visible) {
     return (
-      <div className={'alert alert-dismissible alert-' + kind} role="alert">
+      <div className={`alert alert-dismissible alert-${kind}`} role="alert">
         <button
           type="button"
           className="btn-close"
@@ -21,7 +21,6 @@ export const ToggleAlert: React.FC<Props> = ({ kind, message, visible, handleClo
         {message}
       </div>
     );
-  } else {
-    return <div />;
   }
+  return <div />;
 };

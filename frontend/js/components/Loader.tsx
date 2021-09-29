@@ -15,7 +15,7 @@ export const Loader: React.FC<Props> = ({ loading, message, css, size }) => {
   return loading ? (
     <div className="overlay-content">
       <div className="wrapper" style={{ textAlign: 'center' }}>
-        <ClipLoader css={css} size={size} color={'#123abc'} loading={loading} />
+        <ClipLoader css={css} size={size} color="#123abc" loading={loading} />
         <p>
           <span className="message">{message}</span>
         </p>

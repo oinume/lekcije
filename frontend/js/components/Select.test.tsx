@@ -1,6 +1,6 @@
 import React from 'react';
-import { Select } from './Select';
 import { render, screen } from '@testing-library/react';
+import { Select } from './Select';
 import '@testing-library/jest-dom';
 
 test('<Select> initial state', () => {

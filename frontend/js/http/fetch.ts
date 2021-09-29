@@ -12,16 +12,16 @@ export const sendRequest = async (path: string, body: string) => {
     'Content-Type': 'application/json',
   };
   const cookies = cookie.parse(document.cookie);
-  if (cookies['apiToken']) {
-    headers['Authorization'] = 'Bearer ' + cookies['apiToken'];
+  if (cookies.apiToken) {
+    headers.Authorization = `Bearer ${cookies.apiToken}`;
   }
   const res = await fetch(path, {
-    body: body,
+    body,
     method: 'POST',
-    headers: headers,
+    headers,
   });
   if (res.status >= 400) {
-    throw new HttpError('HTTP request failed on ' + path, res);
+    throw new HttpError(`HTTP request failed on ${path}`, res);
   }
   return res;
 };

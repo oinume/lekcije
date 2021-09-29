@@ -38,15 +38,14 @@ export const SettingPage: React.FC<{}> = () => {
   const queryClient = useQueryClient();
   // https://react-query.tanstack.com/guides/mutations
   const updateMeEmailMutation = useMutation(
-    (email: string): Promise<UpdateMeEmailResult> => {
-      return sendRequest(
+    (email: string): Promise<UpdateMeEmailResult> =>
+      sendRequest(
         '/twirp/api.v1.Me/UpdateEmail',
         JSON.stringify({
           // TODO: Use proto generated code
-          email: email,
+          email,
         })
-      );
-    },
+      ),
     {
       onSuccess: () => {
         queryClient
@@ -60,14 +59,13 @@ export const SettingPage: React.FC<{}> = () => {
   );
 
   const updateMeNotificationTimeSpanMutation = useMutation(
-    (timeSpans: NotificationTimeSpan[]): Promise<UpdateMeNotificationTimeSPanResult> => {
-      return sendRequest(
+    (timeSpans: NotificationTimeSpan[]): Promise<UpdateMeNotificationTimeSPanResult> =>
+      sendRequest(
         '/twirp/api.v1.Me/UpdateNotificationTimeSpan',
         JSON.stringify({
           notificationTimeSpans: timeSpans,
         })
-      );
-    },
+      ),
     {
       onSuccess: () => {
         queryClient
@@ -80,7 +78,7 @@ export const SettingPage: React.FC<{}> = () => {
     }
   );
 
-  //console.log('BEFORE useQuery<GetMeResult, Error>');
+  // console.log('BEFORE useQuery<GetMeResult, Error>');
   const { isLoading, isIdle, error, data } = useQuery<GetMeResult, Error>(
     queryKeyMe,
     async () => {
@@ -104,18 +102,16 @@ export const SettingPage: React.FC<{}> = () => {
       retry: 0,
     }
   );
-  //console.log('AFTER useQuery: isLoading = %s', isLoading);
+  // console.log('AFTER useQuery: isLoading = %s', isLoading);
 
   if (isLoading || isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
-    return (
-      <Loader loading={isLoading} message={'Loading data ...'} css={'background: rgba(255, 255, 255, 0)'} size={50} />
-    );
+    return <Loader loading={isLoading} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50} />;
   }
 
   if (error) {
     console.error('error = %s', error);
-    return <Alert kind={'danger'} message={'システムエラーが発生しました。' + error.message} />;
+    return <Alert kind="danger" message={`システムエラーが発生しました。${error.message}`} />;
   }
 
   const safeData = data as GetMeResult; // TODO: better name
@@ -135,7 +131,7 @@ export const SettingPage: React.FC<{}> = () => {
   };
 
   const handleDeleteTimeSpan = (index: number) => {
-    let timeSpans = notificationTimeSpans.slice();
+    const timeSpans = notificationTimeSpans.slice();
     if (index >= timeSpans.length) {
       return;
     }
@@ -144,7 +140,7 @@ export const SettingPage: React.FC<{}> = () => {
   };
 
   const handleOnChangeTimeSpan = (name: string, index: number, value: number) => {
-    let timeSpans = notificationTimeSpans.slice();
+    const timeSpans = notificationTimeSpans.slice();
     timeSpans[index][name as keyof NotificationTimeSpan] = value;
     setNotificationTimeSpansState(timeSpans);
   };
@@ -162,7 +158,7 @@ export const SettingPage: React.FC<{}> = () => {
       timeSpans.push(timeSpan);
     }
     setNotificationTimeSpansState(timeSpans);
-    //console.log('BEFORE updateMeNotificationTimeSpanMutation.mutate()');
+    // console.log('BEFORE updateMeNotificationTimeSpanMutation.mutate()');
     updateMeNotificationTimeSpanMutation.mutate(timeSpans);
   };
 
@@ -171,8 +167,8 @@ export const SettingPage: React.FC<{}> = () => {
       <h1 className="page-title">設定</h1>
       <>
         <ToggleAlert handleCloseAlert={handleHideAlert} {...alert} />
-        <UseMutationResultAlert result={updateMeEmailMutation} name={'メールアドレス'} />
-        <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name={'レッスン希望時間帯'} />
+        <UseMutationResultAlert result={updateMeEmailMutation} name="メールアドレス" />
+        <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name="レッスン希望時間帯" />
         <EmailForm
           email={email}
           handleOnChange={(e) => {
@@ -209,9 +205,9 @@ const UseMutationResultAlert: React.FC<UseMutationResultAlertProps> = ({
   // TODO: error handlingをまともにする
   switch (result.status) {
     case 'success':
-      return <Alert kind={'success'} message={name + 'を更新しました！'} />;
+      return <Alert kind="success" message={`${name}を更新しました！`} />;
     case 'error':
-      return <Alert kind={'danger'} message={name + `の更新に失敗しました。(${e.response.statusText})`} />;
+      return <Alert kind="danger" message={`${name}の更新に失敗しました。(${e.response.statusText})`} />;
     default:
       return <></>;
   }

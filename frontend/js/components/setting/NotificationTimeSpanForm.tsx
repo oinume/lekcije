@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Option, Select } from '../Select';
 import { sprintf } from 'sprintf-js';
 import { range } from 'lodash-es';
+import { Option, Select } from '../Select';
 
 // TODO: must be class. Add method isZero() and parse(). To be defined in another file.
 export type NotificationTimeSpan = {
@@ -43,32 +43,28 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 
   let content: any = [];
   if (timeSpans.length > 0) {
-    content = timeSpans.map((timeSpan, i) => {
-      return (
-        <TimeSpanItem
-          editable={editable}
-          timeSpan={timeSpan}
-          index={i}
-          handleOnChange={onChange}
-          handleOnClickPlus={onClickPlus}
-          handleOnClickMinus={onClickMinus}
-          key={i}
-        />
-      );
-    });
+    content = timeSpans.map((timeSpan, i) => (
+      <TimeSpanItem
+        editable={editable}
+        timeSpan={timeSpan}
+        index={i}
+        handleOnChange={onChange}
+        handleOnClickPlus={onClickPlus}
+        handleOnClickMinus={onClickMinus}
+        key={i}
+      />
+    ));
+  } else if (editable) {
+    handleAdd();
   } else {
-    if (editable) {
-      handleAdd();
-    } else {
-      content = [<p key="noTimeSpans">データがありません。編集ボタンで追加できます。</p>];
-    }
+    content = [<p key="noTimeSpans">データがありません。編集ボタンで追加できます。</p>];
   }
 
   return (
     <form>
       <h5>
         レッスン希望時間帯
-        <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
+        <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank" rel="noreferrer">
           <i className="fas fa-question-circle button-help" aria-hidden="true" />
         </a>
       </h5>
@@ -111,19 +107,15 @@ const TimeSpanItem = ({
   handleOnClickPlus,
   handleOnClickMinus,
 }: TimeSpanItemProps) => {
-  const hourOptions = range(0, 24).map((v) => {
-    return { value: String(v), label: String(v) };
-  });
-  const minuteOptions = [0, 30].map((v) => {
-    return { value: String(v), label: sprintf('%02d', v) };
-  });
+  const hourOptions = range(0, 24).map((v) => ({ value: String(v), label: String(v) }));
+  const minuteOptions = [0, 30].map((v) => ({ value: String(v), label: sprintf('%02d', v) }));
 
   if (editable) {
     return (
       // TODO: Use <ul><li>
       <p style={{ marginBottom: '0px' }}>
         <Select
-          name={'fromHour_' + index}
+          name={`fromHour_${index}`}
           value={timeSpan.fromHour}
           onChange={handleOnChange}
           options={hourOptions}
@@ -131,7 +123,7 @@ const TimeSpanItem = ({
         />
         時 &nbsp;
         <Select
-          name={'fromMinute_' + index}
+          name={`fromMinute_${index}`}
           value={timeSpan.fromMinute}
           onChange={handleOnChange}
           options={minuteOptions}
@@ -139,7 +131,7 @@ const TimeSpanItem = ({
         />
         分 &nbsp; 〜 &nbsp;&nbsp;
         <Select
-          name={'toHour_' + index}
+          name={`toHour_${index}`}
           value={timeSpan.toHour}
           onChange={handleOnChange}
           options={hourOptions}
@@ -147,7 +139,7 @@ const TimeSpanItem = ({
         />
         時 &nbsp;
         <Select
-          name={'toMinute_' + index}
+          name={`toMinute_${index}`}
           value={timeSpan.toMinute}
           onChange={handleOnChange}
           options={minuteOptions}
@@ -167,14 +159,13 @@ const TimeSpanItem = ({
         </button>
       </p>
     );
-  } else {
-    return (
-      <p>
-        {timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:
-        {sprintf('%02d', timeSpan.toMinute)}
-      </p>
-    );
   }
+  return (
+    <p>
+      {timeSpan.fromHour}:{sprintf('%02d', timeSpan.fromMinute)} 〜 {timeSpan.toHour}:
+      {sprintf('%02d', timeSpan.toMinute)}
+    </p>
+  );
 };
 
 type UpdateButtonProps = {
