@@ -29,7 +29,7 @@ require (
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/pkg/errors v0.9.1
-	github.com/rollbar/rollbar-go v1.4.1
+	github.com/rollbar/rollbar-go v1.4.2
 	github.com/rs/cors v1.8.0
 	github.com/sclevine/agouti v3.0.0+incompatible
 	github.com/sendgrid/rest v2.6.5+incompatible
