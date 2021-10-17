@@ -4,10 +4,10 @@ __pycache__/
 *$py.class
 
 # JavaScript
-/node_modules
+node_modules
 .DS_Store
-/static
-/npm-debug.log*
+/frontend/static
+npm-debug.log*
 
 # IntelliJ
 .idea
