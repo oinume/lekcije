@@ -4,7 +4,7 @@ module.exports = {
     '^lodash-es$': 'lodash',
   },
   preset: 'ts-jest',
-  rootDir: './frontend',
+  rootDir: '.',
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['.next', 'node_modules'],
   transform: {
