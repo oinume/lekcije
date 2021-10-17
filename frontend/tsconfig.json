@@ -19,8 +19,5 @@
     "noEmit": false,
     "jsx": "react",
     "noFallthroughCasesInSwitch": true
-  },
-  "include": [
-    "frontend"
-  ]
+  }
 }
