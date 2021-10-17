@@ -91,7 +91,7 @@ jobs:
           gsutil cors set cors-asset.lekcije.com.json gs://asset.lekcije.com
       - name: Install heroku command
         run: |
-          ./ci/install-heroku-cli.sh
+          ../ci/install-heroku-cli.sh
       - name: Set VERSION_HASH on heroku
         run: |
           HASH=$(make print-version-hash)
