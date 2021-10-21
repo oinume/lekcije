@@ -38,7 +38,7 @@ export const SettingPage: React.FC = () => {
   const queryClient = useQueryClient();
   // https://react-query.tanstack.com/guides/mutations
   const updateMeEmailMutation = useMutation(
-    async (email: string): Promise<UpdateMeEmailResult> => sendRequest(
+    async (email: string): Promise<Response> => sendRequest(
       '/twirp/api.v1.Me/UpdateEmail',
       JSON.stringify({
         // TODO: Use proto generated code
@@ -58,7 +58,7 @@ export const SettingPage: React.FC = () => {
   );
 
   const updateMeNotificationTimeSpanMutation = useMutation(
-    async (timeSpans: NotificationTimeSpan[]): Promise<UpdateMeNotificationTimeSPanResult> => sendRequest(
+    async (timeSpans: NotificationTimeSpan[]): Promise<Response> => sendRequest(
       '/twirp/api.v1.Me/UpdateNotificationTimeSpan',
       JSON.stringify({
         notificationTimeSpans: timeSpans,
