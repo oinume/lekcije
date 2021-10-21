@@ -29,7 +29,7 @@ deploy.sh
 /venv
 .ipynb_checkpoints
 /*.pid
-bin/lekcije*
+backend/bin/lekcije*
 backend/tools/bin/*
 
 sqlboiler.toml
