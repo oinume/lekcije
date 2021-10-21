@@ -13,8 +13,7 @@ npm-debug.log*
 .idea
 *.iml
 
-/vendor
-/tools/vendor
+vendor
 .env
 
 # DB
@@ -31,6 +30,6 @@ deploy.sh
 .ipynb_checkpoints
 /*.pid
 bin/lekcije*
-tools/bin/*
+backend/tools/bin/*
 
 sqlboiler.toml
