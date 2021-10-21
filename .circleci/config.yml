@@ -20,7 +20,7 @@ install_npm_packages: &install_npm_packages
 
 jobs:
   server:
-    working_directory: /go/src/github.com/oinume/lekcije/backend
+    working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: golang:1.16-buster
         environment:
@@ -74,6 +74,7 @@ jobs:
       - run:
           name: "Install commands"
           command: |
+            cd backend
             if [ ! -e "/go/bin/*" ]; then
               make install-tools
             fi
@@ -84,12 +85,14 @@ jobs:
       - run:
           name: "Apply database migrations"
           command: |
+            cd backend
             export PATH=${PATH}:/go/bin:`pwd`/tools/bin
             make test/db/goose/up
       - run:
           name: "Run go-test"
           command: |
             export MYSQL_USER=lekcije
+            cd backend
             make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
 
 workflows:
