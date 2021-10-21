@@ -5,7 +5,7 @@ import (
 	"goji.io/v3"
 	"goji.io/v3/pat"
 
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
 
 func (s *server) Setup(mux *goji.Mux) {

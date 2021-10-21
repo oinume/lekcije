@@ -24,9 +24,9 @@ import (
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
+	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 	"github.com/oinume/lekcije/backend/randoms"
 	"github.com/oinume/lekcije/backend/usecase"
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
 )
 
 func Test_MeService_GetMe(t *testing.T) {
