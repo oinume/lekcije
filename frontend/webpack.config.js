@@ -12,14 +12,14 @@ let devtool = 'source-map'; // Render source-map file for final build
 let plugins = [
   new CopyWebpackPlugin({
     patterns: [
-      { context: 'frontend', from: '**/*.css' },
-      { context: 'frontend', from: '**/*.html' },
-      { context: 'frontend', from: '**/*.png' },
-      { context: 'frontend', from: '**/*.eot' },
-      { context: 'frontend', from: '**/*.svg' },
-      { context: 'frontend', from: '**/*.ttf' },
-      { context: 'frontend', from: '**/*.woff' },
-      { context: 'frontend', from: '**/*.woff2' },
+      { context: '.', from: '**/*.css' },
+      { context: '.', from: '**/*.html' },
+      { context: '.', from: '**/*.png' },
+      { context: '.', from: '**/*.eot' },
+      { context: '.', from: '**/*.svg' },
+      { context: '.', from: '**/*.ttf' },
+      { context: '.', from: '**/*.woff' },
+      { context: '.', from: '**/*.woff2' },
       { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootstrap-icons/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
@@ -50,8 +50,8 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
 const config = {
   mode: process.env.MINIFY === 'true' ? 'production' : 'development',
   entry: {
-    main: './frontend/js/main.js',
-    setting: './frontend/js/setting.tsx',
+    main: './js/main.js',
+    setting: './js/setting.tsx',
   },
   resolve: {
     //When require, do not have to add these extensions to file's name
@@ -161,7 +161,7 @@ const config = {
       },
     },
     static: {
-      directory: path.resolve(__dirname, 'frontend'),
+      directory: path.resolve(__dirname, '.'),
     },
   },
 };
