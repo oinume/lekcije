@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 
 type Props = {
   email: string;
@@ -6,12 +6,12 @@ type Props = {
   handleUpdateEmail: (email: string) => void;
 };
 
-export const EmailForm: React.FC<Props> = ({ email, handleOnChange, handleUpdateEmail }) => {
+export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateEmail}) => {
   const [buttonEnabled, setButtonEnabled] = useState<boolean>(false);
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={e => {
         e.preventDefault();
         handleUpdateEmail(email);
       }}
@@ -19,16 +19,16 @@ export const EmailForm: React.FC<Props> = ({ email, handleOnChange, handleUpdate
       <h5>通知先メールアドレス</h5>
       <div className="mb-3">
         <input
+          required
+          autoFocus
           type="email"
           className="form-control"
           name="email"
           id="email"
           placeholder="Email"
-          required
-          autoFocus
           autoComplete="on"
           value={email}
-          onChange={(e) => {
+          onChange={e => {
             e.preventDefault();
             setButtonEnabled(e.currentTarget.value !== '');
             handleOnChange(e);
@@ -39,7 +39,9 @@ export const EmailForm: React.FC<Props> = ({ email, handleOnChange, handleUpdate
         type="button"
         disabled={!buttonEnabled}
         className="btn btn-primary"
-        onClick={() => handleUpdateEmail(email)}
+        onClick={() => {
+          handleUpdateEmail(email);
+        }}
       >
         変更
       </button>
