@@ -1,9 +1,5 @@
 version: 2
 
-env: &env
-  GOOGLE_CLOUD_SDK_VERSION: 221.0.0
-  GOOGLE_CLOUD_SDK_DOWNLOAD_PATH: /google-cloud-sdk
-
 gitconfig: &gitconfig
   name: "Set .gitconfig"
   command: |
@@ -24,13 +20,10 @@ install_npm_packages: &install_npm_packages
 
 jobs:
   server:
-    environment:
-      <<: *env
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: golang:1.16-buster
         environment:
-          <<: *env
           ENABLE_TRACE: "false"
           GO111MODULE: "on"
           MYSQL_ALLOW_EMPTY_PASSWORD: true
@@ -81,6 +74,7 @@ jobs:
       - run:
           name: "Install commands"
           command: |
+            cd backend
             if [ ! -e "/go/bin/*" ]; then
               make install-tools
             fi
@@ -91,17 +85,15 @@ jobs:
       - run:
           name: "Apply database migrations"
           command: |
+            cd backend
             export PATH=${PATH}:/go/bin:`pwd`/tools/bin
             make test/db/goose/up
       - run:
           name: "Run go-test"
           command: |
             export MYSQL_USER=lekcije
+            cd backend
             make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
-#      - run:
-#          name: "Upload to codecov"
-#          command: |
-#            bash <(curl -s https://codecov.io/bash)
 
 workflows:
   version: 2

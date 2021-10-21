@@ -11,7 +11,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	ihttp "github.com/oinume/lekcije/backend/interface/http"
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
 
 func NewOAuthServer(

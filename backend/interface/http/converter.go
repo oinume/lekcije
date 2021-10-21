@@ -6,7 +6,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
-	api_v1 "github.com/oinume/lekcije/proto-gen/go/proto/api/v1"
+	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
 
 func NotificationTimeSpansProto(timeSpans []*model2.NotificationTimeSpan) ([]*api_v1.NotificationTimeSpan, error) {

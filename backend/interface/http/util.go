@@ -27,7 +27,7 @@ const (
 )
 
 func TemplateDir() string {
-	return "frontend/html"
+	return "../frontend/html"
 }
 
 func TemplatePath(file string) string {

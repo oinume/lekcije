@@ -3,7 +3,6 @@ on:
   push:
     paths:
       - "backend/**"
-      - "tools/**"
       - "**.proto"
       - "**.py"
       - "**.sh"
@@ -46,17 +45,21 @@ jobs:
       VERSION_HASH: "_version_"
       NODE_ENV: "test"
       LEKCIJE_ENV: "test"
+    defaults:
+      run:
+        working-directory: backend
     timeout-minutes: 20
     steps:
-      - name: Print PWD
-        run: |
-          pwd
       - name: Set up Go 1.16
         id: go
         uses: actions/setup-go@v2
         with:
           go-version: 1.16
-      - uses: actions/checkout@v2
+      - name: Check out the repository
+        uses: actions/checkout@v2
+      - name: Print PWD
+        run: |
+          pwd
       - uses: actions/cache@v2
         id: cache
         with:
@@ -79,7 +82,9 @@ jobs:
           make test/db/goose/up
       - name: Run go/test
         run: |
-          export
+          pwd
+          ls -l ../
+          ls -l ../frontend
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v2.1.0
@@ -96,6 +101,9 @@ jobs:
     env:
       GOPATH: /home/runner/work/go
       GOBIN: /home/runner/work/go/bin
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - name: Check out the repository
         uses: actions/checkout@v2
@@ -105,7 +113,7 @@ jobs:
           go-version: 1.16
       - name: Build
         run: |
-          make backend/build
+          make build
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
