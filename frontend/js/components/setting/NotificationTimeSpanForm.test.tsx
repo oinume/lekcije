@@ -1,6 +1,6 @@
 import React from 'react';
-import { NotificationTimeSpanForm } from './NotificationTimeSpanForm';
-import { render, screen } from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
+import {NotificationTimeSpanForm} from './NotificationTimeSpanForm';
 import '@testing-library/jest-dom';
 
 test('<NotificationTimeSpanForm>', () => {
@@ -11,7 +11,7 @@ test('<NotificationTimeSpanForm>', () => {
       handleDelete={() => {}}
       handleUpdate={() => {}}
       handleOnChange={() => {}}
-    />
+    />,
   );
 
   expect(screen.getByText('編集')).toBeInTheDocument();

@@ -13,23 +13,19 @@ type Props = {
   options: Option[];
 };
 
-export const Select: React.FC<Props> = ({ name, value, className, onChange, options }) => {
-  return (
-    <select
-      name={name}
-      value={value}
-      className={className}
-      onChange={onChange}
-      style={{ width: 'auto' }}
-      data-testid={'select-' + name}
-    >
-      {options.map((o: Option) => {
-        return (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        );
-      })}
-    </select>
-  );
-};
+export const Select: React.FC<Props> = ({name, value, className, onChange, options}) => (
+  <select
+    name={name}
+    value={value}
+    className={className}
+    style={{width: 'auto'}}
+    data-testid={'select-' + name}
+    onChange={onChange}
+  >
+    {options.map((o: Option) => (
+      <option key={o.value} value={o.value}>
+        {o.label}
+      </option>
+    ))}
+  </select>
+);

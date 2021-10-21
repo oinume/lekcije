@@ -1,0 +1,24 @@
+{
+  "space": true,
+  "extends": "xo-react",
+  "ignores": [
+    "/node_modules/",
+    "/lib/",
+    "/static/",
+    "jest.config.js",
+    "tsconfig.*json",
+    "webpack.config.js"
+  ],
+  "rules": {
+    "unicorn/filename-case": [
+      "off"
+    ],
+    "import/no-unassigned-import": ["error", {
+      "allow": ["dayjs/locale/*"]
+    }]
+  },
+  "settings": {
+    "import/resolver": "webpack"
+  },
+  "webpack": true
+}

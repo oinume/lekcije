@@ -1,21 +1,21 @@
 import React from 'react';
-import { Select } from './Select';
-import { render, screen } from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
+import {Select} from './Select';
 import '@testing-library/jest-dom';
 
 test('<Select> initial state', () => {
   const options = [
-    { value: 'japan', label: 'Japan' },
-    { value: 'china', label: 'China' },
+    {value: 'japan', label: 'Japan'},
+    {value: 'china', label: 'China'},
   ];
   render(
     <Select
       name="country"
       value=""
       className=""
-      onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {}}
       options={options}
-    />
+      onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {}}
+    />,
   );
 
   expect(screen.getByDisplayValue('Japan')).toBeInTheDocument();
