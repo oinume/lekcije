@@ -95,7 +95,7 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 
 type TimeSpanItemProps = {
   editable: boolean;
-  timeSpan: any;
+  timeSpan: NotificationTimeSpan;
   index: number;
   handleOnChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   handleOnClickPlus: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
@@ -119,7 +119,7 @@ const TimeSpanItem = ({
       <p style={{marginBottom: '0px'}}>
         <Select
           name={`fromHour_${index}`}
-          value={timeSpan.fromHour}
+          value={timeSpan.fromHour.toString()}
           options={hourOptions}
           className="custom-select custom-select-sm"
           onChange={handleOnChange}
@@ -127,7 +127,7 @@ const TimeSpanItem = ({
         時 &nbsp;
         <Select
           name={`fromMinute_${index}`}
-          value={timeSpan.fromMinute}
+          value={timeSpan.fromMinute.toString()}
           options={minuteOptions}
           className="custom-select custom-select-sm"
           onChange={handleOnChange}
@@ -135,7 +135,7 @@ const TimeSpanItem = ({
         分 &nbsp; 〜 &nbsp;&nbsp;
         <Select
           name={`toHour_${index}`}
-          value={timeSpan.toHour}
+          value={timeSpan.toHour.toString()}
           options={hourOptions}
           className="custom-select custom-select-sm"
           onChange={handleOnChange}
@@ -143,7 +143,7 @@ const TimeSpanItem = ({
         時 &nbsp;
         <Select
           name={`toMinute_${index}`}
-          value={timeSpan.toMinute}
+          value={timeSpan.toMinute.toString()}
           options={minuteOptions}
           className="custom-select custom-select-sm"
           onChange={handleOnChange}
