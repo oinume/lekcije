@@ -28,7 +28,7 @@ deploy.sh
 /.venv
 /venv
 .ipynb_checkpoints
-/*.pid
+*.pid
 backend/bin/lekcije*
 backend/tools/bin/*
 

@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -27,7 +29,17 @@ const (
 )
 
 func TemplateDir() string {
-	return "../frontend/html"
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	_, file := filepath.Split(wd)
+	switch file {
+	case "backend":
+		return filepath.Join(wd, "..", "frontend", "html")
+	default:
+		return filepath.Join(wd, "frontend", "html")
+	}
 }
 
 func TemplatePath(file string) string {
