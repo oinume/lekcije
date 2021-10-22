@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {sprintf} from 'sprintf-js';
 import {range} from 'lodash-es';
-import {Option, Select} from '../Select';
+import {Select} from '../Select';
 
 // TODO: must be class. Add method isZero() and parse(). To be defined in another file.
 export type NotificationTimeSpan = {
@@ -12,7 +12,7 @@ export type NotificationTimeSpan = {
 };
 
 type Props = {
-  timeSpans: any[];
+  timeSpans: NotificationTimeSpan[];
   handleAdd: () => void;
   handleDelete: (index: number) => void;
   handleUpdate: () => void;
@@ -66,7 +66,8 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
     <form>
       <h5>
         レッスン希望時間帯
-        <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank">
+        {' '}
+        <a href="https://lekcije.amebaownd.com/posts/3614832" target="_blank" rel="noreferrer">
           <i className="fas fa-question-circle button-help" aria-hidden="true"/>
         </a>
       </h5>
@@ -117,7 +118,7 @@ const TimeSpanItem = ({
       // TODO: Use <ul><li>
       <p style={{marginBottom: '0px'}}>
         <Select
-          name={'fromHour_' + index}
+          name={`fromHour_${index}`}
           value={timeSpan.fromHour}
           options={hourOptions}
           className="custom-select custom-select-sm"
@@ -125,7 +126,7 @@ const TimeSpanItem = ({
         />
         時 &nbsp;
         <Select
-          name={'fromMinute_' + index}
+          name={`fromMinute_${index}`}
           value={timeSpan.fromMinute}
           options={minuteOptions}
           className="custom-select custom-select-sm"
@@ -133,7 +134,7 @@ const TimeSpanItem = ({
         />
         分 &nbsp; 〜 &nbsp;&nbsp;
         <Select
-          name={'toHour_' + index}
+          name={`toHour_${index}`}
           value={timeSpan.toHour}
           options={hourOptions}
           className="custom-select custom-select-sm"
@@ -141,7 +142,7 @@ const TimeSpanItem = ({
         />
         時 &nbsp;
         <Select
-          name={'toMinute_' + index}
+          name={`toMinute_${index}`}
           value={timeSpan.toMinute}
           options={minuteOptions}
           className="custom-select custom-select-sm"
