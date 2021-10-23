@@ -3,10 +3,8 @@ on:
   push:
     paths:
       - "frontend/**"
-      - "**.md"
-      - "**.proto"
-      - "**.txt"
-      - "**.ya?ml"
+      - "**.json"
+      - ".github/workflows/frontend.yaml"
 defaults:
   run:
     working-directory: frontend

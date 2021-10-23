@@ -9,13 +9,33 @@
     "tsconfig.*json",
     "webpack.config.js"
   ],
+  "overrides": [
+    {
+      "files": ["**/*.tsx"],
+      "rules": {
+        "react/prop-types": "off"
+      }
+    }
+  ],
   "rules": {
+    "import/no-unassigned-import": ["error", {
+      "allow": ["dayjs/locale/*"]
+    }],
+    "no-warning-comments": [0, {
+      "terms": ["todo", "fixme", "xxx"], "location": "start"
+    }],
     "unicorn/filename-case": [
       "off"
     ],
-    "import/no-unassigned-import": ["error", {
-      "allow": ["dayjs/locale/*"]
-    }]
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variable",
+        "format": ["camelCase", "PascalCase", "UPPER_CASE"],
+        "leadingUnderscore": "allow",
+        "trailingUnderscore": "allow"
+      }
+    ]
   },
   "settings": {
     "import/resolver": "webpack"
