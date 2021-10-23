@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - "frontend/**"
+      - "**.json"
       - "**.md"
       - "**.proto"
       - "**.txt"
