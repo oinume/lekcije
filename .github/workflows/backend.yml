@@ -3,14 +3,12 @@ on:
   push:
     paths:
       - "backend/**"
-      - "**.proto"
       - "**.py"
       - "**.sh"
-      - "**.txt"
       - "**.ya?ml"
       - "go.mod"
       - "go.sum"
-      - "Makefile"
+      - ".github/workflows/backend.yaml"
 env:
   CACHE_VERSION: 1
   GOPATH: /home/runner/go

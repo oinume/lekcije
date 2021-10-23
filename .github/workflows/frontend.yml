@@ -4,10 +4,7 @@ on:
     paths:
       - "frontend/**"
       - "**.json"
-      - "**.md"
-      - "**.proto"
-      - "**.txt"
-      - "**.ya?ml"
+      - ".github/workflows/frontend.yaml"
 defaults:
   run:
     working-directory: frontend
