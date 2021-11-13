@@ -1,25 +1,19 @@
 'use strict';
 
 const process = require('process');
-const webpack = require('webpack');
 const path = require('path');
 const buildPath = path.resolve(__dirname, 'static');
 const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 //const TransferWebpackPlugin = require('transfer-webpack-plugin'); // dev-server only
-
 let devtool = 'source-map'; // Render source-map file for final build
-let plugins = [
+const plugins = [
   new CopyWebpackPlugin({
     patterns: [
-      { context: '.', from: '**/*.css' },
-      { context: '.', from: '**/*.html' },
-      { context: '.', from: '**/*.png' },
-      { context: '.', from: '**/*.eot' },
-      { context: '.', from: '**/*.svg' },
-      { context: '.', from: '**/*.ttf' },
-      { context: '.', from: '**/*.woff' },
-      { context: '.', from: '**/*.woff2' },
+      { context: '.', from: 'css/**/*.css' },
+      { context: '.', from: 'html/**/*.html' },
+      { context: '.', from: 'image/**/*.png' },
+      { context: '.', from: 'image/**/*.svg' },
       { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootstrap-icons/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
@@ -33,18 +27,6 @@ let plugins = [
 if (process.env.WEBPACK_DEV_SERVER === 'true') {
   console.log('WEBPACK_DEV_SERVER is true');
   devtool = 'eval';
-  //   plugins.push(
-  //     new TransferWebpackPlugin([
-  //       {from: 'css'},
-  //       {from: 'html'},
-  //       {from: 'image'},
-  //       {from: nodeModulesPath + "/bootstrap", to: 'lib'},
-  //       {from: nodeModulesPath + "/bootswatch", to: 'lib'},
-  //       {from: nodeModulesPath + "/jquery", to: 'lib'},
-  //       {from: nodeModulesPath + "/react", to: 'lib'},
-  //       {from: nodeModulesPath + "/react-dom", to: 'lib'},
-  //     ], path.resolve(__dirname, "frontend"))
-  //   );
 }
 
 const config = {
@@ -56,7 +38,7 @@ const config = {
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ['.js', '.jsx', '.json', '.css', '.ts', '.tsx'],
-    //node_modules: ["web_modules", "node_modules"]  (Default Settings)
+    modules: ['web_modules', 'node_modules'] // (Default Settings)
   },
   output: {
     path: path.join(buildPath, process.env.VERSION_HASH),
