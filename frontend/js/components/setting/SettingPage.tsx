@@ -199,6 +199,6 @@ const UseMutationResultAlert: React.FC<UseMutationResultAlertProps> = ({
     case 'error':
       return <Alert kind="danger" message={name + `の更新に失敗しました。(${error.response.statusText})`}/>;
     default:
-      throw new Error('Unknown status');
+      return <div/>;
   }
 };
