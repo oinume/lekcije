@@ -18,6 +18,13 @@
     }
   ],
   "rules": {
+    "import/no-cycle": [
+      "error",
+      {
+        "ignoreExternal": true,
+        "maxDepth": 1
+      }
+    ],
     "import/no-unassigned-import": ["error", {
       "allow": ["dayjs/locale/*"]
     }],
