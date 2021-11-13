@@ -69,6 +69,9 @@ jobs:
             set -eu
             npm install
           fi
+      - name: Run build
+        run: |
+          npm run build
       - name: Run lint
         run: |
           npm run lint
