@@ -7,10 +7,10 @@ test('<NotificationTimeSpanForm>', () => {
   render(
     <NotificationTimeSpanForm
       timeSpans={[]}
-      handleAdd={() => {}}
-      handleDelete={() => {}}
-      handleUpdate={() => {}}
-      handleOnChange={() => {}}
+      handleAdd={() => { /* Nop */ }}
+      handleDelete={() => { /* Nop */ }}
+      handleUpdate={() => { /* Nop */ }}
+      handleOnChange={() => { /* Nop */ }}
     />,
   );
 

@@ -25,9 +25,12 @@
         "maxDepth": 1
       }
     ],
-    "import/no-unassigned-import": ["error", {
-      "allow": ["dayjs/locale/*"]
-    }],
+    "import/no-unassigned-import": [
+      "error",
+      {
+        "allow": ["@testing-library/jest-dom"]
+      }
+    ],
     "no-warning-comments": [0, {
       "terms": ["todo", "fixme", "xxx"], "location": "start"
     }],
