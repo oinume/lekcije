@@ -20,10 +20,6 @@ type GetMeResult = {
   notificationTimeSpans: NotificationTimeSpan[];
 };
 
-type UpdateMeEmailResult = Record<string, unknown>;
-
-type UpdateMeNotificationTimeSPanResult = Record<string, unknown>;
-
 export const SettingPage: React.FC = () => {
   const [alert, setAlert] = useState<ToggleAlertState>({
     visible: false,
@@ -46,13 +42,8 @@ export const SettingPage: React.FC = () => {
       }),
     ),
     {
-      onSuccess: () => {
-        queryClient
-          .invalidateQueries(queryKeyMe)
-          .then(_ => {})
-          .catch(error_ => {
-            console.error(error_);
-          });
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(queryKeyMe);
       },
     },
   );
@@ -65,13 +56,8 @@ export const SettingPage: React.FC = () => {
       }),
     ),
     {
-      onSuccess: () => {
-        queryClient
-          .invalidateQueries(queryKeyMe)
-          .then(_ => {})
-          .catch(error_ => {
-            console.error(error_);
-          });
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(queryKeyMe);
       },
     },
   );
@@ -88,14 +74,14 @@ export const SettingPage: React.FC = () => {
           code: string;
           msg: string;
         };
-        const e: TwirpError = await response.json();
-        throw new Error(`${response.status}:${e.msg}`);
+        const error: TwirpError = await response.json() as TwirpError;
+        throw new Error(`${response.status}:${error.msg}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as GetMeResult;
       // Console.log('----- data -----');
       // console.log(data);
-      return data as GetMeResult;
+      return data;
     },
     {
       retry: 0,
@@ -176,8 +162,8 @@ export const SettingPage: React.FC = () => {
       <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name="レッスン希望時間帯"/>
       <EmailForm
         email={email}
-        handleOnChange={e => {
-          setEmailState(e.currentTarget.value);
+        handleOnChange={event => {
+          setEmailState(event.currentTarget.value);
         }}
         handleUpdateEmail={(em): void => {
           updateMeEmailMutation.mutate(em);
@@ -205,14 +191,14 @@ const UseMutationResultAlert: React.FC<UseMutationResultAlertProps> = ({
   result,
   name,
 }: UseMutationResultAlertProps) => {
-  const e: HttpError = result.error as HttpError;
+  const error: HttpError = result.error as HttpError;
   // TODO: error handlingをまともにする
   switch (result.status) {
     case 'success':
       return <Alert kind="success" message={name + 'を更新しました！'}/>;
     case 'error':
-      return <Alert kind="danger" message={name + `の更新に失敗しました。(${e.response.statusText})`}/>;
+      return <Alert kind="danger" message={name + `の更新に失敗しました。(${error.response.statusText})`}/>;
     default:
-      return <></>;
+      return <div/>;
   }
 };

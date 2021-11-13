@@ -50,7 +50,7 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
 const config = {
   mode: process.env.MINIFY === 'true' ? 'production' : 'development',
   entry: {
-    main: './js/main.js',
+    main: './js/main.tsx',
     setting: './js/setting.tsx',
   },
   resolve: {

@@ -4,7 +4,7 @@ on:
     paths:
       - "frontend/**"
       - "**.json"
-      - ".github/workflows/frontend.yaml"
+      - ".github/workflows/frontend.yml"
 defaults:
   run:
     working-directory: frontend
@@ -44,6 +44,37 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
           flags: frontend
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    env:
+      VERSION_HASH: "_version_"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use NodeJS 14.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/work/lekcije/lekcije/frontend/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Install npm modules
+        run: |
+          if [ ! -e "./node_modules" ]; then
+            set -eu
+            npm install
+          fi
+      - name: Run build
+        run: |
+          npm run build
+      - name: Run lint
+        run: |
+          npm run lint
 
   deploy:
     name: deploy
