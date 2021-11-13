@@ -6,7 +6,7 @@ type Props = {
 };
 
 export const Alert: React.FC<Props> = ({kind, message}) => {
-  const [visible, setVisible] = useState<boolean>(true);
+  const [visible] = useState<boolean>(true);
   if (visible) {
     return (
       <div className={'alert alert-dismissible alert-' + kind} role="alert">

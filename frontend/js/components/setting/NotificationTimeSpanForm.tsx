@@ -47,7 +47,7 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
   if (timeSpans.length > 0) {
     content = timeSpans.map((timeSpan, i) => (
       <TimeSpanItem
-        key={i}
+        key={i} // eslint-disable-line react/no-array-index-key
         editable={editable}
         timeSpan={timeSpan}
         index={i}

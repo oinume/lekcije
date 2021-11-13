@@ -16,14 +16,14 @@ export const sendRequest = async (path: string, body: string) => {
     headers.Authorization = 'Bearer ' + cookies.apiToken;
   }
 
-  const res = await fetch(path, {
+  const response = await fetch(path, {
     body,
     method: 'POST',
     headers,
   });
-  if (res.status >= 400) {
-    throw new HttpError('HTTP request failed on ' + path, res);
+  if (response.status >= 400) {
+    throw new HttpError('HTTP request failed on ' + path, response);
   }
 
-  return res;
+  return response;
 };

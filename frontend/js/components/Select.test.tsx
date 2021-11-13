@@ -14,7 +14,9 @@ test('<Select> initial state', () => {
       value=""
       className=""
       options={options}
-      onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {}}
+      onChange={(_: React.ChangeEvent<HTMLSelectElement>) => {
+        // Nop
+      }}
     />,
   );
 
