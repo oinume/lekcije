@@ -115,7 +115,7 @@ jobs:
       - name: Deploy to GCS
         run: |
           HASH=$(make print-version-hash)
-          gsutil -h "Cache-Control: public,max-age=2592000" -m rsync -d -r static/$HASH gs://asset.lekcije.com/static/$HASH
+          gsutil -h "Cache-Control: public,max-age=2592000" -m -q rsync -d -r static/$HASH gs://asset.lekcije.com/static/$HASH
       - name: Ensure to enable CORS
         run: |
           gsutil cors set cors-asset.lekcije.com.json gs://asset.lekcije.com
