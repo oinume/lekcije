@@ -6,6 +6,7 @@ import {Alert} from '../components/Alert';
 import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpan, NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
+import {PageTitle} from '../components/PageTitle';
 
 const queryKeyMe = 'me';
 
@@ -156,7 +157,7 @@ export const SettingPage: React.FC = () => {
 
   return (
     <div>
-      <h1 className="page-title">設定</h1>
+      <PageTitle>設定</PageTitle>
       <ToggleAlert handleCloseAlert={handleHideAlert} {...alert}/>
       <UseMutationResultAlert result={updateMeEmailMutation} name="メールアドレス"/>
       <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name="レッスン希望時間帯"/>

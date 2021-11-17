@@ -1,3 +1,8 @@
 import React from 'react';
+import {PageTitle} from '../components/PageTitle';
 
-export const MePage = () => <p>hello</p>;
+export const MePage = () => (
+  <div>
+    <PageTitle>フォローしている講師</PageTitle>
+  </div>
+);
