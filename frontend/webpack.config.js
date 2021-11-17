@@ -33,6 +33,7 @@ const config = {
   mode: process.env.MINIFY === 'true' ? 'production' : 'development',
   entry: {
     main: './js/main.tsx',
+    me: './js/me.tsx',
     setting: './js/setting.tsx',
   },
   resolve: {

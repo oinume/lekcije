@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {QueryClient, QueryClientProvider} from 'react-query';
-import {SettingPage} from './pages/SettingPage';
+import {MePage} from './pages/MePage';
 
 const queryClient = new QueryClient();
 
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>
-    <SettingPage/>
+    <MePage/>
   </QueryClientProvider>,
   document.querySelector('#root'),
 );

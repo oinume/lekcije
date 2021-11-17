@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {useMutation, useQuery, useQueryClient, UseMutationResult} from 'react-query';
-import {sendRequest, HttpError} from '../../http/fetch';
-import {Loader} from '../Loader';
-import {Alert} from '../Alert';
-import {ToggleAlert} from '../ToggleAlert';
-import {EmailForm} from './EmailForm';
-import {NotificationTimeSpan, NotificationTimeSpanForm} from './NotificationTimeSpanForm';
+import {sendRequest, HttpError} from '../http/fetch';
+import {Loader} from '../components/Loader';
+import {Alert} from '../components/Alert';
+import {ToggleAlert} from '../components/ToggleAlert';
+import {EmailForm} from '../components/setting/EmailForm';
+import {NotificationTimeSpan, NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 
 const queryKeyMe = 'me';
 
