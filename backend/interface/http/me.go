@@ -71,6 +71,46 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *server) getMeNew(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := context_data.MustLoggedInUser(ctx)
+	t := ParseHTMLTemplates(TemplatePath("me/new.html"))
+	type Data struct {
+		commonTemplateData
+		ShowTutorial bool
+		Teachers     []*model.Teacher
+		MPlan        *model.MPlan
+	}
+	data := &Data{
+		commonTemplateData: s.getCommonTemplateData(r, true, user.ID),
+	}
+	data.ShowTutorial = !user.FollowedTeacherAt.Valid
+
+	mPlanService := model.NewMPlanService(s.db)
+	plan, err := mPlanService.FindByPK(user.PlanID)
+	if err != nil {
+		internalServerError(r.Context(), s.errorRecorder, w, err, user.ID)
+		return
+	}
+	data.MPlan = plan
+
+	followingTeacherService := model.NewFollowingTeacherService(s.db)
+	teachers, err := followingTeacherService.FindTeachersByUserID(user.ID)
+	if err != nil {
+		internalServerError(r.Context(), s.errorRecorder, w, err, user.ID)
+		return
+	}
+	data.Teachers = teachers
+
+	if err := t.Execute(w, data); err != nil {
+		internalServerError(r.Context(), s.errorRecorder, w, errors.NewInternalError(
+			errors.WithError(err),
+			errors.WithMessage("Failed to template.Execute()"),
+		), user.ID)
+		return
+	}
+}
+
 func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
