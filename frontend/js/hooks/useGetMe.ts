@@ -1,7 +1,6 @@
 import {useQuery} from 'react-query';
-import {sendRequest} from '../http/fetch';
 import {NotificationTimeSpan} from '../components/setting/NotificationTimeSpanForm';
-import {TwirpError} from './TwirpError';
+import {twirpRequest} from "../http/twirp";
 
 type GetMeRequest = Record<string, unknown>;
 
@@ -18,13 +17,7 @@ export const useGetMe = (
   return useQuery<GetMeResponse, Error>(
     path,
     async () => {
-      const response = await sendRequest(path, JSON.stringify(request));
-      if (!response.ok) {
-        // TODO: error
-        const error = TwirpError.fromJson(await response.json());
-        throw error;
-      }
-
+      const response = await twirpRequest(path, JSON.stringify(request));
       const data = await response.json() as GetMeResponse;
       // Console.log('----- data -----');
       // console.log(data);

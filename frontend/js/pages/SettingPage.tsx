@@ -7,6 +7,7 @@ import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpan, NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
+import {useGetMe} from "../hooks/useGetMe";
 
 const queryKeyMe = 'me';
 
@@ -63,32 +64,9 @@ export const SettingPage: React.FC = () => {
     },
   );
 
-  // Console.log('BEFORE useQuery<GetMeResult, Error>');
-  const {isLoading, isIdle, error, data} = useQuery<GetMeResult, Error>(
-    queryKeyMe,
-    async () => {
-      // Console.log('BEFORE fetch');
-      const response = await sendRequest('/twirp/api.v1.Me/GetMe', '{}');
-      if (!response.ok) {
-        // TODO: error
-        type TwirpError = {
-          code: string;
-          msg: string;
-        };
-        const error: TwirpError = await response.json() as TwirpError;
-        throw new Error(`${response.status}:${error.msg}`);
-      }
-
-      const data = await response.json() as GetMeResult;
-      // Console.log('----- data -----');
-      // console.log(data);
-      return data;
-    },
-    {
-      retry: 0,
-    },
-  );
-  // Console.log('AFTER useQuery: isLoading = %s', isLoading);
+  // Console.log('BEFORE useGetMe');
+  const {isLoading, isIdle, error, data} = useGetMe({});
+  // Console.log('AFTER useGetMe: isLoading = %s', isLoading);
 
   if (isLoading || isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
@@ -98,7 +76,7 @@ export const SettingPage: React.FC = () => {
   }
 
   if (error) {
-    console.error('error = %s', error);
+    console.error('useGetMe: error = %s', error);
     return <Alert kind="danger" message={'システムエラーが発生しました。' + error.message}/>;
   }
 
