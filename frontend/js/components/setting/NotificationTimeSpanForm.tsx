@@ -147,7 +147,7 @@ const TimeSpanItem = ({
             handleOnClickPlus(event);
           }}
         >
-          <i className="fas fa-plus-circle button-plus" aria-hidden="true"/>
+          <i className="bi bi-plus-circle" aria-hidden="true"/>
         </button>
         <button
           type="button"
@@ -157,7 +157,7 @@ const TimeSpanItem = ({
           }}
         >
           {/* TODO: no need to pass index */}
-          <i className="fas fa-minus-circle button-plus" aria-hidden="true"/>
+          <i className="bi bi-dash-circle" aria-hidden="true"/>
         </button>
       </p>
     );

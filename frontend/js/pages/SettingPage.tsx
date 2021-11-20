@@ -90,7 +90,7 @@ export const SettingPage: React.FC = () => {
       return;
     }
 
-    setNotificationTimeSpansState([...notificationTimeSpans, {fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0}]);
+    setNotificationTimeSpansState([...notificationTimeSpans, new NotificationTimeSpan(0, 0, 0, 0)]);
   };
 
   const handleDeleteTimeSpan = (index: number) => {
@@ -112,11 +112,11 @@ export const SettingPage: React.FC = () => {
   const handleUpdateTimeSpan = () => {
     const timeSpans: NotificationTimeSpan[] = [];
     for (const timeSpan of notificationTimeSpans) {
-      for (const [k, v] of Object.entries(timeSpan)) {
-        timeSpan[k as keyof NotificationTimeSpan] = v;
+      for (const [k, v] of Object.entries<NotificationTimeSpan>(timeSpan)) {
+        timeSpan[k as keyof NotificationTimeSpan] = Number(v);
       }
 
-      if (timeSpan.fromHour === 0 && timeSpan.fromMinute === 0 && timeSpan.toHour === 0 && timeSpan.toMinute === 0) {
+      if (NotificationTimeSpan.fromObject(timeSpan).isZero()) { // timeSpan is object somehow...
         // Ignore zero value
         continue;
       }
