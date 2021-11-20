@@ -116,7 +116,7 @@ export const SettingPage: React.FC = () => {
         timeSpan[k as keyof NotificationTimeSpan] = Number(v);
       }
 
-      if (NotificationTimeSpan.fromObject(timeSpan).isZero()) { // timeSpan is object somehow...
+      if (NotificationTimeSpan.fromObject(timeSpan).isZero()) { // `timeSpan` is object somehow...
         // Ignore zero value
         continue;
       }
