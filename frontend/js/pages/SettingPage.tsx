@@ -1,12 +1,14 @@
 import React, {useState} from 'react';
-import {useMutation, useQuery, useQueryClient, UseMutationResult} from 'react-query';
+import {useMutation, useQueryClient, UseMutationResult} from 'react-query';
 import {sendRequest, HttpError} from '../http/fetch';
 import {Loader} from '../components/Loader';
 import {Alert} from '../components/Alert';
 import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
-import {NotificationTimeSpan, NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
+import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
+import {useGetMe} from '../hooks/useGetMe';
+import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 
 const queryKeyMe = 'me';
 
@@ -14,11 +16,6 @@ type ToggleAlertState = {
   visible: boolean;
   kind: string;
   message: string;
-};
-
-type GetMeResult = {
-  email: string;
-  notificationTimeSpans: NotificationTimeSpan[];
 };
 
 export const SettingPage: React.FC = () => {
@@ -63,32 +60,9 @@ export const SettingPage: React.FC = () => {
     },
   );
 
-  // Console.log('BEFORE useQuery<GetMeResult, Error>');
-  const {isLoading, isIdle, error, data} = useQuery<GetMeResult, Error>(
-    queryKeyMe,
-    async () => {
-      // Console.log('BEFORE fetch');
-      const response = await sendRequest('/twirp/api.v1.Me/GetMe', '{}');
-      if (!response.ok) {
-        // TODO: error
-        type TwirpError = {
-          code: string;
-          msg: string;
-        };
-        const error: TwirpError = await response.json() as TwirpError;
-        throw new Error(`${response.status}:${error.msg}`);
-      }
-
-      const data = await response.json() as GetMeResult;
-      // Console.log('----- data -----');
-      // console.log(data);
-      return data;
-    },
-    {
-      retry: 0,
-    },
-  );
-  // Console.log('AFTER useQuery: isLoading = %s', isLoading);
+  // Console.log('BEFORE useGetMe');
+  const {isLoading, isIdle, error, data} = useGetMe({});
+  // Console.log('AFTER useGetMe: isLoading = %s', isLoading);
 
   if (isLoading || isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
@@ -98,7 +72,7 @@ export const SettingPage: React.FC = () => {
   }
 
   if (error) {
-    console.error('error = %s', error);
+    console.error('useGetMe: error = %s', error);
     return <Alert kind="danger" message={'システムエラーが発生しました。' + error.message}/>;
   }
 
@@ -116,7 +90,7 @@ export const SettingPage: React.FC = () => {
       return;
     }
 
-    setNotificationTimeSpansState([...notificationTimeSpans, {fromHour: 0, fromMinute: 0, toHour: 0, toMinute: 0}]);
+    setNotificationTimeSpansState([...notificationTimeSpans, new NotificationTimeSpan(0, 0, 0, 0)]);
   };
 
   const handleDeleteTimeSpan = (index: number) => {
@@ -138,11 +112,11 @@ export const SettingPage: React.FC = () => {
   const handleUpdateTimeSpan = () => {
     const timeSpans: NotificationTimeSpan[] = [];
     for (const timeSpan of notificationTimeSpans) {
-      for (const [k, v] of Object.entries(timeSpan)) {
-        timeSpan[k as keyof NotificationTimeSpan] = v;
+      for (const [k, v] of Object.entries<NotificationTimeSpan>(timeSpan)) {
+        timeSpan[k as keyof NotificationTimeSpan] = Number(v);
       }
 
-      if (timeSpan.fromHour === 0 && timeSpan.fromMinute === 0 && timeSpan.toHour === 0 && timeSpan.toMinute === 0) {
+      if (NotificationTimeSpan.fromObject(timeSpan).isZero()) { // `timeSpan` is object somehow...
         // Ignore zero value
         continue;
       }
