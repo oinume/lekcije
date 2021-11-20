@@ -1,5 +1,5 @@
 import {useQuery} from 'react-query';
-import {NotificationTimeSpan} from '../components/setting/NotificationTimeSpanForm';
+import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 import {twirpRequest} from '../http/twirp';
 
 type GetMeRequest = Record<string, unknown>;

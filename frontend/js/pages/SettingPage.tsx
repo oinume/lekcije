@@ -5,9 +5,10 @@ import {Loader} from '../components/Loader';
 import {Alert} from '../components/Alert';
 import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
-import {NotificationTimeSpan, NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
+import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
 import {useGetMe} from '../hooks/useGetMe';
+import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 
 const queryKeyMe = 'me';
 

@@ -2,14 +2,7 @@ import React, {useState} from 'react';
 import {sprintf} from 'sprintf-js';
 import {range} from 'lodash-es';
 import {Select} from '../Select';
-
-// TODO: must be class. Add method isZero() and parse(). To be defined in another file.
-export type NotificationTimeSpan = {
-  fromHour: number;
-  fromMinute: number;
-  toHour: number;
-  toMinute: number;
-};
+import {NotificationTimeSpan} from '../../models/NotificatonTimeSpan';
 
 type Props = {
   timeSpans: NotificationTimeSpan[];
