@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useMutation, useQuery, useQueryClient, UseMutationResult} from 'react-query';
+import {useMutation, useQueryClient, UseMutationResult} from 'react-query';
 import {sendRequest, HttpError} from '../http/fetch';
 import {Loader} from '../components/Loader';
 import {Alert} from '../components/Alert';
@@ -7,7 +7,7 @@ import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpan, NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
-import {useGetMe} from "../hooks/useGetMe";
+import {useGetMe} from '../hooks/useGetMe';
 
 const queryKeyMe = 'me';
 
@@ -15,11 +15,6 @@ type ToggleAlertState = {
   visible: boolean;
   kind: string;
   message: string;
-};
-
-type GetMeResult = {
-  email: string;
-  notificationTimeSpans: NotificationTimeSpan[];
 };
 
 export const SettingPage: React.FC = () => {
