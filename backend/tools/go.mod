@@ -7,5 +7,5 @@ require (
 	github.com/matryer/moq v0.2.4
 	github.com/pressly/goose/v3 v3.3.1
 	github.com/twitchtv/twirp v8.1.0+incompatible
-	github.com/volatiletech/sqlboiler/v4 v4.7.1
+	github.com/volatiletech/sqlboiler/v4 v4.8.3
 )
