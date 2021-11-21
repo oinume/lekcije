@@ -9,8 +9,7 @@ import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSp
 import {PageTitle} from '../components/PageTitle';
 import {useGetMe} from '../hooks/useGetMe';
 import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
-
-const queryKeyMe = 'me';
+import {queryKeyMe} from '../hooks/common';
 
 type ToggleAlertState = {
   visible: boolean;

@@ -1,6 +1,7 @@
 import {useQuery} from 'react-query';
 import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 import {twirpRequest} from '../http/twirp';
+import {queryKeyMe} from './common';
 
 type GetMeRequest = Record<string, unknown>;
 
@@ -9,14 +10,12 @@ type GetMeResponse = {
   notificationTimeSpans: NotificationTimeSpan[];
 };
 
-const path = '/twirp/api.v1.Me/GetMe';
-
 export const useGetMe = (
   request: GetMeRequest,
 ) => useQuery<GetMeResponse, Error>(
-  path,
+  queryKeyMe,
   async () => {
-    const response = await twirpRequest(path, JSON.stringify(request));
+    const response = await twirpRequest('/twirp/api.v1.Me/GetMe', JSON.stringify(request));
     const data = await response.json() as GetMeResponse;
     // Console.log('----- data -----');
     // console.log(data);
