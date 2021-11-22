@@ -2,7 +2,7 @@ import React from 'react';
 import {PageTitle} from '../components/PageTitle';
 import {useGetMe} from '../hooks/useGetMe';
 import {Loader} from '../components/Loader';
-import {Alert} from '../components/Alert';
+import {ErrorAlert} from '../components/ErrorAlert';
 
 export const MePage = () => {
   const {isLoading: isLoadingGetMe, isIdle: isIdleGetMe, error: errorGetMe} = useGetMe({});
@@ -10,8 +10,8 @@ export const MePage = () => {
   return (
     <div id="followingForm">
       <PageTitle>フォローしている講師</PageTitle>
-      {(isLoadingGetMe || isIdleGetMe) ? <Loader loading={isLoadingGetMe} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50}/> : <MeContent/>}
-      {(errorGetMe) ? <Alert kind="danger" message={'システムエラーが発生しました。' + errorGetMe.message}/> : <div/>}
+      {isLoadingGetMe || isIdleGetMe ? <Loader loading={isLoadingGetMe} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50}/> : <MeContent/>}
+      {errorGetMe ? <ErrorAlert message={errorGetMe.message}/> : <div/>}
     </div>
   );
 };

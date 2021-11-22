@@ -3,6 +3,7 @@ import {useMutation, useQueryClient, UseMutationResult} from 'react-query';
 import {sendRequest, HttpError} from '../http/fetch';
 import {Loader} from '../components/Loader';
 import {Alert} from '../components/Alert';
+import {ErrorAlert} from '../components/ErrorAlert';
 import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
@@ -60,24 +61,23 @@ export const SettingPage: React.FC = () => {
   );
 
   // Console.log('BEFORE useGetMe');
-  const {isLoading, isIdle, error, data} = useGetMe({});
+  const getMeResult = useGetMe({});
   // Console.log('AFTER useGetMe: isLoading = %s', isLoading);
 
-  if (isLoading || isIdle) {
+  if (getMeResult.isLoading || getMeResult.isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
-      <Loader loading={isLoading} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50}/>
+      <Loader loading={getMeResult.isLoading} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50}/>
     );
   }
 
-  if (error) {
-    console.error('useGetMe: error = %s', error);
-    return <Alert kind="danger" message={'システムエラーが発生しました。' + error.message}/>;
+  if (getMeResult.error) {
+    console.error(`useGetMe: error = ${getMeResult.error}, type=${typeof getMeResult.error}`);
+    return <ErrorAlert message={getMeResult.error.message}/>;
   }
 
-  const safeData = data!; // TODO: better name
-  const email = emailState ?? safeData.email;
-  const notificationTimeSpans = notificationTimeSpansState ?? safeData.notificationTimeSpans;
+  const email = emailState ?? getMeResult.data!.email;
+  const notificationTimeSpans = notificationTimeSpansState ?? getMeResult.data!.notificationTimeSpans;
 
   const handleHideAlert = () => {
     setAlert({...alert, visible: false});
