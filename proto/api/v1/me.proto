@@ -3,6 +3,8 @@ syntax = "proto3";
 package api.v1;
 option go_package = "proto/api/v1;api_v1";
 
+import "google/protobuf/timestamp.proto";
+
 service Me {
   rpc Ping(PingRequest) returns (PingResponse);
 
@@ -39,7 +41,7 @@ message User {
   string email = 3;
   bool emailVerified = 4;
   MPlan mPlan = 5;
-  int64 followedTeacherAt = 6;
+  google.protobuf.Timestamp followedTeacherAt = 6;
 }
 
 message PingRequest {}
