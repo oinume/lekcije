@@ -21,11 +21,25 @@ service Me {
   rpc ListFollowingTeachers(ListFollowingTeachersRequest) returns (ListFollowingTeachersResponse);
 }
 
+message MPlan {
+  int32 id = 1;
+  string name = 2;
+}
+
 message NotificationTimeSpan {
   int32 fromHour = 1;
   int32 fromMinute = 2;
   int32 toHour = 3;
   int32 toMinute = 4;
+}
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  bool emailVerified = 4;
+  MPlan mPlan = 5;
+  int64 followedTeacherAt = 6;
 }
 
 message PingRequest {}
@@ -38,6 +52,7 @@ message GetMeResponse {
   int32 userId = 1;
   string email = 2;
   repeated NotificationTimeSpan notificationTimeSpans = 3;
+  User user = 4;
 }
 
 message GetEmailRequest {}
