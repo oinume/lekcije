@@ -53,8 +53,9 @@ message GetMeRequest {}
 message GetMeResponse {
   int32 userId = 1;
   string email = 2;
-  repeated NotificationTimeSpan notificationTimeSpans = 3;
+  repeated NotificationTimeSpan notificationTimeSpans = 3; // deprecated
   User user = 4;
+  bool showTutorial = 5;
 }
 
 message GetEmailRequest {}
