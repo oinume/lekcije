@@ -10,13 +10,47 @@ export const MePage = () => {
   return (
     <div id="followingForm">
       <PageTitle>フォローしている講師</PageTitle>
-      {isLoadingGetMe || isIdleGetMe ? <Loader loading={isLoadingGetMe} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50}/> : <MeContent/>}
+      {
+        isLoadingGetMe || isIdleGetMe ?
+        <Loader loading={isLoadingGetMe} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50}/> :
+        <MeContent showTutorial={true}/>
+      }
       {errorGetMe ? <ErrorAlert message={errorGetMe.message}/> : <div/>}
     </div>
   );
 };
 
-const MeContent = () => (
+type MeContentProps = {
+  showTutorial: boolean;
+}
+
+const MeContent = ({showTutorial} : MeContentProps) => {
+  return (
+    <>
+      {showTutorial ? <Tutorial /> : <></>}
+      <form method="POST" action="/me/followingTeachers/create">
+        <p>
+          講師のURLまたはIDを入力してフォローします <a
+          href="https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}"
+          target="_blank"><i className="fas fa-question-circle button-help" aria-hidden="true" /></a><br />
+          <small><a href="https://eikaiwa.dmm.com/" target="_blank">DMM英会話で講師を検索</a></small>
+        </p>
+        <div className="input-group mb-3">
+          <input
+            id="teacherIdsOrUrl"
+            type="text"
+            className="form-control"
+            name="teacherIdsOrUrl"
+            placeholder="https://eikaiwa.dmm.com/teacher/index/492/"
+          />
+          <button type="submit" className="btn btn-primary">送信</button>
+        </div>
+      </form>
+    </>
+  );
+}
+
+const Tutorial = () => (
   <div className="alert alert-success alert-dismissible" role="alert">
     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"/>
     <h4><i className="bi bi-info-square-fill"/> 講師をフォローするには</h4>
@@ -27,4 +61,4 @@ const MeContent = () => (
       <li>フォローすると、その講師の空きレッスンがあった時にメールでお知らせします</li>
     </ol>
   </div>
-);
+)
