@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
@@ -60,4 +63,22 @@ func TeachersProto(teachers []*model2.Teacher) []*api_v1.Teacher {
 		}
 	}
 	return values
+}
+
+func userProto(user *model.User) *api_v1.User {
+	followedTeacherAt := time.Time{}
+	if user.FollowedTeacherAt.Valid {
+		followedTeacherAt = user.FollowedTeacherAt.Time
+	}
+	return &api_v1.User{
+		Id:            int32(user.ID),
+		Name:          user.Name,
+		Email:         user.Email,
+		EmailVerified: user.EmailVerified,
+		MPlan: &api_v1.MPlan{
+			Id:   int32(user.PlanID),
+			Name: "",
+		},
+		FollowedTeacherAt: timestamppb.New(followedTeacherAt),
+	}
 }

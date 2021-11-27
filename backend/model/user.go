@@ -29,6 +29,10 @@ func (*User) TableName() string {
 	return "user"
 }
 
+func (u *User) IsFollowedTeacher() bool {
+	return u.FollowedTeacherAt.Valid && !u.FollowedTeacherAt.Time.IsZero()
+}
+
 type UserService struct {
 	db *gorm.DB
 }
