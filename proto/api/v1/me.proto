@@ -40,8 +40,8 @@ message User {
   string name = 2;
   string email = 3;
   bool emailVerified = 4;
-  MPlan mPlan = 5;
-  google.protobuf.Timestamp followedTeacherAt = 6;
+  google.protobuf.Timestamp followedTeacherAt = 5;
+  MPlan mPlan = 100;
 }
 
 message PingRequest {}
@@ -51,9 +51,9 @@ message PingResponse {}
 message GetMeRequest {}
 
 message GetMeResponse {
-  int32 userId = 1;
-  string email = 2;
-  repeated NotificationTimeSpan notificationTimeSpans = 3; // deprecated
+  int32 userId = 1; // deprecated
+  string email = 2; // deprecated
+  repeated NotificationTimeSpan notificationTimeSpans = 3;
   User user = 4;
   bool showTutorial = 5;
 }
