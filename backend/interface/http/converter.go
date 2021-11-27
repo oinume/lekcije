@@ -65,7 +65,7 @@ func TeachersProto(teachers []*model2.Teacher) []*api_v1.Teacher {
 	return values
 }
 
-func userProto(user *model.User) *api_v1.User {
+func UserProto(user *model.User) *api_v1.User {
 	followedTeacherAt := time.Time{}
 	if user.FollowedTeacherAt.Valid {
 		followedTeacherAt = user.FollowedTeacherAt.Time
