@@ -72,12 +72,13 @@ export const SettingPage: React.FC = () => {
   }
 
   if (getMeResult.error) {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
     console.error(`useGetMe: error = ${getMeResult.error}, type=${typeof getMeResult.error}`);
     return <ErrorAlert message={getMeResult.error.message}/>;
   }
 
-  const email = emailState ?? getMeResult.data!.email;
-  const notificationTimeSpans = notificationTimeSpansState ?? getMeResult.data!.notificationTimeSpans;
+  const email = emailState ?? getMeResult.data.email;
+  const notificationTimeSpans = notificationTimeSpansState ?? getMeResult.data.notificationTimeSpans;
 
   const handleHideAlert = () => {
     setAlert({...alert, visible: false});

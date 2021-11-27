@@ -1,5 +1,5 @@
-import {Alert} from "./Alert";
-import React from "react";
+import React from 'react';
+import {Alert} from './Alert';
 
 type Props = {
   message: string;
@@ -11,5 +11,6 @@ export const ErrorAlert = (props: Props) => {
   if (props.isInternal) {
     message = 'システムエラーが発生しました: ';
   }
+
   return <Alert kind="danger" message={message + props.message}/>;
-}
+};
