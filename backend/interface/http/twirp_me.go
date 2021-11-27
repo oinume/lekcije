@@ -72,7 +72,7 @@ func (s *MeService) GetMe(
 		Email:                 user.Email,
 		NotificationTimeSpans: timeSpansProto,
 		User:                  userProto(user),
-		ShowTutorial:          user.IsFollowedTeacher(),
+		ShowTutorial:          !user.IsFollowedTeacher(),
 	}, nil
 }
 
