@@ -39,14 +39,14 @@ export class TwirpError extends Error {
     return `${this.code}:${this.msg}`;
   }
 
-  public isInternal(): boolean {
-    return this.code === 'Internal';
-  }
-
   constructor(code: string, message: string) {
     super(`code:${code}, message:${message}`);
     this.code = code;
     this.msg = message;
+  }
+
+  isInternal(): boolean {
+    return this.code === 'Internal';
   }
 
   code: string;
