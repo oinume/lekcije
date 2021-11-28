@@ -3,6 +3,8 @@ syntax = "proto3";
 package api.v1;
 option go_package = "proto/api/v1;api_v1";
 
+import "google/protobuf/timestamp.proto";
+
 service Me {
   rpc Ping(PingRequest) returns (PingResponse);
 
@@ -21,11 +23,25 @@ service Me {
   rpc ListFollowingTeachers(ListFollowingTeachersRequest) returns (ListFollowingTeachersResponse);
 }
 
+message MPlan {
+  int32 id = 1;
+  string name = 2;
+}
+
 message NotificationTimeSpan {
   int32 fromHour = 1;
   int32 fromMinute = 2;
   int32 toHour = 3;
   int32 toMinute = 4;
+}
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  bool emailVerified = 4;
+  google.protobuf.Timestamp followedTeacherAt = 5;
+  MPlan mPlan = 100;
 }
 
 message PingRequest {}
@@ -35,9 +51,11 @@ message PingResponse {}
 message GetMeRequest {}
 
 message GetMeResponse {
-  int32 userId = 1;
-  string email = 2;
+  int32 userId = 1; // deprecated
+  string email = 2; // deprecated
   repeated NotificationTimeSpan notificationTimeSpans = 3;
+  User user = 4;
+  bool showTutorial = 5;
 }
 
 message GetEmailRequest {}

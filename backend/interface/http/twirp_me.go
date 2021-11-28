@@ -71,6 +71,8 @@ func (s *MeService) GetMe(
 		UserId:                int32(user.ID),
 		Email:                 user.Email,
 		NotificationTimeSpans: timeSpansProto,
+		User:                  UserProto(user),
+		ShowTutorial:          !user.IsFollowedTeacher(),
 	}, nil
 }
 
