@@ -62,8 +62,10 @@ func Test_MeService_GetMe(t *testing.T) {
 					apiToken: userAPIToken.Token,
 					request:  &api_v1.GetMeRequest{},
 					wantResponse: &api_v1.GetMeResponse{
-						UserId: int32(user.ID),
-						Email:  user.Email,
+						UserId:       int32(user.ID),
+						Email:        user.Email,
+						User:         interface_http.User2Proto(user),
+						ShowTutorial: !user.IsFollowedTeacher(),
 					},
 					wantStatusCode: http.StatusOK,
 				}

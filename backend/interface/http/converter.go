@@ -82,3 +82,25 @@ func UserProto(user *model.User) *api_v1.User {
 		FollowedTeacherAt: timestamppb.New(followedTeacherAt),
 	}
 }
+
+func User2Proto(user *model2.User) *api_v1.User {
+	emailVerified := false
+	if user.EmailVerified == 1 {
+		emailVerified = true
+	}
+	followedTeacherAt := time.Time{}
+	if user.FollowedTeacherAt.Valid {
+		followedTeacherAt = user.FollowedTeacherAt.Time
+	}
+	return &api_v1.User{
+		Id:            int32(user.ID),
+		Name:          user.Name,
+		Email:         user.Email,
+		EmailVerified: emailVerified,
+		MPlan: &api_v1.MPlan{
+			Id:   int32(user.PlanID),
+			Name: "",
+		},
+		FollowedTeacherAt: timestamppb.New(followedTeacherAt),
+	}
+}
