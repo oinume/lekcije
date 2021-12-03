@@ -29,7 +29,7 @@ require (
 	github.com/sendgrid/rest v2.6.5+incompatible
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
 	github.com/stretchr/testify v1.7.0
-	github.com/twitchtv/twirp v8.1.0+incompatible
+	github.com/twitchtv/twirp v8.1.1+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.8.3
 	github.com/volatiletech/strmangle v0.0.1
