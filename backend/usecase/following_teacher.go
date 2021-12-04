@@ -21,6 +21,7 @@ type FollowingTeacher struct {
 	followingTeacherRepo repository.FollowingTeacher
 	mCountryRepo         repository.MCountry
 	userRepo             repository.User
+	teacherRepo          repository.Teacher
 }
 
 func NewFollowingTeacher(
@@ -29,6 +30,7 @@ func NewFollowingTeacher(
 	followingTeacherRepo repository.FollowingTeacher,
 	mCountryRepo repository.MCountry,
 	userRepo repository.User,
+	teacherRepo repository.Teacher,
 ) *FollowingTeacher {
 	return &FollowingTeacher{
 		appLogger:            appLogger,
@@ -36,6 +38,7 @@ func NewFollowingTeacher(
 		followingTeacherRepo: followingTeacherRepo,
 		mCountryRepo:         mCountryRepo,
 		userRepo:             userRepo,
+		teacherRepo:          teacherRepo,
 	}
 }
 
@@ -90,10 +93,14 @@ func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User,
 	// TODO: DI
 	f := fetcher.NewLessonFetcher(nil, 1, false, model.NewMCountries(mcs), u.appLogger)
 	defer f.Close()
-	if _, _, err := f.Fetch(ctx, uint32(teacher.ID)); err != nil {
+	fetchedTeacher, _, err := f.Fetch(ctx, uint32(teacher.ID))
+	if err != nil {
 		return false, err
 	}
 
+	if err := u.teacherRepo.CreateOrUpdate(ctx, model2.NewTeacherFromModel(fetchedTeacher)); err != nil {
+		return false, err
+	}
 	if err := u.followingTeacherRepo.Create(ctx, &model2.FollowingTeacher{
 		UserID:    user.ID,
 		TeacherID: teacher.ID,

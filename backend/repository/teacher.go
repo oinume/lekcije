@@ -8,4 +8,5 @@ import (
 
 type Teacher interface {
 	Create(ctx context.Context, teacher *model2.Teacher) error
+	CreateOrUpdate(ctx context.Context, teacher *model2.Teacher) error
 }

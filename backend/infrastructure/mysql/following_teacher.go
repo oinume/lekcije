@@ -39,7 +39,15 @@ func (r *followingTeacherRepository) CountFollowingTeachersByUserID(ctx context.
 }
 
 func (r *followingTeacherRepository) Create(ctx context.Context, followingTeacher *model2.FollowingTeacher) error {
-	return followingTeacher.Insert(ctx, r.db, boil.Infer())
+	_, err := model2.FindFollowingTeacher(ctx, r.db, followingTeacher.UserID, followingTeacher.TeacherID)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		return followingTeacher.Insert(ctx, r.db, boil.Infer())
+	}
+	// Do nothing
+	return nil
 }
 
 func (r *followingTeacherRepository) DeleteByUserIDAndTeacherIDs(ctx context.Context, userID uint, teacherIDs []uint) error {

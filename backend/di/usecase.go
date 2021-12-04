@@ -3,13 +3,13 @@ package di
 import (
 	"database/sql"
 
-	"github.com/rollbar/rollbar-go"
 	"go.uber.org/zap"
 
 	iga_measurement "github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/usecase"
+	"github.com/rollbar/rollbar-go"
 )
 
 func NewErrorRecorderUsecase(appLogger *zap.Logger, rollbarClient *rollbar.Client) *usecase.ErrorRecorder {
@@ -26,6 +26,7 @@ func NewFollowingTeacherUsecase(appLogger *zap.Logger, db *sql.DB) *usecase.Foll
 		mysql.NewFollowingTeacherRepository(db),
 		mysql.NewMCountryRepository(db),
 		mysql.NewUserRepository(db),
+		mysql.NewTeacherRepository(db),
 	)
 }
 
