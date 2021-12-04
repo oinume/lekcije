@@ -2,21 +2,29 @@ import React from 'react';
 import {ClipLoader} from 'react-spinners';
 
 type Props = {
-  loading: boolean;
-  message: string;
-  css: string;
-  size: number;
+  isLoading: boolean;
+  message?: string;
+  css?: string;
+  size?: number;
 };
 
-export const Loader: React.FC<Props> = ({loading, message, css, size}) => {
-  if (size === undefined) {
-    size = 40;
+export const Loader = ({isLoading, message, css, size}: Props) => {
+  if (message === undefined) {
+    message = 'Loading data ...';
   }
 
-  return loading ? (
+  if (css === undefined) {
+    css = 'background: rgba(255, 255, 255, 0)';
+  }
+
+  if (size === undefined) {
+    size = 50;
+  }
+
+  return isLoading ? (
     <div className="overlay-content">
       <div className="wrapper" style={{textAlign: 'center'}}>
-        <ClipLoader css={css} size={size} color="#123abc" loading={loading}/>
+        <ClipLoader css={css} size={size} color="#123abc" loading={isLoading}/>
         <p>
           <span className="message">{message}</span>
         </p>

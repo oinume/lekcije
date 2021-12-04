@@ -2,7 +2,7 @@ import {useQuery} from 'react-query';
 import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 import {TwirpError, twirpRequest} from '../http/twirp';
 import {User} from '../models/User';
-import {queryKeyMe} from './common';
+import {defaultUseQueryOptions, queryKeyMe} from './common';
 
 type GetMeRequest = Record<string, unknown>;
 
@@ -24,7 +24,5 @@ export const useGetMe = (
     // console.log(data);
     return data;
   },
-  {
-    retry: 0, // TODO: commonize option
-  },
+  defaultUseQueryOptions,
 );
