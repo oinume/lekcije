@@ -22,7 +22,7 @@ export const MePage = () => {
 };
 
 type MeContentProps = {
-  showTutorial: boolean;
+  showTutorial: boolean; // eslint-disable-line react/boolean-prop-naming
 };
 
 // Help URL
