@@ -17,7 +17,6 @@ const plugins = [
       { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootstrap-icons/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
-      { context: nodeModulesPath, from: 'jquery/dist/**', to: 'lib' },
       { context: nodeModulesPath, from: 'react/umd/**', to: 'lib' },
       { context: nodeModulesPath, from: 'react-dom/umd/**', to: 'lib' },
     ],
@@ -47,7 +46,6 @@ const config = {
     filename: 'js/[name].bundle.js',
   },
   externals: {
-    jquery: 'jQuery',
     react: 'React',
     'react-dom': 'ReactDOM',
     bootstrap: 'bootstrap',
