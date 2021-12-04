@@ -2,21 +2,18 @@ import React from 'react';
 import {
   ToastContainer as ReactToastContainer,
   ToastContainerProps,
-  TypeOptions,
   Zoom,
 } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'; // eslint-disable-line import/no-unassigned-import
 
-export const ToastContainer: React.FC<Partial<ToastContainerProps>> = (
-  props
-) => (
+export const ToastContainer: React.FC<Partial<ToastContainerProps>> = props => (
   <ReactToastContainer
-    autoClose={3000}
-    hideProgressBar={true}
-    icon={true}
-    newestOnTop={true}
     pauseOnFocusLoss
     pauseOnHover
+    hideProgressBar
+    icon
+    newestOnTop
+    autoClose={3000}
     position="top-center"
     rtl={false}
     transition={Zoom}
@@ -24,11 +21,12 @@ export const ToastContainer: React.FC<Partial<ToastContainerProps>> = (
   />
 );
 
-const ToastCloseButton = ({
-                            closeToast,
-                          }: {
+/*
+Const ToastCloseButton = ({
+  closeToast,
+}: {
   closeToast: React.MouseEventHandler<HTMLButtonElement>;
-}) => <button className="delete" onClick={closeToast} />;
+}) => <button className="delete" onClick={closeToast}/>;
 
 const getClassName = (type?: TypeOptions) => {
   switch (type) {
@@ -44,4 +42,4 @@ const getClassName = (type?: TypeOptions) => {
       return 'is-info';
   }
 };
-
+*/
