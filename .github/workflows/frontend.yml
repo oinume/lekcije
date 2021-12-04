@@ -33,7 +33,7 @@ jobs:
         run: |
           if [ ! -e "./node_modules" ]; then
             set -eu
-            npm install
+            npm install --legacy-peer-deps
           fi
       - name: Run tests
         run: |
@@ -67,7 +67,7 @@ jobs:
         run: |
           if [ ! -e "./node_modules" ]; then
             set -eu
-            npm install
+            npm install --legacy-peer-deps
           fi
       - name: Run build
         run: |
@@ -101,7 +101,7 @@ jobs:
         run: |
           if [ ! -e "./node_modules" ]; then
             set -eu
-            npm install
+            npm install --legacy-peer-deps
           fi
       - name: Minify
         run: |
