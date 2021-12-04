@@ -5,13 +5,19 @@ import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
 import {Teacher} from '../models/Teacher';
 import {useListFollowingTeachers} from '../hooks/useListFollowingTeachers';
+import { ToastContainer } from '../components/ToastContainer';
+import {toast} from 'react-toastify';
 
 export const MePage = () => {
   const getMeResult = useGetMe({});
-
+  const notify = () => toast.error("Wow so easy!");
   return (
     <div id="followingForm">
       <PageTitle>フォローしている講師</PageTitle>
+      <ToastContainer
+        closeOnClick={false}
+      />
+      <button onClick={notify}>Notify!</button>
       {
         getMeResult.isLoading || getMeResult.isIdle
           ? <Loader isLoading={getMeResult.isLoading}/>
