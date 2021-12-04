@@ -87,7 +87,7 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 };
 
 type TimeSpanItemProps = {
-  editable: boolean;
+  editable: boolean; // eslint-disable-line react/boolean-prop-naming
   timeSpan: NotificationTimeSpan;
   index: number;
   handleOnChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -172,7 +172,7 @@ const TimeSpanItem = ({
 };
 
 type UpdateButtonProps = {
-  editable: boolean;
+  editable: boolean; // eslint-disable-line react/boolean-prop-naming
   handleOnClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 

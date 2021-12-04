@@ -35,6 +35,9 @@ export class TwirpError extends Error {
     return new TwirpError(object.code, object.msg);
   }
 
+  code: string;
+  msg: string;
+
   get message(): string {
     return `${this.code}:${this.msg}`;
   }
@@ -48,7 +51,4 @@ export class TwirpError extends Error {
   isInternal(): boolean {
     return this.code === 'Internal';
   }
-
-  code: string;
-  msg: string;
 }
