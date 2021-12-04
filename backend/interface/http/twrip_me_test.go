@@ -149,7 +149,7 @@ func Test_MeService_CreateFollowingTeacher(t *testing.T) {
 	for name, test := range tests {
 		test := test
 		t.Run(name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 
 			ctx := context.Background()
 			tc := test.setup(ctx)

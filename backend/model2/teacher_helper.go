@@ -3,6 +3,7 @@ package model2
 import (
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/ericlagergren/decimal"
 	"github.com/volatiletech/sqlboiler/v4/types"
@@ -41,6 +42,10 @@ func NewTeacherFromIDOrURL(idOrURL string) (*Teacher, error) {
 }
 
 func NewTeacherFromModel(t *model.Teacher) *Teacher {
+	birthday := t.Birthday
+	if t.Birthday.IsZero() {
+		birthday = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	}
 	rating := decimal.New(0, 2)
 	rating.SetFloat64(float64(t.Rating))
 	return &Teacher{
@@ -48,7 +53,7 @@ func NewTeacherFromModel(t *model.Teacher) *Teacher {
 		Name:              t.Name,
 		CountryID:         int16(t.CountryID),
 		Gender:            t.Gender,
-		Birthday:          t.Birthday,
+		Birthday:          birthday,
 		YearsOfExperience: int8(t.YearsOfExperience),
 		FavoriteCount:     uint(t.FavoriteCount),
 		ReviewCount:       uint(t.ReviewCount),
