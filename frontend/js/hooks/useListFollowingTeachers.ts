@@ -1,5 +1,4 @@
 import {useQuery} from 'react-query';
-import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 import {TwirpError, twirpRequest} from '../http/twirp';
 import {Teacher} from '../models/Teacher';
 import {defaultUseQueryOptions, queryKeyFollowingTeachers} from './common';
@@ -7,7 +6,7 @@ import {defaultUseQueryOptions, queryKeyFollowingTeachers} from './common';
 type ListFollowingTeachersRequest = Record<string, unknown>;
 
 type ListFollowingTeachersResponse = {
-  teachers: Teacher[]
+  teachers: Teacher[];
 };
 
 export const useListFollowingTeachers = (

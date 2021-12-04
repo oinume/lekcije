@@ -14,7 +14,7 @@ export const MePage = () => {
       <PageTitle>フォローしている講師</PageTitle>
       {
         getMeResult.isLoading || getMeResult.isIdle
-          ? <Loader loading={getMeResult.isLoading} />
+          ? <Loader isLoading={getMeResult.isLoading}/>
           : <MeContent showTutorial={getMeResult.data!.showTutorial}/>
       }
       {getMeResult.isError ? <ErrorAlert message={getMeResult.error.message}/> : <div/>}
@@ -71,12 +71,6 @@ const CreateForm = () => (
 );
 
 const TeacherList = () => {
-  // const teachers = [
-  //   new Teacher(28_660, 'hoge'),
-  //   new Teacher(28_661, 'fuga'),
-  //   new Teacher(28_662, 'aaaa'),
-  // ];
-
   const [checkedIds, setCheckedIds] = useState<number[]>([]);
   const handleCheckboxOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const targetId = Number.parseInt(event.target.value, 10);
@@ -89,12 +83,14 @@ const TeacherList = () => {
 
   const result = useListFollowingTeachers({});
   if (result.isLoading || result.isIdle) {
-    return <Loader loading={result.isLoading} />;
+    return <Loader isLoading={result.isLoading}/>;
   }
+
   if (result.isError) {
     return <ErrorAlert message={result.error.message}/>;
   }
-  const teachers = result.data!.teachers;
+
+  const {teachers} = result.data;
 
   return (
     <div id="followingTeachers">
