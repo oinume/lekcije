@@ -48,7 +48,7 @@ func (jc *JSONClient) SendRequest(
 	path string,
 	request proto.Message,
 	response proto.Message,
-) (int, *JSONError) {
+) (int, error) {
 	t.Helper()
 
 	marshaler := protojson.MarshalOptions{
