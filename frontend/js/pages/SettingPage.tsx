@@ -35,7 +35,6 @@ export const SettingPage: React.FC = () => {
     async (email: string): Promise<Response> => sendRequest(
       '/twirp/api.v1.Me/UpdateEmail',
       JSON.stringify({
-        // TODO: Use proto generated code
         email,
       }),
     ),
