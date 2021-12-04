@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
-import {useMutation, useQueryClient, UseMutationResult} from 'react-query';
-import {sendRequest, HttpError} from '../http/fetch';
+import {useMutation, useQueryClient} from 'react-query';
 import {Loader} from '../components/Loader';
-import {Alert} from '../components/Alert';
 import {ErrorAlert} from '../components/ErrorAlert';
 import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
@@ -11,6 +9,8 @@ import {PageTitle} from '../components/PageTitle';
 import {useGetMe} from '../hooks/useGetMe';
 import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 import {queryKeyMe} from '../hooks/common';
+import {twirpRequest} from '../http/twirp';
+import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
 
 type ToggleAlertState = {
   visible: boolean;
@@ -32,7 +32,7 @@ export const SettingPage: React.FC = () => {
   const queryClient = useQueryClient();
   // https://react-query.tanstack.com/guides/mutations
   const updateMeEmailMutation = useMutation(
-    async (email: string): Promise<Response> => sendRequest(
+    async (email: string): Promise<Response> => twirpRequest(
       '/twirp/api.v1.Me/UpdateEmail',
       JSON.stringify({
         email,
@@ -46,7 +46,7 @@ export const SettingPage: React.FC = () => {
   );
 
   const updateMeNotificationTimeSpanMutation = useMutation(
-    async (timeSpans: NotificationTimeSpan[]): Promise<Response> => sendRequest(
+    async (timeSpans: NotificationTimeSpan[]): Promise<Response> => twirpRequest(
       '/twirp/api.v1.Me/UpdateNotificationTimeSpan',
       JSON.stringify({
         notificationTimeSpans: timeSpans,
@@ -153,26 +153,4 @@ export const SettingPage: React.FC = () => {
       />
     </div>
   );
-};
-
-type UseMutationResultAlertProps = {
-  result: UseMutationResult<any, any, any, any>;
-  name: string;
-};
-
-// TODO: external component
-const UseMutationResultAlert: React.FC<UseMutationResultAlertProps> = ({
-  result,
-  name,
-}: UseMutationResultAlertProps) => {
-  const error: HttpError = result.error as HttpError;
-  // TODO: error handlingをまともにする
-  switch (result.status) {
-    case 'success':
-      return <Alert kind="success" message={name + 'を更新しました！'}/>;
-    case 'error':
-      return <Alert kind="danger" message={name + `の更新に失敗しました。(${error.response.statusText})`}/>;
-    default:
-      return <div/>;
-  }
 };
