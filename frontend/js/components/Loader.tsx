@@ -3,14 +3,20 @@ import {ClipLoader} from 'react-spinners';
 
 type Props = {
   loading: boolean;
-  message: string;
-  css: string;
-  size: number;
+  message?: string;
+  css?: string;
+  size?: number;
 };
 
-export const Loader: React.FC<Props> = ({loading, message, css, size}) => {
+export const Loader = ({loading, message, css, size}: Props) => {
+  if (message === undefined) {
+    message = 'Loading data ...';
+  }
+  if (css === undefined) {
+    css = 'background: rgba(255, 255, 255, 0)';
+  }
   if (size === undefined) {
-    size = 40;
+    size = 50;
   }
 
   return loading ? (

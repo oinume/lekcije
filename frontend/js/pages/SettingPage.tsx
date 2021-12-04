@@ -66,7 +66,7 @@ export const SettingPage: React.FC = () => {
   if (getMeResult.isLoading || getMeResult.isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
-      <Loader loading={getMeResult.isLoading} message="Loading data ..." css="background: rgba(255, 255, 255, 0)" size={50}/>
+      <Loader loading={getMeResult.isLoading} />
     );
   }
 
