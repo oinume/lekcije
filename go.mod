@@ -10,6 +10,7 @@ require (
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.10
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2
 	github.com/Songmu/retry v0.1.0
+	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/go-sql-driver/mysql v1.6.0
@@ -44,3 +45,5 @@ require (
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
 )
+
+replace github.com/ericlagergren/decimal => github.com/ericlagergren/decimal v0.0.0-20181231230500-73749d4874d5

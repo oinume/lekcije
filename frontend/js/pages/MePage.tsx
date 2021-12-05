@@ -1,16 +1,23 @@
 import React, {useState} from 'react';
+import {toast} from 'react-toastify';
+import {useMutation, useQueryClient} from 'react-query';
 import {PageTitle} from '../components/PageTitle';
 import {useGetMe} from '../hooks/useGetMe';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
 import {Teacher} from '../models/Teacher';
 import {useListFollowingTeachers} from '../hooks/useListFollowingTeachers';
+import {ToastContainer} from '../components/ToastContainer';
+import {TwirpError, twirpRequest} from '../http/twirp';
+import {queryKeyFollowingTeachers} from '../hooks/common';
 
 export const MePage = () => {
   const getMeResult = useGetMe({});
-
   return (
     <div id="followingForm">
+      <ToastContainer
+        closeOnClick={false}
+      />
       <PageTitle>フォローしている講師</PageTitle>
       {
         getMeResult.isLoading || getMeResult.isIdle
@@ -50,25 +57,69 @@ const Tutorial = () => (
   </div>
 );
 
-// https://getbootstrap.com/docs/4.4/components/spinners/
-const CreateForm = () => (
-  <form method="POST" action="/me/followingTeachers/create">
-    <p>
-      講師のURLまたはIDを入力してフォローします<a href="https://lekcije.amebaownd.com/posts/2044879" rel="noreferrer" target="_blank"><i className="fas fa-question-circle button-help" aria-hidden="true"/></a><br/>
-      <small><a href="https://eikaiwa.dmm.com/" rel="noreferrer" target="_blank">DMM英会話で講師を検索</a></small>
-    </p>
-    <div className="input-group mb-3">
-      <input
-        id="teacherIdsOrUrl"
-        type="text"
-        className="form-control"
-        name="teacherIdsOrUrl"
-        placeholder="https://eikaiwa.dmm.com/teacher/index/492/"
-      />
-      <button type="submit" className="btn btn-primary">送信</button>
-    </div>
-  </form>
-);
+const CreateForm = () => {
+  const [teacherIdOrUrl, setTeacherIdOrUrl] = useState<string>('');
+  const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
+
+  const queryClient = useQueryClient();
+  const createFollowingTeacherMutation = useMutation(
+    async (teacherIdOrUrl: string): Promise<Response> => twirpRequest(
+      '/twirp/api.v1.Me/CreateFollowingTeacher',
+      JSON.stringify({teacherIdOrUrl}),
+    ),
+    {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(queryKeyFollowingTeachers);
+        setTeacherIdOrUrl('');
+        setSubmitDisabled(true);
+        toast.success('講師をフォローしました！');
+      },
+      onError: (error: TwirpError) => {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+        console.error(`createFollowingTeacherMutation.onError: err=${error}`);
+        toast.error(`講師のフォローに失敗しました: ${error.message}`);
+      },
+    },
+  );
+
+  return (
+    <form
+      onSubmit={event => {
+        event.preventDefault();
+        createFollowingTeacherMutation.mutate(teacherIdOrUrl);
+      }}
+    >
+      <p>
+        講師のURLまたはIDを入力してフォローします<a href="https://lekcije.amebaownd.com/posts/2044879" rel="noreferrer" target="_blank"><i className="fas fa-question-circle button-help" aria-hidden="true"/></a><br/>
+        <small><a href="https://eikaiwa.dmm.com/" rel="noreferrer" target="_blank">DMM英会話で講師を検索</a></small>
+      </p>
+      <div className="input-group mb-3">
+        <input
+          required
+          autoFocus
+          id="teacherIdsOrUrl"
+          type="text"
+          className="form-control"
+          name="teacherIdsOrUrl"
+          placeholder="https://eikaiwa.dmm.com/teacher/index/492/"
+          value={teacherIdOrUrl}
+          onChange={event => {
+            event.preventDefault();
+            setSubmitDisabled(event.currentTarget.value === '');
+            setTeacherIdOrUrl(event.currentTarget.value);
+          }}
+        />
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={submitDisabled}
+        >
+          送信
+        </button>
+      </div>
+    </form>
+  );
+};
 
 const TeacherList = () => {
   const [checkedIds, setCheckedIds] = useState<number[]>([]);

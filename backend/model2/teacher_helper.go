@@ -3,8 +3,13 @@ package model2
 import (
 	"regexp"
 	"strconv"
+	"time"
+
+	"github.com/ericlagergren/decimal"
+	"github.com/volatiletech/sqlboiler/v4/types"
 
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/model"
 )
 
 var (
@@ -34,4 +39,30 @@ func NewTeacherFromIDOrURL(idOrURL string) (*Teacher, error) {
 		errors.WithMessage("Failed to parse idOrURL"),
 		errors.WithResource(errors.NewResource("teacher", "idOrURL", idOrURL)),
 	)
+}
+
+func NewTeacherFromModel(t *model.Teacher) *Teacher {
+	birthday := t.Birthday
+	if t.Birthday.IsZero() {
+		birthday = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	}
+	rating := decimal.New(0, 2)
+	rating.SetFloat64(float64(t.Rating))
+	return &Teacher{
+		ID:                uint(t.ID),
+		Name:              t.Name,
+		CountryID:         int16(t.CountryID),
+		Gender:            t.Gender,
+		Birthday:          birthday,
+		YearsOfExperience: int8(t.YearsOfExperience),
+		FavoriteCount:     uint(t.FavoriteCount),
+		ReviewCount:       uint(t.ReviewCount),
+		Rating: types.NullDecimal{
+			Big: rating,
+		},
+		LastLessonAt:    t.LastLessonAt,
+		FetchErrorCount: t.FetchErrorCount,
+		CreatedAt:       t.CreatedAt,
+		UpdatedAt:       t.UpdatedAt,
+	}
 }

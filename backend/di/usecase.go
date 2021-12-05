@@ -26,6 +26,7 @@ func NewFollowingTeacherUsecase(appLogger *zap.Logger, db *sql.DB) *usecase.Foll
 		mysql.NewFollowingTeacherRepository(db),
 		mysql.NewMCountryRepository(db),
 		mysql.NewUserRepository(db),
+		mysql.NewTeacherRepository(db),
 	)
 }
 

@@ -23,3 +23,7 @@ func NewTeacherRepository(db *sql.DB) repository.Teacher {
 func (r *teacherRepository) Create(ctx context.Context, teacher *model2.Teacher) error {
 	return teacher.Insert(ctx, r.db, boil.Infer())
 }
+
+func (r *teacherRepository) CreateOrUpdate(ctx context.Context, teacher *model2.Teacher) error {
+	return teacher.Upsert(ctx, r.db, boil.Infer(), boil.Infer())
+}

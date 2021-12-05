@@ -8,6 +8,7 @@ type Props = {
   size?: number;
 };
 
+// TODO: Use bootstrap loader: https://getbootstrap.com/docs/4.4/components/spinners/
 export const Loader = ({isLoading, message, css, size}: Props) => {
   if (message === undefined) {
     message = 'Loading data ...';

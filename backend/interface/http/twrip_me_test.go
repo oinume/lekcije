@@ -162,30 +162,37 @@ func Test_MeService_CreateFollowingTeacher(t *testing.T) {
 				ctx, t, handler, api_v1.MePathPrefix+"CreateFollowingTeacher",
 				tc.request, gotResponse,
 			)
-			assertion.RequireEqual(t, tc.wantStatusCode, gotStatusCode, "unexpected status code")
-
+			t.Logf("SendRequest err=%+v\n", err)
 			if gotStatusCode == http.StatusOK {
-				gotFollowingTeachers, err := repos.FollowingTeacher().FindByUserID(ctx, tc.wantFollowingTeacher.UserID)
 				if err != nil {
-					t.Fatal(err)
-				}
-				assertion.RequireEqual(t, 1, len(gotFollowingTeachers), "unexpected gotFollowingTeachers length")
-				assertion.AssertEqual(
-					t, tc.wantFollowingTeacher, gotFollowingTeachers[0], "",
-					cmpopts.IgnoreFields(model2.FollowingTeacher{}, "CreatedAt", "UpdatedAt"),
-				)
-
-				gotUser, err := repos.User().FindByEmail(ctx, tc.user.Email)
-				if err != nil {
-					t.Fatal(err)
-				}
-				if gotUser.FollowedTeacherAt.Time.IsZero() {
-					t.Fatalf("user.FollowedTeacherAt must be updated but zero: %v", gotUser.FollowedTeacherAt)
+					t.Fatalf("SendRequest failed: %v", err)
 				}
 			} else {
 				if err == nil {
 					t.Fatal("error must not be nil")
 				}
+			}
+			assertion.RequireEqual(t, tc.wantStatusCode, gotStatusCode, "unexpected status code")
+			if gotStatusCode != http.StatusOK {
+				return
+			}
+
+			gotFollowingTeachers, err := repos.FollowingTeacher().FindByUserID(ctx, tc.wantFollowingTeacher.UserID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertion.RequireEqual(t, 1, len(gotFollowingTeachers), "unexpected gotFollowingTeachers length")
+			assertion.AssertEqual(
+				t, tc.wantFollowingTeacher, gotFollowingTeachers[0], "",
+				cmpopts.IgnoreFields(model2.FollowingTeacher{}, "CreatedAt", "UpdatedAt"),
+			)
+
+			gotUser, err := repos.User().FindByEmail(ctx, tc.user.Email)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if gotUser.FollowedTeacherAt.Time.IsZero() {
+				t.Fatalf("user.FollowedTeacherAt must be updated but zero: %v", gotUser.FollowedTeacherAt)
 			}
 		})
 	}
