@@ -123,14 +123,39 @@ const CreateForm = () => {
 
 const TeacherList = () => {
   const [checkedIds, setCheckedIds] = useState<number[]>([]);
-  const handleCheckboxOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [deleteSubmitDisabled, setDeleteSubmitDisabled] = useState<boolean>(true);
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const targetId = Number.parseInt(event.target.value, 10);
     if (event.target.checked) {
       setCheckedIds([...checkedIds, targetId]);
+      setDeleteSubmitDisabled(false);
     } else {
-      setCheckedIds(checkedIds.filter(id => id !== targetId));
+      const restIds = checkedIds.filter(id => id !== targetId);
+      setCheckedIds(restIds);
+      setDeleteSubmitDisabled(restIds.length === 0);
     }
   };
+
+  const queryClient = useQueryClient();
+  const deleteFollowingTeacherMutation = useMutation(
+    async (teacherIds: number[]): Promise<Response> => twirpRequest(
+      '/twirp/api.v1.Me/DeleteFollowingTeachers',
+      JSON.stringify({teacherIds}),
+    ),
+    {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(queryKeyFollowingTeachers);
+        toast.success('講師のフォローを解除しました');
+        setDeleteSubmitDisabled(true);
+      },
+      onError: (error: TwirpError) => {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+        console.error(`deleteFollowingTeacherMutation.onError: err=${error}`);
+        toast.error(`講師のフォロー解除に失敗しました: ${error.message}`);
+      },
+    },
+  );
 
   const result = useListFollowingTeachers({});
   if (result.isLoading || result.isIdle) {
@@ -145,16 +170,30 @@ const TeacherList = () => {
 
   return (
     <div id="followingTeachers">
-      <form method="POST" action="/me/followingTeachers/delete">
+      <form
+        onSubmit={event =>{
+          event.preventDefault();
+          deleteFollowingTeacherMutation.mutate(checkedIds);
+        }}>
         <table className="table table-striped table-hover">
           <thead>
             <tr>
-              <th scope="col" className="col-md-1"><button type="submit" className="btn btn-primary btn-sm">削除</button></th>
-              <th scope="col" className="col-md-11">講師</th>
+              <th scope="col" className="col-md-1">
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-sm"
+                  disabled={deleteSubmitDisabled}
+                >
+                  削除
+                </button>
+              </th>
+              <th scope="col" className="col-md-11">
+                講師
+              </th>
             </tr>
           </thead>
           <tbody>
-            {teachers.map(t => <TeacherRow key={t.id} teacher={t} handleOnChange={handleCheckboxOnChange}/>)}
+            {teachers.map(t => <TeacherRow key={t.id} teacher={t} handleOnChange={handleCheckboxChange}/>)}
           </tbody>
         </table>
       </form>
