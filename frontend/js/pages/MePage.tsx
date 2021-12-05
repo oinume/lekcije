@@ -59,6 +59,8 @@ const Tutorial = () => (
 
 const CreateForm = () => {
   const [teacherIdOrUrl, setTeacherIdOrUrl] = useState<string>('');
+  const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
+
   const queryClient = useQueryClient();
   const createFollowingTeacherMutation = useMutation(
     async (teacherIdOrUrl: string): Promise<Response> => twirpRequest(
@@ -69,6 +71,7 @@ const CreateForm = () => {
       onSuccess: async () => {
         await queryClient.invalidateQueries(queryKeyFollowingTeachers);
         setTeacherIdOrUrl('');
+        setSubmitDisabled(true);
         toast.success('講師をフォローしました！');
       },
       onError: (error: TwirpError) => {
@@ -81,7 +84,7 @@ const CreateForm = () => {
 
   return (
     <form
-      method="POST" onSubmit={event => {
+      onSubmit={event => {
         event.preventDefault();
         createFollowingTeacherMutation.mutate(teacherIdOrUrl);
       }}
@@ -92,6 +95,8 @@ const CreateForm = () => {
       </p>
       <div className="input-group mb-3">
         <input
+          required
+          autoFocus
           id="teacherIdsOrUrl"
           type="text"
           className="form-control"
@@ -100,11 +105,17 @@ const CreateForm = () => {
           value={teacherIdOrUrl}
           onChange={event => {
             event.preventDefault();
-            // SetButtonEnabled(event.currentTarget.value !== '');
+            setSubmitDisabled(event.currentTarget.value === '');
             setTeacherIdOrUrl(event.currentTarget.value);
           }}
         />
-        <button type="submit" className="btn btn-primary">送信</button>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={submitDisabled}
+        >
+          送信
+        </button>
       </div>
     </form>
   );
