@@ -171,10 +171,11 @@ const TeacherList = () => {
   return (
     <div id="followingTeachers">
       <form
-        onSubmit={event =>{
+        onSubmit={event => {
           event.preventDefault();
           deleteFollowingTeacherMutation.mutate(checkedIds);
-        }}>
+        }}
+      >
         <table className="table table-striped table-hover">
           <thead>
             <tr>
