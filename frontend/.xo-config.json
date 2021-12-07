@@ -18,6 +18,14 @@
     }
   ],
   "rules": {
+    "capitalized-comments": [
+      "off",
+      "never",
+      {
+        "ignorePattern": "pragma|ignored",
+        "ignoreInlineComments": true
+      }
+    ],
     "import/extensions": [
       "error",
       "ignorePackages",
