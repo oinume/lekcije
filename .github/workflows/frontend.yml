@@ -103,7 +103,7 @@ jobs:
             set -eu
             npm install --legacy-peer-deps
           fi
-      - name: Minify
+      - name: Run build and minify
         run: |
           rm -rf static
           make minify-static
@@ -120,6 +120,52 @@ jobs:
       - name: Ensure to enable CORS
         run: |
           gsutil cors set cors-asset.lekcije.com.json gs://asset.lekcije.com
+      - name: Install heroku command
+        run: |
+          ../ci/install-heroku-cli.sh
+      - name: Set VERSION_HASH on heroku
+        run: |
+          HASH=$(make print-version-hash)
+          /opt/heroku/bin/heroku config:set VERSION_HASH=$HASH -a lekcije
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+  deploy-to-firebase:
+    name: deploy
+    runs-on: ubuntu-latest
+#    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'ref/heads/public-')
+    needs:
+      - lint
+      - test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/work/lekcije/lekcije/frontend/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Install npm modules
+        run: |
+          if [ ! -e "./node_modules" ]; then
+            set -eu
+            npm install --legacy-peer-deps
+          fi
+      - name: Run build and minify
+        run: |
+          rm -rf static
+          make minify-static
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
       - name: Install heroku command
         run: |
           ../ci/install-heroku-cli.sh
