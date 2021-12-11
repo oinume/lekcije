@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -237,6 +238,9 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		}
 		u, _, err := s.userUsecase.CreateWithGoogle(ctx, name, email, googleID)
 		if err != nil {
+			if strings.Contains(err.Error(), "Error 1062: Duplicate entry") {
+				s.appLogger.Error("duplicate entry from CreateWithGoogle", zap.Error(err), zap.String("googleID", googleID))
+			}
 			internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 			return
 		}
