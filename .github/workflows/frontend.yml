@@ -131,7 +131,7 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
   deploy-to-firebase:
-    name: deploy
+    name: deploy-to-firebae
     runs-on: ubuntu-latest
 #    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'ref/heads/public-')
     needs:
@@ -166,6 +166,7 @@ jobs:
           args: deploy --only hosting
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          PROJECT_PATH: frontend
       - name: Install heroku command
         run: |
           ../ci/install-heroku-cli.sh
