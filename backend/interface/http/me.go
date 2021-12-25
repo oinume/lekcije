@@ -93,6 +93,7 @@ func (s *server) getMeOld(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Request) {
+	s.appLogger.Warn("postMeFollowingTeachersCreate CALLED")
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
 	teacherIDsOrURL := r.FormValue("teacherIdsOrUrl")
@@ -211,6 +212,7 @@ func (s *server) postMeFollowingTeachersCreate(w http.ResponseWriter, r *http.Re
 }
 
 func (s *server) postMeFollowingTeachersDelete(w http.ResponseWriter, r *http.Request) {
+	s.appLogger.Warn("postMeFollowingTeachersDelete CALLED")
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
 	if err := r.ParseForm(); err != nil {
