@@ -170,66 +170,6 @@ func (s *UserService) Create(name, email string) (*User, error) {
 	return user, nil
 }
 
-func (s *UserService) CreateWithGoogle(name, email, googleID string) (*User, *UserGoogle, error) {
-	user, err := s.FindByEmail(email)
-	if e, ok := err.(*errors.AnnotatedError); ok && e.IsNotFound() {
-		user = &User{
-			Name:          name,
-			Email:         email,
-			EmailVerified: true,
-			PlanID:        DefaultMPlanID,
-		}
-		if result := s.db.Create(user); result.Error != nil {
-			return nil, nil, errors.NewInternalError(
-				errors.WithError(result.Error),
-				errors.WithMessage("Failed to create User"),
-				errors.WithResource(errors.NewResourceWithEntries(
-					"user", []errors.ResourceEntry{
-						{Key: "email", Value: email},
-						{Key: "googleID", Value: googleID},
-					},
-				)),
-			)
-		}
-	}
-	// Do nothing if the user exists.
-
-	userGoogleService := NewUserGoogleService(s.db)
-	userGoogle, err := userGoogleService.FindByUserID(user.ID)
-	if e, ok := err.(*errors.AnnotatedError); ok && e.IsNotFound() {
-		userGoogle = &UserGoogle{
-			GoogleID: googleID,
-			UserID:   user.ID,
-		}
-		if result := s.db.Create(userGoogle); result.Error != nil {
-			return nil, nil, errors.NewInternalError(
-				errors.WithError(result.Error),
-				errors.WithMessage("Failed to create UserGoogle"),
-				errors.WithResource(errors.NewResource("user_google", "googleID", googleID)),
-			)
-		}
-	}
-	// Do nothing if the user google exists.
-
-	return user, userGoogle, nil
-}
-
-func (s *UserService) UpdateEmail(user *User, newEmail string) error {
-	result := s.db.Exec("UPDATE user SET email = ? WHERE id = ?", newEmail, user.ID)
-	if result.Error != nil {
-		return errors.NewInternalError(
-			errors.WithError(result.Error),
-			errors.WithMessage("Failed to update user email"),
-			errors.WithResource(errors.NewResourceWithEntries(
-				user.TableName(), []errors.ResourceEntry{
-					{Key: "id", Value: user.ID}, {Key: "email", Value: newEmail},
-				},
-			)),
-		)
-	}
-	return nil
-}
-
 func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
 	sql := "UPDATE user SET followed_teacher_at = NOW() WHERE id = ?"
 	if err := s.db.Exec(sql, user.ID).Error; err != nil {

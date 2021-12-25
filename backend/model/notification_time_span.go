@@ -9,7 +9,6 @@ import (
 	"go.opencensus.io/trace"
 
 	"github.com/oinume/lekcije/backend/errors"
-	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
 
 type NotificationTimeSpan struct {
@@ -80,50 +79,7 @@ func NewNotificationTimeSpanService(db *gorm.DB) *NotificationTimeSpanService {
 	return &NotificationTimeSpanService{db}
 }
 
-func (s *NotificationTimeSpanService) NewNotificationTimeSpansFromPB(
-	userID uint32, args []*api_v1.NotificationTimeSpan,
-) []*NotificationTimeSpan {
-	values := make([]*NotificationTimeSpan, 0, len(args))
-	for i, v := range args {
-		fromTime := fmt.Sprintf("%v:%v", v.FromHour, v.FromMinute)
-		toTime := fmt.Sprintf("%v:%v", v.ToHour, v.ToMinute)
-		values = append(values, &NotificationTimeSpan{
-			UserID:   userID,
-			Number:   uint8(i + 1),
-			FromTime: fromTime,
-			ToTime:   toTime,
-		})
-	}
-	return values
-}
-
-func (s *NotificationTimeSpanService) NewNotificationTimeSpansPB(args []*NotificationTimeSpan) ([]*api_v1.NotificationTimeSpan, error) {
-	values := make([]*api_v1.NotificationTimeSpan, 0, len(args))
-	for _, v := range args {
-		fromTime, err := time.Parse("15:04:05", v.FromTime)
-		if err != nil {
-			return nil, errors.NewInternalError(
-				errors.WithError(err),
-				errors.WithMessagef("Invalid time format: FromTime=%v", v.FromTime),
-			)
-		}
-		toTime, err := time.Parse("15:04:05", v.ToTime)
-		if err != nil {
-			return nil, errors.NewInternalError(
-				errors.WithError(err),
-				errors.WithMessagef("Invalid time format: ToTime=%v", v.ToTime),
-			)
-		}
-		values = append(values, &api_v1.NotificationTimeSpan{
-			FromHour:   int32(fromTime.Hour()),
-			FromMinute: int32(fromTime.Minute()),
-			ToHour:     int32(toTime.Hour()),
-			ToMinute:   int32(toTime.Minute()),
-		})
-	}
-	return values, nil
-}
-
+// FindByUserID is used from SendNotification on notifier.go
 func (s *NotificationTimeSpanService) FindByUserID(
 	ctx context.Context,
 	userID uint32,
@@ -146,6 +102,7 @@ func (s *NotificationTimeSpanService) FindByUserID(
 	return timeSpans, nil
 }
 
+// UpdateAll is used from TestNotifier_SendNotification
 func (s *NotificationTimeSpanService) UpdateAll(userID uint32, timeSpans []*NotificationTimeSpan) error {
 	for _, timeSpan := range timeSpans {
 		if userID != timeSpan.UserID {

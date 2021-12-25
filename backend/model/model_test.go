@@ -24,7 +24,6 @@ var (
 	statNotifierService                   *StatNotifierService
 	teacherService                        *TeacherService
 	userService                           *UserService
-	userGoogleService                     *UserGoogleService
 	userAPITokenService                   *UserAPITokenService
 	mCountries                            *MCountries
 )
@@ -46,7 +45,6 @@ func TestMain(m *testing.M) {
 	statNotifierService = NewStatNotifierService(db)
 	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
-	userGoogleService = NewUserGoogleService(db)
 	userAPITokenService = NewUserAPITokenService(db)
 	mCountries = helper.LoadMCountries(nil)
 
