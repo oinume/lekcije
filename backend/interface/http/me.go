@@ -71,10 +71,10 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *server) getMeNew(w http.ResponseWriter, r *http.Request) {
+func (s *server) getMeOld(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := context_data.MustLoggedInUser(ctx)
-	t := ParseHTMLTemplates(TemplatePath("me/new.html"))
+	t := ParseHTMLTemplates(TemplatePath("me/old.html"))
 	type Data struct {
 		commonTemplateData
 		ShowTutorial bool
