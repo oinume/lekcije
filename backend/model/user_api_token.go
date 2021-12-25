@@ -29,6 +29,7 @@ func NewUserAPITokenService(db *gorm.DB) *UserAPITokenService {
 	return &UserAPITokenService{db: db}
 }
 
+// DeleteByUserIDAndToken is used from getMeLogout on me.go
 func (s *UserAPITokenService) DeleteByUserIDAndToken(userID uint32, token string) error {
 	result := s.db.Where("user_id = ? AND token = ?", userID, token).Delete(&UserAPIToken{})
 	if result.Error != nil {
