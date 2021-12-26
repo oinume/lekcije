@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -25,6 +26,16 @@ func NewErrorRecorder(appLogger *zap.Logger, repo repository.ErrorRecorder) *Err
 }
 
 func (er *ErrorRecorder) Record(ctx context.Context, err error, userID string) {
+	if err == nil {
+		return
+	}
+	if twirpErr, ok := err.(twirp.Error); ok {
+		switch twirpErr.Code() {
+		case twirp.InvalidArgument, twirp.Unauthenticated, twirp.NotFound:
+			return
+		}
+	}
+
 	fields := []zapcore.Field{
 		zap.Error(err),
 	}
@@ -36,6 +47,5 @@ func (er *ErrorRecorder) Record(ctx context.Context, err error, userID string) {
 		fields = append(fields, zap.String("stacktrace", b.String()))
 	}
 	er.appLogger.Error("ErrorRecoder.Record", fields...)
-
 	er.repo.Record(ctx, err, userID)
 }
