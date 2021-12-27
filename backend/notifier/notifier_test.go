@@ -20,7 +20,6 @@ import (
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/repository"
-	"github.com/oinume/lekcije/backend/stopwatch"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -165,7 +164,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
+		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, nil)
 
 		ctx := context.Background()
 		for _, user := range users {
@@ -208,7 +207,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, stopwatch.NewSync().Start(), nil)
+		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, nil)
 		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -259,7 +258,7 @@ func TestNotifier_Close(t *testing.T) {
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, sender, stopwatch.NewSync().Start(), nil)
+	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, sender, nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(context.Background(), &model.StatNotifier{

@@ -19,7 +19,6 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/fetcher"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/stopwatch"
 	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
 )
@@ -35,7 +34,6 @@ type Notifier struct {
 	fetchedLessons  map[uint32][]*model.Lesson
 	sender          emailer.Sender
 	senderWaitGroup *sync.WaitGroup
-	stopwatch       stopwatch.Stopwatch
 	storageClient   *storage.Client
 	sync.Mutex
 }
@@ -102,12 +100,8 @@ func NewNotifier(
 	fetcher *fetcher.LessonFetcher,
 	dryRun bool,
 	sender emailer.Sender,
-	sw stopwatch.Stopwatch,
 	storageClient *storage.Client,
 ) *Notifier {
-	if sw == nil {
-		sw = stopwatch.NewSync()
-	}
 	return &Notifier{
 		appLogger:       appLogger,
 		db:              db,
@@ -118,7 +112,6 @@ func NewNotifier(
 		fetchedLessons:  make(map[uint32][]*model.Lesson, 1000),
 		sender:          sender,
 		senderWaitGroup: &sync.WaitGroup{},
-		stopwatch:       sw,
 		storageClient:   storageClient,
 	}
 }
@@ -391,17 +384,6 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 			}
 		}
 	}()
-	// TODO: remove
-	defer func() {
-		n.stopwatch.Stop()
-		if n.storageClient != nil {
-			//fmt.Println("--- stopwatch ---")
-			//fmt.Println(n.stopwatch.Report())
-			if err := n.uploadStopwatchReport(); err != nil {
-				n.appLogger.Error("uploadStopwatchReport failed", zap.Error(err))
-			}
-		}
-	}()
 	if stat.Interval == 10 {
 		stat.Elapsed = uint32(time.Now().UTC().Sub(stat.Datetime) / time.Millisecond)
 		stat.FollowedTeacherCount = uint32(len(n.teachers))
@@ -409,20 +391,4 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 			n.appLogger.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
 		}
 	}
-}
-
-func (n *Notifier) uploadStopwatchReport() error {
-	if n.storageClient == nil {
-		return nil
-	}
-
-	path := time.Now().UTC().Format("stopwatch/20060102/150405.txt")
-	w := n.storageClient.Bucket("lekcije").Object(path).NewWriter(context.Background())
-	if _, err := w.Write([]byte(n.stopwatch.Report())); err != nil {
-		return err
-	}
-	if err := w.Close(); err != nil {
-		return err
-	}
-	return nil
 }
