@@ -20,7 +20,6 @@ import (
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
-	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/randoms"
 	"github.com/oinume/lekcije/backend/registration_email"
@@ -287,7 +286,7 @@ func (s *OAuthServer) oauthGoogleCallback(w http.ResponseWriter, r *http.Request
 		Name:     APITokenCookieName,
 		Value:    userAPIToken.Token,
 		Path:     "/",
-		Expires:  time.Now().Add(model.UserAPITokenExpiration),
+		Expires:  time.Now().Add(model2.UserAPITokenExpiration),
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookie)
