@@ -19,7 +19,6 @@ import (
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
-	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/open_census"
@@ -87,7 +86,6 @@ func main() {
 		AccessLogger:        accessLogger,
 		AppLogger:           appLogger,
 		DB:                  gormDB.DB(),
-		FlashMessageStore:   flash_message.NewStoreMySQL(gormDB),
 		GAMeasurementClient: ga_measurement.NewClient(nil, event_logger.New(accessLogger)),
 		GormDB:              gormDB,
 		RollbarClient:       rollbarClient,

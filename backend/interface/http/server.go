@@ -11,7 +11,6 @@ import (
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
-	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -20,7 +19,6 @@ type server struct {
 	appLogger           *zap.Logger
 	db                  *gorm.DB
 	errorRecorder       *usecase.ErrorRecorder
-	flashMessageStore   flash_message.Store
 	senderHTTPClient    *http.Client
 	gaMeasurementClient ga_measurement.Client
 	userAPITokenUsecase *usecase.UserAPIToken
@@ -36,7 +34,6 @@ func NewServer(
 		appLogger:           args.AppLogger,
 		db:                  args.GormDB,
 		errorRecorder:       errorRecorder,
-		flashMessageStore:   args.FlashMessageStore,
 		senderHTTPClient:    args.SenderHTTPClient,
 		gaMeasurementClient: args.GAMeasurementClient,
 		userAPITokenUsecase: userAPITokenUsecase,

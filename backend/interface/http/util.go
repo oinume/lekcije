@@ -17,7 +17,6 @@ import (
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/interface/http/flash_message"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
@@ -49,7 +48,6 @@ func TemplatePath(file string) string {
 func ParseHTMLTemplates(files ...string) *template.Template {
 	f := []string{
 		TemplatePath("_base.html"),
-		TemplatePath("_flashMessage.html"),
 	}
 	f = append(f, files...)
 	return template.Must(template.ParseFiles(f...))
@@ -96,7 +94,6 @@ type commonTemplateData struct {
 	IsUserAgentTablet bool
 	UserID            string
 	NavigationItems   []navigationItem
-	FlashMessage      *flash_message.FlashMessage
 	ServiceEnv        string
 }
 
@@ -135,10 +132,6 @@ func (s *server) getCommonTemplateData(req *http.Request, loggedIn bool, userID 
 		data.NavigationItems = loggedInNavigationItems
 	} else {
 		data.NavigationItems = loggedOutNavigationItems
-	}
-	if flashMessageKey := req.FormValue("flashMessageKey"); flashMessageKey != "" {
-		flashMessage, _ := s.flashMessageStore.Load(flashMessageKey)
-		data.FlashMessage = flashMessage
 	}
 	data.TrackingID = context_data.MustTrackingID(req.Context())
 	if userID != 0 {
