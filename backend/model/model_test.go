@@ -24,7 +24,6 @@ var (
 	statNotifierService                   *StatNotifierService
 	teacherService                        *TeacherService
 	userService                           *UserService
-	userAPITokenService                   *UserAPITokenService
 	mCountries                            *MCountries
 )
 
@@ -45,7 +44,6 @@ func TestMain(m *testing.M) {
 	statNotifierService = NewStatNotifierService(db)
 	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
-	userAPITokenService = NewUserAPITokenService(db)
 	mCountries = helper.LoadMCountries(nil)
 
 	helper.TruncateAllTables(nil)
