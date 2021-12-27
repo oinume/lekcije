@@ -109,7 +109,8 @@ func main() {
 func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	// TODO: graceful shutdown
 	errorRecorder := di.NewErrorRecorderUsecase(args.AppLogger, args.RollbarClient)
-	server := interfaces_http.NewServer(args, errorRecorder)
+	userAPIToken := di.NewUserAPITokenUsecase(args.DB)
+	server := interfaces_http.NewServer(args, errorRecorder, userAPIToken)
 	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
 	errorRecorderHooks := interfaces_http.NewErrorRecorderHooks(errorRecorder)
 	meServer := di.NewMeServer(

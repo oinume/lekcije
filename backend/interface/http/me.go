@@ -304,8 +304,7 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: false,
 	}
 	http.SetCookie(w, cookieToDelete)
-	userAPITokenService := model.NewUserAPITokenService(s.db)
-	if err := userAPITokenService.DeleteByUserIDAndToken(user.ID, token); err != nil {
+	if err := s.userAPITokenUsecase.DeleteByUserIDAndToken(ctx, uint(user.ID), token); err != nil {
 		internalServerError(r.Context(), s.errorRecorder, w, err, user.ID)
 		return
 	}
