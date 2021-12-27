@@ -21,7 +21,6 @@ import (
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/notifier"
 	"github.com/oinume/lekcije/backend/open_census"
-	"github.com/oinume/lekcije/backend/stopwatch"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -58,9 +57,6 @@ func (m *notifierMain) run(args []string) error {
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
 	}
-
-	sw := stopwatch.NewSync()
-	sw.Start()
 
 	config.MustProcessDefault()
 	startedAt := time.Now().UTC()
@@ -124,7 +120,7 @@ func (m *notifierMain) run(args []string) error {
 		appLogger,
 		irollbar.NewErrorRecorderRepository(rollbarClient),
 	)
-	n := notifier.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, sender, sw, nil)
+	n := notifier.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, sender, nil)
 	defer n.Close(ctx, &model.StatNotifier{
 		Datetime:             startedAt,
 		Interval:             uint8(*notificationInterval),
