@@ -26,7 +26,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rollbar/rollbar-go v1.4.2
 	github.com/rs/cors v1.8.2
-	github.com/sclevine/agouti v3.0.0+incompatible // indirect
 	github.com/sendgrid/rest v2.6.5+incompatible
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
 	github.com/stretchr/testify v1.7.0
@@ -41,7 +40,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
-	google.golang.org/api v0.61.0
+	google.golang.org/api v0.63.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
 )
