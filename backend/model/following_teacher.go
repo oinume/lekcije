@@ -37,7 +37,7 @@ func (s *FollowingTeacherService) TableName() string {
 	return (&FollowingTeacher{}).TableName()
 }
 
-func (s *FollowingTeacherService) FindTeachersByUserID(userID uint32) ([]*Teacher, error) {
+func (s *FollowingTeacherService) FindTeachersByUserID(userID uint32) ([]*Teacher, error) { // TODO: delete
 	limit := 100
 	values := make([]*Teacher, 0, limit)
 	sql := fmt.Sprintf(`

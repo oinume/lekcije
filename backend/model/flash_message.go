@@ -18,3 +18,5 @@ func (fm *FlashMessage) IsExpired(now time.Time) bool {
 	}
 	return fm.ExpiredAt.Before(now)
 }
+
+// TODO: delete
