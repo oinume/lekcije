@@ -10,14 +10,6 @@ import (
 	"github.com/oinume/lekcije/backend/model2"
 )
 
-const (
-	followedMessage                = "フォローしました！"
-	unfollowedMessage              = "削除しました！"
-	emptyTeacherURLMessage         = "講師のURLまたはIDを入力して下さい"
-	invalidTeacherURLMessage       = "正しい講師のURLまたはIDを入力して下さい"
-	reachedMaxFollowTeacherMessage = "フォロー可能な上限数(%d)を超えました"
-)
-
 var _ = fmt.Printf
 
 func (s *server) getMeHandler() http.HandlerFunc {
