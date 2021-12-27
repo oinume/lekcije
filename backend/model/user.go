@@ -62,60 +62,7 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 	return user, nil
 }
 
-func (s *UserService) FindByEmail(email string) (*User, error) {
-	user := &User{}
-	if result := s.db.First(user, &User{Email: email}); result.Error != nil {
-		if err := wrapNotFound(result, user.TableName(), "email", email); err != nil {
-			return nil, err
-		}
-		return nil, errors.NewInternalError(
-			errors.WithError(result.Error),
-			errors.WithResource(errors.NewResource(user.TableName(), "email", email)),
-		)
-	}
-	return user, nil
-}
-
-func (s *UserService) FindByGoogleID(googleID string) (*User, error) {
-	user := &User{}
-	sql := `
-	SELECT u.* FROM user AS u
-	INNER JOIN user_google AS ug ON u.id = ug.user_id
-	WHERE ug.google_id = ?
-	LIMIT 1
-	`
-	if result := s.db.Raw(sql, googleID).Scan(user); result.Error != nil {
-		if err := wrapNotFound(result, "user_google", "google_id", googleID); err != nil {
-			return nil, err
-		}
-		return nil, errors.NewInternalError(
-			errors.WithError(result.Error),
-			errors.WithResource(errors.NewResource("user_google", "google_id", googleID)),
-		)
-	}
-	return user, nil
-}
-
-func (s *UserService) FindByUserAPIToken(userAPIToken string) (*User, error) {
-	user := &User{}
-	sql := `
-	SELECT u.* FROM user AS u
-	INNER JOIN user_api_token AS uat ON u.id = uat.user_id
-	WHERE uat.token = ?
-	`
-	if result := s.db.Raw(sql, userAPIToken).Scan(user); result.Error != nil {
-		if err := wrapNotFound(result, user.TableName(), "userAPIToken", userAPIToken); err != nil {
-			return nil, err
-		}
-		return nil, errors.NewInternalError(
-			errors.WithError(result.Error),
-			errors.WithResource(errors.NewResource(user.TableName(), "userAPIToken", userAPIToken)),
-		)
-	}
-	return user, nil
-}
-
-// Returns an empty slice if no users found
+// FindAllEmailVerifiedIsTrue returns an empty slice if no users found
 func (s *UserService) FindAllEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*User, error) {
 	_, span := trace.StartSpan(ctx, "UserService.FindAllEmailVerifiedIsTrue")
 	defer span.End()
@@ -139,7 +86,7 @@ func (s *UserService) FindAllEmailVerifiedIsTrue(ctx context.Context, notificati
 	return users, nil
 }
 
-// Returns an empty slice if no users found
+// FindAllFollowedTeacherAtIsNull returns an empty slice if no users found
 func (s *UserService) FindAllFollowedTeacherAtIsNull(createdAt time.Time) ([]*User, error) {
 	var users []*User
 	sql := `SELECT * FROM user WHERE followed_teacher_at IS NULL AND CAST(created_at AS DATE) = ? ORDER BY id`
@@ -170,7 +117,7 @@ func (s *UserService) Create(name, email string) (*User, error) {
 	return user, nil
 }
 
-func (s *UserService) UpdateFollowedTeacherAt(user *User) error {
+func (s *UserService) UpdateFollowedTeacherAt(user *User) error { // TODO: delete
 	sql := "UPDATE user SET followed_teacher_at = NOW() WHERE id = ?"
 	if err := s.db.Exec(sql, user.ID).Error; err != nil {
 		return errors.NewInternalError(
