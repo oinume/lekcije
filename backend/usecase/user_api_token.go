@@ -29,3 +29,7 @@ func (u *UserAPIToken) Create(ctx context.Context, userID uint) (*model2.UserAPI
 	}
 	return uat, nil
 }
+
+func (u *UserAPIToken) DeleteByUserIDAndToken(ctx context.Context, userID uint, token string) error {
+	return u.userAPITokenRepo.DeleteByUserIDAndToken(ctx, userID, token)
+}

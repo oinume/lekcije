@@ -23,9 +23,14 @@ type server struct {
 	flashMessageStore   flash_message.Store
 	senderHTTPClient    *http.Client
 	gaMeasurementClient ga_measurement.Client
+	userAPITokenUsecase *usecase.UserAPIToken
 }
 
-func NewServer(args *interfaces.ServerArgs, errorRecorder *usecase.ErrorRecorder) *server {
+func NewServer(
+	args *interfaces.ServerArgs,
+	errorRecorder *usecase.ErrorRecorder,
+	userAPITokenUsecase *usecase.UserAPIToken,
+) *server {
 	return &server{
 		accessLogger:        args.AccessLogger,
 		appLogger:           args.AppLogger,
@@ -34,6 +39,7 @@ func NewServer(args *interfaces.ServerArgs, errorRecorder *usecase.ErrorRecorder
 		flashMessageStore:   args.FlashMessageStore,
 		senderHTTPClient:    args.SenderHTTPClient,
 		gaMeasurementClient: args.GAMeasurementClient,
+		userAPITokenUsecase: userAPITokenUsecase,
 	}
 }
 
