@@ -48,7 +48,6 @@ func TemplatePath(file string) string {
 func ParseHTMLTemplates(files ...string) *template.Template {
 	f := []string{
 		TemplatePath("_base.html"),
-		TemplatePath("_flashMessage.html"),
 	}
 	f = append(f, files...)
 	return template.Must(template.ParseFiles(f...))

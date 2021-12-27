@@ -1,6 +1,0 @@
-{{ if .FlashMessage -}}
-<div class="alert alert-{{ .FlashMessage.Kind.ViewStyle }} alert-dismissible" role="alert">
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  {{ index .FlashMessage.Messages 0 }}
-</div>
-{{ end -}}
