@@ -44,7 +44,7 @@ func NewTeacher(id uint32) *Teacher {
 	return &Teacher{ID: id}
 }
 
-func NewTeachersFromIDsOrURL(idsOrURL string) ([]*Teacher, error) {
+func NewTeachersFromIDsOrURL(idsOrURL string) ([]*Teacher, error) { // TODO: delete
 	if idsRegexp.MatchString(idsOrURL) {
 		ids := strings.Split(idsOrURL, ",")
 		teachers := make([]*Teacher, 0, len(ids))
