@@ -51,6 +51,32 @@ func makeCacheKey(cols boil.Columns, nzDefaults []string) string {
 	return str
 }
 
+// Enum values for EventLogEmailEvent
+const (
+	EventLogEmailEventClick = "click"
+
+	EventLogEmailEventDelivered = "delivered"
+
+	EventLogEmailEventOpen = "open"
+
+	EventLogEmailEventDeferred = "deferred"
+
+	EventLogEmailEventDropped = "dropped"
+
+	EventLogEmailEventBounce = "bounce"
+
+	EventLogEmailEventBlock = "block"
+)
+
+// Enum values for EventLogEmailEmailType
+const (
+	EventLogEmailEmailTypeNewLessonNotifier = "new_lesson_notifier"
+
+	EventLogEmailEmailTypeFollowReminder = "follow_reminder"
+
+	EventLogEmailEmailTypeRegistration = "registration"
+)
+
 // Enum values for LessonStatus
 const (
 	LessonStatusFinished = "finished"

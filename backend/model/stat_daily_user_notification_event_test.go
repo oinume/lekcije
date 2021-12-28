@@ -50,7 +50,7 @@ func TestStatDailyUserNotificationEventService_CreateOrUpdate(t *testing.T) {
 func createEventLogEmails(userID uint32, datetime time.Time, num int) error {
 	for i := 0; i < num; i++ {
 		err := eventLogEmailService.Create(&EventLogEmail{
-			Datetime:   datetime,
+			Datetime:   datetime.Add(time.Duration(i) * time.Second),
 			Event:      "open",
 			EmailType:  EmailTypeNewLessonNotifier,
 			UserID:     userID,
