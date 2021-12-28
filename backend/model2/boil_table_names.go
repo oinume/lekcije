@@ -4,6 +4,7 @@
 package model2
 
 var TableNames = struct {
+	EventLogEmail                  string
 	FlashMessage                   string
 	FollowingTeacher               string
 	Lesson                         string
@@ -19,6 +20,7 @@ var TableNames = struct {
 	UserAPIToken                   string
 	UserGoogle                     string
 }{
+	EventLogEmail:                  "event_log_email",
 	FlashMessage:                   "flash_message",
 	FollowingTeacher:               "following_teacher",
 	Lesson:                         "lesson",
