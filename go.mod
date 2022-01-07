@@ -5,7 +5,7 @@ module github.com/oinume/lekcije
 go 1.16
 
 require (
-	cloud.google.com/go/profiler v0.1.1
+	cloud.google.com/go/profiler v0.1.2
 	cloud.google.com/go/storage v1.18.2
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.10
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2
