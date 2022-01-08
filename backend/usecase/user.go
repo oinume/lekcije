@@ -29,6 +29,16 @@ func (u *User) CreateWithGoogle(ctx context.Context, name, email, googleID strin
 		retUserGoogle *model2.UserGoogle
 	)
 	if err := u.dbRepo.Transaction(ctx, func(exec repository.Executor) error {
+		user, err := u.userRepo.FindByEmail(ctx, email) // TODO: Define FindByEmailWIthExec
+		if err != nil {
+			if !errors.IsNotFound(err) {
+				return err
+			}
+			// TODO: Create user
+			// TODO: Create user_google
+		}
+		// TODO: Check user_google
+
 		user, err := u.userRepo.FindByGoogleIDWithExec(ctx, exec, googleID)
 		if err != nil {
 			if !errors.IsNotFound(err) {
