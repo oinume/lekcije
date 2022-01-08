@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
@@ -29,21 +30,12 @@ func (u *User) CreateWithGoogle(ctx context.Context, name, email, googleID strin
 		retUserGoogle *model2.UserGoogle
 	)
 	if err := u.dbRepo.Transaction(ctx, func(exec repository.Executor) error {
-		user, err := u.userRepo.FindByEmail(ctx, email) // TODO: Define FindByEmailWIthExec
+		user, err := u.userRepo.FindByEmailWithExec(ctx, exec, email)
 		if err != nil {
 			if !errors.IsNotFound(err) {
 				return err
 			}
-			// TODO: Create user
-			// TODO: Create user_google
-		}
-		// TODO: Check user_google
 
-		user, err := u.userRepo.FindByGoogleIDWithExec(ctx, exec, googleID)
-		if err != nil {
-			if !errors.IsNotFound(err) {
-				return err
-			}
 			// Create User
 			user = &model2.User{
 				Name:          name,
@@ -54,24 +46,61 @@ func (u *User) CreateWithGoogle(ctx context.Context, name, email, googleID strin
 			if err := u.userRepo.CreateWithExec(ctx, exec, user); err != nil {
 				return err
 			}
-		}
-		retUser = user
+			retUser = user
 
-		userGoogle, err := u.userGoogleRepo.FindByUserIDWithExec(ctx, exec, user.ID)
-		if err != nil {
-			if !errors.IsNotFound(err) {
-				return err
-			}
 			// Create UserGoogle
-			userGoogle = &model2.UserGoogle{
+			userGoogle := &model2.UserGoogle{
 				UserID:   user.ID,
 				GoogleID: googleID,
 			}
 			if err := u.userGoogleRepo.CreateWithExec(ctx, exec, userGoogle); err != nil {
 				return err
 			}
+			retUserGoogle = userGoogle
+		} else {
+			retUser = user
 		}
-		retUserGoogle = userGoogle
+
+		existingUserGoogle, err := u.userGoogleRepo.FindByPKWithExec(ctx, exec, googleID)
+		if err != nil {
+			if !errors.IsNotFound(err) {
+				return err
+			}
+
+			if user == nil {
+				return fmt.Errorf("CreateWithGoogle: must not reach here")
+			} else {
+				// User exists, it means the user is created with another google id somehow
+				anotherUserGoogle, err := u.userGoogleRepo.FindByUserIDWithExec(ctx, exec, user.ID)
+				if err != nil {
+					if !errors.IsNotFound(err) {
+						return err
+					}
+					userGoogle := &model2.UserGoogle{
+						UserID:   user.ID,
+						GoogleID: googleID,
+					}
+					if err := u.userGoogleRepo.CreateWithExec(ctx, exec, userGoogle); err != nil {
+						return err
+					}
+				}
+
+				// Delete existing UserGoogle first then create a new one
+				if err := u.userGoogleRepo.DeleteByPKWithExec(ctx, exec, anotherUserGoogle.GoogleID); err != nil {
+					return err
+				}
+				userGoogle := &model2.UserGoogle{
+					UserID:   user.ID,
+					GoogleID: googleID,
+				}
+				if err := u.userGoogleRepo.CreateWithExec(ctx, exec, userGoogle); err != nil {
+					return err
+				}
+				retUserGoogle = userGoogle
+			}
+		} else {
+			retUserGoogle = existingUserGoogle
+		}
 
 		return nil
 	}); err != nil {
