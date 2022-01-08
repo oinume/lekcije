@@ -27,7 +27,26 @@ func Test_User_CreateWithGoogle(t *testing.T) {
 	tests := map[string]struct {
 		setup func(ctx context.Context) *testCase
 	}{
-		"normal": {
+		"ok_user_and_user_google_will_be_created": {
+			setup: func(ctx context.Context) *testCase {
+				now := time.Now()
+				u := modeltest.NewUser(func(u *model2.User) {
+					u.EmailVerified = 1
+					u.CreatedAt = now
+					u.UpdatedAt = now
+				})
+				ug := modeltest.NewUserGoogle(func(ug *model2.UserGoogle) {
+					ug.UserID = u.ID
+					ug.CreatedAt = now
+					ug.UpdatedAt = now
+				})
+				return &testCase{
+					wantUser:       u,
+					wantUserGoogle: ug,
+				}
+			},
+		},
+		"ok_user_and_user_google_exist": {
 			setup: func(ctx context.Context) *testCase {
 				u := modeltest.NewUser()
 				repos.CreateUsers(ctx, t, u)
@@ -41,6 +60,27 @@ func Test_User_CreateWithGoogle(t *testing.T) {
 				}
 			},
 		},
+		"ok_another_user_google_exist": {
+			setup: func(ctx context.Context) *testCase {
+				u := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, u)
+				ug := modeltest.NewUserGoogle(func(ug *model2.UserGoogle) {
+					ug.UserID = u.ID
+				})
+				repos.CreateUserGoogles(ctx, t, ug)
+
+				now := time.Now().UTC()
+				return &testCase{
+					wantUser: u,
+					wantUserGoogle: modeltest.NewUserGoogle(func(ug2 *model2.UserGoogle) {
+						ug2.UserID = u.ID
+						ug2.GoogleID = ug.GoogleID + "_another"
+						ug2.CreatedAt = now
+						ug2.UpdatedAt = now
+					}),
+				}
+			},
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -51,9 +91,23 @@ func Test_User_CreateWithGoogle(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			// TODO: validate user, userGoogle
-			assertion.AssertEqual(t, tc.wantUser, user, "", cmpopts.EquateApproxTime(10*time.Second))
-			assertion.AssertEqual(t, tc.wantUserGoogle, userGoogle, "", cmpopts.EquateApproxTime(10*time.Second))
+			assertion.AssertEqual(
+				t, tc.wantUser, user, "",
+				cmpopts.EquateApproxTime(10*time.Second),
+				cmpopts.IgnoreFields(model2.User{}, "ID"),
+			)
+			if user.ID == 0 {
+				t.Fatal("user.ID must be set")
+			}
+
+			assertion.AssertEqual(
+				t, tc.wantUserGoogle, userGoogle, "",
+				cmpopts.EquateApproxTime(10*time.Second),
+				cmpopts.IgnoreFields(model2.UserGoogle{}, "UserID"),
+			)
+			if userGoogle.UserID == 0 {
+				t.Fatal("userGoogle.ID must be set")
+			}
 		})
 	}
 }

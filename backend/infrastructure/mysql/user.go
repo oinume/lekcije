@@ -31,7 +31,11 @@ func (r *userRepository) CreateWithExec(ctx context.Context, exec repository.Exe
 }
 
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model2.User, error) {
-	return model2.Users(qm.Where("email = ?", email)).One(ctx, r.db)
+	return r.FindByEmailWithExec(ctx, r.db, email)
+}
+
+func (r *userRepository) FindByEmailWithExec(ctx context.Context, exec repository.Executor, email string) (*model2.User, error) {
+	return model2.Users(qm.Where("email = ?", email)).One(ctx, exec)
 }
 
 func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*model2.User, error) {
