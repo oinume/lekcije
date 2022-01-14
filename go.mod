@@ -5,6 +5,7 @@ module github.com/oinume/lekcije
 go 1.16
 
 require (
+	cloud.google.com/go/iam v0.1.0 // indirect
 	cloud.google.com/go/profiler v0.1.2
 	cloud.google.com/go/storage v1.18.2
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.10
@@ -40,7 +41,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
-	google.golang.org/api v0.64.0
+	google.golang.org/api v0.65.0
 	google.golang.org/grpc v1.43.0 // indirect
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
