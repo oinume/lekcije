@@ -23,7 +23,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.8.0 // indirect
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
-	github.com/openzipkin/zipkin-go v0.3.0
+	github.com/openzipkin/zipkin-go v0.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/rollbar/rollbar-go v1.4.2
 	github.com/rs/cors v1.8.2
