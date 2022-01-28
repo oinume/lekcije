@@ -32,7 +32,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/twitchtv/twirp v8.1.1+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
-	github.com/volatiletech/sqlboiler/v4 v4.8.3
+	github.com/volatiletech/sqlboiler/v4 v4.8.5
 	github.com/volatiletech/strmangle v0.0.1
 	go.opencensus.io v0.23.0
 	go.uber.org/zap v1.20.0
