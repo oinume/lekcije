@@ -20,7 +20,6 @@ install_npm_packages: &install_npm_packages
 
 jobs:
   server:
-    executor: docker
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
       - image: golang:1.16-buster
@@ -65,13 +64,13 @@ jobs:
             mysql -uroot -h ${MYSQL_HOST} -e "CREATE DATABASE IF NOT EXISTS lekcije_test DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci"
             mysql -uroot -h ${MYSQL_HOST} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`lekcije\\_test%\`.* TO 'lekcije'@'%'"
       - restore_cache:
-          key: go-mod-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "backend/go.sum" }}
+          key: go-mod-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "go.sum" }}
       - save_cache:
-          key: go-mod-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "backend/go.sum" }}
+          key: go-mod-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg/mod/cache"
       - restore_cache:
-          key: go-commands-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "backend/go.sum" }}
+          key: go-commands-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "go.sum" }}
       - run:
           name: "Install commands"
           command: |
@@ -80,7 +79,7 @@ jobs:
               make install-tools
             fi
       - save_cache:
-          key: go-commands-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "backend/go.sum" }}
+          key: go-commands-{{ checksum ".circleci/cache_version.txt" }}-{{ checksum "go.sum" }}
           paths:
             - "/go/bin"
       - run:

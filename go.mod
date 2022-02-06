@@ -1,6 +1,6 @@
 // +heroku goVersion go1.16
 // +heroku install ./backend/cmd/...
-module github.com/oinume/lekcije/backend
+module github.com/oinume/lekcije
 
 go 1.16
 
