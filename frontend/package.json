@@ -92,7 +92,7 @@
     "cookie": "^0.4.1",
     "cross-fetch": "^3.1.4",
     "lodash-es": "^4.17.20",
-    "minimatch": "^3.0.4",
+    "minimatch": "^5.0.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
