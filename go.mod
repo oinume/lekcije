@@ -32,7 +32,7 @@ require (
 	github.com/twitchtv/twirp v8.1.1+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.8.6
-	github.com/volatiletech/strmangle v0.0.1
+	github.com/volatiletech/strmangle v0.0.2
 	go.opencensus.io v0.23.0
 	go.uber.org/zap v1.20.0
 	goji.io/v3 v3.0.0
