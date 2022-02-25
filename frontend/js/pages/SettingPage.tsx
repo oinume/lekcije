@@ -39,7 +39,7 @@ export const SettingPage: React.FC = () => {
       }),
     ),
     {
-      onSuccess: async () => {
+      async onSuccess() {
         await queryClient.invalidateQueries(queryKeyMe);
       },
     },
@@ -53,7 +53,7 @@ export const SettingPage: React.FC = () => {
       }),
     ),
     {
-      onSuccess: async () => {
+      async onSuccess() {
         await queryClient.invalidateQueries(queryKeyMe);
       },
     },

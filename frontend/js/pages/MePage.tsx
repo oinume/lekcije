@@ -68,13 +68,13 @@ const CreateForm = () => {
       JSON.stringify({teacherIdOrUrl}),
     ),
     {
-      onSuccess: async () => {
+      async onSuccess() {
         await queryClient.invalidateQueries(queryKeyFollowingTeachers);
         setTeacherIdOrUrl('');
         setSubmitDisabled(true);
         toast.success('講師をフォローしました！');
       },
-      onError: (error: TwirpError) => {
+      onError(error: TwirpError) {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
         console.error(`createFollowingTeacherMutation.onError: err=${error}`);
         toast.error(`講師のフォローに失敗しました: ${error.message}`);
@@ -144,12 +144,12 @@ const TeacherList = () => {
       JSON.stringify({teacherIds}),
     ),
     {
-      onSuccess: async () => {
+      async onSuccess() {
         await queryClient.invalidateQueries(queryKeyFollowingTeachers);
         toast.success('講師のフォローを解除しました');
         setDeleteSubmitDisabled(true);
       },
-      onError: (error: TwirpError) => {
+      onError(error: TwirpError) {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
         console.error(`deleteFollowingTeacherMutation.onError: err=${error}`);
         toast.error(`講師のフォロー解除に失敗しました: ${error.message}`);
