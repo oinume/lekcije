@@ -31,6 +31,7 @@ require (
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
 	github.com/stretchr/testify v1.7.1
 	github.com/twitchtv/twirp v8.1.1+incompatible
+	github.com/vektah/gqlparser/v2 v2.2.0 // indirect
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.8.6
 	github.com/volatiletech/strmangle v0.0.2
