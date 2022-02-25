@@ -113,7 +113,7 @@ jobs:
         run: |
           make build
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
         with:
           version: v1.41.1
           working-directory: backend
