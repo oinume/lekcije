@@ -17,7 +17,7 @@ def backup_mysql(ctx):
     port = os.getenv('MYSQL_PORT')
     database = os.getenv('MYSQL_DATABASE')
     dump_file = 'lekcije_' + datetime.datetime.now().strftime('%Y%m%d') + '.dump.bz2'
-    ctx.run('{mysqldump} -u{user} -p{password} -h{host} -P{port} --no-tablespaces {database} | bzip2 -9 > {dump_file}'.format(**locals()))
+    ctx.run('{mysqldump} -u{user} -p{password} -h{host} -P{port} --no-tablespaces --quick {database} | bzip2 -9 > {dump_file}'.format(**locals()))
 
     client = storage.Client()
     bucket = client.get_bucket(BUCKET_NAME)
