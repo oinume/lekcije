@@ -28,3 +28,8 @@ proto/go:
 .PHONY: ngrok
 ngrok:
 	ngrok http -subdomain=lekcije -host-header=localhost 4000
+
+.PHONY: sync-go-mod
+sync-go-mod:
+	cp -f backend/go.{mod,sum} ./
+	sed -i '' 's/module github.com\/oinume\/lekcije\/backend/module github.com\/oinume\/lekcije/;' go.mod
