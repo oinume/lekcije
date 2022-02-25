@@ -55,8 +55,6 @@ db/generate:
 
 .PHONY: gqlgen
 gqlgen:
-	@cp -f ../go.{mod,sum} ./
-	@sed -i '' 's/module github.com\/oinume\/lekcije/module github.com\/oinume\/lekcije\/backend/;' go.mod
 	gqlgen generate
 
 .PHONY: mock/genereate
