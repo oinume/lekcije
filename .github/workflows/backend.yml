@@ -81,8 +81,6 @@ jobs:
       - name: Run go/test
         run: |
           pwd
-          ls -l ../
-          ls -l ../frontend
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v2.1.0
