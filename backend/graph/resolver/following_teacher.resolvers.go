@@ -10,6 +10,6 @@ import (
 	"github.com/oinume/lekcije/backend/graph/model"
 )
 
-func (r *queryResolver) FollowingTeachers(ctx context.Context) ([]*model.Teacher, error) {
+func (r *queryResolver) FollowingTeachers(ctx context.Context) ([]*model.FollowingTeacher, error) {
 	panic(fmt.Errorf("not implemented"))
 }

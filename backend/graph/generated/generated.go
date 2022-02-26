@@ -43,6 +43,11 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	FollowingTeacher struct {
+		CreatedAt func(childComplexity int) int
+		Teacher   func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateTodo func(childComplexity int, input model.NewTodo) int
 	}
@@ -75,7 +80,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
-	FollowingTeachers(ctx context.Context) ([]*model.Teacher, error)
+	FollowingTeachers(ctx context.Context) ([]*model.FollowingTeacher, error)
 }
 
 type executableSchema struct {
@@ -92,6 +97,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "FollowingTeacher.createdAt":
+		if e.complexity.FollowingTeacher.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacher.CreatedAt(childComplexity), true
+
+	case "FollowingTeacher.teacher":
+		if e.complexity.FollowingTeacher.Teacher == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacher.Teacher(childComplexity), true
 
 	case "Mutation.createTodo":
 		if e.complexity.Mutation.CreateTodo == nil {
@@ -243,13 +262,13 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
-type Teacher {
-  id: ID!
-  name: String!
+type FollowingTeacher {
+  teacher: Teacher!
+  createdAt: String!
 }
 
 extend type Query {
-  followingTeachers: [Teacher!]!
+  followingTeachers: [FollowingTeacher!]!
 }
 
 #type Query {
@@ -292,6 +311,15 @@ input NewTodo {
 
 type Mutation {
   createTodo(input: NewTodo!): Todo!
+}
+`, BuiltIn: false},
+	{Name: "graph/teacher.graphqls", Input: `# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Teacher {
+  id: ID!
+  name: String!
 }
 `, BuiltIn: false},
 }
@@ -368,6 +396,76 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _FollowingTeacher_teacher(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacher) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FollowingTeacher",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Teacher, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Teacher)
+	fc.Result = res
+	return ec.marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTeacher(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _FollowingTeacher_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacher) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FollowingTeacher",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
@@ -476,9 +574,9 @@ func (ec *executionContext) _Query_followingTeachers(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Teacher)
+	res := resTmp.([]*model.FollowingTeacher)
 	fc.Result = res
-	return ec.marshalNTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTeacherᚄ(ctx, field.Selections, res)
+	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1993,6 +2091,47 @@ func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj inter
 
 // region    **************************** object.gotpl ****************************
 
+var followingTeacherImplementors = []string{"FollowingTeacher"}
+
+func (ec *executionContext) _FollowingTeacher(ctx context.Context, sel ast.SelectionSet, obj *model.FollowingTeacher) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, followingTeacherImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FollowingTeacher")
+		case "teacher":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._FollowingTeacher_teacher(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdAt":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._FollowingTeacher_createdAt(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2690,6 +2829,60 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FollowingTeacher) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacher(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacher(ctx context.Context, sel ast.SelectionSet, v *model.FollowingTeacher) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._FollowingTeacher(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2723,50 +2916,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTeacherᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Teacher) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTeacher(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTeacher(ctx context.Context, sel ast.SelectionSet, v *model.Teacher) graphql.Marshaler {

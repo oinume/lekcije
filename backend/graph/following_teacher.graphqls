@@ -2,13 +2,13 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Teacher {
-  id: ID!
-  name: String!
+type FollowingTeacher {
+  teacher: Teacher!
+  createdAt: String!
 }
 
 extend type Query {
-  followingTeachers: [Teacher!]!
+  followingTeachers: [FollowingTeacher!]!
 }
 
 #type Query {

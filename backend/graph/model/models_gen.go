@@ -2,6 +2,11 @@
 
 package model
 
+type FollowingTeacher struct {
+	Teacher   *Teacher `json:"teacher"`
+	CreatedAt string   `json:"createdAt"`
+}
+
 type NewTodo struct {
 	Text   string `json:"text"`
 	UserID string `json:"userId"`
