@@ -54,7 +54,7 @@ jobs:
         with:
           go-version: 1.16
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Print PWD
         run: |
           pwd
@@ -104,7 +104,7 @@ jobs:
         working-directory: backend
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -128,7 +128,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 #      - name: Save credentials into secrect.yaml
 #        run: |
 #          sed "s/<SENDGRID_API_KEY>/$SENDGRID_API_KEY/" ./entrypoint/task/secret.yaml.tmpl > ./entrypoint/task/secret.yaml
