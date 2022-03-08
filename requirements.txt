@@ -1,5 +1,5 @@
 APScheduler==3.8.1
 google-cloud==0.34.0
 invoke==0.23.0
-google-api-python-client==2.38.0
+google-api-python-client==2.39.0
 google-cloud-storage==2.1.0
