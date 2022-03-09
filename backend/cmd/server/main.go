@@ -8,14 +8,19 @@ import (
 	"time"
 
 	"cloud.google.com/go/profiler"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/rollbar/rollbar-go"
 	"go.opencensus.io/trace"
 	"goji.io/v3"
+	"goji.io/v3/pat"
 
 	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/gcp"
+	"github.com/oinume/lekcije/backend/graph/generated"
+	"github.com/oinume/lekcije/backend/graph/resolver"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
@@ -105,6 +110,8 @@ func main() {
 }
 
 func startHTTPServer(port int, args *interfaces.ServerArgs) error {
+	mux := goji.NewMux()
+
 	// TODO: graceful shutdown
 	errorRecorder := di.NewErrorRecorderUsecase(args.AppLogger, args.RollbarClient)
 	userAPIToken := di.NewUserAPITokenUsecase(args.DB)
@@ -114,11 +121,20 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	meServer := di.NewMeServer(
 		args.AppLogger, args.GormDB, errorRecorderHooks, args.GAMeasurementClient,
 	)
-
-	mux := goji.NewMux()
 	server.Setup(mux)
 	oauthServer.Setup(mux)
 	interfaces_http.SetupTwirpServer(mux, meServer)
+
+	gqlSchema := generated.NewExecutableSchema(generated.Config{
+		Resolvers: &resolver.Resolver{},
+	})
+	gqlServer := handler.NewDefaultServer(gqlSchema)
+	const gqlPath = "/query"
+	mux.Handle(pat.Get(gqlPath), gqlServer)
+	mux.Handle(pat.Post(gqlPath), gqlServer)
+	if !config.DefaultVars.IsProductionEnv() {
+		mux.Handle(pat.Get("/playground"), playground.Handler("GraphQL playground", gqlPath))
+	}
 
 	fmt.Printf("Starting HTTP server on %v\n", port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
