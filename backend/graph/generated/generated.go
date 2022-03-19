@@ -45,6 +45,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	FollowingTeacher struct {
 		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
 		Teacher   func(childComplexity int) int
 	}
 
@@ -53,8 +54,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		FollowingTeachers func(childComplexity int) int
-		Todos             func(childComplexity int) int
+		Todos  func(childComplexity int) int
+		Viewer func(childComplexity int) int
 	}
 
 	Teacher struct {
@@ -70,8 +71,9 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		Email             func(childComplexity int) int
+		FollowingTeachers func(childComplexity int) int
+		ID                func(childComplexity int) int
 	}
 }
 
@@ -80,7 +82,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
-	FollowingTeachers(ctx context.Context) ([]*model.FollowingTeacher, error)
+	Viewer(ctx context.Context) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -105,6 +107,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.FollowingTeacher.CreatedAt(childComplexity), true
 
+	case "FollowingTeacher.id":
+		if e.complexity.FollowingTeacher.ID == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacher.ID(childComplexity), true
+
 	case "FollowingTeacher.teacher":
 		if e.complexity.FollowingTeacher.Teacher == nil {
 			break
@@ -124,19 +133,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(model.NewTodo)), true
 
-	case "Query.followingTeachers":
-		if e.complexity.Query.FollowingTeachers == nil {
-			break
-		}
-
-		return e.complexity.Query.FollowingTeachers(childComplexity), true
-
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
 			break
 		}
 
 		return e.complexity.Query.Todos(childComplexity), true
+
+	case "Query.viewer":
+		if e.complexity.Query.Viewer == nil {
+			break
+		}
+
+		return e.complexity.Query.Viewer(childComplexity), true
 
 	case "Teacher.id":
 		if e.complexity.Teacher.ID == nil {
@@ -180,19 +189,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Todo.User(childComplexity), true
 
+	case "User.email":
+		if e.complexity.User.Email == nil {
+			break
+		}
+
+		return e.complexity.User.Email(childComplexity), true
+
+	case "User.followingTeachers":
+		if e.complexity.User.FollowingTeachers == nil {
+			break
+		}
+
+		return e.complexity.User.FollowingTeachers(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
 		}
 
 		return e.complexity.User.ID(childComplexity), true
-
-	case "User.name":
-		if e.complexity.User.Name == nil {
-			break
-		}
-
-		return e.complexity.User.Name(childComplexity), true
 
 	}
 	return 0, false
@@ -258,31 +274,11 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema/following_teacher.graphqls", Input: `# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type FollowingTeacher {
+	{Name: "graph/schema/following_teacher.graphqls", Input: `type FollowingTeacher {
+  id: ID!
   teacher: Teacher!
   createdAt: String!
 }
-
-extend type Query {
-  followingTeachers: [FollowingTeacher!]!
-}
-
-#type Query {
-#  todos: [Todo!]!
-#}
-#
-#input NewTodo {
-#  text: String!
-#  userId: String!
-#}
-#
-#type Mutation {
-#  createTodo(input: NewTodo!): Todo!
-#}
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
 #
@@ -295,10 +291,10 @@ type Todo {
   user: User!
 }
 
-type User {
-  id: ID!
-  name: String!
-}
+#type User {
+#  id: ID!
+#  name: String!
+#}
 
 type Query {
   todos: [Todo!]!
@@ -320,6 +316,16 @@ type Mutation {
 type Teacher {
   id: ID!
   name: String!
+}
+`, BuiltIn: false},
+	{Name: "graph/schema/user.graphqls", Input: `type User {
+  id: ID!
+  email: String!
+  followingTeachers: [FollowingTeacher!]!
+}
+`, BuiltIn: false},
+	{Name: "graph/schema/viewer.graphqls", Input: `extend type Query {
+  viewer: User!
 }
 `, BuiltIn: false},
 }
@@ -396,6 +402,41 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _FollowingTeacher_id(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacher) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "FollowingTeacher",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _FollowingTeacher_teacher(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacher) (ret graphql.Marshaler) {
 	defer func() {
@@ -544,7 +585,7 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 	return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTodoᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_followingTeachers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_viewer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -562,7 +603,7 @@ func (ec *executionContext) _Query_followingTeachers(ctx context.Context, field 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().FollowingTeachers(rctx)
+		return ec.resolvers.Query().Viewer(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -574,9 +615,9 @@ func (ec *executionContext) _Query_followingTeachers(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.FollowingTeacher)
+	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -895,7 +936,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -913,7 +954,7 @@ func (ec *executionContext) _User_name(ctx context.Context, field graphql.Collec
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.Email, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -928,6 +969,41 @@ func (ec *executionContext) _User_name(ctx context.Context, field graphql.Collec
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_followingTeachers(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FollowingTeachers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.FollowingTeacher)
+	fc.Result = res
+	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2101,6 +2177,16 @@ func (ec *executionContext) _FollowingTeacher(ctx context.Context, sel ast.Selec
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("FollowingTeacher")
+		case "id":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._FollowingTeacher_id(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "teacher":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._FollowingTeacher_teacher(ctx, field, obj)
@@ -2214,7 +2300,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "followingTeachers":
+		case "viewer":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -2223,7 +2309,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_followingTeachers(ctx, field)
+				res = ec._Query_viewer(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2384,9 +2470,19 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "name":
+		case "email":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._User_name(ctx, field, obj)
+				return ec._User_email(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "followingTeachers":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._User_followingTeachers(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -2984,6 +3080,10 @@ func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋba
 		return graphql.Null
 	}
 	return ec._Todo(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUser2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

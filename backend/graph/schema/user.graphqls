@@ -1,0 +1,5 @@
+type User {
+  id: ID!
+  email: String!
+  followingTeachers: [FollowingTeacher!]!
+}

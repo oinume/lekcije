@@ -3,6 +3,7 @@
 package model
 
 type FollowingTeacher struct {
+	ID        string   `json:"id"`
 	Teacher   *Teacher `json:"teacher"`
 	CreatedAt string   `json:"createdAt"`
 }
@@ -25,6 +26,7 @@ type Todo struct {
 }
 
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID                string              `json:"id"`
+	Email             string              `json:"email"`
+	FollowingTeachers []*FollowingTeacher `json:"followingTeachers"`
 }

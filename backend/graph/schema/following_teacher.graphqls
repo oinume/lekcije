@@ -1,25 +1,5 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
 type FollowingTeacher {
+  id: ID!
   teacher: Teacher!
   createdAt: String!
 }
-
-extend type Query {
-  followingTeachers: [FollowingTeacher!]!
-}
-
-#type Query {
-#  todos: [Todo!]!
-#}
-#
-#input NewTodo {
-#  text: String!
-#  userId: String!
-#}
-#
-#type Mutation {
-#  createTodo(input: NewTodo!): Todo!
-#}

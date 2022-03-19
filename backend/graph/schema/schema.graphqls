@@ -9,10 +9,10 @@ type Todo {
   user: User!
 }
 
-type User {
-  id: ID!
-  name: String!
-}
+#type User {
+#  id: ID!
+#  name: String!
+#}
 
 type Query {
   todos: [Todo!]!

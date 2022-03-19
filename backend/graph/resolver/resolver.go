@@ -4,4 +4,6 @@ package resolver
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct{}
+type Resolver struct {
+	// TODO: Add usecase or repository here
+}
