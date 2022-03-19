@@ -258,7 +258,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/following_teacher.graphqls", Input: `# GraphQL schema example
+	{Name: "graph/schema/following_teacher.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
@@ -284,7 +284,7 @@ extend type Query {
 #  createTodo(input: NewTodo!): Todo!
 #}
 `, BuiltIn: false},
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
+	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
@@ -313,7 +313,7 @@ type Mutation {
   createTodo(input: NewTodo!): Todo!
 }
 `, BuiltIn: false},
-	{Name: "graph/teacher.graphqls", Input: `# GraphQL schema example
+	{Name: "graph/schema/teacher.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
