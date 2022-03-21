@@ -7,9 +7,17 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/graph/model"
 )
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	user, err := context_data.GetLoggedInUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &model.User{
+		ID:    fmt.Sprint(user.ID),
+		Email: user.Email,
+	}, nil
 }

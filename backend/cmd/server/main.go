@@ -22,6 +22,7 @@ import (
 	"github.com/oinume/lekcije/backend/graph/generated"
 	"github.com/oinume/lekcije/backend/graph/resolver"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
+	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/logger"
@@ -125,8 +126,13 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	oauthServer.Setup(mux)
 	interfaces_http.SetupTwirpServer(mux, meServer)
 
+	gqlResolver := resolver.NewResolver(
+		mysql.NewFollowingTeacherRepository(args.DB),
+		mysql.NewTeacherRepository(args.DB),
+		mysql.NewUserRepository(args.DB),
+	)
 	gqlSchema := generated.NewExecutableSchema(generated.Config{
-		Resolvers: &resolver.Resolver{},
+		Resolvers: gqlResolver,
 	})
 	gqlServer := handler.NewDefaultServer(gqlSchema)
 	const gqlPath = "/query"
