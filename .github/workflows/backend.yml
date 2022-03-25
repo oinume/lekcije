@@ -58,7 +58,7 @@ jobs:
       - name: Print PWD
         run: |
           pwd
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: cache
         with:
           path: ${{ env.GOPATH }}/pkg/mod
@@ -134,7 +134,7 @@ jobs:
 #          sed "s/<SENDGRID_API_KEY>/$SENDGRID_API_KEY/" ./entrypoint/task/secret.yaml.tmpl > ./entrypoint/task/secret.yaml
 #        env:
 #          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: cache
         with:
           path: ${{ env.GOPATH }}/pkg/mod
