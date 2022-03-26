@@ -1,0 +1,17 @@
+query getViewer {
+  viewer {
+    id
+    email
+  }
+}
+
+query getViewerFollowingTeachers {
+  viewer {
+    followingTeachers {
+      teacher {
+        id
+        name
+      }
+    }
+  }
+}
