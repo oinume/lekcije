@@ -5,6 +5,7 @@
     "/node_modules/",
     "/lib/",
     "/static/",
+    "js/graphql/generated.ts",
     "jest.config.js",
     "tsconfig.*json",
     "webpack.config.js"
