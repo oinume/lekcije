@@ -135,7 +135,7 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 		Resolvers: gqlResolver,
 	})
 	gqlServer := handler.NewDefaultServer(gqlSchema)
-	const gqlPath = "/query"
+	const gqlPath = "/graphql"
 	mux.Handle(pat.Get(gqlPath), gqlServer)
 	mux.Handle(pat.Post(gqlPath), gqlServer)
 	if !config.DefaultVars.IsProductionEnv() {
