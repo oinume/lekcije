@@ -3,8 +3,6 @@ package context_data
 import (
 	"context"
 
-	"github.com/jinzhu/gorm"
-
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -13,14 +11,9 @@ import (
 type (
 	apiTokenKey     struct{}
 	eventValuesKey  struct{}
-	dbKey           struct{}
 	loggedInUserKey struct{}
 	trackingIDKey   struct{}
 )
-
-func SetDB(ctx context.Context, db *gorm.DB) context.Context {
-	return context.WithValue(ctx, dbKey{}, db)
-}
 
 func GetLoggedInUser(ctx context.Context) (*model.User, error) {
 	value := ctx.Value(loggedInUserKey{})
@@ -72,14 +65,6 @@ func GetAPIToken(ctx context.Context) (string, error) {
 		return apiToken, nil
 	}
 	return "", errors.NewNotFoundError(errors.WithMessage("failed to get api token from context"))
-}
-
-func MustAPIToken(ctx context.Context) string {
-	v, err := GetAPIToken(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return v
 }
 
 func WithGAMeasurementEvent(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {

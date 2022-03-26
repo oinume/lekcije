@@ -26,7 +26,6 @@ func (s *server) Setup(mux *goji.Mux) {
 	mux.HandleFunc(pat.Get("/sitemap.xml"), s.sitemapXML)
 	mux.HandleFunc(pat.Get("/terms"), s.terms)
 	mux.HandleFunc(pat.Get("/me"), s.getMe)
-	mux.HandleFunc(pat.Get("/me/old"), s.getMeOld)
 	mux.HandleFunc(pat.Get("/me/logout"), s.getMeLogout)
 	mux.HandleFunc(pat.Get("/me/setting"), s.getMeSetting)
 	mux.HandleFunc(pat.Get("/api/status"), s.getAPIStatus)
