@@ -2,25 +2,17 @@
 
 package model
 
+type Empty struct {
+	ID string `json:"id"`
+}
+
 type FollowingTeacher struct {
 	ID        string   `json:"id"`
 	Teacher   *Teacher `json:"teacher"`
 	CreatedAt string   `json:"createdAt"`
 }
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
-}
-
 type Teacher struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-}
-
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
 }

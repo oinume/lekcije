@@ -11,11 +11,11 @@ import (
 	"github.com/oinume/lekcije/backend/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+func (r *mutationResolver) CreateEmpty(ctx context.Context) (*model.Empty, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+func (r *queryResolver) Empty(ctx context.Context) (*model.Empty, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
