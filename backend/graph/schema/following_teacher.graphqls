@@ -1,0 +1,9 @@
+type FollowingTeacher {
+  id: ID!
+  teacher: Teacher!
+  createdAt: String!
+}
+
+extend type Query {
+  followingTeachers: [FollowingTeacher!]!
+}

@@ -33,3 +33,7 @@ backend/bin/lekcije*
 backend/tools/bin/*
 
 sqlboiler.toml
+
+# Copied from root for gqlgen
+backend/go.mod
+backend/go.sum

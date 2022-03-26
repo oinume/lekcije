@@ -24,3 +24,12 @@ proto/go:
   		--go_out=paths=source_relative:$(PROTO_GEN_GO_DIR) \
   		--twirp_out=paths=source_relative:$(PROTO_GEN_GO_DIR) \
   		proto/api/v1/*.proto
+
+.PHONY: ngrok
+ngrok:
+	ngrok http -subdomain=lekcije -host-header=localhost 4000
+
+.PHONY: sync-go-mod
+sync-go-mod:
+	cp -f backend/go.{mod,sum} ./
+	sed -i '' 's/module github.com\/oinume\/lekcije\/backend/module github.com\/oinume\/lekcije/;' go.mod

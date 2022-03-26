@@ -1,0 +1,11 @@
+type Empty {
+  id: ID!
+}
+
+type Query {
+  empty: Empty
+}
+
+type Mutation {
+  createEmpty: Empty
+}
