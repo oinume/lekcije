@@ -6,14 +6,13 @@ import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
-import {useGetMe} from '../hooks/useGetMe';
 import {NotificationTimeSpanModel} from '../models/NotificatonTimeSpan';
 import {queryKeyMe} from '../hooks/common';
-import {TwirpError, twirpRequest} from '../http/twirp';
+import {twirpRequest} from '../http/twirp';
 import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
 import {
   GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
-  useGetViewerWithNotificationTimeSpansQuery
+  useGetViewerWithNotificationTimeSpansQuery,
 } from '../graphql/generated';
 import {createGraphQLClient, GraphQLError} from '../http/graphql';
 
@@ -168,8 +167,4 @@ export const SettingPage: React.FC = () => {
   );
 };
 
-const toModels = (timeSpans: NotificationTimeSpan[]): NotificationTimeSpanModel[] => {
-  return timeSpans.map<NotificationTimeSpanModel>((o) => {
-    return NotificationTimeSpanModel.fromObject(o);
-  })
-}
+const toModels = (timeSpans: NotificationTimeSpan[]): NotificationTimeSpanModel[] => timeSpans.map<NotificationTimeSpanModel>(o => NotificationTimeSpanModel.fromObject(o));

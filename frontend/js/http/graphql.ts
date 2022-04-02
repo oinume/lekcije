@@ -7,8 +7,9 @@ export const createGraphQLClient = (path?: string, token?: string) => {
   };
 
   if (path === undefined) {
-    path = '/graphql'
+    path = '/graphql';
   }
+
   if (token === undefined) {
     const cookies = cookie.parse(document.cookie);
     if (cookies.apiToken) {
@@ -19,9 +20,9 @@ export const createGraphQLClient = (path?: string, token?: string) => {
   }
 
   return new GraphQLClient(path, {
-    headers: headers,
-  })
-}
+    headers,
+  });
+};
 
 // TODO: Define error class correctly
 export class GraphQLError extends Error {
