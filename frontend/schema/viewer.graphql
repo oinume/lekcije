@@ -5,8 +5,10 @@ query getViewer {
   }
 }
 
-query getViewerFollowingTeachers {
+query getViewerWithFollowingTeachers {
   viewer {
+    id
+    email
     followingTeachers {
       teacher {
         id

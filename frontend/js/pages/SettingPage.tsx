@@ -9,8 +9,10 @@ import {PageTitle} from '../components/PageTitle';
 import {useGetMe} from '../hooks/useGetMe';
 import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
 import {queryKeyMe} from '../hooks/common';
-import {twirpRequest} from '../http/twirp';
+import {TwirpError, twirpRequest} from '../http/twirp';
 import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
+import {GetViewerQuery, useGetViewerQuery} from '../graphql/generated';
+import {createGraphQLClient, GraphQLError} from '../http/graphql';
 
 type ToggleAlertState = {
   visible: boolean;
@@ -59,25 +61,33 @@ export const SettingPage: React.FC = () => {
     },
   );
 
-  // Console.log('BEFORE useGetMe');
-  const getMeResult = useGetMe({});
-  // Console.log('AFTER useGetMe: isLoading = %s', isLoading);
-
-  if (getMeResult.isLoading || getMeResult.isIdle) {
+  const client = createGraphQLClient();
+  const getViewerQuery = useGetViewerQuery<GetViewerQuery, GraphQLError>(client);
+  if (getViewerQuery.isLoading || getViewerQuery.isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
-      <Loader isLoading={getMeResult.isLoading}/>
+      <Loader isLoading={getViewerQuery.isLoading}/>
     );
   }
+  // Console.log('BEFORE useGetMe');
+  // const getMeResult = useGetMe({});
+  // Console.log('AFTER useGetMe: isLoading = %s', isLoading);
 
-  if (getMeResult.error) {
+  // if (getMeResult.isLoading || getMeResult.isIdle) {
+  //   // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
+  //   return (
+  //     <Loader isLoading={getMeResult.isLoading}/>
+  //   );
+  // }
+
+  if (getViewerQuery.error) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-    console.error(`useGetMe: error = ${getMeResult.error}, type=${typeof getMeResult.error}`);
-    return <ErrorAlert message={getMeResult.error.message}/>;
+    console.error(`useGetMe: error = ${getViewerQuery.error}, type=${typeof getViewerQuery.error}`);
+    return <ErrorAlert message={getViewerQuery.error.message}/>;
   }
 
-  const email = emailState ?? getMeResult.data.email;
-  const notificationTimeSpans = notificationTimeSpansState ?? getMeResult.data.notificationTimeSpans;
+  const email = emailState ?? getViewerQuery.data.viewer.email;
+  const notificationTimeSpans = notificationTimeSpansState ?? getViewerQuery.data.viewer..notificationTimeSpans;
 
   const handleHideAlert = () => {
     setAlert({...alert, visible: false});
