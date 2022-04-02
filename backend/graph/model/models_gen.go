@@ -12,6 +12,13 @@ type FollowingTeacher struct {
 	CreatedAt string   `json:"createdAt"`
 }
 
+type NotificationTimeSpan struct {
+	FromHour   int `json:"fromHour"`
+	FromMinute int `json:"fromMinute"`
+	ToHour     int `json:"toHour"`
+	ToMinute   int `json:"toMinute"`
+}
+
 type Teacher struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`

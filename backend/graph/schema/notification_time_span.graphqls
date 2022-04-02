@@ -1,0 +1,6 @@
+type NotificationTimeSpan {
+  fromHour: Int!
+  fromMinute: Int!
+  toHour: Int!
+  toMinute: Int!
+}

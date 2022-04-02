@@ -54,6 +54,10 @@ func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User) (
 	return followingTeachers, nil
 }
 
+func (r *userResolver) NotificationTimeSpans(ctx context.Context, obj *model.User) ([]*model.NotificationTimeSpan, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // User returns generated.UserResolver implementation.
 func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
