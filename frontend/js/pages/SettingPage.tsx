@@ -7,11 +7,14 @@ import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
 import {useGetMe} from '../hooks/useGetMe';
-import {NotificationTimeSpan} from '../models/NotificatonTimeSpan';
+import {NotificationTimeSpanModel} from '../models/NotificatonTimeSpan';
 import {queryKeyMe} from '../hooks/common';
 import {TwirpError, twirpRequest} from '../http/twirp';
 import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
-import {GetViewerQuery, useGetViewerQuery} from '../graphql/generated';
+import {
+  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
+  useGetViewerWithNotificationTimeSpansQuery
+} from '../graphql/generated';
 import {createGraphQLClient, GraphQLError} from '../http/graphql';
 
 type ToggleAlertState = {
@@ -27,7 +30,7 @@ export const SettingPage: React.FC = () => {
     message: '',
   });
   const [emailState, setEmailState] = useState<string | undefined>(undefined);
-  const [notificationTimeSpansState, setNotificationTimeSpansState] = useState<NotificationTimeSpan[] | undefined>(
+  const [notificationTimeSpansState, setNotificationTimeSpansState] = useState<NotificationTimeSpanModel[] | undefined>(
     undefined,
   );
 
@@ -48,7 +51,7 @@ export const SettingPage: React.FC = () => {
   );
 
   const updateMeNotificationTimeSpanMutation = useMutation(
-    async (timeSpans: NotificationTimeSpan[]): Promise<Response> => twirpRequest(
+    async (timeSpans: NotificationTimeSpanModel[]): Promise<Response> => twirpRequest(
       '/twirp/api.v1.Me/UpdateNotificationTimeSpan',
       JSON.stringify({
         notificationTimeSpans: timeSpans,
@@ -62,11 +65,11 @@ export const SettingPage: React.FC = () => {
   );
 
   const client = createGraphQLClient();
-  const getViewerQuery = useGetViewerQuery<GetViewerQuery, GraphQLError>(client);
-  if (getViewerQuery.isLoading || getViewerQuery.isIdle) {
+  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(client);
+  if (queryResult.isLoading || queryResult.isIdle) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
-      <Loader isLoading={getViewerQuery.isLoading}/>
+      <Loader isLoading={queryResult.isLoading}/>
     );
   }
   // Console.log('BEFORE useGetMe');
@@ -80,14 +83,14 @@ export const SettingPage: React.FC = () => {
   //   );
   // }
 
-  if (getViewerQuery.error) {
+  if (queryResult.error) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-    console.error(`getViewerQuery: error = ${getViewerQuery.error}, type=${typeof getViewerQuery.error}`);
-    return <ErrorAlert message={getViewerQuery.error.message}/>;
+    console.error(`getViewerQuery: error = ${queryResult.error}, type=${typeof queryResult.error}`);
+    return <ErrorAlert message={queryResult.error.message}/>;
   }
 
-  const email = emailState ?? getViewerQuery.data.viewer.email;
-  const notificationTimeSpans = notificationTimeSpansState ?? getViewerQuery.data.viewer..notificationTimeSpans;
+  const email = emailState ?? queryResult.data.viewer.email;
+  const notificationTimeSpans = notificationTimeSpansState ?? toModels(queryResult.data.viewer.notificationTimeSpans);
 
   const handleHideAlert = () => {
     setAlert({...alert, visible: false});
@@ -99,7 +102,7 @@ export const SettingPage: React.FC = () => {
       return;
     }
 
-    setNotificationTimeSpansState([...notificationTimeSpans, new NotificationTimeSpan(0, 0, 0, 0)]);
+    setNotificationTimeSpansState([...notificationTimeSpans, new NotificationTimeSpanModel(0, 0, 0, 0)]);
   };
 
   const handleDeleteTimeSpan = (index: number) => {
@@ -119,13 +122,13 @@ export const SettingPage: React.FC = () => {
   };
 
   const handleUpdateTimeSpan = () => {
-    const timeSpans: NotificationTimeSpan[] = [];
+    const timeSpans: NotificationTimeSpanModel[] = [];
     for (const timeSpan of notificationTimeSpans) {
       for (const [k, v] of Object.entries<NotificationTimeSpan>(timeSpan)) {
         timeSpan[k as keyof NotificationTimeSpan] = Number(v);
       }
 
-      if (NotificationTimeSpan.fromObject(timeSpan).isZero()) { // `timeSpan` is object somehow...
+      if (NotificationTimeSpanModel.fromObject(timeSpan).isZero()) { // `timeSpan` is object somehow...
         // Ignore zero value
         continue;
       }
@@ -164,3 +167,9 @@ export const SettingPage: React.FC = () => {
     </div>
   );
 };
+
+const toModels = (timeSpans: NotificationTimeSpan[]): NotificationTimeSpanModel[] => {
+  return timeSpans.map<NotificationTimeSpanModel>((o) => {
+    return NotificationTimeSpanModel.fromObject(o);
+  })
+}

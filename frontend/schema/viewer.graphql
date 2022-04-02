@@ -5,6 +5,19 @@ query getViewer {
   }
 }
 
+query getViewerWithNotificationTimeSpans {
+  viewer {
+    id
+    email
+    notificationTimeSpans {
+      fromHour
+      fromMinute
+      toHour
+      toMinute
+    }
+  }
+}
+
 query getViewerWithFollowingTeachers {
   viewer {
     id

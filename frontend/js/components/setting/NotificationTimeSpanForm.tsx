@@ -2,10 +2,10 @@ import React, {useState} from 'react';
 import {sprintf} from 'sprintf-js';
 import {range} from 'lodash-es';
 import {Select} from '../Select';
-import {NotificationTimeSpan} from '../../models/NotificatonTimeSpan';
+import {NotificationTimeSpanModel} from '../../models/NotificatonTimeSpan';
 
 type Props = {
-  timeSpans: NotificationTimeSpan[];
+  timeSpans: NotificationTimeSpanModel[];
   handleAdd: () => void;
   handleDelete: (index: number) => void;
   handleUpdate: () => void;
@@ -88,7 +88,7 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 
 type TimeSpanItemProps = {
   editable: boolean; // eslint-disable-line react/boolean-prop-naming
-  timeSpan: NotificationTimeSpan;
+  timeSpan: NotificationTimeSpanModel;
   index: number;
   handleOnChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   handleOnClickPlus: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;

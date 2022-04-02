@@ -36,6 +36,14 @@ export type Mutation = {
   createEmpty?: Maybe<Empty>;
 };
 
+export type NotificationTimeSpan = {
+  __typename?: 'NotificationTimeSpan';
+  fromHour: Scalars['Int'];
+  fromMinute: Scalars['Int'];
+  toHour: Scalars['Int'];
+  toMinute: Scalars['Int'];
+};
+
 export type Query = {
   __typename?: 'Query';
   empty?: Maybe<Empty>;
@@ -54,6 +62,7 @@ export type User = {
   email: Scalars['String'];
   followingTeachers: Array<FollowingTeacher>;
   id: Scalars['ID'];
+  notificationTimeSpans: Array<NotificationTimeSpan>;
 };
 
 export type GetViewerQueryVariables = Exact<{ [key: string]: never; }>;
@@ -61,10 +70,15 @@ export type GetViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetViewerQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string } };
 
-export type GetViewerFollowingTeachersQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetViewerWithNotificationTimeSpansQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetViewerFollowingTeachersQuery = { __typename?: 'Query', viewer: { __typename?: 'User', followingTeachers: Array<{ __typename?: 'FollowingTeacher', teacher: { __typename?: 'Teacher', id: string, name: string } }> } };
+export type GetViewerWithNotificationTimeSpansQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, notificationTimeSpans: Array<{ __typename?: 'NotificationTimeSpan', fromHour: number, fromMinute: number, toHour: number, toMinute: number }> } };
+
+export type GetViewerWithFollowingTeachersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetViewerWithFollowingTeachersQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, followingTeachers: Array<{ __typename?: 'FollowingTeacher', teacher: { __typename?: 'Teacher', id: string, name: string } }> } };
 
 
 export const GetViewerDocument = `
@@ -93,9 +107,43 @@ export const useGetViewerQuery = <
 useGetViewerQuery.getKey = (variables?: GetViewerQueryVariables) => variables === undefined ? ['getViewer'] : ['getViewer', variables];
 ;
 
-export const GetViewerFollowingTeachersDocument = `
-    query getViewerFollowingTeachers {
+export const GetViewerWithNotificationTimeSpansDocument = `
+    query getViewerWithNotificationTimeSpans {
   viewer {
+    id
+    email
+    notificationTimeSpans {
+      fromHour
+      fromMinute
+      toHour
+      toMinute
+    }
+  }
+}
+    `;
+export const useGetViewerWithNotificationTimeSpansQuery = <
+      TData = GetViewerWithNotificationTimeSpansQuery,
+      TError = unknown
+    >(
+      client: GraphQLClient,
+      variables?: GetViewerWithNotificationTimeSpansQueryVariables,
+      options?: UseQueryOptions<GetViewerWithNotificationTimeSpansQuery, TError, TData>,
+      headers?: RequestInit['headers']
+    ) =>
+    useQuery<GetViewerWithNotificationTimeSpansQuery, TError, TData>(
+      variables === undefined ? ['getViewerWithNotificationTimeSpans'] : ['getViewerWithNotificationTimeSpans', variables],
+      fetcher<GetViewerWithNotificationTimeSpansQuery, GetViewerWithNotificationTimeSpansQueryVariables>(client, GetViewerWithNotificationTimeSpansDocument, variables, headers),
+      options
+    );
+
+useGetViewerWithNotificationTimeSpansQuery.getKey = (variables?: GetViewerWithNotificationTimeSpansQueryVariables) => variables === undefined ? ['getViewerWithNotificationTimeSpans'] : ['getViewerWithNotificationTimeSpans', variables];
+;
+
+export const GetViewerWithFollowingTeachersDocument = `
+    query getViewerWithFollowingTeachers {
+  viewer {
+    id
+    email
     followingTeachers {
       teacher {
         id
@@ -105,20 +153,20 @@ export const GetViewerFollowingTeachersDocument = `
   }
 }
     `;
-export const useGetViewerFollowingTeachersQuery = <
-      TData = GetViewerFollowingTeachersQuery,
+export const useGetViewerWithFollowingTeachersQuery = <
+      TData = GetViewerWithFollowingTeachersQuery,
       TError = unknown
     >(
       client: GraphQLClient,
-      variables?: GetViewerFollowingTeachersQueryVariables,
-      options?: UseQueryOptions<GetViewerFollowingTeachersQuery, TError, TData>,
+      variables?: GetViewerWithFollowingTeachersQueryVariables,
+      options?: UseQueryOptions<GetViewerWithFollowingTeachersQuery, TError, TData>,
       headers?: RequestInit['headers']
     ) =>
-    useQuery<GetViewerFollowingTeachersQuery, TError, TData>(
-      variables === undefined ? ['getViewerFollowingTeachers'] : ['getViewerFollowingTeachers', variables],
-      fetcher<GetViewerFollowingTeachersQuery, GetViewerFollowingTeachersQueryVariables>(client, GetViewerFollowingTeachersDocument, variables, headers),
+    useQuery<GetViewerWithFollowingTeachersQuery, TError, TData>(
+      variables === undefined ? ['getViewerWithFollowingTeachers'] : ['getViewerWithFollowingTeachers', variables],
+      fetcher<GetViewerWithFollowingTeachersQuery, GetViewerWithFollowingTeachersQueryVariables>(client, GetViewerWithFollowingTeachersDocument, variables, headers),
       options
     );
 
-useGetViewerFollowingTeachersQuery.getKey = (variables?: GetViewerFollowingTeachersQueryVariables) => variables === undefined ? ['getViewerFollowingTeachers'] : ['getViewerFollowingTeachers', variables];
+useGetViewerWithFollowingTeachersQuery.getKey = (variables?: GetViewerWithFollowingTeachersQueryVariables) => variables === undefined ? ['getViewerWithFollowingTeachers'] : ['getViewerWithFollowingTeachers', variables];
 ;
