@@ -82,7 +82,7 @@ export const SettingPage: React.FC = () => {
 
   if (getViewerQuery.error) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-    console.error(`useGetMe: error = ${getViewerQuery.error}, type=${typeof getViewerQuery.error}`);
+    console.error(`getViewerQuery: error = ${getViewerQuery.error}, type=${typeof getViewerQuery.error}`);
     return <ErrorAlert message={getViewerQuery.error.message}/>;
   }
 

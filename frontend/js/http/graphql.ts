@@ -24,4 +24,23 @@ export const createGraphQLClient = (path?: string, token?: string) => {
 }
 
 // TODO: Define error class correctly
-export class GraphQLError extends Error {}
+export class GraphQLError extends Error {
+  static fromJson(json: string): GraphQLError {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const object = JSON.parse(json);
+    return new GraphQLError(object.path, object.message);
+  }
+
+  path: string;
+  message: string;
+
+  get string(): string {
+    return `path=${this.path} message=${this.message}`;
+  }
+
+  constructor(path: string, message: string) {
+    super(`path:${path}, message:${message}`);
+    this.path = path;
+    this.message = message;
+  }
+}
