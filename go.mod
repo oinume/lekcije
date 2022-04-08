@@ -7,7 +7,7 @@ go 1.16
 require (
 	cloud.google.com/go/profiler v0.2.0
 	cloud.google.com/go/storage v1.21.0
-	contrib.go.opencensus.io/exporter/stackdriver v0.13.10
+	contrib.go.opencensus.io/exporter/stackdriver v0.13.11
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2
 	github.com/99designs/gqlgen v0.16.0
 	github.com/Songmu/retry v0.1.0
