@@ -1,6 +1,6 @@
-module github.com/graffer-inc/accounts/backend/tools
+module github.com/oinume/lekcije/backend/tools
 
-go 1.15
+go 1.16
 
 require (
 	github.com/99designs/gqlgen v0.17.2
