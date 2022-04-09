@@ -14,6 +14,6 @@ generates:
   ./schema.graphql.json:
     plugins:
       - "introspection"
-  ./schema.graphql:
-    plugins:
-      - "schema-ast"
+#  ./schema.graphql:
+#    plugins:
+#      - "schema-ast"
