@@ -83,7 +83,7 @@
     "@babel/preset-typescript": "^7.12.17",
     "@types/lodash-es": "^4.17.4",
     "@types/react": "^17.0.2",
-    "@types/react-dom": "^17.0.1",
+    "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.2.4",
     "babel-eslint": "^10.1.0",
     "bootstrap": "5.1.3",
