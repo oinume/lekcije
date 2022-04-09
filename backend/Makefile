@@ -55,7 +55,7 @@ db/generate:
 
 .PHONY: gqlgen
 gqlgen:
-	gqlgen generate
+	@gqlgen generate
 
 .PHONY: mock/genereate
 mock/generate:

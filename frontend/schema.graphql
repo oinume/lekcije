@@ -1,0 +1,38 @@
+type Empty {
+  id: ID!
+}
+
+type FollowingTeacher {
+  createdAt: String!
+  id: ID!
+  teacher: Teacher!
+}
+
+type Mutation {
+  createEmpty: Empty
+}
+
+type NotificationTimeSpan {
+  fromHour: Int!
+  fromMinute: Int!
+  toHour: Int!
+  toMinute: Int!
+}
+
+type Query {
+  empty: Empty
+  followingTeachers: [FollowingTeacher!]!
+  viewer: User!
+}
+
+type Teacher {
+  id: ID!
+  name: String!
+}
+
+type User {
+  email: String!
+  followingTeachers: [FollowingTeacher!]!
+  id: ID!
+  notificationTimeSpans: [NotificationTimeSpan!]!
+}

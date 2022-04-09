@@ -128,6 +128,7 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 
 	gqlResolver := resolver.NewResolver(
 		mysql.NewFollowingTeacherRepository(args.DB),
+		mysql.NewNotificationTimeSpanRepository(args.DB),
 		mysql.NewTeacherRepository(args.DB),
 		mysql.NewUserRepository(args.DB),
 	)
@@ -135,7 +136,7 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 		Resolvers: gqlResolver,
 	})
 	gqlServer := handler.NewDefaultServer(gqlSchema)
-	const gqlPath = "/query"
+	const gqlPath = "/graphql"
 	mux.Handle(pat.Get(gqlPath), gqlServer)
 	mux.Handle(pat.Post(gqlPath), gqlServer)
 	if !config.DefaultVars.IsProductionEnv() {

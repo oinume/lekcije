@@ -7,7 +7,9 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
+	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/graph/generated"
 	"github.com/oinume/lekcije/backend/graph/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -52,6 +54,43 @@ func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User) (
 	}
 
 	return followingTeachers, nil
+}
+
+func (r *userResolver) NotificationTimeSpans(ctx context.Context, obj *model.User) ([]*model.NotificationTimeSpan, error) {
+	userID, err := strconv.ParseUint(obj.ID, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	timeSpans, err := r.notificationTimeSpanRepo.FindByUserID(ctx, uint(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	gqlTimeSpans := make([]*model.NotificationTimeSpan, len(timeSpans))
+	for i, nts := range timeSpans {
+		fromTime, err := time.Parse("15:04:05", nts.FromTime)
+		if err != nil {
+			return nil, errors.NewInternalError(
+				errors.WithError(err),
+				errors.WithMessagef("Invalid time format: FromTime=%v", nts.FromTime),
+			)
+		}
+		toTime, err := time.Parse("15:04:05", nts.ToTime)
+		if err != nil {
+			return nil, errors.NewInternalError(
+				errors.WithError(err),
+				errors.WithMessagef("Invalid time format: ToTime=%v", nts.ToTime),
+			)
+		}
+		gqlTimeSpans[i] = &model.NotificationTimeSpan{
+			FromHour:   fromTime.Hour(),
+			FromMinute: fromTime.Minute(),
+			ToHour:     toTime.Hour(),
+			ToMinute:   toTime.Minute(),
+		}
+	}
+
+	return gqlTimeSpans, nil
 }
 
 // User returns generated.UserResolver implementation.

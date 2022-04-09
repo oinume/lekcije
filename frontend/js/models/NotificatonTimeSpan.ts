@@ -1,9 +1,9 @@
 // TODO: Add method isZero() and parse().
-export class NotificationTimeSpan {
+export class NotificationTimeSpanModel {
   [key: string]: any
 
-  static fromObject(o: any): NotificationTimeSpan {
-    return new NotificationTimeSpan(o.fromHour, o.fromMinute, o.toHour, o.toMinute);
+  static fromObject(o: any): NotificationTimeSpanModel {
+    return new NotificationTimeSpanModel(o.fromHour, o.fromMinute, o.toHour, o.toMinute);
   }
 
   constructor(

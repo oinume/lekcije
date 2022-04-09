@@ -7,19 +7,22 @@ import "github.com/oinume/lekcije/backend/repository"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	followingTeacherRepo repository.FollowingTeacher
-	userRepo             repository.User
-	teacherRepo          repository.Teacher
+	followingTeacherRepo     repository.FollowingTeacher
+	notificationTimeSpanRepo repository.NotificationTimeSpan
+	userRepo                 repository.User
+	teacherRepo              repository.Teacher
 }
 
 func NewResolver(
 	followingTeacherRepo repository.FollowingTeacher,
+	notificationTimeSpanRepo repository.NotificationTimeSpan,
 	teacherRepo repository.Teacher,
 	userRepo repository.User,
 ) *Resolver {
 	return &Resolver{
-		followingTeacherRepo: followingTeacherRepo,
-		teacherRepo:          teacherRepo,
-		userRepo:             userRepo,
+		followingTeacherRepo:     followingTeacherRepo,
+		notificationTimeSpanRepo: notificationTimeSpanRepo,
+		teacherRepo:              teacherRepo,
+		userRepo:                 userRepo,
 	}
 }

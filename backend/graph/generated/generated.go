@@ -58,6 +58,13 @@ type ComplexityRoot struct {
 		CreateEmpty func(childComplexity int) int
 	}
 
+	NotificationTimeSpan struct {
+		FromHour   func(childComplexity int) int
+		FromMinute func(childComplexity int) int
+		ToHour     func(childComplexity int) int
+		ToMinute   func(childComplexity int) int
+	}
+
 	Query struct {
 		Empty             func(childComplexity int) int
 		FollowingTeachers func(childComplexity int) int
@@ -70,9 +77,10 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Email             func(childComplexity int) int
-		FollowingTeachers func(childComplexity int) int
-		ID                func(childComplexity int) int
+		Email                 func(childComplexity int) int
+		FollowingTeachers     func(childComplexity int) int
+		ID                    func(childComplexity int) int
+		NotificationTimeSpans func(childComplexity int) int
 	}
 }
 
@@ -86,6 +94,7 @@ type QueryResolver interface {
 }
 type UserResolver interface {
 	FollowingTeachers(ctx context.Context, obj *model.User) ([]*model.FollowingTeacher, error)
+	NotificationTimeSpans(ctx context.Context, obj *model.User) ([]*model.NotificationTimeSpan, error)
 }
 
 type executableSchema struct {
@@ -137,6 +146,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateEmpty(childComplexity), true
+
+	case "NotificationTimeSpan.fromHour":
+		if e.complexity.NotificationTimeSpan.FromHour == nil {
+			break
+		}
+
+		return e.complexity.NotificationTimeSpan.FromHour(childComplexity), true
+
+	case "NotificationTimeSpan.fromMinute":
+		if e.complexity.NotificationTimeSpan.FromMinute == nil {
+			break
+		}
+
+		return e.complexity.NotificationTimeSpan.FromMinute(childComplexity), true
+
+	case "NotificationTimeSpan.toHour":
+		if e.complexity.NotificationTimeSpan.ToHour == nil {
+			break
+		}
+
+		return e.complexity.NotificationTimeSpan.ToHour(childComplexity), true
+
+	case "NotificationTimeSpan.toMinute":
+		if e.complexity.NotificationTimeSpan.ToMinute == nil {
+			break
+		}
+
+		return e.complexity.NotificationTimeSpan.ToMinute(childComplexity), true
 
 	case "Query.empty":
 		if e.complexity.Query.Empty == nil {
@@ -193,6 +230,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.ID(childComplexity), true
+
+	case "User.notificationTimeSpans":
+		if e.complexity.User.NotificationTimeSpans == nil {
+			break
+		}
+
+		return e.complexity.User.NotificationTimeSpans(childComplexity), true
 
 	}
 	return 0, false
@@ -268,6 +312,13 @@ extend type Query {
   followingTeachers: [FollowingTeacher!]!
 }
 `, BuiltIn: false},
+	{Name: "graph/schema/notification_time_span.graphqls", Input: `type NotificationTimeSpan {
+  fromHour: Int!
+  fromMinute: Int!
+  toHour: Int!
+  toMinute: Int!
+}
+`, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `type Empty {
   id: ID!
 }
@@ -293,6 +344,7 @@ type Teacher {
   id: ID!
   email: String!
   followingTeachers: [FollowingTeacher!]!
+  notificationTimeSpans: [NotificationTimeSpan!]!
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/viewer.graphqls", Input: `extend type Query {
@@ -529,6 +581,146 @@ func (ec *executionContext) _Mutation_createEmpty(ctx context.Context, field gra
 	res := resTmp.(*model.Empty)
 	fc.Result = res
 	return ec.marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐEmpty(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _NotificationTimeSpan_fromHour(ctx context.Context, field graphql.CollectedField, obj *model.NotificationTimeSpan) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "NotificationTimeSpan",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FromHour, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _NotificationTimeSpan_fromMinute(ctx context.Context, field graphql.CollectedField, obj *model.NotificationTimeSpan) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "NotificationTimeSpan",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FromMinute, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _NotificationTimeSpan_toHour(ctx context.Context, field graphql.CollectedField, obj *model.NotificationTimeSpan) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "NotificationTimeSpan",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ToHour, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _NotificationTimeSpan_toMinute(ctx context.Context, field graphql.CollectedField, obj *model.NotificationTimeSpan) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "NotificationTimeSpan",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ToMinute, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_empty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -877,6 +1069,41 @@ func (ec *executionContext) _User_followingTeachers(ctx context.Context, field g
 	res := resTmp.([]*model.FollowingTeacher)
 	fc.Result = res
 	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_notificationTimeSpans(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().NotificationTimeSpans(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.NotificationTimeSpan)
+	fc.Result = res
+	return ec.marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpanᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2128,6 +2355,67 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var notificationTimeSpanImplementors = []string{"NotificationTimeSpan"}
+
+func (ec *executionContext) _NotificationTimeSpan(ctx context.Context, sel ast.SelectionSet, obj *model.NotificationTimeSpan) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, notificationTimeSpanImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NotificationTimeSpan")
+		case "fromHour":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._NotificationTimeSpan_fromHour(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "fromMinute":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._NotificationTimeSpan_fromMinute(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "toHour":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._NotificationTimeSpan_toHour(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "toMinute":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._NotificationTimeSpan_toMinute(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2319,6 +2607,26 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._User_followingTeachers(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "notificationTimeSpans":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_notificationTimeSpans(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2831,6 +3139,75 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpanᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NotificationTimeSpan) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNNotificationTimeSpan2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpan(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNNotificationTimeSpan2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpan(ctx context.Context, sel ast.SelectionSet, v *model.NotificationTimeSpan) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._NotificationTimeSpan(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
