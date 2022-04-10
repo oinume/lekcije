@@ -519,10 +519,10 @@ type Teacher {
   id: ID!
   email: String!
   followingTeachers(
-    first:Int,
-    after:String,
-    last:Int,
-    before:String
+    first: Int = 20,
+    after: String,
+    last: Int = 20,
+    before: String
   ): FollowingTeacherConnection!
   notificationTimeSpans: [NotificationTimeSpan!]!
   showTutorial: Boolean!
