@@ -1,7 +1,18 @@
-type FollowingTeacher {
+type FollowingTeacher implements Node {
   id: ID!
   teacher: Teacher!
   createdAt: String!
+}
+
+type FollowingTeacherEdge implements Edge {
+  cursor: String!
+  node: FollowingTeacher!
+}
+
+type FollowingTeacherConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [FollowingTeacherEdge!]!
+  nodes: [FollowingTeacher!]!
 }
 
 extend type Query {

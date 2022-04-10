@@ -1,7 +1,12 @@
 type User {
   id: ID!
   email: String!
-  followingTeachers: [FollowingTeacher!]!
+  followingTeachers(
+    first:Int,
+    after:String,
+    last:Int,
+    before:String
+  ): FollowingTeacherConnection!
   notificationTimeSpans: [NotificationTimeSpan!]!
   showTutorial: Boolean!
 }
