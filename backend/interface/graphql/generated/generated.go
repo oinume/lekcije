@@ -55,6 +55,17 @@ type ComplexityRoot struct {
 		Teacher   func(childComplexity int) int
 	}
 
+	FollowingTeacherConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	FollowingTeacherEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateEmpty                 func(childComplexity int) int
 		UpdateNotificationTimeSpans func(childComplexity int, input model.UpdateNotificationTimeSpansInput) int
@@ -72,6 +83,11 @@ type ComplexityRoot struct {
 		TimeSpans func(childComplexity int) int
 	}
 
+	PageInfo struct {
+		HasNextPage     func(childComplexity int) int
+		HasPreviousPage func(childComplexity int) int
+	}
+
 	Query struct {
 		Empty             func(childComplexity int) int
 		FollowingTeachers func(childComplexity int) int
@@ -85,7 +101,7 @@ type ComplexityRoot struct {
 
 	User struct {
 		Email                 func(childComplexity int) int
-		FollowingTeachers     func(childComplexity int) int
+		FollowingTeachers     func(childComplexity int, first *int, after *string, last *int, before *string) int
 		ID                    func(childComplexity int) int
 		NotificationTimeSpans func(childComplexity int) int
 		ShowTutorial          func(childComplexity int) int
@@ -103,7 +119,7 @@ type QueryResolver interface {
 	Viewer(ctx context.Context) (*model.User, error)
 }
 type UserResolver interface {
-	FollowingTeachers(ctx context.Context, obj *model.User) ([]*model.FollowingTeacher, error)
+	FollowingTeachers(ctx context.Context, obj *model.User, first *int, after *string, last *int, before *string) (*model.FollowingTeacherConnection, error)
 	NotificationTimeSpans(ctx context.Context, obj *model.User) ([]*model.NotificationTimeSpan, error)
 }
 
@@ -149,6 +165,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FollowingTeacher.Teacher(childComplexity), true
+
+	case "FollowingTeacherConnection.edges":
+		if e.complexity.FollowingTeacherConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacherConnection.Edges(childComplexity), true
+
+	case "FollowingTeacherConnection.nodes":
+		if e.complexity.FollowingTeacherConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacherConnection.Nodes(childComplexity), true
+
+	case "FollowingTeacherConnection.pageInfo":
+		if e.complexity.FollowingTeacherConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacherConnection.PageInfo(childComplexity), true
+
+	case "FollowingTeacherEdge.cursor":
+		if e.complexity.FollowingTeacherEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacherEdge.Cursor(childComplexity), true
+
+	case "FollowingTeacherEdge.node":
+		if e.complexity.FollowingTeacherEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.FollowingTeacherEdge.Node(childComplexity), true
 
 	case "Mutation.createEmpty":
 		if e.complexity.Mutation.CreateEmpty == nil {
@@ -216,6 +267,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NotificationTimeSpanPayload.TimeSpans(childComplexity), true
 
+	case "PageInfo.hasNextPage":
+		if e.complexity.PageInfo.HasNextPage == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.HasNextPage(childComplexity), true
+
+	case "PageInfo.hasPreviousPage":
+		if e.complexity.PageInfo.HasPreviousPage == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.HasPreviousPage(childComplexity), true
+
 	case "Query.empty":
 		if e.complexity.Query.Empty == nil {
 			break
@@ -263,7 +328,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.User.FollowingTeachers(childComplexity), true
+		args, err := ec.field_User_followingTeachers_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.User.FollowingTeachers(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string)), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -357,10 +427,21 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/following_teacher.graphqls", Input: `type FollowingTeacher {
+	{Name: "../schema/following_teacher.graphqls", Input: `type FollowingTeacher implements Node {
   id: ID!
   teacher: Teacher!
   createdAt: String!
+}
+
+type FollowingTeacherEdge implements Edge {
+  cursor: String!
+  node: FollowingTeacher!
+}
+
+type FollowingTeacherConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [FollowingTeacherEdge!]!
+  nodes: [FollowingTeacher!]!
 }
 
 extend type Query {
@@ -397,6 +478,26 @@ extend type Mutation {
   id: ID!
 }
 
+interface Node {
+  id: ID!
+}
+
+interface Edge {
+  cursor: String!
+  node: Node!
+}
+
+interface Connection {
+  pageInfo: PageInfo!
+  edges: [Edge!]!
+  nodes: [Node!]!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
 type Query {
   empty: Empty
 }
@@ -417,7 +518,12 @@ type Teacher {
 	{Name: "../schema/user.graphqls", Input: `type User {
   id: ID!
   email: String!
-  followingTeachers: [FollowingTeacher!]!
+  followingTeachers(
+    first:Int,
+    after:String,
+    last:Int,
+    before:String
+  ): FollowingTeacherConnection!
   notificationTimeSpans: [NotificationTimeSpan!]!
   showTutorial: Boolean!
 }
@@ -483,6 +589,48 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_User_followingTeachers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *string
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg3
 	return args, nil
 }
 
@@ -701,6 +849,254 @@ func (ec *executionContext) fieldContext_FollowingTeacher_createdAt(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FollowingTeacherConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacherConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FollowingTeacherConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FollowingTeacherConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FollowingTeacherConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FollowingTeacherConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacherConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FollowingTeacherConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.FollowingTeacherEdge)
+	fc.Result = res
+	return ec.marshalNFollowingTeacherEdge2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FollowingTeacherConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FollowingTeacherConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_FollowingTeacherEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_FollowingTeacherEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FollowingTeacherEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FollowingTeacherConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacherConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FollowingTeacherConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.FollowingTeacher)
+	fc.Result = res
+	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FollowingTeacherConnection_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FollowingTeacherConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FollowingTeacher_id(ctx, field)
+			case "teacher":
+				return ec.fieldContext_FollowingTeacher_teacher(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_FollowingTeacher_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FollowingTeacher", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FollowingTeacherEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacherEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FollowingTeacherEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FollowingTeacherEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FollowingTeacherEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FollowingTeacherEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.FollowingTeacherEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FollowingTeacherEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FollowingTeacher)
+	fc.Result = res
+	return ec.marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacher(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FollowingTeacherEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FollowingTeacherEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_FollowingTeacher_id(ctx, field)
+			case "teacher":
+				return ec.fieldContext_FollowingTeacher_teacher(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_FollowingTeacher_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FollowingTeacher", field.Name)
 		},
 	}
 	return fc, nil
@@ -1096,6 +1492,94 @@ func (ec *executionContext) fieldContext_NotificationTimeSpanPayload_timeSpans(c
 				return ec.fieldContext_NotificationTimeSpan_toMinute(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NotificationTimeSpan", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *model.PageInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HasNextPage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PageInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PageInfo_hasPreviousPage(ctx context.Context, field graphql.CollectedField, obj *model.PageInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HasPreviousPage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PageInfo_hasPreviousPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PageInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1573,7 +2057,7 @@ func (ec *executionContext) _User_followingTeachers(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.User().FollowingTeachers(rctx, obj)
+		return ec.resolvers.User().FollowingTeachers(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1585,9 +2069,9 @@ func (ec *executionContext) _User_followingTeachers(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.FollowingTeacher)
+	res := resTmp.(*model.FollowingTeacherConnection)
 	fc.Result = res
-	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
+	return ec.marshalNFollowingTeacherConnection2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_followingTeachers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1598,15 +2082,26 @@ func (ec *executionContext) fieldContext_User_followingTeachers(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_FollowingTeacher_id(ctx, field)
-			case "teacher":
-				return ec.fieldContext_FollowingTeacher_teacher(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_FollowingTeacher_createdAt(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_FollowingTeacherConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_FollowingTeacherConnection_edges(ctx, field)
+			case "nodes":
+				return ec.fieldContext_FollowingTeacherConnection_nodes(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type FollowingTeacher", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type FollowingTeacherConnection", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_User_followingTeachers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -3594,6 +4089,54 @@ func (ec *executionContext) unmarshalInputUpdateViewerInput(ctx context.Context,
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _Connection(ctx context.Context, sel ast.SelectionSet, obj model.Connection) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.FollowingTeacherConnection:
+		return ec._FollowingTeacherConnection(ctx, sel, &obj)
+	case *model.FollowingTeacherConnection:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FollowingTeacherConnection(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _Edge(ctx context.Context, sel ast.SelectionSet, obj model.Edge) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.FollowingTeacherEdge:
+		return ec._FollowingTeacherEdge(ctx, sel, &obj)
+	case *model.FollowingTeacherEdge:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FollowingTeacherEdge(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj model.Node) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.FollowingTeacher:
+		return ec._FollowingTeacher(ctx, sel, &obj)
+	case *model.FollowingTeacher:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._FollowingTeacher(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -3626,7 +4169,7 @@ func (ec *executionContext) _Empty(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
-var followingTeacherImplementors = []string{"FollowingTeacher"}
+var followingTeacherImplementors = []string{"FollowingTeacher", "Node"}
 
 func (ec *executionContext) _FollowingTeacher(ctx context.Context, sel ast.SelectionSet, obj *model.FollowingTeacher) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, followingTeacherImplementors)
@@ -3653,6 +4196,83 @@ func (ec *executionContext) _FollowingTeacher(ctx context.Context, sel ast.Selec
 		case "createdAt":
 
 			out.Values[i] = ec._FollowingTeacher_createdAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var followingTeacherConnectionImplementors = []string{"FollowingTeacherConnection", "Connection"}
+
+func (ec *executionContext) _FollowingTeacherConnection(ctx context.Context, sel ast.SelectionSet, obj *model.FollowingTeacherConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, followingTeacherConnectionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FollowingTeacherConnection")
+		case "pageInfo":
+
+			out.Values[i] = ec._FollowingTeacherConnection_pageInfo(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "edges":
+
+			out.Values[i] = ec._FollowingTeacherConnection_edges(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "nodes":
+
+			out.Values[i] = ec._FollowingTeacherConnection_nodes(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var followingTeacherEdgeImplementors = []string{"FollowingTeacherEdge", "Edge"}
+
+func (ec *executionContext) _FollowingTeacherEdge(ctx context.Context, sel ast.SelectionSet, obj *model.FollowingTeacherEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, followingTeacherEdgeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FollowingTeacherEdge")
+		case "cursor":
+
+			out.Values[i] = ec._FollowingTeacherEdge_cursor(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "node":
+
+			out.Values[i] = ec._FollowingTeacherEdge_node(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -3782,6 +4402,41 @@ func (ec *executionContext) _NotificationTimeSpanPayload(ctx context.Context, se
 
 			out.Values[i] = ec._NotificationTimeSpanPayload_timeSpans(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var pageInfoImplementors = []string{"PageInfo"}
+
+func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet, obj *model.PageInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pageInfoImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PageInfo")
+		case "hasNextPage":
+
+			out.Values[i] = ec._PageInfo_hasNextPage(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hasPreviousPage":
+
+			out.Values[i] = ec._PageInfo_hasPreviousPage(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4405,6 +5060,74 @@ func (ec *executionContext) marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋ
 	return ec._FollowingTeacher(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNFollowingTeacherConnection2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherConnection(ctx context.Context, sel ast.SelectionSet, v model.FollowingTeacherConnection) graphql.Marshaler {
+	return ec._FollowingTeacherConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFollowingTeacherConnection2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherConnection(ctx context.Context, sel ast.SelectionSet, v *model.FollowingTeacherConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._FollowingTeacherConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNFollowingTeacherEdge2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FollowingTeacherEdge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNFollowingTeacherEdge2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNFollowingTeacherEdge2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherEdge(ctx context.Context, sel ast.SelectionSet, v *model.FollowingTeacherEdge) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._FollowingTeacherEdge(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4509,6 +5232,16 @@ func (ec *executionContext) unmarshalNNotificationTimeSpanInput2ᚕᚖgithubᚗc
 func (ec *executionContext) unmarshalNNotificationTimeSpanInput2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐNotificationTimeSpanInput(ctx context.Context, v interface{}) (*model.NotificationTimeSpanInput, error) {
 	res, err := ec.unmarshalInputNotificationTimeSpanInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *model.PageInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PageInfo(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -4844,6 +5577,22 @@ func (ec *executionContext) marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋb
 		return graphql.Null
 	}
 	return ec._Empty(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
 }
 
 func (ec *executionContext) marshalONotificationTimeSpan2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐNotificationTimeSpanᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NotificationTimeSpan) graphql.Marshaler {
