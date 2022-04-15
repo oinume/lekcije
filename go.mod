@@ -34,7 +34,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.4.1
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.9.2
-	github.com/volatiletech/strmangle v0.0.2
+	github.com/volatiletech/strmangle v0.0.3
 	go.opencensus.io v0.23.0
 	go.uber.org/zap v1.21.0
 	goji.io/v3 v3.0.0
