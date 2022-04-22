@@ -83,7 +83,7 @@ jobs:
           pwd
           make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v3.0.0
+        uses: codecov/codecov-action@v3.1.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.txt
