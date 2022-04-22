@@ -9,7 +9,7 @@ require (
 	cloud.google.com/go/storage v1.22.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.12
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2
-	github.com/99designs/gqlgen v0.17.2
+	github.com/99designs/gqlgen v0.17.3
 	github.com/Songmu/retry v0.1.0
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
 	github.com/friendsofgo/errors v0.9.2
@@ -31,7 +31,7 @@ require (
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
 	github.com/stretchr/testify v1.7.1
 	github.com/twitchtv/twirp v8.1.2+incompatible
-	github.com/vektah/gqlparser/v2 v2.4.1
+	github.com/vektah/gqlparser/v2 v2.4.2
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.9.2
 	github.com/volatiletech/strmangle v0.0.3
