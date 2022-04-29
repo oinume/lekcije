@@ -9,7 +9,7 @@ require (
 	cloud.google.com/go/storage v1.22.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.12
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2
-	github.com/99designs/gqlgen v0.17.3
+	github.com/99designs/gqlgen v0.17.5
 	github.com/Songmu/retry v0.1.0
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
 	github.com/friendsofgo/errors v0.9.2
