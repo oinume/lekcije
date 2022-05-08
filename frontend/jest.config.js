@@ -5,7 +5,7 @@ module.exports = {
   },
   preset: 'ts-jest',
   rootDir: '.',
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jest-environment-jsdom',
   testPathIgnorePatterns: ['.next', 'node_modules'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
