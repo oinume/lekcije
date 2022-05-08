@@ -91,7 +91,7 @@
     "@babel/preset-typescript": "^7.12.17",
     "@graphql-codegen/cli": "^2.6.2",
     "@types/lodash-es": "^4.17.4",
-    "@types/react": "^17.0.2",
+    "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.2.4",
     "babel-eslint": "^10.1.0",
