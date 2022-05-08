@@ -38,7 +38,7 @@
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^27.0.1",
-    "@types/react-test-renderer": "^17.0.1",
+    "@types/react-test-renderer": "^18.0.0",
     "@types/sprintf-js": "^1.1.2",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
@@ -110,7 +110,7 @@
     "react-hot-loader": "^4.13.0",
     "react-query": "^3.39.0",
     "react-spinners": "^0.11.0",
-    "react-toastify": "^8.1.0",
+    "react-toastify": "^9.0.1",
     "sprintf-js": "^1.1.2"
   },
   "eslintConfig": {
