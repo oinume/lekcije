@@ -10,8 +10,8 @@ import (
 	"time"
 
 	lerrors "github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/graph/generated"
-	"github.com/oinume/lekcije/backend/graph/model"
+	"github.com/oinume/lekcije/backend/interface/graphql/generated"
+	"github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/model2"
 )
 

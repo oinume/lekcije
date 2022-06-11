@@ -6,7 +6,7 @@ package resolver
 import (
 	"context"
 
-	"github.com/oinume/lekcije/backend/graph/model"
+	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
 func (r *queryResolver) FollowingTeachers(ctx context.Context) ([]*model.FollowingTeacher, error) {

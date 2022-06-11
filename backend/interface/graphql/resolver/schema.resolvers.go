@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/oinume/lekcije/backend/graph/generated"
-	"github.com/oinume/lekcije/backend/graph/model"
+	"github.com/oinume/lekcije/backend/interface/graphql/generated"
+	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
 func (r *mutationResolver) CreateEmpty(ctx context.Context) (*model.Empty, error) {

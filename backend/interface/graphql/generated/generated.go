@@ -13,7 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/oinume/lekcije/backend/graph/model"
+	"github.com/oinume/lekcije/backend/interface/graphql/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -531,7 +531,7 @@ func (ec *executionContext) _FollowingTeacher_teacher(ctx context.Context, field
 	}
 	res := resTmp.(*model.Teacher)
 	fc.Result = res
-	return ec.marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTeacher(ctx, field.Selections, res)
+	return ec.marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐTeacher(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FollowingTeacher_teacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -622,7 +622,7 @@ func (ec *executionContext) _Mutation_createEmpty(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.Empty)
 	fc.Result = res
-	return ec.marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐEmpty(ctx, field.Selections, res)
+	return ec.marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐEmpty(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createEmpty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -843,7 +843,7 @@ func (ec *executionContext) _Query_empty(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*model.Empty)
 	fc.Result = res
-	return ec.marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐEmpty(ctx, field.Selections, res)
+	return ec.marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐEmpty(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_empty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -891,7 +891,7 @@ func (ec *executionContext) _Query_followingTeachers(ctx context.Context, field 
 	}
 	res := resTmp.([]*model.FollowingTeacher)
 	fc.Result = res
-	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
+	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_followingTeachers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -943,7 +943,7 @@ func (ec *executionContext) _Query_viewer(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_viewer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1302,7 +1302,7 @@ func (ec *executionContext) _User_followingTeachers(ctx context.Context, field g
 	}
 	res := resTmp.([]*model.FollowingTeacher)
 	fc.Result = res
-	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
+	return ec.marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_followingTeachers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1354,7 +1354,7 @@ func (ec *executionContext) _User_notificationTimeSpans(ctx context.Context, fie
 	}
 	res := resTmp.([]*model.NotificationTimeSpan)
 	fc.Result = res
-	return ec.marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpanᚄ(ctx, field.Selections, res)
+	return ec.marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐNotificationTimeSpanᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_notificationTimeSpans(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3867,7 +3867,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacherᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FollowingTeacher) graphql.Marshaler {
+func (ec *executionContext) marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FollowingTeacher) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3891,7 +3891,7 @@ func (ec *executionContext) marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinume
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacher(ctx, sel, v[i])
+			ret[i] = ec.marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacher(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3911,7 +3911,7 @@ func (ec *executionContext) marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinume
 	return ret
 }
 
-func (ec *executionContext) marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐFollowingTeacher(ctx context.Context, sel ast.SelectionSet, v *model.FollowingTeacher) graphql.Marshaler {
+func (ec *executionContext) marshalNFollowingTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacher(ctx context.Context, sel ast.SelectionSet, v *model.FollowingTeacher) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3951,7 +3951,7 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpanᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NotificationTimeSpan) graphql.Marshaler {
+func (ec *executionContext) marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐNotificationTimeSpanᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.NotificationTimeSpan) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3975,7 +3975,7 @@ func (ec *executionContext) marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNNotificationTimeSpan2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpan(ctx, sel, v[i])
+			ret[i] = ec.marshalNNotificationTimeSpan2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐNotificationTimeSpan(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3995,7 +3995,7 @@ func (ec *executionContext) marshalNNotificationTimeSpan2ᚕᚖgithubᚗcomᚋoi
 	return ret
 }
 
-func (ec *executionContext) marshalNNotificationTimeSpan2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐNotificationTimeSpan(ctx context.Context, sel ast.SelectionSet, v *model.NotificationTimeSpan) graphql.Marshaler {
+func (ec *executionContext) marshalNNotificationTimeSpan2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐNotificationTimeSpan(ctx context.Context, sel ast.SelectionSet, v *model.NotificationTimeSpan) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4020,7 +4020,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐTeacher(ctx context.Context, sel ast.SelectionSet, v *model.Teacher) graphql.Marshaler {
+func (ec *executionContext) marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐTeacher(ctx context.Context, sel ast.SelectionSet, v *model.Teacher) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4030,11 +4030,11 @@ func (ec *executionContext) marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcije�
 	return ec._Teacher(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4323,7 +4323,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋgraphᚋmodelᚐEmpty(ctx context.Context, sel ast.SelectionSet, v *model.Empty) graphql.Marshaler {
+func (ec *executionContext) marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐEmpty(ctx context.Context, sel ast.SelectionSet, v *model.Empty) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
