@@ -53,6 +53,10 @@
     "no-warning-comments": [0, {
       "terms": ["todo", "fixme", "xxx"], "location": "start"
     }],
+    "jsx-quotes": [
+      "error",
+      "prefer-double"
+    ],
     "unicorn/filename-case": [
       "off"
     ],
