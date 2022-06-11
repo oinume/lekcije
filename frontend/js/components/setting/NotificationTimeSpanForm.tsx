@@ -21,12 +21,12 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 }) => {
   const [editable, setEditable] = useState<boolean>(false);
 
-  const onClickPlus = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+  const onClickPlus = (event: React.MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
     handleAdd();
   };
 
-  const onClickMinus = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, index: number): void => {
+  const onClickMinus = (event: React.MouseEvent<HTMLButtonElement>, index: number): void => {
     event.preventDefault();
     handleDelete(index);
   };
@@ -91,8 +91,8 @@ type TimeSpanItemProps = {
   timeSpan: NotificationTimeSpanModel;
   index: number;
   handleOnChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  handleOnClickPlus: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  handleOnClickMinus: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, index: number) => void;
+  handleOnClickPlus: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleOnClickMinus: (event: React.MouseEvent<HTMLButtonElement>, index: number) => void;
 };
 
 const TimeSpanItem = ({
