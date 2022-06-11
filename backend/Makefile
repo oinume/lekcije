@@ -16,7 +16,7 @@ setup: install-tools
 
 .PHONY: install-tools
 install-tools:
-	cd tools && go list -f='{{ join .Imports "\n" }}' ./tools.go | tr -d [ | tr -d ] | xargs -I{} go install {}
+	@go list -f='{{ join .Imports "\n" }}' ./tools.go | tr -d [ | tr -d ] | xargs -I{} go install {}
 
 .PHONY: install
 install:
@@ -55,7 +55,7 @@ db/generate:
 
 .PHONY: gqlgen
 gqlgen:
-	@gqlgen generate
+	go run github.com/99designs/gqlgen generate
 
 .PHONY: mock/genereate
 mock/generate:
