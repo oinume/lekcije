@@ -50,12 +50,19 @@
         "allow": ["@testing-library/jest-dom"]
       }
     ],
-    "no-warning-comments": [0, {
-      "terms": ["todo", "fixme", "xxx"], "location": "start"
-    }],
     "jsx-quotes": [
       "error",
       "prefer-double"
+    ],
+    "no-warning-comments": [0, {
+      "terms": ["todo", "fixme", "xxx"], "location": "start"
+    }],
+    "react/function-component-definition": [
+      "error",
+      {
+        "namedComponents": "arrow-function",
+        "unnamedComponents": "arrow-function"
+      }
     ],
     "unicorn/filename-case": [
       "off"

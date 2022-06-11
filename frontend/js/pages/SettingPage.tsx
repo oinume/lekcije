@@ -17,14 +17,14 @@ import {
 import {createGraphQLClient, GraphQLError} from '../http/graphql';
 
 type ToggleAlertState = {
-  visible: boolean;
+  isVisible: boolean;
   kind: string;
   message: string;
 };
 
 export const SettingPage: React.FC = () => {
   const [alert, setAlert] = useState<ToggleAlertState>({
-    visible: false,
+    isVisible: false,
     kind: '',
     message: '',
   });
@@ -92,7 +92,7 @@ export const SettingPage: React.FC = () => {
   const notificationTimeSpans = notificationTimeSpansState ?? toModels(queryResult.data.viewer.notificationTimeSpans);
 
   const handleHideAlert = () => {
-    setAlert({...alert, visible: false});
+    setAlert({...alert, isVisible: false});
   };
 
   const handleAddTimeSpan = () => {
