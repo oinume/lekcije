@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/graph/generated"
-	"github.com/oinume/lekcije/backend/graph/model"
+	lerrors "github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/interface/graphql/generated"
+	"github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -70,16 +70,16 @@ func (r *userResolver) NotificationTimeSpans(ctx context.Context, obj *model.Use
 	for i, nts := range timeSpans {
 		fromTime, err := time.Parse("15:04:05", nts.FromTime)
 		if err != nil {
-			return nil, errors.NewInternalError(
-				errors.WithError(err),
-				errors.WithMessagef("Invalid time format: FromTime=%v", nts.FromTime),
+			return nil, lerrors.NewInternalError(
+				lerrors.WithError(err),
+				lerrors.WithMessagef("Invalid time format: FromTime=%v", nts.FromTime),
 			)
 		}
 		toTime, err := time.Parse("15:04:05", nts.ToTime)
 		if err != nil {
-			return nil, errors.NewInternalError(
-				errors.WithError(err),
-				errors.WithMessagef("Invalid time format: ToTime=%v", nts.ToTime),
+			return nil, lerrors.NewInternalError(
+				lerrors.WithError(err),
+				lerrors.WithMessagef("Invalid time format: ToTime=%v", nts.ToTime),
 			)
 		}
 		gqlTimeSpans[i] = &model.NotificationTimeSpan{

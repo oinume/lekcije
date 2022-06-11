@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/oinume/lekcije/backend/context_data"
-	"github.com/oinume/lekcije/backend/graph/model"
+	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
 func (r *queryResolver) Viewer(ctx context.Context) (*model.User, error) {

@@ -8,8 +8,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 
-	"github.com/oinume/lekcije/backend/graph/generated"
-	"github.com/oinume/lekcije/backend/graph/resolver"
+	"github.com/oinume/lekcije/backend/interface/graphql/generated"
+	"github.com/oinume/lekcije/backend/interface/graphql/resolver"
 )
 
 const defaultPort = "8080"

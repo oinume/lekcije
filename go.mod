@@ -11,20 +11,23 @@ require (
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2
 	github.com/99designs/gqlgen v0.17.9
 	github.com/Songmu/retry v0.1.0
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.8
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/lib/pq v1.8.0 // indirect
+	github.com/matryer/moq v0.2.7
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/openzipkin/zipkin-go v0.4.0
 	github.com/pkg/errors v0.9.1
+	github.com/pressly/goose/v3 v3.5.3
 	github.com/rollbar/rollbar-go v1.4.2
 	github.com/rs/cors v1.8.2
 	github.com/sendgrid/rest v2.6.5+incompatible
@@ -41,7 +44,10 @@ require (
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 	golang.org/x/oauth2 v0.0.0-20220608161450-d0670ef3b1eb
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
+	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
 	golang.org/x/text v0.3.7
+	golang.org/x/tools v0.1.11 // indirect
+	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/api v0.82.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
