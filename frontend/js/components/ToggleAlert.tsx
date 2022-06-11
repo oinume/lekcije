@@ -3,12 +3,12 @@ import React from 'react';
 type Props = {
   kind: string;
   message: string;
-  visible: boolean;
+  isVisible: boolean;
   handleCloseAlert: () => void;
 };
 
-export const ToggleAlert: React.FC<Props> = ({kind, message, visible, handleCloseAlert}) => {
-  if (visible) {
+export const ToggleAlert: React.FC<Props> = ({kind, message, isVisible, handleCloseAlert}) => {
+  if (isVisible) {
     return (
       <div className={'alert alert-dismissible alert-' + kind} role="alert">
         <button
