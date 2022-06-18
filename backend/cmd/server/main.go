@@ -15,8 +15,8 @@ import (
 	"goji.io/v3"
 	"goji.io/v3/pat"
 
-	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/di"
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/gcp"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"

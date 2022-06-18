@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/domain/config"
 )
 
 type LoggingHTTPTransport struct {

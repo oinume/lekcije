@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/cli"
-	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/context_data"
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
