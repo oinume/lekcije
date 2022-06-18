@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/domain/config"
 )
 
 var (

@@ -11,7 +11,7 @@ import (
 	"go.opencensus.io/trace"
 	"google.golang.org/api/option"
 
-	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/gcp"
 )
 

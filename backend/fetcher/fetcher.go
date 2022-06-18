@@ -24,7 +24,7 @@ import (
 	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 
-	"github.com/oinume/lekcije/backend/config"
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"

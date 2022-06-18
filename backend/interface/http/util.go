@@ -14,8 +14,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/twitchtv/twirp"
 
-	"github.com/oinume/lekcije/backend/config"
 	"github.com/oinume/lekcije/backend/context_data"
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/usecase"
