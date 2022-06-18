@@ -76,7 +76,7 @@ func MustProcessDefault() {
 func (v *Vars) DBURL() string {
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s",
-		v.MySQLUser, v.MySQLPassword, v.MySQLHost, v.MySQLPort, v.MySQLDatabase,
+		v.MySQL.User, v.MySQL.Password, v.MySQL.Host, v.MySQL.Port, v.MySQL.Database,
 	)
 }
 
