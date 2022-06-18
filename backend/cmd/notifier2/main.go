@@ -1,11 +1,22 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
 	"io"
 	"os"
+	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/cli"
+	"github.com/oinume/lekcije/backend/domain/config"
+	"github.com/oinume/lekcije/backend/infrastructure/mysql"
+	"github.com/oinume/lekcije/backend/logger"
+	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
+	"github.com/oinume/lekcije/backend/usecase"
 )
 
 func main() {
@@ -39,6 +50,64 @@ func (m *notifierMain) run(args []string) error {
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
 	}
+	if *notificationInterval == 0 {
+		return fmt.Errorf("-notification-interval is required")
+	}
+
+	ctx := context.Background()
+	config.MustProcessDefault()
+
+	startedAt := time.Now().UTC()
+	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel(*logLevel))
+	appLogger.Info(fmt.Sprintf("notifier started (interval=%d)", *notificationInterval))
+	defer func() {
+		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
+		appLogger.Info(
+			fmt.Sprintf("notifier finished (interval=%d)", *notificationInterval),
+			zap.Int("elapsed", int(elapsed)),
+		)
+	}()
+
+	gormDB, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = gormDB.Close() }()
+
+	dbRepo := mysql.NewDBRepository(gormDB.DB())
+	userRepo := mysql.NewUserRepository(gormDB.DB())
+	userGoogleRepo := mysql.NewUserGoogleRepository(gormDB.DB())
+	userUsecase := usecase.NewUser(dbRepo, userRepo, userGoogleRepo)
+
+	users, err := userUsecase.FindAllByEmailVerified(ctx, *notificationInterval)
+	if err != nil {
+		return err
+	}
+	mCountries, err := mysql.NewMCountryRepository(gormDB.DB()).FindAll(ctx)
+	if err != nil {
+		return err
+	}
+
+	notificationUsecase := usecase.NewNotification()
+	notifier := notificationUsecase.NewLessonNotifier()
+	defer notifier.Close(ctx, &model2.StatNotifier{
+		Datetime:             startedAt,
+		Interval:             uint8(*notificationInterval),
+		Elapsed:              0,
+		UserCount:            uint(len(users)),
+		FollowedTeacherCount: 0,
+	})
+	for _, user := range users {
+		if err := notifier.SendNotification(ctx, user); err != nil {
+			return err
+		}
+	}
+
+	// TODO:
+	// * Create repository.Lesson
+	// * Create usecase.Notification
+
+	// lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountries, appLogger)
 
 	return nil
 }
