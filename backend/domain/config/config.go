@@ -1,12 +1,13 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
-	"github.com/kelseyhightower/envconfig"
+	envconfig "github.com/sethvargo/go-envconfig"
 )
 
 var (
@@ -14,34 +15,38 @@ var (
 	timestamp = time.Now().UTC()
 )
 
+type MySQL struct {
+	User     string `env:"MYSQL_USER"`
+	Password string `env:"MYSQL_PASSWORD"`
+	Host     string `env:"MYSQL_HOST"`
+	Port     string `env:"MYSQL_PORT"`
+	Database string `env:"MYSQL_DATABASE"`
+}
+
 type Vars struct {
-	MySQLUser                 string `envconfig:"MYSQL_USER"`
-	MySQLPassword             string `envconfig:"MYSQL_PASSWORD"`
-	MySQLHost                 string `envconfig:"MYSQL_HOST"`
-	MySQLPort                 string `envconfig:"MYSQL_PORT"`
-	MySQLDatabase             string `envconfig:"MYSQL_DATABASE"`
-	EncryptionKey             string `envconfig:"ENCRYPTION_KEY"`
-	NodeEnv                   string `envconfig:"NODE_ENV"`
-	ServiceEnv                string `envconfig:"LEKCIJE_ENV" required:"true"`
-	GCPProjectID              string `envconfig:"GCP_PROJECT_ID"`
-	GCPServiceAccountKey      string `envconfig:"GCP_SERVICE_ACCOUNT_KEY"`
-	EnableFetcherHTTP2        bool   `envconfig:"ENABLE_FETCHER_HTTP2" default:"true"`
-	EnableTrace               bool   `envconfig:"ENABLE_TRACE"`
-	EnableStackdriverProfiler bool   `envconfig:"ENABLE_STACKDRIVER_PROFILER"`
-	GoogleClientID            string `envconfig:"GOOGLE_CLIENT_ID"`
-	GoogleClientSecret        string `envconfig:"GOOGLE_CLIENT_SECRET"`
-	GoogleAnalyticsID         string `envconfig:"GOOGLE_ANALYTICS_ID"`
-	HTTPPort                  int    `envconfig:"PORT" default:"4001"`
-	RollbarAccessToken        string `envconfig:"ROLLBAR_ACCESS_TOKEN"`
-	VersionHash               string `envconfig:"VERSION_HASH"`
-	DebugSQL                  bool   `envconfig:"DEBUG_SQL"`
-	ZipkinReporterURL         string `envconfig:"ZIPKIN_REPORTER_URL"`
+	*MySQL
+	EncryptionKey             string `env:"ENCRYPTION_KEY"`
+	NodeEnv                   string `env:"NODE_ENV"`
+	ServiceEnv                string `env:"LEKCIJE_ENV" required:"true"`
+	GCPProjectID              string `env:"GCP_PROJECT_ID"`
+	GCPServiceAccountKey      string `env:"GCP_SERVICE_ACCOUNT_KEY"`
+	EnableFetcherHTTP2        bool   `env:"ENABLE_FETCHER_HTTP2" default:"true"`
+	EnableTrace               bool   `env:"ENABLE_TRACE"`
+	EnableStackdriverProfiler bool   `env:"ENABLE_STACKDRIVER_PROFILER"`
+	GoogleClientID            string `env:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret        string `env:"GOOGLE_CLIENT_SECRET"`
+	GoogleAnalyticsID         string `env:"GOOGLE_ANALYTICS_ID"`
+	HTTPPort                  int    `env:"PORT" default:"4001"`
+	RollbarAccessToken        string `env:"ROLLBAR_ACCESS_TOKEN"`
+	VersionHash               string `env:"VERSION_HASH"`
+	DebugSQL                  bool   `env:"DEBUG_SQL"`
+	ZipkinReporterURL         string `env:"ZIPKIN_REPORTER_URL"`
 	LocalLocation             *time.Location
 }
 
 func Process() (*Vars, error) {
 	var vars Vars
-	if err := envconfig.Process("", &vars); err != nil {
+	if err := envconfig.Process(context.Background(), &vars); err != nil {
 		return nil, err
 	}
 	vars.LocalLocation = asiaTokyo
@@ -71,7 +76,7 @@ func MustProcessDefault() {
 func (v *Vars) DBURL() string {
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s",
-		v.MySQLUser, v.MySQLPassword, v.MySQLHost, v.MySQLPort, v.MySQLDatabase,
+		v.MySQL.User, v.MySQL.Password, v.MySQL.Host, v.MySQL.Port, v.MySQL.Database,
 	)
 }
 

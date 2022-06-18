@@ -22,7 +22,6 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/matryer/moq v0.2.7
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/openzipkin/zipkin-go v0.4.0
@@ -32,6 +31,7 @@ require (
 	github.com/rs/cors v1.8.2
 	github.com/sendgrid/rest v2.6.5+incompatible
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
+	github.com/sethvargo/go-envconfig v0.7.0
 	github.com/stretchr/testify v1.7.2
 	github.com/twitchtv/twirp v8.1.2+incompatible
 	github.com/vektah/gqlparser/v2 v2.4.5
