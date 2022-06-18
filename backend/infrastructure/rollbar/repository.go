@@ -7,8 +7,8 @@ import (
 	pkg_errors "github.com/pkg/errors"
 	"github.com/rollbar/rollbar-go"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/repository"
 )
 
 type errorRecorderRepository struct {

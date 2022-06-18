@@ -1,6 +1,8 @@
 package resolver
 
-import "github.com/oinume/lekcije/backend/repository"
+import (
+	"github.com/oinume/lekcije/backend/domain/repository"
+)
 
 // This file will not be regenerated automatically.
 //

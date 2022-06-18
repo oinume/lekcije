@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/repository"
 )
 
 type mCountryRepository struct {
