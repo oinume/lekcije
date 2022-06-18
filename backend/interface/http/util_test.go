@@ -10,9 +10,9 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/logger"
-	"github.com/oinume/lekcije/backend/repository"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 

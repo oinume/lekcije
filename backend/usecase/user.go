@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/repository"
 )
 
 type User struct {

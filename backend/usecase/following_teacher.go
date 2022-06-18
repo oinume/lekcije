@@ -6,11 +6,11 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/fetcher"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/repository"
 )
 
 const MaxFollowTeacherCount = 20

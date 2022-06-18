@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/repository"
 )
 
 type Repositories struct {

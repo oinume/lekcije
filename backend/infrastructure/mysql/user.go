@@ -11,9 +11,9 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/repository"
 )
 
 type userRepository struct {

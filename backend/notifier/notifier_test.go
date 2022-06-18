@@ -15,11 +15,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/fetcher"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/repository"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 

@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/repository"
 )
 
 type GAMeasurement struct {

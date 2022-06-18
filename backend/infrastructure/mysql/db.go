@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/oinume/lekcije/backend/repository"
+	"github.com/oinume/lekcije/backend/domain/repository"
 )
 
 type dbRepository struct {
