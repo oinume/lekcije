@@ -39,6 +39,9 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.11.0
 	github.com/volatiletech/strmangle v0.0.4
 	go.opencensus.io v0.23.0
+	go.opentelemetry.io/otel v1.7.0 // indirect
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.7.0 // indirect
+	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	go.uber.org/zap v1.21.0
 	goji.io/v3 v3.0.0
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e
