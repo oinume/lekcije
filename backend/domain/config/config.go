@@ -23,8 +23,15 @@ type MySQL struct {
 	Database string `env:"MYSQL_DATABASE"`
 }
 
+type Trace struct {
+	Enable       bool    `env:"TRACE_ENABLED"`
+	Exporter     string  `env:"TRACE_EXPORTER"`
+	SamplingRate float64 `env:"TRACE_SAMPLING_RATE"`
+}
+
 type Vars struct {
 	*MySQL
+	*Trace
 	EncryptionKey             string `env:"ENCRYPTION_KEY"`
 	NodeEnv                   string `env:"NODE_ENV"`
 	ServiceEnv                string `env:"LEKCIJE_ENV" required:"true"`

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/rollbar/rollbar-go"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
 	"goji.io/v3"
 	"goji.io/v3/pat"
 
@@ -21,13 +22,13 @@ import (
 	"github.com/oinume/lekcije/backend/gcp"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
+	"github.com/oinume/lekcije/backend/infrastructure/open_telemetry"
 	interfaces "github.com/oinume/lekcije/backend/interface"
 	"github.com/oinume/lekcije/backend/interface/graphql/generated"
 	"github.com/oinume/lekcije/backend/interface/graphql/resolver"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/open_census"
 )
 
 const (
@@ -40,16 +41,16 @@ func main() {
 	configVars := config.DefaultVars
 	port := configVars.HTTPPort
 
-	exporter, flush, err := open_census.NewExporter(
-		config.DefaultVars,
-		serviceName,
-		!config.DefaultVars.IsProductionEnv(),
-	)
+	tracerProvider, err := open_telemetry.NewTracerProvider(config.DefaultVars)
 	if err != nil {
-		log.Fatalf("NewExporter failed: %v", err)
+		log.Fatalf("NewTraceProvider failed: %v", err)
 	}
-	defer flush()
-	trace.RegisterExporter(exporter)
+	defer func() {
+		if err := tracerProvider.Shutdown(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+	}()
+	otel.SetTracerProvider(tracerProvider)
 
 	if config.DefaultVars.EnableStackdriverProfiler {
 		credential, err := gcp.WithCredentialsJSONFromBase64String(configVars.GCPServiceAccountKey)
