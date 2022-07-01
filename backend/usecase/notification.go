@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -13,7 +14,7 @@ func NewNotification() *Notification {
 	return &Notification{}
 }
 
-func (n *Notification) NewLessonNotifier() *LessonNotifier {
+func (n *Notification) NewLessonNotifier(lessonFetcher repository.LessonFetcher) *LessonNotifier {
 	return &LessonNotifier{}
 }
 

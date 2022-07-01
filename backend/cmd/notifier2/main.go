@@ -12,6 +12,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/cli"
 	"github.com/oinume/lekcije/backend/domain/config"
+	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
@@ -75,6 +76,7 @@ func (m *notifierMain) run(args []string) error {
 	defer func() { _ = gormDB.Close() }()
 
 	dbRepo := mysql.NewDBRepository(gormDB.DB())
+	lessonRepo := mysql.NewLessonRepository(gormDB.DB())
 	userRepo := mysql.NewUserRepository(gormDB.DB())
 	userGoogleRepo := mysql.NewUserGoogleRepository(gormDB.DB())
 	userUsecase := usecase.NewUser(dbRepo, userRepo, userGoogleRepo)
@@ -88,8 +90,9 @@ func (m *notifierMain) run(args []string) error {
 		return err
 	}
 
+	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrentcy)
 	notificationUsecase := usecase.NewNotification()
-	notifier := notificationUsecase.NewLessonNotifier()
+	notifier := notificationUsecase.NewLessonNotifier(lessonFetcher)
 	defer notifier.Close(ctx, &model2.StatNotifier{
 		Datetime:             startedAt,
 		Interval:             uint8(*notificationInterval),
@@ -102,10 +105,6 @@ func (m *notifierMain) run(args []string) error {
 			return err
 		}
 	}
-
-	// TODO:
-	// * Create repository.Lesson
-	// * Create usecase.Notification
 
 	// lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountries, appLogger)
 
