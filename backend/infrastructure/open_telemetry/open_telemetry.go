@@ -26,7 +26,7 @@ func (e *nopSpanExporter) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func NewTracerProvider(cfg *config.Vars) (*trace.TracerProvider, error) {
+func NewTracerProvider(serviceName string, cfg *config.Vars) (*trace.TracerProvider, error) {
 	var exporter trace.SpanExporter
 	var err error
 	switch cfg.Exporter {
@@ -64,7 +64,7 @@ func NewTracerProvider(cfg *config.Vars) (*trace.TracerProvider, error) {
 		exporter = &nopSpanExporter{}
 	}
 
-	r := NewResource("lekcije", config.DefaultVars.VersionHash, config.DefaultVars.ServiceEnv)
+	r := NewResource(serviceName, config.DefaultVars.VersionHash, config.DefaultVars.ServiceEnv)
 	return trace.NewTracerProvider(
 		trace.WithBatcher(exporter),
 		trace.WithResource(r),

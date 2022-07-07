@@ -13,9 +13,10 @@ import (
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -73,7 +74,7 @@ func NewSendGridSender(httpClient *http.Client, appLogger *zap.Logger) Sender {
 }
 
 func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
-	_, span := trace.StartSpan(ctx, "SendGridSender.Record")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "SendGridSender.Send")
 	defer span.End()
 
 	from := mail.NewEmail(email.From.Name, email.From.Address)

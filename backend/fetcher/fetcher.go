@@ -18,6 +18,8 @@ import (
 
 	"github.com/Songmu/retry"
 	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/net/http2"
@@ -110,11 +112,12 @@ func NewLessonFetcher(
 }
 
 func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
-	_, span := trace.StartSpan(ctx, "LessonFetcher.Fetch")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonFetcher.Fetch")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "teacherID",
+		Value: attribute.Int64Value(int64(teacherID)),
+	})
 	defer span.End()
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("teacherID", int64(teacherID)),
-	}, "teacherID:%d", teacherID)
 
 	fetcher.semaphore <- struct{}{}
 	defer func() {

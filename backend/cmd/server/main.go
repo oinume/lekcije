@@ -42,7 +42,7 @@ func main() {
 	configVars := config.DefaultVars
 	port := configVars.HTTPPort
 
-	tracerProvider, err := open_telemetry.NewTracerProvider(config.DefaultVars)
+	tracerProvider, err := open_telemetry.NewTracerProvider("server", config.DefaultVars)
 	if err != nil {
 		log.Fatalf("NewTraceProvider failed: %v", err)
 	}

@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -64,8 +65,9 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 
 // FindAllEmailVerifiedIsTrue returns an empty slice if no users found
 func (s *UserService) FindAllEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*User, error) {
-	_, span := trace.StartSpan(ctx, "UserService.FindAllEmailVerifiedIsTrue")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "UserService.FindAllEmailVerifiedIsTrue")
 	defer span.End()
+
 	var users []*User
 	sql := `
 	SELECT u.* FROM (SELECT DISTINCT(user_id) FROM following_teacher) AS ft
