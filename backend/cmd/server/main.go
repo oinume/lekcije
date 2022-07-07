@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/rollbar/rollbar-go"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"goji.io/v3"
 	"goji.io/v3/pat"
@@ -144,6 +145,11 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 		mux.Handle(pat.Get("/playground"), playground.Handler("GraphQL playground", gqlPath))
 	}
 
+	otelHandler := otelhttp.NewHandler(
+		mux,
+		"server",
+		otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents),
+	)
 	fmt.Printf("Starting HTTP server on %v\n", port)
-	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
+	return http.ListenAndServe(fmt.Sprintf(":%d", port), otelHandler)
 }
