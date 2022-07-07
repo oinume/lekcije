@@ -38,7 +38,6 @@ type Vars struct {
 	GCPProjectID              string `env:"GCP_PROJECT_ID"`
 	GCPServiceAccountKey      string `env:"GCP_SERVICE_ACCOUNT_KEY"`
 	EnableFetcherHTTP2        bool   `env:"ENABLE_FETCHER_HTTP2" default:"true"`
-	EnableTrace               bool   `env:"ENABLE_TRACE"`
 	EnableStackdriverProfiler bool   `env:"ENABLE_STACKDRIVER_PROFILER"`
 	GoogleClientID            string `env:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret        string `env:"GOOGLE_CLIENT_SECRET"`
@@ -47,7 +46,6 @@ type Vars struct {
 	RollbarAccessToken        string `env:"ROLLBAR_ACCESS_TOKEN"`
 	VersionHash               string `env:"VERSION_HASH"`
 	DebugSQL                  bool   `env:"DEBUG_SQL"`
-	ZipkinReporterURL         string `env:"ZIPKIN_REPORTER_URL"`
 	LocalLocation             *time.Location
 }
 
