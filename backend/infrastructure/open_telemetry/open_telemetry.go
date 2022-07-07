@@ -28,6 +28,9 @@ func (e *nopSpanExporter) Shutdown(ctx context.Context) error {
 func NewTracerProvider(cfg *config.Vars) (*trace.TracerProvider, error) {
 	var exporter trace.SpanExporter
 	switch cfg.Exporter {
+	// TODO: jaeger
+	// https://github.com/oinume/opencensus-client-trace-sample
+	// https://github.com/open-telemetry/opentelemetry-go/blob/main/example/jaeger/main.go
 	case "cloud_trace":
 		e, err := gcptrace.New(gcptrace.WithProjectID(cfg.GCPProjectID))
 		if err != nil {
