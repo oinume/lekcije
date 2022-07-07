@@ -10,6 +10,10 @@ import (
 	envconfig "github.com/sethvargo/go-envconfig"
 )
 
+const (
+	DefaultTracerName = "github.com/oinume/lekcije"
+)
+
 var (
 	asiaTokyo = time.FixedZone("Asia/Tokyo", 9*60*60)
 	timestamp = time.Now().UTC()
