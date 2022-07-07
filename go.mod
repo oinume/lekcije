@@ -32,7 +32,7 @@ require (
 	github.com/sendgrid/rest v2.6.5+incompatible
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
 	github.com/sethvargo/go-envconfig v0.7.0
-	github.com/stretchr/testify v1.7.5
+	github.com/stretchr/testify v1.8.0
 	github.com/twitchtv/twirp v8.1.2+incompatible
 	github.com/vektah/gqlparser/v2 v2.4.5
 	github.com/volatiletech/null/v8 v8.1.2
