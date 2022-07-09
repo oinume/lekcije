@@ -36,7 +36,7 @@ func NewMCountryService(db *gorm.DB) *MCountryService {
 }
 
 func (s *MCountryService) LoadAll(ctx context.Context) (*MCountries, error) {
-	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "MCountryService.LoadAll")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "MCountryService.LoadAll")
 	defer span.End()
 
 	values := make([]*MCountry, 0, 1000)

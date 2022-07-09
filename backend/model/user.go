@@ -65,7 +65,7 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 
 // FindAllEmailVerifiedIsTrue returns an empty slice if no users found
 func (s *UserService) FindAllEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*User, error) {
-	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "UserService.FindAllEmailVerifiedIsTrue")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "UserService.FindAllEmailVerifiedIsTrue")
 	defer span.End()
 
 	var users []*User

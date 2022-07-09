@@ -184,7 +184,7 @@ func (s *LessonService) FindLessons(
 	fromDate,
 	toDate time.Time,
 ) ([]*Lesson, error) {
-	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonService.FindLessons")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonService.FindLessons")
 	span.SetAttributes(attribute.KeyValue{
 		Key:   "teacherID",
 		Value: attribute.Int64Value(int64(teacherID)),
@@ -218,7 +218,7 @@ LIMIT 1000
 }
 
 func (s *LessonService) GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*Lesson) []*Lesson {
-	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonService.GetNewAvailableLessons")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonService.GetNewAvailableLessons")
 	defer span.End()
 
 	// Pattern

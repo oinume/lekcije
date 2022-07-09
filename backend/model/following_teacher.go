@@ -86,7 +86,7 @@ func (s *FollowingTeacherService) FindTeacherIDsByUserID(
 	fetchErrorCount int,
 	lastLessonAt time.Time,
 ) ([]uint32, error) {
-	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "FollowingTeacherService.FindTeacherIDsByUserID")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "FollowingTeacherService.FindTeacherIDsByUserID")
 	span.SetAttributes(attribute.KeyValue{
 		Key:   "userID",
 		Value: attribute.Int64Value(int64(userID)),

@@ -86,7 +86,7 @@ func (s *NotificationTimeSpanService) FindByUserID(
 	ctx context.Context,
 	userID uint32,
 ) ([]*NotificationTimeSpan, error) {
-	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "NotificationTimeSpanService.FindByUserID")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "NotificationTimeSpanService.FindByUserID")
 	span.SetAttributes(attribute.KeyValue{
 		Key:   "userID",
 		Value: attribute.Int64Value(int64(userID)),
