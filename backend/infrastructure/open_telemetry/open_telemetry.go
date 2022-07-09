@@ -30,24 +30,11 @@ func NewTracerProvider(serviceName string, cfg *config.Vars) (*trace.TracerProvi
 	var exporter trace.SpanExporter
 	var err error
 	switch cfg.Exporter {
-	// TODO: jaeger
-	// https://github.com/oinume/opencensus-client-trace-sample
-	// https://github.com/open-telemetry/opentelemetry-go/blob/main/example/jaeger/main.go
 	case "cloud_trace":
 		exporter, err = gcptrace.New(gcptrace.WithProjectID(cfg.GCPProjectID))
 		if err != nil {
 			return nil, err
 		}
-
-		// Create trace provider with the exporter.
-		//
-		// By default it uses AlwaysSample() which samples all traces.
-		// In a production environment or high QPS setup please use
-		// probabilistic sampling.
-		// Example:
-		//   tp := sdktrace.NewTracerProvider(sdktrace.WithSampler(sdktrace.TraceIDRatioBased(0.0001)), ...)
-		// defer provider.ForceFlush(ctx) // flushes any pending spans
-		// otel.SetTracerProvider(provider)
 	case "jaeger":
 		exporter, err = jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(cfg.Trace.ExporterURL)))
 		if err != nil {
