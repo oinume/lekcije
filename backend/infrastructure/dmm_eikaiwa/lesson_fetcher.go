@@ -225,7 +225,6 @@ func (f *lessonFetcher) parseHTML(
 		}
 
 		text := strings.Trim(node.String(), " ")
-
 		//fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
 		f.logger.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
 
@@ -261,7 +260,7 @@ func (f *lessonFetcher) parseHTML(
 				hour, minute, 0, 0,
 				config.LocalLocation(),
 			)
-			status := model.LessonStatuses.MustValueForAlias(text)
+			status := model2.LessonStatuses.MustValueForAlias(text)
 			f.logger.Debug(
 				"lesson",
 				zap.String("dt", dt.Format("2006-01-02 15:04")),
@@ -270,7 +269,7 @@ func (f *lessonFetcher) parseHTML(
 			lessons = append(lessons, &model2.Lesson{
 				TeacherID: teacher.ID,
 				Datetime:  dt,
-				Status:    model.LessonStatuses.MustName(status),
+				Status:    model2.LessonStatuses.MustName(status),
 			})
 		}
 		// TODO: else
@@ -295,7 +294,7 @@ func (f *lessonFetcher) parseTeacherAttribute(teacher *model2.Teacher, rootNode 
 		if !ok {
 			f.logger.Error(
 				fmt.Sprintf("Failed to parse teacher value: name=%v", name),
-				zap.Uint("teacherID", uint(teacher.ID)),
+				zap.Uint("teacherID", teacher.ID),
 			)
 			continue
 		}
@@ -303,14 +302,14 @@ func (f *lessonFetcher) parseTeacherAttribute(teacher *model2.Teacher, rootNode 
 		if !ok {
 			f.logger.Error(
 				fmt.Sprintf("Failed to parse teacher value: name=%v, value=%v", name, value),
-				zap.Uint("teacherID", uint(teacher.ID)),
+				zap.Uint("teacherID", teacher.ID),
 			)
 			continue
 		}
 		if err := f.setTeacherAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value)); err != nil {
 			f.logger.Error(
 				fmt.Sprintf("Failed to setTeacherAttribute: name=%v, value=%v", name, value),
-				zap.Uint("teacherID", uint(teacher.ID)),
+				zap.Uint("teacherID", teacher.ID),
 			)
 		}
 		//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
