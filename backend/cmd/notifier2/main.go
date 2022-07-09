@@ -89,8 +89,9 @@ func (m *notifierMain) run(args []string) error {
 	if err != nil {
 		return err
 	}
+	mCountryList := model2.NewMCountryList(mCountries)
 
-	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrentcy)
+	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountryList, appLogger)
 	notificationUsecase := usecase.NewNotification()
 	notifier := notificationUsecase.NewLessonNotifier(lessonFetcher)
 	defer notifier.Close(ctx, &model2.StatNotifier{

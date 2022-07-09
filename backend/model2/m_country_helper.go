@@ -9,7 +9,7 @@ func (mc *MCountryList) GetByNameJA(name string) (*MCountry, bool) {
 	return c, ok
 }
 
-func NewMCountries(values []*MCountry) *MCountryList {
+func NewMCountryList(values []*MCountry) *MCountryList {
 	c := &MCountryList{
 		byNameJa: make(map[string]*MCountry, 1000),
 	}
