@@ -6,8 +6,10 @@ import (
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
@@ -23,11 +25,12 @@ func NewNotificationTimeSpanRepository(db *sql.DB) repository.NotificationTimeSp
 }
 
 func (r *notificationTimeSpanRepository) FindByUserID(ctx context.Context, userID uint) ([]*model2.NotificationTimeSpan, error) {
-	_, span := trace.StartSpan(ctx, "NotificationTimeSpanService.FindByUserID")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "NotificationTimeSpanService.FindByUserID")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "userID",
+		Value: attribute.Int64Value(int64(userID)),
+	})
 	defer span.End()
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("userID", int64(userID)),
-	}, "userID:%d", userID)
 
 	timeSpans, err := model2.NotificationTimeSpans(qm.Where("user_id = ?", userID)).All(ctx, r.db)
 	if err != nil {

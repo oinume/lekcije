@@ -10,6 +10,10 @@ import (
 	envconfig "github.com/sethvargo/go-envconfig"
 )
 
+const (
+	DefaultTracerName = "github.com/oinume/lekcije"
+)
+
 var (
 	asiaTokyo = time.FixedZone("Asia/Tokyo", 9*60*60)
 	timestamp = time.Now().UTC()
@@ -23,15 +27,22 @@ type MySQL struct {
 	Database string `env:"MYSQL_DATABASE"`
 }
 
+type Trace struct {
+	Enable       bool    `env:"TRACE_ENABLED"`
+	Exporter     string  `env:"TRACE_EXPORTER"`
+	SamplingRate float64 `env:"TRACE_SAMPLING_RATE"`
+	ExporterURL  string  `env:"TRACE_EXPORTER_URL"`
+}
+
 type Vars struct {
 	*MySQL
+	*Trace
 	EncryptionKey             string `env:"ENCRYPTION_KEY"`
 	NodeEnv                   string `env:"NODE_ENV"`
 	ServiceEnv                string `env:"LEKCIJE_ENV" required:"true"`
 	GCPProjectID              string `env:"GCP_PROJECT_ID"`
 	GCPServiceAccountKey      string `env:"GCP_SERVICE_ACCOUNT_KEY"`
 	EnableFetcherHTTP2        bool   `env:"ENABLE_FETCHER_HTTP2" default:"true"`
-	EnableTrace               bool   `env:"ENABLE_TRACE"`
 	EnableStackdriverProfiler bool   `env:"ENABLE_STACKDRIVER_PROFILER"`
 	GoogleClientID            string `env:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret        string `env:"GOOGLE_CLIENT_SECRET"`
@@ -40,7 +51,6 @@ type Vars struct {
 	RollbarAccessToken        string `env:"ROLLBAR_ACCESS_TOKEN"`
 	VersionHash               string `env:"VERSION_HASH"`
 	DebugSQL                  bool   `env:"DEBUG_SQL"`
-	ZipkinReporterURL         string `env:"ZIPKIN_REPORTER_URL"`
 	LocalLocation             *time.Location
 }
 

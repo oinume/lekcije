@@ -11,7 +11,8 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/jinzhu/gorm"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
@@ -192,11 +193,13 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 		return err
 	}
 
-	_, span := trace.StartSpan(ctx, "Notifier.SendNotification.sleep")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "Notifier.SendNotification.sleep")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "userID",
+		Value: attribute.Int64Value(int64(user.ID)),
+	})
 	defer span.End()
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("userID", int64(user.ID)),
-	}, "userID:%d", user.ID)
+
 	time.Sleep(150 * time.Millisecond)
 
 	return nil
@@ -207,11 +210,12 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	ctx context.Context,
 	teacherID uint32,
 ) (*model.TeacherLessons, *model.TeacherLessons, error) {
-	_, span := trace.StartSpan(ctx, "Notifier.fetchAndExtractNewAvailableLessons")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "NotificationTimeSpanService.FindByUserID")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "teacherID",
+		Value: attribute.Int64Value(int64(teacherID)),
+	})
 	defer span.End()
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("teacherID", int64(teacherID)),
-	}, "teacherID:%d", teacherID)
 
 	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, teacherID)
 	if err != nil {
@@ -255,7 +259,7 @@ func (n *Notifier) sendNotificationToUser(
 	user *model.User,
 	lessonsPerTeacher *teachersAndLessons,
 ) error {
-	_, span := trace.StartSpan(ctx, "Notifier.sendNotificationToUser")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "Notifier.sendNotificationToUser")
 	defer span.End()
 
 	lessonsCount := 0
@@ -361,7 +365,8 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 		if n.dryRun {
 			return
 		}
-		_, span := trace.StartSpan(ctx, "lessonService.UpdateLessons")
+
+		ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "lessonService.UpdateLessons")
 		defer span.End()
 
 		teacherService := model.NewTeacherService(n.db)

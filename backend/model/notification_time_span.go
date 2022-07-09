@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -84,11 +86,12 @@ func (s *NotificationTimeSpanService) FindByUserID(
 	ctx context.Context,
 	userID uint32,
 ) ([]*NotificationTimeSpan, error) {
-	_, span := trace.StartSpan(ctx, "NotificationTimeSpanService.FindByUserID")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "NotificationTimeSpanService.FindByUserID")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "userID",
+		Value: attribute.Int64Value(int64(userID)),
+	})
 	defer span.End()
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("userID", int64(userID)),
-	}, "userID:%d", userID)
 
 	sql := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = ?`, (&NotificationTimeSpan{}).TableName())
 	timeSpans := make([]*NotificationTimeSpan, 0, 10)

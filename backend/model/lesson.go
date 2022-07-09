@@ -8,8 +8,10 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/oinume/goenum"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/util"
 )
@@ -182,11 +184,12 @@ func (s *LessonService) FindLessons(
 	fromDate,
 	toDate time.Time,
 ) ([]*Lesson, error) {
-	_, span := trace.StartSpan(ctx, "LessonService.FindLessons")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonService.FindLessons")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "teacherID",
+		Value: attribute.Int64Value(int64(teacherID)),
+	})
 	defer span.End()
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("teacherID", int64(teacherID)),
-	}, "teacherID:%d", teacherID)
 
 	lessons := make([]*Lesson, 0, 1000)
 	sql := strings.TrimSpace(fmt.Sprintf(`
@@ -215,7 +218,7 @@ LIMIT 1000
 }
 
 func (s *LessonService) GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*Lesson) []*Lesson {
-	_, span := trace.StartSpan(ctx, "LessonService.GetNewAvailableLessons")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonService.GetNewAvailableLessons")
 	defer span.End()
 
 	// Pattern

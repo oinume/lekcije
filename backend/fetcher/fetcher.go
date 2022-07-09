@@ -17,7 +17,9 @@ import (
 	"time"
 
 	"github.com/Songmu/retry"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/net/http2"
@@ -110,11 +112,12 @@ func NewLessonFetcher(
 }
 
 func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
-	_, span := trace.StartSpan(ctx, "LessonFetcher.Fetch")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonFetcher.Fetch")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "teacherID",
+		Value: attribute.Int64Value(int64(teacherID)),
+	})
 	defer span.End()
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("teacherID", int64(teacherID)),
-	}, "teacherID:%d", teacherID)
 
 	fetcher.semaphore <- struct{}{}
 	defer func() {
@@ -154,8 +157,10 @@ func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*mod
 }
 
 func (fetcher *LessonFetcher) fetchContent(ctx context.Context, url string) (io.ReadCloser, error) {
+	clientTrace := otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
+	ctx = httptrace.WithClientTrace(ctx, clientTrace)
 	nopCloser := ioutil.NopCloser(strings.NewReader(""))
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nopCloser, errors.NewInternalError(
 			errors.WithError(err),
@@ -163,13 +168,6 @@ func (fetcher *LessonFetcher) fetchContent(ctx context.Context, url string) (io.
 		)
 	}
 	req.Header.Set("User-Agent", userAgent)
-	tracer := NewHTTPClientTracer(
-		ctx,
-		"LessonFetcher.fetchContent.",
-		[]trace.Attribute{trace.StringAttribute("url", url)},
-		fmt.Sprintf("url:%s", url),
-	)
-	req = req.WithContext(httptrace.WithClientTrace(ctx, tracer.Trace()))
 
 	resp, err := fetcher.httpClient.Do(req)
 	if err != nil {

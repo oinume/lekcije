@@ -5,22 +5,23 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"time"
 
 	"github.com/rollbar/rollbar-go"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/cli"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/fetcher"
+	"github.com/oinume/lekcije/backend/infrastructure/open_telemetry"
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/notifier"
-	"github.com/oinume/lekcije/backend/open_census"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -71,18 +72,18 @@ func (m *notifierMain) run(args []string) error {
 	}()
 
 	const serviceName = "notifier"
-	exporter, flush, err := open_census.NewExporter(
-		config.DefaultVars,
-		serviceName,
-		*notificationInterval == 10 || !config.IsProductionEnv(),
-	)
+	tracerProvider, err := open_telemetry.NewTracerProvider(serviceName, config.DefaultVars)
 	if err != nil {
-		return fmt.Errorf("NewExporter failed: %v", err)
+		log.Fatalf("NewTraceProvider failed: %v", err)
 	}
-	defer flush()
-	trace.RegisterExporter(exporter)
+	defer func() {
+		if err := tracerProvider.Shutdown(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+	}()
+	otel.SetTracerProvider(tracerProvider)
 
-	ctx, span := trace.StartSpan(context.Background(), "main")
+	ctx, span := otel.Tracer(config.DefaultTracerName).Start(context.Background(), "main")
 	defer span.End()
 	db, err := model.OpenDB(config.DefaultVars.DBURL(), 1, config.DefaultVars.DebugSQL)
 	if err != nil {

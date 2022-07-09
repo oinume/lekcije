@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"go.opentelemetry.io/otel"
+
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
@@ -19,6 +21,10 @@ func (s *server) getMeHandler() http.HandlerFunc {
 
 func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	tracer := otel.GetTracerProvider().Tracer("http")
+	ctx, span := tracer.Start(ctx, "getMe")
+	defer span.End()
+
 	user := context_data.MustLoggedInUser(ctx)
 	t := ParseHTMLTemplates(TemplatePath("me/index.html"))
 	type Data struct {

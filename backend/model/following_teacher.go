@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -84,11 +86,13 @@ func (s *FollowingTeacherService) FindTeacherIDsByUserID(
 	fetchErrorCount int,
 	lastLessonAt time.Time,
 ) ([]uint32, error) {
-	_, span := trace.StartSpan(ctx, "FollowingTeacherService.FindTeacherIDsByUserID")
-	span.Annotatef([]trace.Attribute{
-		trace.Int64Attribute("userID", int64(userID)),
-	}, "userID:%d", userID)
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "FollowingTeacherService.FindTeacherIDsByUserID")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "userID",
+		Value: attribute.Int64Value(int64(userID)),
+	})
 	defer span.End()
+
 	values := make([]*FollowingTeacher, 0, 1000)
 	sql := `
 	SELECT ft.teacher_id FROM following_teacher AS ft
