@@ -7,7 +7,7 @@ go 1.16
 require (
 	cloud.google.com/go/profiler v0.3.0
 	cloud.google.com/go/storage v1.23.0
-	github.com/99designs/gqlgen v0.17.12
+	github.com/99designs/gqlgen v0.17.13
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.3
 	github.com/Songmu/retry v0.1.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
