@@ -33,7 +33,7 @@ require (
 	github.com/rs/cors v1.8.2
 	github.com/sendgrid/rest v2.6.5+incompatible
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
-	github.com/sethvargo/go-envconfig v0.7.0
+	github.com/sethvargo/go-envconfig v0.8.0
 	github.com/stretchr/testify v1.8.0
 	github.com/twitchtv/twirp v8.1.2+incompatible
 	github.com/urfave/cli v1.22.2 // indirect
