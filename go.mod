@@ -37,7 +37,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/twitchtv/twirp v8.1.2+incompatible
 	github.com/urfave/cli v1.22.2 // indirect
-	github.com/vektah/gqlparser/v2 v2.4.6
+	github.com/vektah/gqlparser/v2 v2.4.7
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.11.0
 	github.com/volatiletech/strmangle v0.0.4
