@@ -23,7 +23,7 @@
     "@babel/core": "^7.12.17",
     "@babel/preset-env": "^7.12.17",
     "@babel/preset-react": "^7.12.13",
-    "@graphql-codegen/cli": "2.11.2",
+    "@graphql-codegen/cli": "2.11.3",
     "@graphql-codegen/introspection": "2.2.0",
     "@graphql-codegen/schema-ast": "^2.4.1",
     "@graphql-codegen/typescript": "^2.4.8",
