@@ -57,7 +57,7 @@ require (
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.11 // indirect
 	google.golang.org/api v0.88.0
-	google.golang.org/protobuf v1.28.0
+	google.golang.org/protobuf v1.28.1
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
 )
