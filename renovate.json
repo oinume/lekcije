@@ -29,7 +29,8 @@
         "google-api-python-client"
       ],
       "extends": [
-        ":automergeMinor"
+        ":automergeMinor",
+        ":automergePatch"
       ]
     }
   ],
