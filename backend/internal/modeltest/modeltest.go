@@ -54,12 +54,15 @@ func NewTeacher(setters ...func(u *model2.Teacher)) *model2.Teacher {
 	if teacher.Name == "" {
 		teacher.Name = "teacher " + randoms.MustNewString(8)
 	}
+	if teacher.Gender == "" {
+		teacher.Gender = "female"
+	}
 	if teacher.Birthday.IsZero() {
 		teacher.Birthday = time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC)
 	}
-	if teacher.LastLessonAt.IsZero() {
-		teacher.LastLessonAt = time.Now().UTC().Add(72 * time.Hour)
-	}
+	//if teacher.LastLessonAt.IsZero() {
+	//	teacher.LastLessonAt = time.Now().UTC().Add(72 * time.Hour)
+	//}
 	return teacher
 }
 

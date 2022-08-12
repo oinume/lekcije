@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"math/big"
 	"net/http"
 	"os"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/ericlagergren/decimal"
+	"github.com/google/go-cmp/cmp"
 	"github.com/volatiletech/sqlboiler/v4/types"
 	"go.uber.org/zap"
 
@@ -122,7 +124,7 @@ func Test_lessonFetcher_Fetch_Concurrency(t *testing.T) {
 		t.Fatal(err)
 	}
 	client := &http.Client{Transport: mockTransport}
-	fetcher := NewLessonFetcher(client, *concurrency, false, mCountryList, nil)
+	fetcher := NewLessonFetcher(client, *concurrency, false, mCountryList, zap.NewNop())
 
 	const n = 500
 	wg := &sync.WaitGroup{}
@@ -157,38 +159,30 @@ func Test_lessonFetcher_parseHTML(t *testing.T) {
 		t.Fatalf("fetcher.parseHTML failed: %v", err)
 	}
 	wantTeacher := modeltest.NewTeacher(func(teacher *model2.Teacher) {
-		teacher.ID = 3982
+		teacher.ID = 3986
 		teacher.Name = "Hena"
 		teacher.CountryID = int16(70)
 		teacher.Birthday = time.Date(1996, 4, 14, 0, 0, 0, 0, time.UTC)
+		teacher.YearsOfExperience = 4
 		teacher.FavoriteCount = 1763
 		teacher.ReviewCount = 1366
 		teacher.Rating = types.NullDecimal{Big: decimal.New(int64(490), 2)}
 	})
-	assertion.AssertEqual(t, wantTeacher, gotTeacher, "")
-	//a.Equal("Hena", teacher.Name)
-	//a.Equal(uint16(70), teacher.CountryID) // Bosnia and Herzegovina
-	//a.Equal("female", teacher.Gender)
-	//a.Equal("1996-04-14", teacher.Birthday.Format("2006-01-02"))
-	//a.Equal(uint32(1763), teacher.FavoriteCount)
-	//a.Equal(uint32(1366), teacher.ReviewCount)
-	//a.Equal(float32(4.9), teacher.Rating)
+	assertion.AssertEqual(t, wantTeacher, gotTeacher, "", cmp.AllowUnexported(decimal.Big{}, big.Int{}))
 
 	assertion.AssertEqual(t, true, len(lessons) > 0, "num of lessons must be greater than zero")
-	//	a.True(len(lessons) > 0)
-	// TODO
-	//	for _, lesson := range lessons {
-	//		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-01 18:00" {
-	//			a.Equal("Finished", lesson.Status)
-	//		}
-	//		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-03 06:30" {
-	//			a.Equal("Available", lesson.Status)
-	//		}
-	//		if lesson.Datetime.Format("2006-01-02 15:04") == "2018-03-03 02:00" {
-	//			a.Equal("Reserved", lesson.Status)
-	//		}
-	//	}
-	//fmt.Printf("%v\n", spew.Sdump(lessons))
+	const dtFormat = "2006-01-02 15:04"
+	for _, lesson := range lessons {
+		if lesson.Datetime.Format(dtFormat) == "2018-03-01 18:00" {
+			assertion.AssertEqual(t, "Finished", lesson.Status, "")
+		}
+		if lesson.Datetime.Format(dtFormat) == "2018-03-03 06:30" {
+			assertion.AssertEqual(t, "Available", lesson.Status, "")
+		}
+		if lesson.Datetime.Format(dtFormat) == "2018-03-03 02:00" {
+			assertion.AssertEqual(t, "Reserved", lesson.Status, "")
+		}
+	}
 }
 
 //<a href="#" class="bt-open" id="a:3:{s:8:&quot;launched&quot;;s:19:&quot;2016-07-01 16:30:00&quot;;s:10:&quot;teacher_id&quot;;s:4:&quot;5982&quot;;s:9:&quot;lesson_id&quot;;s:8:&quot;25880364&quot;;}">予約可</a>
