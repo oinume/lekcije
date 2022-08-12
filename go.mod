@@ -49,7 +49,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.8.0
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.22.0
 	goji.io/v3 v3.0.0
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
 	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c
