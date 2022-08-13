@@ -74,6 +74,7 @@ jobs:
       - name: Create database
         run: |
           mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
+          mysql -h${MYSQL_HOST} -uroot -proot -e "SHOW VARIABLES LIKE 'sql_mode'"
       - name: Apply database migrations
         run: |
           export PATH=${PATH}:${GOPATH}/bin
