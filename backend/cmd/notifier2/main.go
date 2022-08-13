@@ -41,12 +41,12 @@ func (m *notifierMain) run(args []string) error {
 	flagSet := flag.NewFlagSet("notifier", flag.ContinueOnError)
 	flagSet.SetOutput(m.errStream)
 	var (
-		concurrency          = flagSet.Int("concurrency", 1, "Concurrency of fetcher")
-		dryRun               = flagSet.Bool("dry-run", false, "Don't update database with fetched lessons")
+		concurrency = flagSet.Int("concurrency", 1, "Concurrency of fetcher")
+		//		dryRun               = flagSet.Bool("dry-run", false, "Don't update database with fetched lessons")
 		fetcherCache         = flagSet.Bool("fetcher-cache", false, "Cache teacher and lesson data in Fetcher")
 		notificationInterval = flagSet.Int("notification-interval", 0, "Notification interval")
-		sendEmail            = flagSet.Bool("send-email", true, "Flag to send email")
-		logLevel             = flagSet.String("log-level", "info", "Log level")
+		//		sendEmail            = flagSet.Bool("send-email", true, "Flag to send email")
+		logLevel = flagSet.String("log-level", "info", "Log level")
 	)
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
@@ -76,7 +76,7 @@ func (m *notifierMain) run(args []string) error {
 	defer func() { _ = gormDB.Close() }()
 
 	dbRepo := mysql.NewDBRepository(gormDB.DB())
-	lessonRepo := mysql.NewLessonRepository(gormDB.DB())
+	//	lessonRepo := mysql.NewLessonRepository(gormDB.DB())
 	userRepo := mysql.NewUserRepository(gormDB.DB())
 	userGoogleRepo := mysql.NewUserGoogleRepository(gormDB.DB())
 	userUsecase := usecase.NewUser(dbRepo, userRepo, userGoogleRepo)
