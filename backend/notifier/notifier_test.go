@@ -18,6 +18,7 @@ import (
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/fetcher"
+	"github.com/oinume/lekcije/backend/internal/mock"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/usecase"
@@ -138,7 +139,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 
-	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
+	fetcherMockTransport, err := mock.NewHTMLTransport("../fetcher/testdata/3986.html")
 	if err != nil {
 		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 	}
@@ -240,7 +241,7 @@ func TestNotifier_Close(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 
-	fetcherMockTransport, err := fetcher.NewMockTransport("../fetcher/testdata/3986.html")
+	fetcherMockTransport, err := mock.NewHTMLTransport("../fetcher/testdata/3986.html")
 	r.NoError(err, "fetcher.NewMockTransport failed")
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
