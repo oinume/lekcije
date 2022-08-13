@@ -88,6 +88,9 @@ func NewLessonFetcher(
 	mCountryList *model2.MCountryList,
 	log *zap.Logger,
 ) repository.LessonFetcher {
+	if httpClient == nil {
+		httpClient = defaultHTTPClient
+	}
 	return &lessonFetcher{
 		httpClient:   httpClient,
 		semaphore:    make(chan struct{}, concurrency),
@@ -436,6 +439,10 @@ func (f *lessonFetcher) parseTeacherRating(teacher *model2.Teacher, rootNode *xm
 	}
 
 	teacher.Rating = types.NullDecimal{Big: decimal.New(int64(rating*100), 2)}
+}
+
+func (f *lessonFetcher) Close() {
+	close(f.semaphore)
 }
 
 func MustInt(s string) int {

@@ -8,8 +8,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/fetcher"
-	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -81,24 +80,15 @@ func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User,
 	if err != nil {
 		return false, err
 	}
-	// TODO: Remove model2 -> model conversion
-	mcs := make([]*model.MCountry, len(mCountries))
-	for i, mc := range mCountries {
-		mcs[i] = &model.MCountry{
-			ID:     mc.ID,
-			Name:   mc.Name,
-			NameJA: mc.NameJa,
-		}
-	}
 	// TODO: DI
-	f := fetcher.NewLessonFetcher(nil, 1, false, model.NewMCountries(mcs), u.appLogger)
-	defer f.Close()
-	fetchedTeacher, _, err := f.Fetch(ctx, uint32(teacher.ID))
+	fetcher := dmm_eikaiwa.NewLessonFetcher(nil, 1, false, model2.NewMCountryList(mCountries), u.appLogger)
+	defer fetcher.Close()
+	fetchedTeacher, _, err := fetcher.Fetch(ctx, teacher.ID)
 	if err != nil {
 		return false, err
 	}
 
-	if err := u.teacherRepo.CreateOrUpdate(ctx, model2.NewTeacherFromModel(fetchedTeacher)); err != nil {
+	if err := u.teacherRepo.CreateOrUpdate(ctx, fetchedTeacher); err != nil {
 		return false, err
 	}
 	if err := u.followingTeacherRepo.Create(ctx, &model2.FollowingTeacher{
