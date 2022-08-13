@@ -6,9 +6,11 @@ import (
 	"github.com/rollbar/rollbar-go"
 	"go.uber.org/zap"
 
+	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	iga_measurement "github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
+	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -19,14 +21,14 @@ func NewErrorRecorderUsecase(appLogger *zap.Logger, rollbarClient *rollbar.Clien
 	)
 }
 
-func NewFollowingTeacherUsecase(appLogger *zap.Logger, db *sql.DB) *usecase.FollowingTeacher {
+func NewFollowingTeacherUsecase(appLogger *zap.Logger, db *sql.DB, mCountryList *model2.MCountryList) *usecase.FollowingTeacher {
 	return usecase.NewFollowingTeacher(
 		appLogger,
 		mysql.NewDBRepository(db),
 		mysql.NewFollowingTeacherRepository(db),
-		mysql.NewMCountryRepository(db),
 		mysql.NewUserRepository(db),
 		mysql.NewTeacherRepository(db),
+		dmm_eikaiwa.NewLessonFetcher(nil, 1, false, mCountryList, appLogger),
 	)
 }
 

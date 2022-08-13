@@ -8,7 +8,6 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -18,26 +17,26 @@ type FollowingTeacher struct {
 	appLogger            *zap.Logger
 	dbRepo               repository.DB
 	followingTeacherRepo repository.FollowingTeacher
-	mCountryRepo         repository.MCountry
 	userRepo             repository.User
 	teacherRepo          repository.Teacher
+	lessonFetcherRepo    repository.LessonFetcher
 }
 
 func NewFollowingTeacher(
 	appLogger *zap.Logger,
 	dbRepo repository.DB,
 	followingTeacherRepo repository.FollowingTeacher,
-	mCountryRepo repository.MCountry,
 	userRepo repository.User,
 	teacherRepo repository.Teacher,
+	lessonFetcherRepo repository.LessonFetcher,
 ) *FollowingTeacher {
 	return &FollowingTeacher{
 		appLogger:            appLogger,
 		dbRepo:               dbRepo,
 		followingTeacherRepo: followingTeacherRepo,
-		mCountryRepo:         mCountryRepo,
 		userRepo:             userRepo,
 		teacherRepo:          teacherRepo,
+		lessonFetcherRepo:    lessonFetcherRepo,
 	}
 }
 
@@ -76,14 +75,8 @@ func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User,
 		updateFollowedTeacherAt = true
 	}
 
-	mCountries, err := u.mCountryRepo.FindAll(ctx)
-	if err != nil {
-		return false, err
-	}
-	// TODO: DI
-	fetcher := dmm_eikaiwa.NewLessonFetcher(nil, 1, false, model2.NewMCountryList(mCountries), u.appLogger)
-	defer fetcher.Close()
-	fetchedTeacher, _, err := fetcher.Fetch(ctx, teacher.ID)
+	// TODO: Close
+	fetchedTeacher, _, err := u.lessonFetcherRepo.Fetch(ctx, teacher.ID)
 	if err != nil {
 		return false, err
 	}

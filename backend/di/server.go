@@ -11,6 +11,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	ihttp "github.com/oinume/lekcije/backend/interface/http"
+	"github.com/oinume/lekcije/backend/model2"
 	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
 
@@ -37,10 +38,11 @@ func NewMeServer(
 	db *gorm.DB,
 	errorRecorderHooks *twirp.ServerHooks,
 	gaMeasurementClient ga_measurement.Client,
+	mCountryList *model2.MCountryList,
 ) api_v1.TwirpServer {
 	meService := ihttp.NewMeService(
 		db, appLogger,
-		NewFollowingTeacherUsecase(appLogger, db.DB()),
+		NewFollowingTeacherUsecase(appLogger, db.DB(), mCountryList),
 		NewGAMeasurementUsecase(gaMeasurementClient),
 		NewNotificationTimeSpanUsecase(db.DB()),
 		NewUserUsecase(db.DB()),
