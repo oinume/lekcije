@@ -14,8 +14,9 @@ import (
 
 	"github.com/oinume/lekcije/backend/cli"
 	"github.com/oinume/lekcije/backend/crawler"
+	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/fetcher"
+	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 )
@@ -80,7 +81,8 @@ func (m *crawlerMain) run(args []string) error {
 	}
 
 	loader := m.createLoader(db, *specifiedIDs, *followedOnly, *all, *newOnly)
-	lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, false, mCountries, appLogger)
+	mCountryList := di.MustNewMCountryList(ctx, db.DB())
+	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrency, false, mCountryList, appLogger)
 	teacherService := model.NewTeacherService(db)
 	for cursor := loader.GetInitialCursor(); cursor != ""; {
 		var teacherIDs []uint32
@@ -95,7 +97,7 @@ func (m *crawlerMain) run(args []string) error {
 		for _, id := range teacherIDs {
 			id := id
 			g.Go(func() error {
-				teacher, _, err := lessonFetcher.Fetch(ctx, id)
+				teacher, _, err := lessonFetcher.Fetch(ctx, uint(id))
 				if err != nil {
 					if *continueOnError {
 						appLogger.Error("Error during LessonFetcher.Fetch", zap.Error(err))

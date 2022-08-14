@@ -12,8 +12,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/cli"
+	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/fetcher"
+	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 )
@@ -73,21 +74,17 @@ func (m *teacherErrorResetterMain) run(args []string) error {
 	}()
 
 	ctx := context.Background()
-	mCountryService := model.NewMCountryService(m.db)
-	mCountries, err := mCountryService.LoadAll(ctx)
-	if err != nil {
-		return err
-	}
-
 	teacherService := model.NewTeacherService(m.db)
 	teachers, err := teacherService.FindByFetchErrorCountGt(fetchErrorCount)
 	if err != nil {
 		return err
 	}
-	lessonFetcher := fetcher.NewLessonFetcher(m.httpClient, *concurrency, false, mCountries, appLogger)
+
+	mCountryList := di.MustNewMCountryList(ctx, m.db.DB())
+	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(m.httpClient, *concurrency, false, mCountryList, appLogger)
 	defer lessonFetcher.Close()
 	for _, t := range teachers {
-		if _, _, err := lessonFetcher.Fetch(ctx, t.ID); err != nil {
+		if _, _, err := lessonFetcher.Fetch(ctx, uint(t.ID)); err != nil {
 			appLogger.Error("lessonFetcher.Fetch failed", zap.Uint32("id", t.ID), zap.Error(err))
 			continue
 		}
