@@ -69,6 +69,13 @@ func (r *userRepository) findByGoogleIDWithExec(ctx context.Context, exec reposi
 	return u, nil
 }
 
+func (r *userRepository) FindAllByEmailVerified(
+	ctx context.Context, notificationInterval int,
+) ([]*model2.User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (r *userRepository) UpdateEmail(ctx context.Context, id uint, email string) error {
 	const query = `UPDATE user SET email = ?, updated_at = NOW() WHERE id = ?`
 	_, err := queries.Raw(query, email, id).ExecContext(ctx, r.db)

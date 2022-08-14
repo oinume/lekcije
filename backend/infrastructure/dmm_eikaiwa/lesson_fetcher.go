@@ -1,4 +1,4 @@
-package fetcher
+package dmm_eikaiwa
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptrace"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,28 +16,25 @@ import (
 	"time"
 
 	"github.com/Songmu/retry"
+	"github.com/ericlagergren/decimal"
+	"github.com/volatiletech/sqlboiler/v4/types"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"golang.org/x/net/http2"
 	"golang.org/x/text/width"
 	"gopkg.in/xmlpath.v2"
 
 	"github.com/oinume/lekcije/backend/domain/config"
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 const (
 	userAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html"
 )
-
-var redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
-	return http.ErrUseLastResponse
-}
 
 var (
 	_                 = fmt.Print
@@ -61,6 +57,9 @@ var (
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
+	redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
 	titleXPath      = xmlpath.MustCompile(`//title`)
 	attributesXPath = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
 	lessonXPath     = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
@@ -68,50 +67,42 @@ var (
 )
 
 type teacherLessons struct {
-	teacher *model.Teacher
-	lessons []*model.Lesson
+	teacher *model2.Teacher
+	lessons []*model2.Lesson
 }
 
-type LessonFetcher struct {
-	httpClient *http.Client
-	semaphore  chan struct{}
-	caching    bool
-	cache      map[uint32]*teacherLessons
-	cacheLock  *sync.RWMutex
-	logger     *zap.Logger
-	mCountries *model.MCountries
+type lessonFetcher struct {
+	httpClient   *http.Client
+	semaphore    chan struct{}
+	caching      bool
+	cache        map[uint]*teacherLessons
+	cacheLock    *sync.RWMutex
+	logger       *zap.Logger
+	mCountryList *model2.MCountryList
 }
 
 func NewLessonFetcher(
 	httpClient *http.Client,
 	concurrency int,
 	caching bool,
-	mCountries *model.MCountries,
+	mCountryList *model2.MCountryList,
 	log *zap.Logger,
-) *LessonFetcher {
+) repository.LessonFetcher {
 	if httpClient == nil {
-		httpClient = getDefaultHTTPClient()
+		httpClient = defaultHTTPClient
 	}
-	if concurrency < 1 {
-		concurrency = 1
-	}
-	if log == nil {
-		log = logger.NewZapLogger(nil, []io.Writer{os.Stderr}, zapcore.InfoLevel)
-	}
-	semaphore := make(chan struct{}, concurrency)
-	cache := make(map[uint32]*teacherLessons, 5000)
-	return &LessonFetcher{
-		httpClient: httpClient,
-		semaphore:  semaphore,
-		caching:    caching,
-		cache:      cache,
-		cacheLock:  &sync.RWMutex{},
-		logger:     log,
-		mCountries: mCountries,
+	return &lessonFetcher{
+		httpClient:   httpClient,
+		semaphore:    make(chan struct{}, concurrency),
+		caching:      caching,
+		cache:        make(map[uint]*teacherLessons, 5000),
+		cacheLock:    new(sync.RWMutex),
+		mCountryList: mCountryList,
+		logger:       log,
 	}
 }
 
-func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*model.Teacher, []*model.Lesson, error) {
+func (f *lessonFetcher) Fetch(ctx context.Context, teacherID uint) (*model2.Teacher, []*model2.Lesson, error) {
 	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "LessonFetcher.Fetch")
 	span.SetAttributes(attribute.KeyValue{
 		Key:   "teacherID",
@@ -119,26 +110,26 @@ func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*mod
 	})
 	defer span.End()
 
-	fetcher.semaphore <- struct{}{}
+	f.semaphore <- struct{}{}
 	defer func() {
-		<-fetcher.semaphore
+		<-f.semaphore
 	}()
 
 	// Check cache
-	if fetcher.caching {
-		fetcher.cacheLock.RLock()
-		if c, ok := fetcher.cache[teacherID]; ok {
-			fetcher.cacheLock.RUnlock()
+	if f.caching {
+		f.cacheLock.RLock()
+		if c, ok := f.cache[teacherID]; ok {
+			f.cacheLock.RUnlock()
 			return c.teacher, c.lessons, nil
 		}
-		fetcher.cacheLock.RUnlock()
+		f.cacheLock.RUnlock()
 	}
 
-	teacher := model.NewTeacher(teacherID)
+	teacher := model2.NewTeacher(teacherID)
 	var content io.ReadCloser
 	err := retry.Retry(2, 300*time.Millisecond, func() error {
 		var err error
-		content, err = fetcher.fetchContent(ctx, teacher.URL())
+		content, err = f.fetchContent(ctx, teacher.URL())
 		return err
 	})
 	defer content.Close()
@@ -146,7 +137,7 @@ func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*mod
 		return nil, nil, err
 	}
 
-	_, lessons, err := fetcher.parseHTML(teacher, content)
+	_, lessons, err := f.parseHTML(teacher, content)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -156,7 +147,7 @@ func (fetcher *LessonFetcher) Fetch(ctx context.Context, teacherID uint32) (*mod
 	return teacher, lessons, nil
 }
 
-func (fetcher *LessonFetcher) fetchContent(ctx context.Context, url string) (io.ReadCloser, error) {
+func (f *lessonFetcher) fetchContent(ctx context.Context, url string) (io.ReadCloser, error) {
 	clientTrace := otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
 	ctx = httptrace.WithClientTrace(ctx, clientTrace)
 	nopCloser := ioutil.NopCloser(strings.NewReader(""))
@@ -169,7 +160,7 @@ func (fetcher *LessonFetcher) fetchContent(ctx context.Context, url string) (io.
 	}
 	req.Header.Set("User-Agent", userAgent)
 
-	resp, err := fetcher.httpClient.Do(req)
+	resp, err := f.httpClient.Do(req)
 	if err != nil {
 		return nopCloser, errors.NewInternalError(
 			errors.WithError(err),
@@ -196,10 +187,10 @@ func (fetcher *LessonFetcher) fetchContent(ctx context.Context, url string) (io.
 	}
 }
 
-func (fetcher *LessonFetcher) parseHTML(
-	teacher *model.Teacher,
+func (f *lessonFetcher) parseHTML(
+	teacher *model2.Teacher,
 	html io.Reader,
-) (*model.Teacher, []*model.Lesson, error) {
+) (*model2.Teacher, []*model2.Lesson, error) {
 	root, err := xmlpath.ParseHTML(html)
 	if err != nil {
 		return nil, nil, err
@@ -215,16 +206,16 @@ func (fetcher *LessonFetcher) parseHTML(
 	}
 
 	// Nationality, birthday, etc...
-	fetcher.parseTeacherAttribute(teacher, root)
+	f.parseTeacherAttribute(teacher, root)
 	if !teacher.IsJapanese() { // Japanese teachers don't have favorite count
 		// FavoriteCount
-		fetcher.parseTeacherFavoriteCount(teacher, root)
+		f.parseTeacherFavoriteCount(teacher, root)
 	}
 	// Rating
-	fetcher.parseTeacherRating(teacher, root)
+	f.parseTeacherRating(teacher, root)
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
-	lessons := make([]*model.Lesson, 0, 1000)
+	lessons := make([]*model2.Lesson, 0, 1000)
 	now := time.Now().In(config.LocalLocation())
 	originalDate := time.Now().In(config.LocalLocation()).Truncate(24 * time.Hour)
 	date := originalDate
@@ -237,9 +228,8 @@ func (fetcher *LessonFetcher) parseHTML(
 		}
 
 		text := strings.Trim(node.String(), " ")
-
 		//fmt.Printf("text = '%v', timeClass = '%v'\n", text, timeClass)
-		fetcher.logger.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
+		f.logger.Debug("Scraping as", zap.String("timeClass", timeClass), zap.String("text", text))
 
 		// blank, available, reserved
 		if timeClass == "date" {
@@ -273,56 +263,56 @@ func (fetcher *LessonFetcher) parseHTML(
 				hour, minute, 0, 0,
 				config.LocalLocation(),
 			)
-			status := model.LessonStatuses.MustValueForAlias(text)
-			fetcher.logger.Debug(
+			status := model2.LessonStatuses.MustValueForAlias(text)
+			f.logger.Debug(
 				"lesson",
 				zap.String("dt", dt.Format("2006-01-02 15:04")),
 				zap.String("status", model.LessonStatuses.MustName(status)),
 			)
-			lessons = append(lessons, &model.Lesson{
+			lessons = append(lessons, &model2.Lesson{
 				TeacherID: teacher.ID,
 				Datetime:  dt,
-				Status:    model.LessonStatuses.MustName(status),
+				Status:    model2.LessonStatuses.MustName(status),
 			})
 		}
 		// TODO: else
 	}
 
 	// Set teacher lesson data to cache
-	if fetcher.caching {
-		fetcher.cacheLock.Lock()
-		fetcher.cache[teacher.ID] = &teacherLessons{teacher: teacher, lessons: lessons}
-		fetcher.cacheLock.Unlock()
+	if f.caching {
+		f.cacheLock.Lock()
+		f.cache[teacher.ID] = &teacherLessons{teacher: teacher, lessons: lessons}
+		f.cacheLock.Unlock()
 	}
 
 	return teacher, lessons, nil
 }
 
-func (fetcher *LessonFetcher) parseTeacherAttribute(teacher *model.Teacher, rootNode *xmlpath.Node) {
+func (f *lessonFetcher) parseTeacherAttribute(teacher *model2.Teacher, rootNode *xmlpath.Node) {
 	nameXPath := xmlpath.MustCompile(`./dt`)
 	valueXPath := xmlpath.MustCompile(`./dd`)
 	for iter := attributesXPath.Iter(rootNode); iter.Next(); {
 		node := iter.Node()
 		name, ok := nameXPath.String(node)
 		if !ok {
-			fetcher.logger.Error(
+			f.logger.Error(
 				fmt.Sprintf("Failed to parse teacher value: name=%v", name),
-				zap.Uint("teacherID", uint(teacher.ID)),
+				zap.Uint("teacherID", teacher.ID),
 			)
 			continue
 		}
 		value, ok := valueXPath.String(node)
 		if !ok {
-			fetcher.logger.Error(
+			f.logger.Error(
 				fmt.Sprintf("Failed to parse teacher value: name=%v, value=%v", name, value),
-				zap.Uint("teacherID", uint(teacher.ID)),
+				zap.Uint("teacherID", teacher.ID),
 			)
 			continue
 		}
-		if err := fetcher.setTeacherAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value)); err != nil {
-			fetcher.logger.Error(
+		if err := f.setTeacherAttribute(teacher, strings.TrimSpace(name), strings.TrimSpace(value)); err != nil {
+			f.logger.Error(
 				fmt.Sprintf("Failed to setTeacherAttribute: name=%v, value=%v", name, value),
-				zap.Uint("teacherID", uint(teacher.ID)),
+				zap.Uint("teacherID", teacher.ID),
 			)
 		}
 		//fmt.Printf("name = %v, value = %v\n", strings.TrimSpace(name), strings.TrimSpace(value))
@@ -330,14 +320,14 @@ func (fetcher *LessonFetcher) parseTeacherAttribute(teacher *model.Teacher, root
 	//fmt.Printf("teacher = %+v\n", teacher)
 }
 
-func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name string, value string) error {
+func (f *lessonFetcher) setTeacherAttribute(teacher *model2.Teacher, name string, value string) error {
 	switch name {
 	case "国籍":
-		c, found := fetcher.mCountries.GetByNameJA(value)
+		c, found := f.mCountryList.GetByNameJA(value)
 		if !found {
 			return errors.NewNotFoundError(errors.WithMessage(fmt.Sprintf("No MCountries for %v", value)))
 		}
-		teacher.CountryID = c.ID
+		teacher.CountryID = int16(c.ID) // TODO: teacher.CountryID must be uint16
 	case "誕生日":
 		value = width.Narrow.String(value)
 		if strings.TrimSpace(value) == "" {
@@ -378,16 +368,16 @@ func (fetcher *LessonFetcher) setTeacherAttribute(teacher *model.Teacher, name s
 				)
 			}
 		}
-		teacher.YearsOfExperience = uint8(yoe)
+		teacher.YearsOfExperience = int8(yoe) // TODO: teacher.YearsOfExperience must be uint8
 	}
 	return nil
 }
 
-func (fetcher *LessonFetcher) parseTeacherFavoriteCount(teacher *model.Teacher, rootNode *xmlpath.Node) {
+func (f *lessonFetcher) parseTeacherFavoriteCount(teacher *model2.Teacher, rootNode *xmlpath.Node) {
 	favCountXPath := xmlpath.MustCompile(`//span[@id='fav_count']`)
 	value, ok := favCountXPath.String(rootNode)
 	if !ok {
-		fetcher.logger.Error(
+		f.logger.Error(
 			"Failed to parse teacher favorite count",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
@@ -395,22 +385,22 @@ func (fetcher *LessonFetcher) parseTeacherFavoriteCount(teacher *model.Teacher, 
 	}
 	v, err := strconv.ParseUint(value, 10, 32)
 	if err != nil {
-		fetcher.logger.Error(
+		f.logger.Error(
 			"Failed to parse teacher favorite count. It's not a number",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
 		return
 	}
-	teacher.FavoriteCount = uint32(v)
+	teacher.FavoriteCount = uint(v)
 }
 
-func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNode *xmlpath.Node) {
+func (f *lessonFetcher) parseTeacherRating(teacher *model2.Teacher, rootNode *xmlpath.Node) {
 	totalXPath := xmlpath.MustCompile(`//p[@id='total']`)
 	value, ok := totalXPath.String(rootNode)
 	if !ok {
 		newTeacherXPath := xmlpath.MustCompile(`//dl/dd/img[@class='new_teacher']`)
 		if _, ok := newTeacherXPath.String(rootNode); !ok {
-			fetcher.logger.Error(
+			f.logger.Error(
 				"Failed to parse teacher review count",
 				zap.Uint("teacherID", uint(teacher.ID)),
 			)
@@ -421,37 +411,38 @@ func (fetcher *LessonFetcher) parseTeacherRating(teacher *model.Teacher, rootNod
 	matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
 	reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
 	if err != nil {
-		fetcher.logger.Error(
+		f.logger.Error(
 			"Failed to parse teacher review count. It's not a number",
 			zap.Uint("teacherID", uint(teacher.ID)),
 			zap.String("value", value),
 		)
 		return
 	}
-	teacher.ReviewCount = uint32(reviewCount)
+	teacher.ReviewCount = uint(reviewCount)
 
 	numXPath := xmlpath.MustCompile(`//li[@id='num']`)
 	value, ok = numXPath.String(rootNode)
 	if !ok {
-		fetcher.logger.Error(
+		f.logger.Error(
 			"Failed to parse teacher rating",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
 		return
 	}
-	rating, err := strconv.ParseFloat(value, 32)
+	rating, err := strconv.ParseFloat(value, 32) // TODO: parse as int ?
 	if err != nil {
-		fetcher.logger.Error(
+		f.logger.Error(
 			"Failed to parse teacher rating. It's not a number",
 			zap.Uint("teacherID", uint(teacher.ID)),
 		)
 		return
 	}
-	teacher.Rating = float32(rating)
+
+	teacher.Rating = types.NullDecimal{Big: decimal.New(int64(rating*100), 2)}
 }
 
-func (fetcher *LessonFetcher) Close() {
-	close(fetcher.semaphore)
+func (f *lessonFetcher) Close() {
+	close(f.semaphore)
 }
 
 func MustInt(s string) int {
@@ -460,17 +451,4 @@ func MustInt(s string) int {
 		panic(err)
 	}
 	return int(i)
-}
-
-func getDefaultHTTPClient() *http.Client {
-	if !config.DefaultVars.EnableFetcherHTTP2 {
-		return defaultHTTPClient
-	}
-	defaultHTTPClient.Transport = &http2.Transport{
-		TLSClientConfig: &tls.Config{
-			ClientSessionCache: tls.NewLRUClientSessionCache(100),
-		},
-		StrictMaxConcurrentStreams: true,
-	}
-	return defaultHTTPClient
 }

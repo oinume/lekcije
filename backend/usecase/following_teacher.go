@@ -8,8 +8,6 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/fetcher"
-	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -19,26 +17,26 @@ type FollowingTeacher struct {
 	appLogger            *zap.Logger
 	dbRepo               repository.DB
 	followingTeacherRepo repository.FollowingTeacher
-	mCountryRepo         repository.MCountry
 	userRepo             repository.User
 	teacherRepo          repository.Teacher
+	lessonFetcherRepo    repository.LessonFetcher
 }
 
 func NewFollowingTeacher(
 	appLogger *zap.Logger,
 	dbRepo repository.DB,
 	followingTeacherRepo repository.FollowingTeacher,
-	mCountryRepo repository.MCountry,
 	userRepo repository.User,
 	teacherRepo repository.Teacher,
+	lessonFetcherRepo repository.LessonFetcher,
 ) *FollowingTeacher {
 	return &FollowingTeacher{
 		appLogger:            appLogger,
 		dbRepo:               dbRepo,
 		followingTeacherRepo: followingTeacherRepo,
-		mCountryRepo:         mCountryRepo,
 		userRepo:             userRepo,
 		teacherRepo:          teacherRepo,
+		lessonFetcherRepo:    lessonFetcherRepo,
 	}
 }
 
@@ -77,28 +75,13 @@ func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User,
 		updateFollowedTeacherAt = true
 	}
 
-	mCountries, err := u.mCountryRepo.FindAll(ctx)
-	if err != nil {
-		return false, err
-	}
-	// TODO: Remove model2 -> model conversion
-	mcs := make([]*model.MCountry, len(mCountries))
-	for i, mc := range mCountries {
-		mcs[i] = &model.MCountry{
-			ID:     mc.ID,
-			Name:   mc.Name,
-			NameJA: mc.NameJa,
-		}
-	}
-	// TODO: DI
-	f := fetcher.NewLessonFetcher(nil, 1, false, model.NewMCountries(mcs), u.appLogger)
-	defer f.Close()
-	fetchedTeacher, _, err := f.Fetch(ctx, uint32(teacher.ID))
+	// TODO: Close
+	fetchedTeacher, _, err := u.lessonFetcherRepo.Fetch(ctx, teacher.ID)
 	if err != nil {
 		return false, err
 	}
 
-	if err := u.teacherRepo.CreateOrUpdate(ctx, model2.NewTeacherFromModel(fetchedTeacher)); err != nil {
+	if err := u.teacherRepo.CreateOrUpdate(ctx, fetchedTeacher); err != nil {
 		return false, err
 	}
 	if err := u.followingTeacherRepo.Create(ctx, &model2.FollowingTeacher{

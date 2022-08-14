@@ -590,9 +590,10 @@ func Test_MeService_UpdateMeNotificationTimeSpan(t *testing.T) {
 
 func newMeService(db *gorm.DB, appLogger *zap.Logger) api_v1.Me {
 	gaMeasurement := usecase.NewGAMeasurement(ga_measurement.NewGAMeasurementRepository(ga_measurement.NewFakeClient()))
+	mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
 	return interface_http.NewMeService(
 		db, appLogger,
-		di.NewFollowingTeacherUsecase(appLogger, db.DB()),
+		di.NewFollowingTeacherUsecase(appLogger, db.DB(), mCountryList),
 		gaMeasurement,
 		di.NewNotificationTimeSpanUsecase(db.DB()),
 		di.NewUserUsecase(db.DB()),

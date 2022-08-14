@@ -16,6 +16,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/internal/mock"
 	"github.com/oinume/lekcije/backend/model"
 )
 
@@ -162,7 +163,7 @@ func TestFetchInternalServerError(t *testing.T) {
 func TestFetchConcurrency(t *testing.T) {
 	a := assert.New(t)
 	r := require.New(t)
-	mockTransport, err := NewMockTransport("testdata/3986.html")
+	mockTransport, err := mock.NewHTMLTransport("testdata/3986.html")
 	r.NoError(err)
 	client := &http.Client{Transport: mockTransport}
 	fetcher := NewLessonFetcher(client, *concurrency, false, mCountries, nil)

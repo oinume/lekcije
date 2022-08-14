@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/fetcher"
+	"github.com/oinume/lekcije/backend/internal/mock"
 	"github.com/oinume/lekcije/backend/model"
 )
 
@@ -60,7 +60,7 @@ func Test_teacherErrorResetterMain_run(t *testing.T) {
 				t.Fatalf("teacherService.CreateOrUpdate failed: err=%v", err)
 			}
 
-			mockTransport, err := fetcher.NewMockTransport("../../fetcher/testdata/3986.html") // TODO: path
+			mockTransport, err := mock.NewHTMLTransport("../../fetcher/testdata/3986.html") // TODO: path
 			if err != nil {
 				t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 			}

@@ -73,6 +73,7 @@ jobs:
           fi
       - name: Create database
         run: |
+          mysql -h${MYSQL_HOST} -uroot -proot -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'"
           mysql -h${MYSQL_HOST} -uroot -proot < ./db/docker-entrypoint-initdb.d/create_database.sql
       - name: Apply database migrations
         run: |

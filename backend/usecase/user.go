@@ -114,6 +114,10 @@ func (u *User) FindByGoogleID(ctx context.Context, googleID string) (*model2.Use
 	return u.userRepo.FindByGoogleID(ctx, googleID)
 }
 
+func (u *User) FindAllByEmailVerified(ctx context.Context, notificationInterval int) ([]*model2.User, error) {
+	return u.userRepo.FindAllByEmailVerified(ctx, notificationInterval)
+}
+
 func (u *User) UpdateEmail(ctx context.Context, id uint, email string) error {
 	return u.userRepo.UpdateEmail(ctx, id, email)
 }
