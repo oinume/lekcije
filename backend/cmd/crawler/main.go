@@ -17,6 +17,7 @@ import (
 	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
+	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 )
@@ -74,16 +75,10 @@ func (m *crawlerMain) run(args []string) error {
 	}
 	defer func() { _ = db.Close() }()
 
-	mCountryService := model.NewMCountryService(db)
-	mCountries, err := mCountryService.LoadAll(ctx)
-	if err != nil {
-		return err
-	}
-
 	loader := m.createLoader(db, *specifiedIDs, *followedOnly, *all, *newOnly)
 	mCountryList := di.MustNewMCountryList(ctx, db.DB())
 	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrency, false, mCountryList, appLogger)
-	teacherService := model.NewTeacherService(db)
+	teacherRepo := mysql.NewTeacherRepository(db.DB())
 	for cursor := loader.GetInitialCursor(); cursor != ""; {
 		var teacherIDs []uint32
 		var err error
@@ -106,7 +101,7 @@ func (m *crawlerMain) run(args []string) error {
 						return err
 					}
 				}
-				if err := teacherService.CreateOrUpdate(teacher); err != nil {
+				if err := teacherRepo.CreateOrUpdate(ctx, teacher); err != nil {
 					if *continueOnError {
 						appLogger.Error("Error during TeacherService.CreateOrUpdate", zap.Error(err))
 						return nil
