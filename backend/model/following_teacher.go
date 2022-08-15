@@ -141,7 +141,7 @@ func (s FollowingTeacherService) ReachesFollowingTeacherLimit(userID uint32, add
 	return count+additionalTeachers > MaxFollowTeacherCount, nil // TODO: Refer plan's limit
 }
 
-func (s *FollowingTeacherService) FollowTeacher(
+func (s *FollowingTeacherService) FollowTeacher( // TODO: delete no longer used
 	userID uint32, teacher *Teacher, timestamp time.Time,
 ) (*FollowingTeacher, error) {
 	// Create teacher at first
