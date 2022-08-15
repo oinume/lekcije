@@ -14,9 +14,10 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/cli"
+	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/emailer"
-	"github.com/oinume/lekcije/backend/fetcher"
+	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/infrastructure/open_telemetry"
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/logger"
@@ -98,11 +99,8 @@ func (m *notifierMain) run(args []string) error {
 	if err != nil {
 		return err
 	}
-	mCountries, err := model.NewMCountryService(db).LoadAll(ctx)
-	if err != nil {
-		return err
-	}
-	lessonFetcher := fetcher.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountries, appLogger)
+	mCountryList := di.MustNewMCountryList(ctx, db.DB())
+	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountryList, appLogger)
 
 	var sender emailer.Sender
 	if *sendEmail {
