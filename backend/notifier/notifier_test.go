@@ -15,10 +15,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
-	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
+	"github.com/oinume/lekcije/backend/fetcher"
 	"github.com/oinume/lekcije/backend/internal/mock"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
@@ -26,6 +25,7 @@ import (
 )
 
 var helper = model.NewTestHelper()
+var _ = fmt.Print
 
 type mockSenderTransport struct {
 	sync.Mutex
@@ -159,8 +159,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 		}
 
 		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-		mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
-		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), appLogger)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
@@ -203,8 +202,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 		}
 
 		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-		mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
-		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
+		fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), nil)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
@@ -243,6 +241,13 @@ func TestNotifier_Close(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 
+	fetcherMockTransport, err := mock.NewHTMLTransport("../fetcher/testdata/3986.html")
+	r.NoError(err, "fetcher.NewMockTransport failed")
+	fetcherHTTPClient := &http.Client{
+		Transport: fetcherMockTransport,
+	}
+	fetcher := fetcher.NewLessonFetcher(fetcherHTTPClient, 1, false, helper.LoadMCountries(t), appLogger)
+
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
 		Transport: senderTransport,
@@ -254,14 +259,6 @@ func TestNotifier_Close(t *testing.T) {
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-	fetcherMockTransport, err := mock.NewHTMLTransport("../fetcher/testdata/3986.html")
-	r.NoError(err, "fetcher.NewMockTransport failed")
-	fetcherHTTPClient := &http.Client{
-		Transport: fetcherMockTransport,
-	}
-	mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
-	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
-
 	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, sender, nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")

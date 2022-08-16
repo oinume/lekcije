@@ -16,11 +16,10 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/fetcher"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/usecase"
 	"github.com/oinume/lekcije/backend/util"
 )
@@ -29,7 +28,7 @@ type Notifier struct {
 	appLogger       *zap.Logger
 	db              *gorm.DB
 	errorRecorder   *usecase.ErrorRecorder
-	fetcher         repository.LessonFetcher
+	fetcher         *fetcher.LessonFetcher
 	dryRun          bool
 	lessonService   *model.LessonService
 	teachers        map[uint32]*model.Teacher
@@ -99,7 +98,7 @@ func NewNotifier(
 	appLogger *zap.Logger,
 	db *gorm.DB,
 	errorRecorder *usecase.ErrorRecorder,
-	fetcher repository.LessonFetcher,
+	fetcher *fetcher.LessonFetcher,
 	dryRun bool,
 	sender emailer.Sender,
 	storageClient *storage.Client,
@@ -218,7 +217,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	})
 	defer span.End()
 
-	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, uint(teacherID))
+	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, teacherID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -236,7 +235,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	now := time.Now().In(config.LocalLocation())
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalLocation())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, uint32(teacher.ID), fromDate, toDate)
+	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, teacher.ID, fromDate, toDate)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -245,43 +244,14 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	modelTeacher, modelFetchedLessons := n.toModel(teacher, fetchedLessons)
-	newAvailableLessons := n.lessonService.GetNewAvailableLessons(ctx, lastFetchedLessons, modelFetchedLessons)
+	newAvailableLessons := n.lessonService.GetNewAvailableLessons(ctx, lastFetchedLessons, fetchedLessons)
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
-	return model.NewTeacherLessons(modelTeacher, modelFetchedLessons),
-		model.NewTeacherLessons(modelTeacher, newAvailableLessons),
+	return model.NewTeacherLessons(teacher, fetchedLessons),
+		model.NewTeacherLessons(teacher, newAvailableLessons),
 		nil
-}
-
-func (n *Notifier) toModel(teacher *model2.Teacher, lessons []*model2.Lesson) (*model.Teacher, []*model.Lesson) {
-	rating, _ := teacher.Rating.Float64()
-	t := &model.Teacher{
-		ID:                uint32(teacher.ID),
-		Name:              teacher.Name,
-		CountryID:         uint16(teacher.CountryID),
-		Gender:            teacher.Gender,
-		Birthday:          teacher.Birthday,
-		YearsOfExperience: uint8(teacher.YearsOfExperience),
-		FavoriteCount:     uint32(teacher.FavoriteCount),
-		ReviewCount:       uint32(teacher.ReviewCount),
-		Rating:            float32(rating),
-		LastLessonAt:      teacher.LastLessonAt,
-		FetchErrorCount:   teacher.FetchErrorCount,
-		CreatedAt:         teacher.CreatedAt,
-		UpdatedAt:         teacher.UpdatedAt,
-	}
-	modelFetchedLessons := make([]*model.Lesson, len(lessons))
-	for i, l := range lessons {
-		modelFetchedLessons[i] = &model.Lesson{
-			TeacherID: uint32(l.TeacherID),
-			Datetime:  l.Datetime,
-			Status:    l.Status,
-		}
-	}
-	return t, modelFetchedLessons
 }
 
 func (n *Notifier) sendNotificationToUser(
