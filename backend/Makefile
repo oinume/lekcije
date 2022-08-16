@@ -39,9 +39,9 @@ db/goose/%:
 
 .PHONY: db/reset
 db/reset:
-	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije"
-	mysql -h $(DB_HOST) -P 13306 -uroot -proot -e "DROP DATABASE IF EXISTS lekcije_test"
-	mysql -h $(DB_HOST) -P 13306 -uroot -proot < db/docker-entrypoint-initdb.d/create_database.sql
+	mysql -h $(MYSQL_HOST) -P $(MYSQL_PORT) -u$(MYSQL_USER) -p$(MYSQL_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)"
+	mysql -h $(MYSQL_HOST) -P $(MYSQL_PORT) -u$(MYSQL_USER) -p$(MYSQL_PASSWORD) -e "DROP DATABASE IF EXISTS $(MYSQL_DATABASE)_test"
+	mysql -h $(MYSQL_HOST) -P $(MYSQL_PORT) -uroot -proot < db/docker-entrypoint-initdb.d/create_database.sql
 
 .PHONY: db/connect
 db/connect:
