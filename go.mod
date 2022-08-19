@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/profiler v0.3.0
 	cloud.google.com/go/storage v1.25.0
 	github.com/99designs/gqlgen v0.17.14
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.5
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.6
 	github.com/Songmu/retry v0.1.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
