@@ -31,12 +31,12 @@ if (process.env.WEBPACK_DEV_SERVER === 'true') {
 const config = {
   mode: process.env.MINIFY === 'true' ? 'production' : 'development',
   entry: {
-    main: './js/main.tsx',
-    me: './js/me.tsx',
-    setting: './js/setting.tsx',
+    main: './src/main.tsx',
+    me: './src/me.tsx',
+    setting: './src/setting.tsx',
   },
   resolve: {
-    //When require, do not have to add these extensions to file's name
+    // When using require, do not have to add these extensions to file's name
     extensions: ['.js', '.jsx', '.json', '.css', '.ts', '.tsx'],
     modules: ['web_modules', 'node_modules'] // (Default Settings)
   },

@@ -9,8 +9,8 @@
   "scripts": {
     "build": "webpack --config webpack.config.js --progress --color",
     "clean": "rm -rf static",
-    "lint": "xo js && echo \"eslint: no lint errors\"",
-    "lint:fix": "xo --fix js",
+    "lint": "xo src && echo \"eslint: no lint errors\"",
+    "lint:fix": "xo --fix src",
     "postinstall": "npm run build",
     "precommit": "lint-staged",
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,css}'",
