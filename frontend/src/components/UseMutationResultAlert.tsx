@@ -1,4 +1,4 @@
-import {UseMutationResult} from 'react-query';
+import {UseMutationResult} from '@tanstack/react-query';
 import React from 'react';
 import {TwirpError} from '../http/twirp';
 import {Alert} from './Alert';

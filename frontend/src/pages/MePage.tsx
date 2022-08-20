@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {toast} from 'react-toastify';
-import {useMutation, useQueryClient} from 'react-query';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {PageTitle} from '../components/PageTitle';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
@@ -72,7 +72,7 @@ const CreateForm = () => {
     ),
     {
       async onSuccess() {
-        await queryClient.invalidateQueries(queryKeyFollowingTeachers);
+        await queryClient.invalidateQueries([queryKeyFollowingTeachers]);
         setTeacherIdOrUrl('');
         setSubmitDisabled(true);
         toast.success('講師をフォローしました！');
@@ -148,7 +148,7 @@ const TeacherList = () => {
     ),
     {
       async onSuccess() {
-        await queryClient.invalidateQueries(queryKeyFollowingTeachers);
+        await queryClient.invalidateQueries([queryKeyFollowingTeachers]);
         toast.success('講師のフォローを解除しました');
         setDeleteSubmitDisabled(true);
       },
@@ -161,7 +161,7 @@ const TeacherList = () => {
   );
 
   const result = useListFollowingTeachers({});
-  if (result.isLoading || result.isIdle) {
+  if (result.isLoading) {
     return <Loader isLoading={result.isLoading}/>;
   }
 

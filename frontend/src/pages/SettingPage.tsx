@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useMutation, useQueryClient} from 'react-query';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
 import {ToggleAlert} from '../components/ToggleAlert';
@@ -44,7 +44,7 @@ export const SettingPage: React.FC = () => {
     ),
     {
       async onSuccess() {
-        await queryClient.invalidateQueries(queryKeyMe);
+        await queryClient.invalidateQueries([queryKeyMe]);
       },
     },
   );
@@ -58,7 +58,7 @@ export const SettingPage: React.FC = () => {
     ),
     {
       async onSuccess() {
-        await queryClient.invalidateQueries(queryKeyMe);
+        await queryClient.invalidateQueries([queryKeyMe]);
       },
     },
   );
