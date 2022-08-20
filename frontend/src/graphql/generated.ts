@@ -63,22 +63,23 @@ export type User = {
   followingTeachers: Array<FollowingTeacher>;
   id: Scalars['ID'];
   notificationTimeSpans: Array<NotificationTimeSpan>;
+  showTutorial: Scalars['Boolean'];
 };
 
 export type GetViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetViewerQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string } };
+export type GetViewerQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, showTutorial: boolean } };
 
 export type GetViewerWithNotificationTimeSpansQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetViewerWithNotificationTimeSpansQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, notificationTimeSpans: Array<{ __typename?: 'NotificationTimeSpan', fromHour: number, fromMinute: number, toHour: number, toMinute: number }> } };
+export type GetViewerWithNotificationTimeSpansQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, showTutorial: boolean, notificationTimeSpans: Array<{ __typename?: 'NotificationTimeSpan', fromHour: number, fromMinute: number, toHour: number, toMinute: number }> } };
 
 export type GetViewerWithFollowingTeachersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetViewerWithFollowingTeachersQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, followingTeachers: Array<{ __typename?: 'FollowingTeacher', teacher: { __typename?: 'Teacher', id: string, name: string } }> } };
+export type GetViewerWithFollowingTeachersQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, showTutorial: boolean, followingTeachers: Array<{ __typename?: 'FollowingTeacher', teacher: { __typename?: 'Teacher', id: string, name: string } }> } };
 
 
 export const GetViewerDocument = `
@@ -86,6 +87,7 @@ export const GetViewerDocument = `
   viewer {
     id
     email
+    showTutorial
   }
 }
     `;
@@ -118,6 +120,7 @@ export const GetViewerWithNotificationTimeSpansDocument = `
       toHour
       toMinute
     }
+    showTutorial
   }
 }
     `;
@@ -150,6 +153,7 @@ export const GetViewerWithFollowingTeachersDocument = `
         name
       }
     }
+    showTutorial
   }
 }
     `;
