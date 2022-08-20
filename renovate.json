@@ -30,7 +30,8 @@
       ],
       "extends": [
         ":automergeMinor",
-        ":automergePatch"
+        ":automergePatch",
+        ":automergeDigest"
       ]
     }
   ],
