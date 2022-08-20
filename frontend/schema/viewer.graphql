@@ -2,6 +2,7 @@ query getViewer {
   viewer {
     id
     email
+    showTutorial
   }
 }
 
@@ -15,6 +16,7 @@ query getViewerWithNotificationTimeSpans {
       toHour
       toMinute
     }
+    showTutorial
   }
 }
 
@@ -28,5 +30,6 @@ query getViewerWithFollowingTeachers {
         name
       }
     }
+    showTutorial
   }
 }

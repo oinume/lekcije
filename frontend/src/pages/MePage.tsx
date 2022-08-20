@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {toast} from 'react-toastify';
 import {useMutation, useQueryClient} from 'react-query';
 import {PageTitle} from '../components/PageTitle';
-import {useGetMe} from '../hooks/useGetMe';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
 import {Teacher} from '../models/Teacher';
@@ -10,9 +9,13 @@ import {useListFollowingTeachers} from '../hooks/useListFollowingTeachers';
 import {ToastContainer} from '../components/ToastContainer';
 import {TwirpError, twirpRequest} from '../http/twirp';
 import {queryKeyFollowingTeachers} from '../hooks/common';
+import {GetViewerQuery, useGetViewerQuery} from '../graphql/generated';
+import {createGraphQLClient, GraphQLError} from '../http/graphql';
 
 export const MePage = () => {
-  const getMeResult = useGetMe({});
+  const client = createGraphQLClient();
+  const getViewerResult = useGetViewerQuery<GetViewerQuery, GraphQLError>(client);
+  const showTutorial = getViewerResult.data ? getViewerResult.data.viewer.showTutorial : false;
   return (
     <div id="followingForm">
       <ToastContainer
@@ -20,11 +23,11 @@ export const MePage = () => {
       />
       <PageTitle>フォローしている講師</PageTitle>
       {
-        getMeResult.isLoading || getMeResult.isIdle
-          ? <Loader isLoading={getMeResult.isLoading}/>
-          : <MeContent showTutorial={getMeResult.data!.showTutorial}/>
+        getViewerResult.isLoading || getViewerResult.isIdle
+          ? <Loader isLoading={getViewerResult.isLoading}/>
+          : <MeContent showTutorial={showTutorial}/>
       }
-      {getMeResult.isError ? <ErrorAlert message={getMeResult.error.message}/> : <div/>}
+      {getViewerResult.isError ? <ErrorAlert message={getViewerResult.error.message}/> : <div/>}
     </div>
   );
 };
