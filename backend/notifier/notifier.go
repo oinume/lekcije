@@ -257,7 +257,10 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 }
 
 func (n *Notifier) toModel(teacher *model2.Teacher, lessons []*model2.Lesson) (*model.Teacher, []*model.Lesson) {
-	rating, _ := teacher.Rating.Float64()
+	var rating float64
+	if teacher.Rating.Big != nil {
+		rating, _ = teacher.Rating.Big.Float64()
+	}
 	t := &model.Teacher{
 		ID:                uint32(teacher.ID),
 		Name:              teacher.Name,
