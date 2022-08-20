@@ -23,7 +23,7 @@ export const MePage = () => {
       />
       <PageTitle>フォローしている講師</PageTitle>
       {
-        getViewerResult.isLoading || getViewerResult.isIdle
+        getViewerResult.isLoading
           ? <Loader isLoading={getViewerResult.isLoading}/>
           : <MeContent showTutorial={showTutorial}/>
       }

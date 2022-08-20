@@ -65,7 +65,7 @@ export const SettingPage: React.FC = () => {
 
   const client = createGraphQLClient();
   const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(client);
-  if (queryResult.isLoading || queryResult.isIdle) {
+  if (queryResult.isLoading) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
       <Loader isLoading={queryResult.isLoading}/>
