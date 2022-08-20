@@ -82,6 +82,7 @@ type ComplexityRoot struct {
 		FollowingTeachers     func(childComplexity int) int
 		ID                    func(childComplexity int) int
 		NotificationTimeSpans func(childComplexity int) int
+		ShowTutorial          func(childComplexity int) int
 	}
 }
 
@@ -96,6 +97,7 @@ type QueryResolver interface {
 type UserResolver interface {
 	FollowingTeachers(ctx context.Context, obj *model.User) ([]*model.FollowingTeacher, error)
 	NotificationTimeSpans(ctx context.Context, obj *model.User) ([]*model.NotificationTimeSpan, error)
+	ShowTutorial(ctx context.Context, obj *model.User) (bool, error)
 }
 
 type executableSchema struct {
@@ -239,6 +241,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.NotificationTimeSpans(childComplexity), true
 
+	case "User.showTutorial":
+		if e.complexity.User.ShowTutorial == nil {
+			break
+		}
+
+		return e.complexity.User.ShowTutorial(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -349,6 +358,7 @@ type Teacher {
   email: String!
   followingTeachers: [FollowingTeacher!]!
   notificationTimeSpans: [NotificationTimeSpan!]!
+  showTutorial: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/viewer.graphqls", Input: `extend type Query {
@@ -962,6 +972,8 @@ func (ec *executionContext) fieldContext_Query_viewer(ctx context.Context, field
 				return ec.fieldContext_User_followingTeachers(ctx, field)
 			case "notificationTimeSpans":
 				return ec.fieldContext_User_notificationTimeSpans(ctx, field)
+			case "showTutorial":
+				return ec.fieldContext_User_showTutorial(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1375,6 +1387,50 @@ func (ec *executionContext) fieldContext_User_notificationTimeSpans(ctx context.
 				return ec.fieldContext_NotificationTimeSpan_toMinute(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NotificationTimeSpan", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_showTutorial(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_showTutorial(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().ShowTutorial(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_showTutorial(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3513,6 +3569,26 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._User_notificationTimeSpans(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "showTutorial":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_showTutorial(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

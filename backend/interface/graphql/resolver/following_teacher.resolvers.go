@@ -9,6 +9,7 @@ import (
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
+// FollowingTeachers is the resolver for the followingTeachers field.
 func (r *queryResolver) FollowingTeachers(ctx context.Context) ([]*model.FollowingTeacher, error) {
 	//teachers, err := r.followingTeacherRepo.FindTeachersByUserID()
 	return []*model.FollowingTeacher{

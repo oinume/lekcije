@@ -11,10 +11,12 @@ import (
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
+// CreateEmpty is the resolver for the createEmpty field.
 func (r *mutationResolver) CreateEmpty(ctx context.Context) (*model.Empty, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
+// Empty is the resolver for the empty field.
 func (r *queryResolver) Empty(ctx context.Context) (*model.Empty, error) {
 	panic(fmt.Errorf("not implemented"))
 }

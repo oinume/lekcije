@@ -3,4 +3,5 @@ type User {
   email: String!
   followingTeachers: [FollowingTeacher!]!
   notificationTimeSpans: [NotificationTimeSpan!]!
+  showTutorial: Boolean!
 }
