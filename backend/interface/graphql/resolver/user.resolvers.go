@@ -15,6 +15,7 @@ import (
 	"github.com/oinume/lekcije/backend/model2"
 )
 
+// FollowingTeachers is the resolver for the followingTeachers field.
 func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User) ([]*model.FollowingTeacher, error) {
 	userID, err := strconv.ParseUint(obj.ID, 10, 32)
 	if err != nil {
@@ -56,6 +57,7 @@ func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User) (
 	return followingTeachers, nil
 }
 
+// NotificationTimeSpans is the resolver for the notificationTimeSpans field.
 func (r *userResolver) NotificationTimeSpans(ctx context.Context, obj *model.User) ([]*model.NotificationTimeSpan, error) {
 	userID, err := strconv.ParseUint(obj.ID, 10, 32)
 	if err != nil {
@@ -91,6 +93,11 @@ func (r *userResolver) NotificationTimeSpans(ctx context.Context, obj *model.Use
 	}
 
 	return gqlTimeSpans, nil
+}
+
+// ShowTutorial is the resolver for the showTutorial field.
+func (r *userResolver) ShowTutorial(ctx context.Context, obj *model.User) (bool, error) {
+	return obj.ShowTutorial, nil
 }
 
 // User returns generated.UserResolver implementation.

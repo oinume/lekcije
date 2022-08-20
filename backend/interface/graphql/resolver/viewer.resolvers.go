@@ -11,13 +11,15 @@ import (
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
+// Viewer is the resolver for the viewer field.
 func (r *queryResolver) Viewer(ctx context.Context) (*model.User, error) {
 	user, err := context_data.GetLoggedInUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &model.User{
-		ID:    fmt.Sprint(user.ID),
-		Email: user.Email,
+		ID:           fmt.Sprint(user.ID),
+		Email:        user.Email,
+		ShowTutorial: !user.IsFollowedTeacher(),
 	}, nil
 }
