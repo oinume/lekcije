@@ -108,7 +108,7 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-hot-loader": "^4.13.0",
-    "react-spinners": "^0.12.0",
+    "react-spinners": "^0.13.0",
     "react-toastify": "^9.0.1",
     "sprintf-js": "^1.1.2"
   },
