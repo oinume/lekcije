@@ -14,6 +14,7 @@ const plugins = [
       { context: '.', from: 'html/**/*.html' },
       { context: '.', from: 'image/**/*.png' },
       { context: '.', from: 'image/**/*.svg' },
+      { context: '.', from: 'lib/**' },
       { context: nodeModulesPath, from: 'bootstrap/dist/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootstrap-icons/**', to: 'lib' },
       { context: nodeModulesPath, from: 'bootswatch/dist/yeti/**', to: 'lib' },
