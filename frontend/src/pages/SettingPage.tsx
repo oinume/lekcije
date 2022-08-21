@@ -39,7 +39,7 @@ export const SettingPage: React.FC = () => {
   const graphqlClient = createGraphQLClient();
   const updateViewerMutation = useUpdateViewerMutation(graphqlClient, {
     async onSuccess() {
-      await queryClient.invalidateQueries([useGetViewerQuery.getKey]);
+      await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
       toast.success('メールアドレスを更新しました！');
     }
   });
