@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"net/mail"
 
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
@@ -120,6 +121,11 @@ func (u *User) FindAllByEmailVerified(ctx context.Context, notificationInterval 
 
 func (u *User) UpdateEmail(ctx context.Context, id uint, email string) error {
 	return u.userRepo.UpdateEmail(ctx, id, email)
+}
+
+func (u *User) IsValidEmail(email string) bool {
+	_, err := mail.ParseAddress(email)
+	return err == nil
 }
 
 func (u *User) IsDuplicateEmail(ctx context.Context, email string) (bool, error) {
