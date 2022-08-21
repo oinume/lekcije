@@ -25,6 +25,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/matryer/moq v0.2.7
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
+	github.com/morikuni/failure v1.0.0
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1
@@ -36,7 +37,6 @@ require (
 	github.com/sethvargo/go-envconfig v0.8.2
 	github.com/stretchr/testify v1.8.0
 	github.com/twitchtv/twirp v8.1.2+incompatible
-	github.com/urfave/cli v1.22.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.8
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.12.0

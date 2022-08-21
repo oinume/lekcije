@@ -134,6 +134,7 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 		mysql.NewNotificationTimeSpanRepository(args.DB),
 		mysql.NewTeacherRepository(args.DB),
 		mysql.NewUserRepository(args.DB),
+		di.NewUserUsecase(args.DB),
 	)
 	gqlSchema := generated.NewExecutableSchema(generated.Config{
 		Resolvers: gqlResolver,

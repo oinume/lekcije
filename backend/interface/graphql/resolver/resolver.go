@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"github.com/oinume/lekcije/backend/domain/repository"
+	"github.com/oinume/lekcije/backend/usecase"
 )
 
 // This file will not be regenerated automatically.
@@ -11,8 +12,9 @@ import (
 type Resolver struct {
 	followingTeacherRepo     repository.FollowingTeacher
 	notificationTimeSpanRepo repository.NotificationTimeSpan
-	userRepo                 repository.User
 	teacherRepo              repository.Teacher
+	userRepo                 repository.User
+	userUsecase              *usecase.User
 }
 
 func NewResolver(
@@ -20,11 +22,13 @@ func NewResolver(
 	notificationTimeSpanRepo repository.NotificationTimeSpan,
 	teacherRepo repository.Teacher,
 	userRepo repository.User,
+	userUsecase *usecase.User,
 ) *Resolver {
 	return &Resolver{
 		followingTeacherRepo:     followingTeacherRepo,
 		notificationTimeSpanRepo: notificationTimeSpanRepo,
 		teacherRepo:              teacherRepo,
 		userRepo:                 userRepo,
+		userUsecase:              userUsecase,
 	}
 }

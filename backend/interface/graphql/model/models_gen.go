@@ -23,3 +23,7 @@ type Teacher struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
+
+type UpdateViewerInput struct {
+	Email *string `json:"email"`
+}

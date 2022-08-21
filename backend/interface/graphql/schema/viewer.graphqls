@@ -1,3 +1,11 @@
 extend type Query {
   viewer: User!
 }
+
+input UpdateViewerInput {
+  email: String
+}
+
+extend type Mutation {
+  updateViewer(input: UpdateViewerInput!): User!
+}

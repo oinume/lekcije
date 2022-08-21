@@ -56,7 +56,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateEmpty func(childComplexity int) int
+		CreateEmpty  func(childComplexity int) int
+		UpdateViewer func(childComplexity int, input model.UpdateViewerInput) int
 	}
 
 	NotificationTimeSpan struct {
@@ -88,6 +89,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateEmpty(ctx context.Context) (*model.Empty, error)
+	UpdateViewer(ctx context.Context, input model.UpdateViewerInput) (*model.User, error)
 }
 type QueryResolver interface {
 	Empty(ctx context.Context) (*model.Empty, error)
@@ -97,7 +99,6 @@ type QueryResolver interface {
 type UserResolver interface {
 	FollowingTeachers(ctx context.Context, obj *model.User) ([]*model.FollowingTeacher, error)
 	NotificationTimeSpans(ctx context.Context, obj *model.User) ([]*model.NotificationTimeSpan, error)
-	ShowTutorial(ctx context.Context, obj *model.User) (bool, error)
 }
 
 type executableSchema struct {
@@ -149,6 +150,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateEmpty(childComplexity), true
+
+	case "Mutation.updateViewer":
+		if e.complexity.Mutation.UpdateViewer == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateViewer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateViewer(childComplexity, args["input"].(model.UpdateViewerInput)), true
 
 	case "NotificationTimeSpan.fromHour":
 		if e.complexity.NotificationTimeSpan.FromHour == nil {
@@ -255,7 +268,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputUpdateViewerInput,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -364,6 +379,14 @@ type Teacher {
 	{Name: "../schema/viewer.graphqls", Input: `extend type Query {
   viewer: User!
 }
+
+input UpdateViewerInput {
+  email: String
+}
+
+extend type Mutation {
+  updateViewer(input: UpdateViewerInput!): User!
+}
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -371,6 +394,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_updateViewer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateViewerInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateViewerInput2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐUpdateViewerInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -648,6 +686,73 @@ func (ec *executionContext) fieldContext_Mutation_createEmpty(ctx context.Contex
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Empty", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateViewer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateViewer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateViewer(rctx, fc.Args["input"].(model.UpdateViewerInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateViewer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "followingTeachers":
+				return ec.fieldContext_User_followingTeachers(ctx, field)
+			case "notificationTimeSpans":
+				return ec.fieldContext_User_notificationTimeSpans(ctx, field)
+			case "showTutorial":
+				return ec.fieldContext_User_showTutorial(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateViewer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -1406,7 +1511,7 @@ func (ec *executionContext) _User_showTutorial(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.User().ShowTutorial(rctx, obj)
+		return obj.ShowTutorial, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1427,8 +1532,8 @@ func (ec *executionContext) fieldContext_User_showTutorial(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -3209,6 +3314,34 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputUpdateViewerInput(ctx context.Context, obj interface{}) (model.UpdateViewerInput, error) {
+	var it model.UpdateViewerInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3312,6 +3445,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_createEmpty(ctx, field)
 			})
 
+		case "updateViewer":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateViewer(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3580,25 +3722,12 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 			})
 		case "showTutorial":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_showTutorial(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._User_showTutorial(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4104,6 +4233,11 @@ func (ec *executionContext) marshalNTeacher2ᚖgithubᚗcomᚋoinumeᚋlekcije�
 		return graphql.Null
 	}
 	return ec._Teacher(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateViewerInput2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐUpdateViewerInput(ctx context.Context, v interface{}) (model.UpdateViewerInput, error) {
+	res, err := ec.unmarshalInputUpdateViewerInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
