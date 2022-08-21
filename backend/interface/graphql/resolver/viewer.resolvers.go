@@ -11,6 +11,11 @@ import (
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
+// UpdateViewer is the resolver for the updateViewer field.
+func (r *mutationResolver) UpdateViewer(ctx context.Context, input model.UpdateViewerInput) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: UpdateViewer - updateViewer"))
+}
+
 // Viewer is the resolver for the viewer field.
 func (r *queryResolver) Viewer(ctx context.Context) (*model.User, error) {
 	user, err := context_data.GetLoggedInUser(ctx)
