@@ -5,9 +5,11 @@ package resolver
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/morikuni/failure"
 
 	"github.com/oinume/lekcije/backend/context_data"
+	lerrors "github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
@@ -23,14 +25,14 @@ func (r *mutationResolver) UpdateViewer(ctx context.Context, input model.UpdateV
 
 	email := *input.Email
 	if !r.userUsecase.IsValidEmail(email) {
-		return nil, fmt.Errorf("invalid email format") // TODO: invalid argument
+		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("invalid email format"))
 	}
 	duplicate, err := r.userUsecase.IsDuplicateEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
 	if duplicate {
-		return nil, fmt.Errorf("email exists") // TODO: invalid argument
+		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("email exists"))
 	}
 
 	if err := r.userUsecase.UpdateEmail(ctx, uint(user.ID), email); err != nil {
