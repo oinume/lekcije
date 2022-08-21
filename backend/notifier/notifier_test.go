@@ -139,7 +139,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 
-	fetcherMockTransport, err := mock.NewHTMLTransport("../fetcher/testdata/3986.html")
+	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	if err != nil {
 		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 	}
@@ -254,7 +254,7 @@ func TestNotifier_Close(t *testing.T) {
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-	fetcherMockTransport, err := mock.NewHTMLTransport("../fetcher/testdata/3986.html")
+	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	r.NoError(err, "fetcher.NewMockTransport failed")
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
