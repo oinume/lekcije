@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {toast} from 'react-toastify';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
 import {ToggleAlert} from '../components/ToggleAlert';
@@ -11,10 +12,11 @@ import {queryKeyMe} from '../hooks/common';
 import {twirpRequest} from '../http/twirp';
 import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
 import {
-  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
-  useGetViewerWithNotificationTimeSpansQuery,
+  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan, useGetViewerQuery,
+  useGetViewerWithNotificationTimeSpansQuery, useUpdateViewerMutation,
 } from '../graphql/generated';
 import {createGraphQLClient, GraphQLError} from '../http/graphql';
+import {ToastContainer} from '../components/ToastContainer';
 
 type ToggleAlertState = {
   isVisible: boolean;
@@ -34,6 +36,14 @@ export const SettingPage: React.FC = () => {
   );
 
   const queryClient = useQueryClient();
+  const graphqlClient = createGraphQLClient();
+  const updateViewerMutation = useUpdateViewerMutation(graphqlClient, {
+    async onSuccess() {
+      await queryClient.invalidateQueries([useGetViewerQuery.getKey]);
+      toast.success('メールアドレスを更新しました！');
+    }
+  });
+
   // https://react-query.tanstack.com/guides/mutations
   const updateMeEmailMutation = useMutation(
     async (email: string): Promise<Response> => twirpRequest(
@@ -45,6 +55,7 @@ export const SettingPage: React.FC = () => {
     {
       async onSuccess() {
         await queryClient.invalidateQueries([queryKeyMe]);
+        toast.success('メールアドレスを更新しました！');
       },
     },
   );
@@ -63,8 +74,7 @@ export const SettingPage: React.FC = () => {
     },
   );
 
-  const client = createGraphQLClient();
-  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(client);
+  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient);
   if (queryResult.isLoading) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
@@ -142,9 +152,9 @@ export const SettingPage: React.FC = () => {
 
   return (
     <div>
+      <ToastContainer closeOnClick={false} />
       <PageTitle>設定</PageTitle>
       <ToggleAlert handleCloseAlert={handleHideAlert} {...alert}/>
-      <UseMutationResultAlert result={updateMeEmailMutation} name="メールアドレス"/>
       <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name="レッスン希望時間帯"/>
       <EmailForm
         email={email}
