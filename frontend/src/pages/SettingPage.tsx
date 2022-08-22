@@ -12,7 +12,7 @@ import {queryKeyMe} from '../hooks/common';
 import {twirpRequest} from '../http/twirp';
 import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
 import {
-  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan, useGetViewerQuery,
+  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
   useGetViewerWithNotificationTimeSpansQuery, useUpdateViewerMutation,
 } from '../graphql/generated';
 import {createGraphQLClient, GraphQLError} from '../http/graphql';
@@ -35,6 +35,7 @@ export const SettingPage: React.FC = () => {
     undefined,
   );
 
+  // https://tanstack.com/query/v4/docs/guides/mutations
   const queryClient = useQueryClient();
   const graphqlClient = createGraphQLClient();
   const updateViewerMutation = useUpdateViewerMutation(graphqlClient, {
@@ -43,22 +44,6 @@ export const SettingPage: React.FC = () => {
       toast.success('メールアドレスを更新しました！');
     }
   });
-
-  // https://react-query.tanstack.com/guides/mutations
-  const updateMeEmailMutation = useMutation(
-    async (email: string): Promise<Response> => twirpRequest(
-      '/twirp/api.v1.Me/UpdateEmail',
-      JSON.stringify({
-        email,
-      }),
-    ),
-    {
-      async onSuccess() {
-        await queryClient.invalidateQueries([queryKeyMe]);
-        toast.success('メールアドレスを更新しました！');
-      },
-    },
-  );
 
   const updateMeNotificationTimeSpanMutation = useMutation(
     async (timeSpans: NotificationTimeSpanModel[]): Promise<Response> => twirpRequest(
@@ -162,7 +147,7 @@ export const SettingPage: React.FC = () => {
           setEmailState(event.currentTarget.value);
         }}
         handleUpdateEmail={(em): void => {
-          updateMeEmailMutation.mutate(em);
+          updateViewerMutation.mutate({input: {email: em}});
         }}
       />
       <div className="mb-3"/>
