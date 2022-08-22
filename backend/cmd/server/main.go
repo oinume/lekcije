@@ -25,6 +25,7 @@ import (
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/infrastructure/open_telemetry"
 	interfaces "github.com/oinume/lekcije/backend/interface"
+	"github.com/oinume/lekcije/backend/interface/graphql"
 	"github.com/oinume/lekcije/backend/interface/graphql/generated"
 	"github.com/oinume/lekcije/backend/interface/graphql/resolver"
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
@@ -140,6 +141,10 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 		Resolvers: gqlResolver,
 	})
 	gqlServer := handler.NewDefaultServer(gqlSchema)
+	gqlMiddleware := graphql.NewMiddleware(args.AppLogger)
+	gqlServer.AroundOperations(gqlMiddleware.AroundOperations)
+	gqlServer.SetErrorPresenter(gqlMiddleware.ErrorPresenter)
+
 	const gqlPath = "/graphql"
 	mux.Handle(pat.Get(gqlPath), gqlServer)
 	mux.Handle(pat.Post(gqlPath), gqlServer)
