@@ -15,7 +15,7 @@ import {
   GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
   useGetViewerWithNotificationTimeSpansQuery, useUpdateViewerMutation,
 } from '../graphql/generated';
-import {createGraphQLClient, GraphQLError} from '../http/graphql';
+import {createGraphQLClient, GraphQLError, toMessage} from '../http/graphql';
 import {ToastContainer} from '../components/ToastContainer';
 
 type ToggleAlertState = {
@@ -38,11 +38,15 @@ export const SettingPage: React.FC = () => {
   // https://tanstack.com/query/v4/docs/guides/mutations
   const queryClient = useQueryClient();
   const graphqlClient = createGraphQLClient();
-  const updateViewerMutation = useUpdateViewerMutation(graphqlClient, {
+  const updateViewerMutation = useUpdateViewerMutation<GraphQLError>(graphqlClient, {
     async onSuccess() {
       await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
       toast.success('メールアドレスを更新しました！');
-    }
+    },
+    async onError(error) {
+      console.error(error.response);
+      toast.error(toMessage(error));
+    },
   });
 
   const updateMeNotificationTimeSpanMutation = useMutation(
@@ -80,7 +84,7 @@ export const SettingPage: React.FC = () => {
   if (queryResult.error) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
     console.error(`getViewerQuery: error = ${queryResult.error}, type=${typeof queryResult.error}`);
-    return <ErrorAlert message={queryResult.error.message}/>;
+    return <ErrorAlert message={toMessage(queryResult.error)}/>;
   }
 
   const email = emailState ?? queryResult.data.viewer.email;
@@ -137,7 +141,7 @@ export const SettingPage: React.FC = () => {
 
   return (
     <div>
-      <ToastContainer closeOnClick={false} />
+      <ToastContainer closeOnClick={false}/>
       <PageTitle>設定</PageTitle>
       <ToggleAlert handleCloseAlert={handleHideAlert} {...alert}/>
       <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name="レッスン希望時間帯"/>

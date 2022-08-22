@@ -10,7 +10,7 @@ import {ToastContainer} from '../components/ToastContainer';
 import {TwirpError, twirpRequest} from '../http/twirp';
 import {queryKeyFollowingTeachers} from '../hooks/common';
 import {GetViewerQuery, useGetViewerQuery} from '../graphql/generated';
-import {createGraphQLClient, GraphQLError} from '../http/graphql';
+import {createGraphQLClient, GraphQLError, toMessage} from '../http/graphql';
 
 export const MePage = () => {
   const client = createGraphQLClient();
@@ -27,7 +27,7 @@ export const MePage = () => {
           ? <Loader isLoading={getViewerResult.isLoading}/>
           : <MeContent showTutorial={showTutorial}/>
       }
-      {getViewerResult.isError ? <ErrorAlert message={getViewerResult.error.message}/> : <div/>}
+      {getViewerResult.isError ? <ErrorAlert message={toMessage(getViewerResult.error)}/> : <div/>}
     </div>
   );
 };
