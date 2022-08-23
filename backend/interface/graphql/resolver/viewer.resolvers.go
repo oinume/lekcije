@@ -25,14 +25,16 @@ func (r *mutationResolver) UpdateViewer(ctx context.Context, input model.UpdateV
 
 	email := *input.Email
 	if !r.userUsecase.IsValidEmail(email) {
-		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("invalid email format"))
+		// TODO: i18n
+		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("正しいメールアドレスを入力してください。"))
 	}
 	duplicate, err := r.userUsecase.IsDuplicateEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
 	if duplicate {
-		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("email exists"))
+		// TODO: i18n
+		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("メールアドレスはすでに登録されています。"))
 	}
 
 	if err := r.userUsecase.UpdateEmail(ctx, uint(user.ID), email); err != nil {
