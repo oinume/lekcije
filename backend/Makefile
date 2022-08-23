@@ -62,6 +62,10 @@ mock/generate:
 	find . -name "*.moq.go" | xargs rm -f
 	cd backend && go generate ./...
 
+graphqltest/generate: ## Get GraphQL schema and generate GraphQL tests into interface/graphqltest
+	@go run github.com/Khan/genqlient genqlient.yml
+.PHONY: graphqltest-generate
+
 .PHONY: test
 test: go/test
 
