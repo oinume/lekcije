@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {toast} from 'react-toastify';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
 import {ToggleAlert} from '../components/ToggleAlert';
@@ -12,9 +13,10 @@ import {twirpRequest} from '../http/twirp';
 import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
 import {
   GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
-  useGetViewerWithNotificationTimeSpansQuery,
+  useGetViewerWithNotificationTimeSpansQuery, useUpdateViewerMutation,
 } from '../graphql/generated';
-import {createGraphQLClient, GraphQLError} from '../http/graphql';
+import {createGraphQLClient, GraphQLError, toMessage} from '../http/graphql';
+import {ToastContainer} from '../components/ToastContainer';
 
 type ToggleAlertState = {
   isVisible: boolean;
@@ -33,21 +35,19 @@ export const SettingPage: React.FC = () => {
     undefined,
   );
 
+  // https://tanstack.com/query/v4/docs/guides/mutations
   const queryClient = useQueryClient();
-  // https://react-query.tanstack.com/guides/mutations
-  const updateMeEmailMutation = useMutation(
-    async (email: string): Promise<Response> => twirpRequest(
-      '/twirp/api.v1.Me/UpdateEmail',
-      JSON.stringify({
-        email,
-      }),
-    ),
-    {
-      async onSuccess() {
-        await queryClient.invalidateQueries([queryKeyMe]);
-      },
+  const graphqlClient = createGraphQLClient();
+  const updateViewerMutation = useUpdateViewerMutation<GraphQLError>(graphqlClient, {
+    async onSuccess() {
+      await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
+      toast.success('メールアドレスを更新しました！');
     },
-  );
+    async onError(error) {
+      console.error(error.response);
+      toast.error(toMessage(error));
+    },
+  });
 
   const updateMeNotificationTimeSpanMutation = useMutation(
     async (timeSpans: NotificationTimeSpanModel[]): Promise<Response> => twirpRequest(
@@ -63,8 +63,7 @@ export const SettingPage: React.FC = () => {
     },
   );
 
-  const client = createGraphQLClient();
-  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(client);
+  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient);
   if (queryResult.isLoading) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
@@ -85,7 +84,7 @@ export const SettingPage: React.FC = () => {
   if (queryResult.error) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
     console.error(`getViewerQuery: error = ${queryResult.error}, type=${typeof queryResult.error}`);
-    return <ErrorAlert message={queryResult.error.message}/>;
+    return <ErrorAlert message={toMessage(queryResult.error)}/>;
   }
 
   const email = emailState ?? queryResult.data.viewer.email;
@@ -142,9 +141,9 @@ export const SettingPage: React.FC = () => {
 
   return (
     <div>
+      <ToastContainer closeOnClick={false}/>
       <PageTitle>設定</PageTitle>
       <ToggleAlert handleCloseAlert={handleHideAlert} {...alert}/>
-      <UseMutationResultAlert result={updateMeEmailMutation} name="メールアドレス"/>
       <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name="レッスン希望時間帯"/>
       <EmailForm
         email={email}
@@ -152,7 +151,7 @@ export const SettingPage: React.FC = () => {
           setEmailState(event.currentTarget.value);
         }}
         handleUpdateEmail={(em): void => {
-          updateMeEmailMutation.mutate(em);
+          updateViewerMutation.mutate({input: {email: em}});
         }}
       />
       <div className="mb-3"/>

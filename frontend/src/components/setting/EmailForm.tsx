@@ -41,6 +41,7 @@ export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateE
         className="btn btn-primary"
         onClick={() => {
           handleUpdateEmail(email);
+          // TODO: setButtonEnabled(false);
         }}
       >
         変更

@@ -42,6 +42,10 @@ func (m *Middleware) ErrorPresenter(ctx context.Context, e error) *gqlerror.Erro
 	err.Extensions = map[string]interface{}{
 		"code": errorCode,
 	}
+	message, ok := failure.MessageOf(err)
+	if ok {
+		err.Extensions["localizedMessage"] = message
+	}
 
 	m.appLogger.Info("graphql", zap.String("code", errorCode), zap.Error(e))
 

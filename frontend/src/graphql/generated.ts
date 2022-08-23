@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { RequestInit } from 'graphql-request/dist/types.dom';
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -34,6 +34,12 @@ export type FollowingTeacher = {
 export type Mutation = {
   __typename?: 'Mutation';
   createEmpty?: Maybe<Empty>;
+  updateViewer: User;
+};
+
+
+export type MutationUpdateViewerArgs = {
+  input: UpdateViewerInput;
 };
 
 export type NotificationTimeSpan = {
@@ -55,6 +61,10 @@ export type Teacher = {
   __typename?: 'Teacher';
   id: Scalars['ID'];
   name: Scalars['String'];
+};
+
+export type UpdateViewerInput = {
+  email?: InputMaybe<Scalars['String']>;
 };
 
 export type User = {
@@ -80,6 +90,13 @@ export type GetViewerWithFollowingTeachersQueryVariables = Exact<{ [key: string]
 
 
 export type GetViewerWithFollowingTeachersQuery = { __typename?: 'Query', viewer: { __typename?: 'User', id: string, email: string, showTutorial: boolean, followingTeachers: Array<{ __typename?: 'FollowingTeacher', teacher: { __typename?: 'Teacher', id: string, name: string } }> } };
+
+export type UpdateViewerMutationVariables = Exact<{
+  input: UpdateViewerInput;
+}>;
+
+
+export type UpdateViewerMutation = { __typename?: 'Mutation', updateViewer: { __typename?: 'User', id: string, email: string } };
 
 
 export const GetViewerDocument = `
@@ -174,3 +191,25 @@ export const useGetViewerWithFollowingTeachersQuery = <
 
 useGetViewerWithFollowingTeachersQuery.getKey = (variables?: GetViewerWithFollowingTeachersQueryVariables) => variables === undefined ? ['getViewerWithFollowingTeachers'] : ['getViewerWithFollowingTeachers', variables];
 ;
+
+export const UpdateViewerDocument = `
+    mutation updateViewer($input: UpdateViewerInput!) {
+  updateViewer(input: $input) {
+    id
+    email
+  }
+}
+    `;
+export const useUpdateViewerMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(
+      client: GraphQLClient,
+      options?: UseMutationOptions<UpdateViewerMutation, TError, UpdateViewerMutationVariables, TContext>,
+      headers?: RequestInit['headers']
+    ) =>
+    useMutation<UpdateViewerMutation, TError, UpdateViewerMutationVariables, TContext>(
+      ['updateViewer'],
+      (variables?: UpdateViewerMutationVariables) => fetcher<UpdateViewerMutation, UpdateViewerMutationVariables>(client, UpdateViewerDocument, variables, headers)(),
+      options
+    );

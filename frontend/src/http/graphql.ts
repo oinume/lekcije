@@ -24,24 +24,26 @@ export const createGraphQLClient = (path?: string, token?: string) => {
   });
 };
 
-// TODO: Define error class correctly
-export class GraphQLError extends Error {
-  static fromJson(json: string): GraphQLError {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const object = JSON.parse(json);
-    return new GraphQLError(object.path, object.message);
-  }
+type ErrorExtensions = {
+  code?: string;
+  localizedMessage?: string;
+};
 
+type ErrorInfo = {
   path: string;
   message: string;
+  extensions: ErrorExtensions;
+};
 
-  get string(): string {
-    return `path=${this.path} message=${this.message}`;
+export type GraphQLError = {
+  response: {errors: ErrorInfo[]};
+};
+
+export const toMessage = (error: GraphQLError): string => {
+  const errs = error.response.errors;
+  if (errs.length === 0) {
+    return '';
   }
 
-  constructor(path: string, message: string) {
-    super(`path:${path}, message:${message}`);
-    this.path = path;
-    this.message = message;
-  }
-}
+  return `${errs[0].extensions.localizedMessage ?? ''} (${errs[0].extensions.code ?? ''})`;
+};

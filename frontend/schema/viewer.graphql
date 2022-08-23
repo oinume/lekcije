@@ -33,3 +33,10 @@ query getViewerWithFollowingTeachers {
     showTutorial
   }
 }
+
+mutation updateViewer($input: UpdateViewerInput!) {
+  updateViewer(input: $input) {
+    id,
+    email
+  }
+}
