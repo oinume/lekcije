@@ -7,7 +7,7 @@ go 1.16
 require (
 	cloud.google.com/go/profiler v0.3.0
 	cloud.google.com/go/storage v1.25.0
-	github.com/99designs/gqlgen v0.17.14
+	github.com/99designs/gqlgen v0.17.16
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.6
 	github.com/Songmu/retry v0.1.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -37,7 +37,7 @@ require (
 	github.com/sethvargo/go-envconfig v0.8.2
 	github.com/stretchr/testify v1.8.0
 	github.com/twitchtv/twirp v8.1.2+incompatible
-	github.com/vektah/gqlparser/v2 v2.4.8
+	github.com/vektah/gqlparser/v2 v2.5.0
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.12.0
 	github.com/volatiletech/strmangle v0.0.4
