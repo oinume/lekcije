@@ -19,7 +19,8 @@
   "packageRules": [
     {
       "matchPackageNames": [
-        "go.uber.org/multierr"
+        "go.uber.org/multierr",
+        "go.uber.org/zap"
       ],
       "matchPackagePrefixes": [
         "cloud.google.com/go",
