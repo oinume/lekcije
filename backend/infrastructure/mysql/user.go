@@ -1,12 +1,11 @@
 package mysql
 
-// TODO: move this package to interface/mysql package
-
 import (
 	"context"
 	"database/sql"
 	"time"
 
+	"github.com/morikuni/failure"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -28,6 +27,24 @@ func NewUserRepository(db *sql.DB) repository.User {
 
 func (r *userRepository) CreateWithExec(ctx context.Context, exec repository.Executor, user *model2.User) error {
 	return user.Insert(ctx, exec, boil.Infer())
+}
+
+func (r *userRepository) FindByAPIToken(ctx context.Context, apiToken string) (*model2.User, error) {
+	query := `
+		SELECT u.* FROM user AS u
+		INNER JOIN user_api_token AS uat ON u.id = uat.user_id
+		WHERE uat.token = ?
+		LIMIT 1
+	`
+	u := &model2.User{}
+	if err := queries.Raw(query, apiToken).Bind(ctx, r.db, u); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, failure.Translate(err, errors.NotFound)
+		}
+		return nil, failure.Translate(err, errors.Internal)
+	}
+	// TODO: expose User.doAfterSelectHooks in template
+	return u, nil
 }
 
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model2.User, error) {

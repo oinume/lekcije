@@ -8,14 +8,13 @@ import (
 
 	"github.com/morikuni/failure"
 
-	"github.com/oinume/lekcije/backend/context_data"
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
 // UpdateViewer is the resolver for the updateViewer field.
 func (r *mutationResolver) UpdateViewer(ctx context.Context, input model.UpdateViewerInput) (*model.User, error) {
-	user, err := context_data.GetLoggedInUser(ctx)
+	user, err := authenticateFromContext(ctx, r.userUsecase)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +36,7 @@ func (r *mutationResolver) UpdateViewer(ctx context.Context, input model.UpdateV
 		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("メールアドレスはすでに登録されています。"))
 	}
 
-	if err := r.userUsecase.UpdateEmail(ctx, uint(user.ID), email); err != nil {
+	if err := r.userUsecase.UpdateEmail(ctx, user.ID, email); err != nil {
 		return nil, err
 	}
 
@@ -47,7 +46,7 @@ func (r *mutationResolver) UpdateViewer(ctx context.Context, input model.UpdateV
 
 // Viewer is the resolver for the viewer field.
 func (r *queryResolver) Viewer(ctx context.Context) (*model.User, error) {
-	user, err := context_data.GetLoggedInUser(ctx)
+	user, err := authenticateFromContext(ctx, r.userUsecase)
 	if err != nil {
 		return nil, err
 	}

@@ -3,11 +3,15 @@ package graphqltest
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/Khan/genqlient/graphql"
 
+	"github.com/oinume/lekcije/backend/context_data"
+	interfacehttp "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
@@ -50,14 +54,15 @@ func TestUpdateViewer(t *testing.T) {
 					uat.UserID = user.ID
 				})
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+				newEmail := fmt.Sprintf("updated-%d@example.com", user.ID)
 				return &testCase{
 					apiToken: userAPIToken.Token,
 					input: UpdateViewerInput{
-						Email: "xyz@example.com",
+						Email: newEmail,
 					},
 					wantResult: UpdateViewerUpdateViewerUser{
 						Id:    fmt.Sprint(user.ID),
-						Email: user.Email,
+						Email: newEmail,
 					},
 				}
 			},
@@ -70,9 +75,10 @@ func TestUpdateViewer(t *testing.T) {
 			tc := test.setup(ctx)
 			userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
 			graphqlServer := newGraphQLServer(repos, userUsecase)
+
 			//server := httptest.NewServer(interfacehttp.WithIDToken(interfacehttp.WithSessionID(graphqlServer.ServeHTTP,
 			// config.ServiceEnvTest)))
-			server := httptest.NewServer(graphqlServer)
+			server := httptest.NewServer(setAuthorizationContext(graphqlServer))
 			t.Cleanup(func() { server.Close() })
 
 			httpClient := server.Client()
@@ -104,4 +110,17 @@ func TestUpdateViewer(t *testing.T) {
 			assertion.AssertEqual(t, tc.wantResult, resp.GetUpdateViewer(), "")
 		})
 	}
+}
+
+func setAuthorizationContext(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		auth, err := interfacehttp.ParseAuthorizationHeader(r.Header.Get("authorization"))
+		if err != nil {
+			h.ServeHTTP(w, r)
+			return
+		}
+		r = r.WithContext(context_data.SetAPIToken(r.Context(), strings.TrimSpace(auth)))
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
 }

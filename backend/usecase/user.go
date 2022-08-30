@@ -111,6 +111,10 @@ func (u *User) CreateWithGoogle(ctx context.Context, name, email, googleID strin
 	return retUser, retUserGoogle, nil
 }
 
+func (u *User) FindLoggedInUser(ctx context.Context, apiToken string) (*model2.User, error) {
+	return u.userRepo.FindByAPIToken(ctx, apiToken)
+}
+
 func (u *User) FindByGoogleID(ctx context.Context, googleID string) (*model2.User, error) {
 	return u.userRepo.FindByGoogleID(ctx, googleID)
 }

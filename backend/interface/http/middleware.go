@@ -225,14 +225,22 @@ func redirecter(h http.Handler) http.Handler {
 
 func setAuthorizationContext(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		// Authorization: Bearer <token>
-		auth := strings.Split(r.Header.Get("authorization"), " ")
-		if len(auth) < 2 || strings.ToLower(auth[0]) != "bearer" {
+		auth, err := ParseAuthorizationHeader(r.Header.Get("authorization"))
+		if err != nil {
 			h.ServeHTTP(w, r)
 			return
 		}
-		r = r.WithContext(context_data.SetAPIToken(r.Context(), strings.TrimSpace(auth[1])))
+		r = r.WithContext(context_data.SetAPIToken(r.Context(), strings.TrimSpace(auth)))
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
+}
+
+func ParseAuthorizationHeader(header string) (string, error) {
+	// Authorization: Bearer <token>
+	auth := strings.Split(header, " ")
+	if len(auth) < 2 || strings.ToLower(auth[0]) != "bearer" {
+		return "", fmt.Errorf("header value is not valid")
+	}
+	return auth[1], nil
 }
