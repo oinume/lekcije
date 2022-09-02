@@ -9,6 +9,7 @@ import (
 
 type User interface {
 	CreateWithExec(ctx context.Context, exec Executor, user *model2.User) error
+	FindByAPIToken(ctx context.Context, apiToken string) (*model2.User, error)
 	FindByEmail(ctx context.Context, email string) (*model2.User, error)
 	FindByEmailWithExec(ctx context.Context, exec Executor, email string) (*model2.User, error)
 	FindByGoogleID(ctx context.Context, googleID string) (*model2.User, error)

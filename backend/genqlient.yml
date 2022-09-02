@@ -1,0 +1,5 @@
+schema:
+  - interface/graphql/schema/*.graphqls
+operations:
+  - interface/graphqltest/*.go
+generated: interface/graphqltest/generated.go

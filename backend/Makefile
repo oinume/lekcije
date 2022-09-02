@@ -20,7 +20,7 @@ install-tools:
 
 .PHONY: install
 install:
-	go install github.com/oinume/lekcije/server/cmd/lekcije
+	go install github.com/oinume/lekcije/backend/cmd/lekcije
 
 .PHONY: build
 build: $(foreach command,$(COMMANDS),go/build/$(command))
@@ -62,6 +62,10 @@ mock/generate:
 	find . -name "*.moq.go" | xargs rm -f
 	cd backend && go generate ./...
 
+graphqltest/generate: ## Get GraphQL schema and generate GraphQL tests into interface/graphqltest
+	@go run github.com/Khan/genqlient genqlient.yml
+.PHONY: graphqltest-generate
+
 .PHONY: test
 test: go/test
 
@@ -94,6 +98,12 @@ restart: kill clean go/build/server
 
 watch: restart
 	fswatch -o -e ".*" -e vendor -e node_modules -e .venv -i "\\.go$$" . | xargs -n1 -I{} make restart || make kill
+
+.PHONY: sync-go-mod-from-root
+sync-go-mod-from-root:
+	cp -f ../go.* ./
+	perl -i -p -e "s!module github.com/oinume/lekcije!module github.com/oinume/lekcije/backend!" go.mod
+	go mod tidy
 
 .PHONY: help
 help:  ## show this help

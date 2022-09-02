@@ -9,6 +9,7 @@ require (
 	cloud.google.com/go/storage v1.25.0
 	github.com/99designs/gqlgen v0.17.16
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.7
+	github.com/Khan/genqlient v0.5.0 // indirect
 	github.com/Songmu/retry v0.1.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
