@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/mail"
 	"strings"
 	"text/template"
@@ -159,7 +158,7 @@ func (e *Email) BodyString() string {
 	if e.bodyCache != "" {
 		return e.bodyCache
 	}
-	b, err := ioutil.ReadAll(e.Body)
+	b, err := io.ReadAll(e.Body)
 	if err != nil {
 		return ""
 	}
