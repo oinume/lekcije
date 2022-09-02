@@ -10,7 +10,7 @@ on:
       - "go.sum"
       - ".github/workflows/backend.yaml"
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
   GOPATH: /home/runner/go
 jobs:
   test:
