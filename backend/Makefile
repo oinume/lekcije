@@ -20,7 +20,7 @@ install-tools:
 
 .PHONY: install
 install:
-	go install github.com/oinume/lekcije/server/cmd/lekcije
+	go install github.com/oinume/lekcije/backend/cmd/lekcije
 
 .PHONY: build
 build: $(foreach command,$(COMMANDS),go/build/$(command))
