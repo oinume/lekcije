@@ -48,13 +48,13 @@ jobs:
         working-directory: backend
     timeout-minutes: 20
     steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
       - name: Set up Go
         id: go
         uses: actions/setup-go@v3
         with:
           go-version-file: "go.mod"
-      - name: Check out the repository
-        uses: actions/checkout@v3
       - name: Sync go.mod
         run: |
           make sync-go-mod-from-root
