@@ -9,8 +9,10 @@ import (
 	"testing"
 
 	"github.com/Khan/genqlient/graphql"
+	"github.com/morikuni/failure"
 
 	"github.com/oinume/lekcije/backend/context_data"
+	"github.com/oinume/lekcije/backend/errors"
 	interfacehttp "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
@@ -33,13 +35,12 @@ func TestUpdateViewer(t *testing.T) {
 	helper := model.NewTestHelper()
 	db := helper.DB(t)
 	repos := mysqltest.NewRepositories(db.DB())
-	//var log bytes.Buffer
-	//appLogger := logger.NewAppLogger(&log, logger.NewLevel("info"))
 
 	type testCase struct {
-		apiToken   string
-		input      UpdateViewerInput
-		wantResult UpdateViewerUpdateViewerUser
+		apiToken      string
+		input         UpdateViewerInput
+		wantResult    UpdateViewerUpdateViewerUser
+		wantErrorCode failure.StringCode
 		//wantResponse   *api_v1.GetMeResponse
 		//wantStatusCode int
 	}
@@ -64,6 +65,51 @@ func TestUpdateViewer(t *testing.T) {
 						Id:    fmt.Sprint(user.ID),
 						Email: newEmail,
 					},
+					wantErrorCode: "",
+				}
+			},
+		},
+		"invalid_email_format": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+				newEmail := "invalid"
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					input: UpdateViewerInput{
+						Email: newEmail,
+					},
+					wantResult: UpdateViewerUpdateViewerUser{
+						Id:    fmt.Sprint(user.ID),
+						Email: newEmail,
+					},
+					wantErrorCode: errors.InvalidArgument,
+				}
+			},
+		},
+		"duplicate_email": {
+			setup: func(ctx context.Context) *testCase {
+				user := modeltest.NewUser()
+				repos.CreateUsers(ctx, t, user)
+				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
+					uat.UserID = user.ID
+				})
+				repos.CreateUserAPITokens(ctx, t, userAPIToken)
+				newEmail := user.Email
+				return &testCase{
+					apiToken: userAPIToken.Token,
+					input: UpdateViewerInput{
+						Email: newEmail,
+					},
+					wantResult: UpdateViewerUpdateViewerUser{
+						Id:    fmt.Sprint(user.ID),
+						Email: newEmail,
+					},
+					wantErrorCode: errors.InvalidArgument,
 				}
 			},
 		},
@@ -75,9 +121,6 @@ func TestUpdateViewer(t *testing.T) {
 			tc := test.setup(ctx)
 			userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
 			graphqlServer := newGraphQLServer(repos, userUsecase)
-
-			//server := httptest.NewServer(interfacehttp.WithIDToken(interfacehttp.WithSessionID(graphqlServer.ServeHTTP,
-			// config.ServiceEnvTest)))
 			server := httptest.NewServer(setAuthorizationContext(graphqlServer))
 			t.Cleanup(func() { server.Close() })
 
@@ -91,22 +134,20 @@ func TestUpdateViewer(t *testing.T) {
 
 			resp, err := UpdateViewer(ctx, graphqlClient, tc.input)
 			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
+				if tc.wantErrorCode == "" {
+					t.Fatalf("unexpected error: %v", err)
+				} else {
+					if !strings.Contains(err.Error(), tc.wantErrorCode.ErrorCode()) {
+						t.Fatalf("err must contain code: wantErrorCode=%v, err=%v", tc.wantErrorCode, err)
+					}
+					return // OK
+				}
 			}
-			//if err != nil {
-			//	if c.wantErrorCode == "" {
-			//		t.Fatalf("unexpected error: %v", err)
-			//	} else {
-			//		if !strings.Contains(err.Error(), c.wantErrorCode.ErrorCode()) {
-			//			t.Fatalf("err must contain code: wantErrorCode=%v, err=%v", c.wantErrorCode, err)
-			//		}
-			//		return // OK
-			//	}
-			//}
-			//
-			//if c.wantErrorCode != "" {
-			//	t.Fatalf("wantErrorCode is not empty but no error: wantErrorCode=%v", c.wantErrorCode)
-			//}
+
+			if tc.wantErrorCode != "" {
+				t.Fatalf("wantErrorCode is not empty but no error: wantErrorCode=%v", tc.wantErrorCode)
+			}
+
 			assertion.AssertEqual(t, tc.wantResult, resp.GetUpdateViewer(), "")
 		})
 	}
