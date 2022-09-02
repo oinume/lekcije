@@ -10,7 +10,7 @@ on:
       - "go.sum"
       - ".github/workflows/backend.yaml"
 env:
-  CACHE_VERSION: 3
+  CACHE_VERSION: 4
   GOPATH: /home/runner/go
 jobs:
   test:
@@ -48,11 +48,11 @@ jobs:
         working-directory: backend
     timeout-minutes: 20
     steps:
-      - name: Set up Go 1.16
+      - name: Set up Go
         id: go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version-file: "go.mod"
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Sync go.mod
@@ -105,9 +105,10 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Set up Go
+        id: go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.16
+          go-version-file: "go.mod"
       - name: Sync go.mod
         run: |
           make sync-go-mod-from-root
@@ -117,48 +118,8 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.41.1
+          version: v1.49.0
           working-directory: backend
           skip-go-installation: true
           skip-pkg-cache: false
           skip-build-cache: false
-
-  deploy-to-production:
-    name: deploy to production
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3
-#      - name: Save credentials into secrect.yaml
-#        run: |
-#          sed "s/<SENDGRID_API_KEY>/$SENDGRID_API_KEY/" ./entrypoint/task/secret.yaml.tmpl > ./entrypoint/task/secret.yaml
-#        env:
-#          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-      - uses: actions/cache@v3
-        id: cache
-        with:
-          path: ${{ env.GOPATH }}/pkg/mod
-          key: ${{ runner.os }}-deploy-to-production-go-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-deploy-to-production-go-
-      - name: Install App Engine Go SDK
-        run: |
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-          sudo apt-get update
-          sudo apt-get install google-cloud-sdk-app-engine-go
-      - name: Initialize Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-          service_account_email: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
-          export_default_credentials: true
-      - name: Run go mod vendor
-        run: |
-          go mod vendor
-      - name: Deploy
-        run: |
-          GO111MODULE=off gcloud app deploy --project ${{ secrets.GCP_PROJECT_ID }} --no-promote --quiet ./backend/appengine/app.yaml
