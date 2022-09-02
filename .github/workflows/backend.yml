@@ -55,9 +55,9 @@ jobs:
           go-version: 1.16
       - name: Check out the repository
         uses: actions/checkout@v3
-      - name: Print PWD
+      - name: Sync go.mod
         run: |
-          pwd
+          make sync-go-mod-from-root
       - uses: actions/cache@v3
         id: cache
         with:
@@ -108,11 +108,11 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.16
+      - name: Sync go.mod
+        run: |
+          make sync-go-mod-from-root
       - name: Build
         run: |
-          pwd
-          ls -al
-          ls -al ../
           make build
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3

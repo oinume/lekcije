@@ -99,6 +99,12 @@ restart: kill clean go/build/server
 watch: restart
 	fswatch -o -e ".*" -e vendor -e node_modules -e .venv -i "\\.go$$" . | xargs -n1 -I{} make restart || make kill
 
+.PHONY: sync-go-mod-from-root
+sync-go-mod-from-root:
+	cp -f ../go.* ./
+	perl -i -p -e "s!module github.com/oinume/lekcije!module github.com/oinume/lekcije/backend!" go.mod
+	go mod tidy
+
 .PHONY: help
 help:  ## show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[\/a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

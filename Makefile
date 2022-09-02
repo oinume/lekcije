@@ -29,7 +29,7 @@ proto/go:
 ngrok:
 	ngrok http -subdomain=lekcije -host-header=localhost 4000
 
-.PHONY: sync-go-mod
-sync-go-mod:
-	cp -f backend/go.{mod,sum} ./
-	sed -i '' 's/module github.com\/oinume\/lekcije\/backend/module github.com\/oinume\/lekcije/;' go.mod
+.PHONY: sync-go-mod-from-backend
+sync-go-mod-from-backend:
+	cp -f backend/go.* ./
+	perl -i -p -e 's!module github.com/oinume/lekcije/backend!module github.com/oinume/lekcije!' go.mod
