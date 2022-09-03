@@ -37,3 +37,5 @@ sqlboiler.toml
 # Copied from root for gqlgen
 backend/go.mod
 backend/go.sum
+
+/backend/package-lock.json
