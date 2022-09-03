@@ -2,7 +2,6 @@ package resolver
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/morikuni/failure"
 
@@ -22,13 +21,11 @@ func toGraphQLUser(user *model2.User) *graphqlmodel.User {
 func toModelNotificationTimeSpans(userID uint, timeSpans []*graphqlmodel.NotificationTimeSpanInput) []*model2.NotificationTimeSpan {
 	values := make([]*model2.NotificationTimeSpan, len(timeSpans))
 	for i, v := range timeSpans {
-		fromTime := fmt.Sprintf("%v:%v", v.FromHour, v.FromMinute)
-		toTime := fmt.Sprintf("%v:%v", v.ToHour, v.ToMinute)
 		values[i] = &model2.NotificationTimeSpan{
 			UserID:   userID,
 			Number:   uint8(i + 1),
-			FromTime: fromTime,
-			ToTime:   toTime,
+			FromTime: model2.NotificationTimeSpanTimeFormat(v.FromHour, v.FromMinute),
+			ToTime:   model2.NotificationTimeSpanTimeFormat(v.ToHour, v.ToMinute),
 		}
 	}
 	return values
@@ -37,11 +34,11 @@ func toModelNotificationTimeSpans(userID uint, timeSpans []*graphqlmodel.Notific
 func toGraphQLNotificationTimeSpans(timeSpans []*model2.NotificationTimeSpan) ([]*graphqlmodel.NotificationTimeSpan, error) {
 	values := make([]*graphqlmodel.NotificationTimeSpan, len(timeSpans))
 	for i, v := range timeSpans {
-		fromTime, err := time.Parse("15:04:05", v.FromTime)
+		fromTime, err := model2.NotificationTimeSpanTimeParse(v.FromTime)
 		if err != nil {
 			return nil, failure.Translate(err, errors.Internal, failure.Messagef("Invalid time format: FromTime=%v", v.FromTime))
 		}
-		toTime, err := time.Parse("15:04:05", v.ToTime)
+		toTime, err := model2.NotificationTimeSpanTimeParse(v.ToTime)
 		if err != nil {
 			return nil, failure.Translate(err, errors.Internal, failure.Messagef("Invalid time format: ToTime=%v", v.ToTime))
 		}

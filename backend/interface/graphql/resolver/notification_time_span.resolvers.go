@@ -6,6 +6,9 @@ package resolver
 import (
 	"context"
 
+	"github.com/morikuni/failure"
+
+	"github.com/oinume/lekcije/backend/errors"
 	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
@@ -17,6 +20,10 @@ func (r *mutationResolver) UpdateNotificationTimeSpans(
 	user, err := authenticateFromContext(ctx, r.userUsecase)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(input.TimeSpans) > 3 {
+		return nil, failure.New(errors.InvalidArgument, failure.Messagef("レッスン希望時間帯は3つまで登録可能です"))
 	}
 
 	timeSpans := toModelNotificationTimeSpans(user.ID, input.TimeSpans)
