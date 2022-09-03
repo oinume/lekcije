@@ -4,3 +4,22 @@ type NotificationTimeSpan {
   toHour: Int!
   toMinute: Int!
 }
+
+input NotificationTimeSpanInput {
+  fromHour: Int!
+  fromMinute: Int!
+  toHour: Int!
+  toMinute: Int!
+}
+
+input UpdateNotificationTimeSpansInput {
+  timeSpans: [NotificationTimeSpanInput!]!
+}
+
+type NotificationTimeSpanPayload {
+  timeSpans: [NotificationTimeSpan!]
+}
+
+extend type Mutation {
+  updateNotificationTimeSpans(input: UpdateNotificationTimeSpansInput!): NotificationTimeSpanPayload
+}

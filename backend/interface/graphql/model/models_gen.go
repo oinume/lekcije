@@ -19,9 +19,24 @@ type NotificationTimeSpan struct {
 	ToMinute   int `json:"toMinute"`
 }
 
+type NotificationTimeSpanInput struct {
+	FromHour   int `json:"fromHour"`
+	FromMinute int `json:"fromMinute"`
+	ToHour     int `json:"toHour"`
+	ToMinute   int `json:"toMinute"`
+}
+
+type NotificationTimeSpanPayload struct {
+	TimeSpans []*NotificationTimeSpan `json:"timeSpans"`
+}
+
 type Teacher struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type UpdateNotificationTimeSpansInput struct {
+	TimeSpans []*NotificationTimeSpanInput `json:"timeSpans"`
 }
 
 type UpdateViewerInput struct {
