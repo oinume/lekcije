@@ -87,7 +87,7 @@ jobs:
         uses: codecov/codecov-action@v3.1.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.txt
+          file: ./backend/coverage.txt
           fail_ci_if_error: false
           flags: backend
   #          name: codecov-umbrella # optional
