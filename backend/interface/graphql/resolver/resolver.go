@@ -10,25 +10,28 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	followingTeacherRepo     repository.FollowingTeacher
-	notificationTimeSpanRepo repository.NotificationTimeSpan
-	teacherRepo              repository.Teacher
-	userRepo                 repository.User
-	userUsecase              *usecase.User
+	followingTeacherRepo        repository.FollowingTeacher
+	notificationTimeSpanRepo    repository.NotificationTimeSpan
+	notificationTimeSpanUsecase *usecase.NotificationTimeSpan
+	teacherRepo                 repository.Teacher
+	userRepo                    repository.User
+	userUsecase                 *usecase.User
 }
 
 func NewResolver(
 	followingTeacherRepo repository.FollowingTeacher,
 	notificationTimeSpanRepo repository.NotificationTimeSpan,
+	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
 	teacherRepo repository.Teacher,
 	userRepo repository.User,
 	userUsecase *usecase.User,
 ) *Resolver {
 	return &Resolver{
-		followingTeacherRepo:     followingTeacherRepo,
-		notificationTimeSpanRepo: notificationTimeSpanRepo,
-		teacherRepo:              teacherRepo,
-		userRepo:                 userRepo,
-		userUsecase:              userUsecase,
+		followingTeacherRepo:        followingTeacherRepo,
+		notificationTimeSpanRepo:    notificationTimeSpanRepo,
+		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
+		teacherRepo:                 teacherRepo,
+		userRepo:                    userRepo,
+		userUsecase:                 userUsecase,
 	}
 }

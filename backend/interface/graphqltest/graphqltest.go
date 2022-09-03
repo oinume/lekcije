@@ -10,17 +10,18 @@ import (
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
-func newResolver(repos *mysqltest.Repositories, userUsecase *usecase.User) *resolver.Resolver {
-	return resolver.NewResolver(
+func newGraphQLServer(
+	repos *mysqltest.Repositories,
+	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
+	userUsecase *usecase.User,
+) *handler.Server {
+	resolver := resolver.NewResolver(
 		repos.FollowingTeacher(),
 		repos.NotificationTimeSpan(),
+		notificationTimeSpanUsecase,
 		repos.Teacher(),
 		repos.User(),
 		userUsecase,
 	)
-}
-
-func newGraphQLServer(repos *mysqltest.Repositories, userUsecase *usecase.User) *handler.Server {
-	resolver := newResolver(repos, userUsecase)
 	return handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 }

@@ -2,8 +2,6 @@ package graphqltest
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -11,9 +9,7 @@ import (
 	"github.com/Khan/genqlient/graphql"
 	"github.com/morikuni/failure"
 
-	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
-	interfacehttp "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
@@ -23,23 +19,27 @@ import (
 )
 
 var _ = `# @genqlient
-mutation UpdateViewer($input: UpdateViewerInput!) {
-  updateViewer(input: $input) {
-    id
-    email
+mutation UpdateNotificationTimeSpans($input: UpdateNotificationTimeSpansInput!) {
+  updateNotificationTimeSpans(input: $input) {
+    timeSpans {
+      fromHour
+      fromMinute
+      toHour
+      toMinute
+    }
   }
 }
 `
 
-func TestUpdateViewer(t *testing.T) {
+func TestUpdateNotificationTimeSpan(t *testing.T) {
 	helper := model.NewTestHelper()
 	db := helper.DB(t)
 	repos := mysqltest.NewRepositories(db.DB())
 
 	type testCase struct {
 		apiToken      string
-		input         UpdateViewerInput
-		wantResult    UpdateViewerUpdateViewerUser
+		input         UpdateNotificationTimeSpansInput
+		wantResult    UpdateNotificationTimeSpansUpdateNotificationTimeSpansNotificationTimeSpanPayload
 		wantErrorCode failure.StringCode
 	}
 	tests := map[string]struct {
@@ -53,21 +53,44 @@ func TestUpdateViewer(t *testing.T) {
 					uat.UserID = user.ID
 				})
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
-				newEmail := fmt.Sprintf("updated-%d@example.com", user.ID)
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					input: UpdateViewerInput{
-						Email: newEmail,
+					input: UpdateNotificationTimeSpansInput{
+						TimeSpans: []NotificationTimeSpanInput{
+							{
+								FromHour:   13,
+								FromMinute: 00,
+								ToHour:     19,
+								ToMinute:   30,
+							},
+							{
+								FromHour:   21,
+								FromMinute: 30,
+								ToHour:     23,
+								ToMinute:   30,
+							},
+						},
 					},
-					wantResult: UpdateViewerUpdateViewerUser{
-						Id:    fmt.Sprint(user.ID),
-						Email: newEmail,
+					wantResult: UpdateNotificationTimeSpansUpdateNotificationTimeSpansNotificationTimeSpanPayload{
+						TimeSpans: []UpdateNotificationTimeSpansUpdateNotificationTimeSpansNotificationTimeSpanPayloadTimeSpansNotificationTimeSpan{
+							{
+								FromHour:   13,
+								FromMinute: 00,
+								ToHour:     19,
+								ToMinute:   30,
+							},
+							{
+								FromHour:   21,
+								FromMinute: 30,
+								ToHour:     23,
+								ToMinute:   30,
+							},
+						},
 					},
-					wantErrorCode: "",
 				}
 			},
 		},
-		"invalid_email_format": {
+		"invalid_argument_over_3": {
 			setup: func(ctx context.Context) *testCase {
 				user := modeltest.NewUser()
 				repos.CreateUsers(ctx, t, user)
@@ -75,37 +98,35 @@ func TestUpdateViewer(t *testing.T) {
 					uat.UserID = user.ID
 				})
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
-				newEmail := "invalid"
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					input: UpdateViewerInput{
-						Email: newEmail,
-					},
-					wantResult: UpdateViewerUpdateViewerUser{
-						Id:    fmt.Sprint(user.ID),
-						Email: newEmail,
-					},
-					wantErrorCode: errors.InvalidArgument,
-				}
-			},
-		},
-		"duplicate_email": {
-			setup: func(ctx context.Context) *testCase {
-				user := modeltest.NewUser()
-				repos.CreateUsers(ctx, t, user)
-				userAPIToken := modeltest.NewUserAPIToken(func(uat *model2.UserAPIToken) {
-					uat.UserID = user.ID
-				})
-				repos.CreateUserAPITokens(ctx, t, userAPIToken)
-				newEmail := user.Email
-				return &testCase{
-					apiToken: userAPIToken.Token,
-					input: UpdateViewerInput{
-						Email: newEmail,
-					},
-					wantResult: UpdateViewerUpdateViewerUser{
-						Id:    fmt.Sprint(user.ID),
-						Email: newEmail,
+					input: UpdateNotificationTimeSpansInput{
+						TimeSpans: []NotificationTimeSpanInput{
+							{
+								FromHour:   13,
+								FromMinute: 00,
+								ToHour:     19,
+								ToMinute:   30,
+							},
+							{
+								FromHour:   21,
+								FromMinute: 30,
+								ToHour:     23,
+								ToMinute:   30,
+							},
+							{
+								FromHour:   8,
+								FromMinute: 30,
+								ToHour:     9,
+								ToMinute:   30,
+							},
+							{
+								FromHour:   10,
+								FromMinute: 30,
+								ToHour:     11,
+								ToMinute:   30,
+							},
+						},
 					},
 					wantErrorCode: errors.InvalidArgument,
 				}
@@ -131,7 +152,7 @@ func TestUpdateViewer(t *testing.T) {
 			}
 			graphqlClient := graphql.NewClient(server.URL, httpClient)
 
-			resp, err := UpdateViewer(ctx, graphqlClient, tc.input)
+			resp, err := UpdateNotificationTimeSpans(ctx, graphqlClient, tc.input)
 			if err != nil {
 				if tc.wantErrorCode == "" {
 					t.Fatalf("unexpected error: %v", err)
@@ -147,20 +168,7 @@ func TestUpdateViewer(t *testing.T) {
 				t.Fatalf("wantErrorCode is not empty but no error: wantErrorCode=%v", tc.wantErrorCode)
 			}
 
-			assertion.AssertEqual(t, tc.wantResult, resp.GetUpdateViewer(), "")
+			assertion.AssertEqual(t, tc.wantResult, resp.GetUpdateNotificationTimeSpans(), "")
 		})
 	}
-}
-
-func setAuthorizationContext(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		auth, err := interfacehttp.ParseAuthorizationHeader(r.Header.Get("authorization"))
-		if err != nil {
-			h.ServeHTTP(w, r)
-			return
-		}
-		r = r.WithContext(context_data.SetAPIToken(r.Context(), strings.TrimSpace(auth)))
-		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(fn)
 }

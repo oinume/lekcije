@@ -15,11 +15,6 @@ import (
 	"github.com/oinume/lekcije/backend/model2"
 )
 
-// ShowTutorial is the resolver for the showTutorial field.
-func (r *userResolver) ShowTutorial(ctx context.Context, obj *model.User) (bool, error) {
-	return obj.ShowTutorial, nil
-}
-
 // FollowingTeachers is the resolver for the followingTeachers field.
 func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User) ([]*model.FollowingTeacher, error) {
 	userID, err := strconv.ParseUint(obj.ID, 10, 32)
