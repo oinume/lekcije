@@ -5,12 +5,29 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/oinume/lekcije/backend/interface/graphql/model"
+	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 )
 
 // UpdateNotificationTimeSpans is the resolver for the updateNotificationTimeSpans field.
-func (r *mutationResolver) UpdateNotificationTimeSpans(ctx context.Context, input model.UpdateNotificationTimeSpansInput) (*model.NotificationTimeSpanPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateNotificationTimeSpans - updateNotificationTimeSpans"))
+func (r *mutationResolver) UpdateNotificationTimeSpans(
+	ctx context.Context,
+	input graphqlmodel.UpdateNotificationTimeSpansInput,
+) (*graphqlmodel.NotificationTimeSpanPayload, error) {
+	user, err := authenticateFromContext(ctx, r.userUsecase)
+	if err != nil {
+		return nil, err
+	}
+
+	timeSpans := toModelNotificationTimeSpans(user.ID, input.TimeSpans)
+	if err := r.notificationTimeSpanUsecase.UpdateAll(ctx, user.ID, timeSpans); err != nil {
+		return nil, err
+	}
+	timeSpansGraphQL, err := toGraphQLNotificationTimeSpans(timeSpans)
+	if err != nil {
+		return nil, err
+	}
+	return &graphqlmodel.NotificationTimeSpanPayload{
+		TimeSpans: timeSpansGraphQL,
+	}, nil
 }
