@@ -1,8 +1,8 @@
-// +heroku goVersion go1.16
+// +heroku goVersion go1.18
 // +heroku install ./backend/cmd/...
 module github.com/oinume/lekcije
 
-go 1.16
+go 1.18
 
 require (
 	cloud.google.com/go/profiler v0.3.0

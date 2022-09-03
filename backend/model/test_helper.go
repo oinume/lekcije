@@ -16,7 +16,6 @@ import (
 type TestHelper struct {
 	dbURL string
 	db    *gorm.DB
-	//mCountryService *MCountryService
 }
 
 func NewTestHelper() *TestHelper {
@@ -117,7 +116,7 @@ func (h *TestHelper) CreateTeacher(t *testing.T, id uint32, name string) *Teache
 		LastLessonAt: time.Now().Add(-1 * 24 * time.Hour), // 1 day ago
 	}
 	if err := NewTeacherService(db).CreateOrUpdate(teacher); err != nil {
-		t.Fatal(fmt.Sprintf("CreateTeacher failed: %v", err))
+		t.Fatalf("CreateTeacher failed: %v", err)
 	}
 	return teacher
 }

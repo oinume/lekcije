@@ -2,7 +2,7 @@ package emailer
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -27,7 +27,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		Request:    req,
 		StatusCode: http.StatusOK,
 		Status:     "OK",
-		Body:       ioutil.NopCloser(strings.NewReader("OK")),
+		Body:       io.NopCloser(strings.NewReader("OK")),
 	}
 	return resp, nil
 }

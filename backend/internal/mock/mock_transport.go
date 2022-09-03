@@ -2,7 +2,7 @@ package mock
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -20,7 +20,7 @@ func NewHTMLTransport(path string) (*HTMLTransport, error) {
 	if err != nil {
 		return nil, fmt.Errorf("os.Open failed: path=%v, err=%v", path, err)
 	}
-	b, err := ioutil.ReadAll(file)
+	b, err := io.ReadAll(file)
 	if err != nil {
 		return nil, fmt.Errorf("read file failed: err=%v", err)
 	}
@@ -46,6 +46,6 @@ func (t *HTMLTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		Status:     "200 OK",
 	}
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
-	resp.Body = ioutil.NopCloser(strings.NewReader(t.content))
+	resp.Body = io.NopCloser(strings.NewReader(t.content))
 	return resp, nil
 }
