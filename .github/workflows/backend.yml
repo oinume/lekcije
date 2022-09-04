@@ -92,7 +92,6 @@ jobs:
           file: ./backend/coverage.txt
           fail_ci_if_error: false
           flags: backend
-  #          name: codecov-umbrella # optional
   lint:
     name: lint
     runs-on: ubuntu-latest
