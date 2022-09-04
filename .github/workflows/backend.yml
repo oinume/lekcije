@@ -109,6 +109,8 @@ jobs:
         id: go
         uses: actions/setup-go@v3
         with:
+          cache: true
+          cache-dependency-path: "go.sum"
           go-version-file: "go.mod"
       - name: Sync go.mod
         run: |
@@ -123,4 +125,4 @@ jobs:
           working-directory: backend
           skip-go-installation: true
           skip-pkg-cache: true
-          skip-build-cache: false
+          skip-build-cache: true
