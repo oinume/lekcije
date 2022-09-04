@@ -54,17 +54,19 @@ jobs:
         id: go
         uses: actions/setup-go@v3
         with:
+          cache: true
+          cache-dependency-path: "go.sum"
           go-version-file: "go.mod"
       - name: Sync go.mod
         run: |
           make sync-go-mod-from-root
-      - uses: actions/cache@v3
-        id: cache
-        with:
-          path: ${{ env.GOPATH }}/pkg/mod
-          key: ${{ runner.os }}-build-go-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-build-go-
+#      - uses: actions/cache@v3
+#        id: cache
+#        with:
+#          path: ${{ env.GOPATH }}/pkg/mod
+#          key: ${{ runner.os }}-build-go-${{ hashFiles('**/go.sum') }}-${{ env.CACHE_VERSION }}
+#          restore-keys: |
+#            ${{ runner.os }}-build-go-
       - name: Install tools
         run: |
           ls -l $GOPATH/bin || true
@@ -121,5 +123,5 @@ jobs:
           version: v1.49.0
           working-directory: backend
           skip-go-installation: true
-          skip-pkg-cache: false
+          skip-pkg-cache: true
           skip-build-cache: false
