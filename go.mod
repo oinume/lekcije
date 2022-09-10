@@ -48,7 +48,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	golang.org/x/text v0.3.7
-	google.golang.org/api v0.94.0
+	google.golang.org/api v0.95.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
 )
