@@ -4,13 +4,16 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {PageTitle} from '../components/PageTitle';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
-import {Teacher} from '../models/Teacher';
+import type {Teacher} from '../models/Teacher';
 import {useListFollowingTeachers} from '../hooks/useListFollowingTeachers';
 import {ToastContainer} from '../components/ToastContainer';
-import {TwirpError, twirpRequest} from '../http/twirp';
+import type {TwirpError} from '../http/twirp';
+import {twirpRequest} from '../http/twirp';
 import {queryKeyFollowingTeachers} from '../hooks/common';
-import {GetViewerQuery, useGetViewerQuery} from '../graphql/generated';
-import {createGraphQLClient, GraphQLError, toMessage} from '../http/graphql';
+import type {GetViewerQuery} from '../graphql/generated';
+import {useGetViewerQuery} from '../graphql/generated';
+import type {GraphQLError} from '../http/graphql';
+import {createGraphQLClient, toMessage} from '../http/graphql';
 
 export const MePage = () => {
   const client = createGraphQLClient();

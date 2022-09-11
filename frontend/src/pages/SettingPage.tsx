@@ -11,11 +11,13 @@ import {NotificationTimeSpanModel} from '../models/NotificatonTimeSpan';
 import {queryKeyMe} from '../hooks/common';
 import {twirpRequest} from '../http/twirp';
 import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
+import type {
+  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan} from '../graphql/generated';
 import {
-  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
   useGetViewerWithNotificationTimeSpansQuery, useUpdateViewerMutation,
 } from '../graphql/generated';
-import {createGraphQLClient, GraphQLError, toMessage} from '../http/graphql';
+import type {GraphQLError} from '../http/graphql';
+import {createGraphQLClient, toMessage} from '../http/graphql';
 import {ToastContainer} from '../components/ToastContainer';
 
 type ToggleAlertState = {

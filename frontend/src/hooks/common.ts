@@ -1,4 +1,4 @@
-import {UseQueryOptions} from '@tanstack/react-query';
+import type {UseQueryOptions} from '@tanstack/react-query';
 
 export const queryKeyMe = '/twirp/api.v1.Me/GetMe';
 export const queryKeyFollowingTeachers = '/twirp/api.v1.Me/ListFollowingTeachers';

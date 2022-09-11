@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
-import {TwirpError, twirpRequest} from '../http/twirp';
-import {Teacher} from '../models/Teacher';
+import type {TwirpError} from '../http/twirp';
+import {twirpRequest} from '../http/twirp';
+import type {Teacher} from '../models/Teacher';
 import {defaultUseQueryOptions, queryKeyFollowingTeachers} from './common';
 
 type ListFollowingTeachersRequest = Record<string, unknown>;
