@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {sprintf} from 'sprintf-js';
 import {range} from 'lodash-es';
 import {Select} from '../Select';
-import {NotificationTimeSpanModel} from '../../models/NotificatonTimeSpan';
+import type {NotificationTimeSpanModel} from '../../models/NotificatonTimeSpan';
 
 type Props = {
   timeSpans: NotificationTimeSpanModel[];

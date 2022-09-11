@@ -1,7 +1,8 @@
 import React from 'react';
+import type {
+  ToastContainerProps} from 'react-toastify';
 import {
   ToastContainer as ReactToastContainer,
-  ToastContainerProps,
   Zoom,
 } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // eslint-disable-line import/no-unassigned-import
