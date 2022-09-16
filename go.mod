@@ -7,7 +7,7 @@ go 1.18
 require (
 	cloud.google.com/go/profiler v0.3.0
 	cloud.google.com/go/storage v1.26.0
-	github.com/99designs/gqlgen v0.17.16
+	github.com/99designs/gqlgen v0.17.19
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.7
 	github.com/Khan/genqlient v0.5.0
 	github.com/Songmu/retry v0.1.0
