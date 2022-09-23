@@ -6,6 +6,6 @@
 //   ) {}
 // }
 
-import {FollowingTeacher as FollowingTeacherGraphQL} from '../graphql/generated';
+import type {FollowingTeacher as FollowingTeacherGraphQL} from '../graphql/generated';
 
-export type FollowingTeacher = Omit<FollowingTeacherGraphQL, "id" | "createdAt" | "__typename">
+export type FollowingTeacher = Omit<FollowingTeacherGraphQL, 'id' | 'createdAt' | '__typename'>;
