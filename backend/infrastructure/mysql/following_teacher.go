@@ -95,3 +95,9 @@ func (r *followingTeacherRepository) FindByUserID(
 	}
 	return fts, nil
 }
+
+func (r *followingTeacherRepository) FindByUserIDAndTeacherID(
+	ctx context.Context, userID uint, teacherID uint,
+) (*model2.FollowingTeacher, error) {
+	return model2.FindFollowingTeacher(ctx, r.db, userID, teacherID)
+}

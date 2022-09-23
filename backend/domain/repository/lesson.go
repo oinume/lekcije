@@ -1,5 +1,7 @@
 package repository
 
+//go:generate moq -out=lesson.moq.go . LessonFetcher
+
 import (
 	"context"
 

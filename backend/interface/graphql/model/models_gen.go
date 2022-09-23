@@ -20,6 +20,14 @@ type Node interface {
 	GetID() string
 }
 
+type CreateFollowingTeacherInput struct {
+	TeacherIDOrURL string `json:"teacherIdOrUrl"`
+}
+
+type CreateFollowingTeacherPayload struct {
+	ID string `json:"id"`
+}
+
 type Empty struct {
 	ID string `json:"id"`
 }

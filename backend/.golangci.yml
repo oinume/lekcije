@@ -16,3 +16,6 @@ linters:
 
 issues:
   exclude-rules:
+    - path: "\\.resolvers\\.go$"
+      linters:
+        - goimports

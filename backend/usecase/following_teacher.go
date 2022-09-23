@@ -52,13 +52,13 @@ func (u *FollowingTeacher) FindTeachersByUserID(ctx context.Context, userID uint
 	return u.followingTeacherRepo.FindTeachersByUserID(ctx, userID)
 }
 
-func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User, teacher *model2.Teacher) (bool, error) {
+func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User, teacher *model2.Teacher) (*model2.FollowingTeacher, bool, error) {
 	reachesLimit, err := u.ReachesFollowingTeacherLimit(ctx, user.ID, 1)
 	if err != nil {
-		return false, err
+		return nil, false, err
 	}
 	if reachesLimit {
-		return false, errors.NewFailedPreconditionError(errors.WithMessagef("フォロー可能な上限数(%d)を超えました", MaxFollowTeacherCount))
+		return nil, false, errors.NewFailedPreconditionError(errors.WithMessagef("フォロー可能な上限数(%d)を超えました", MaxFollowTeacherCount))
 	}
 
 	// Update user.followed_teacher_at when first time to follow teachers.
@@ -67,10 +67,10 @@ func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User,
 	if !user.FollowedTeacherAt.Valid {
 		now := time.Now().UTC()
 		if err := u.userRepo.UpdateFollowedTeacherAt(ctx, user.ID, now); err != nil {
-			return false, err
+			return nil, false, err
 		}
 		if err := u.userRepo.UpdateOpenNotificationAt(ctx, user.ID, now); err != nil {
-			return false, err
+			return nil, false, err
 		}
 		updateFollowedTeacherAt = true
 	}
@@ -78,19 +78,20 @@ func (u *FollowingTeacher) FollowTeacher(ctx context.Context, user *model2.User,
 	// TODO: Close
 	fetchedTeacher, _, err := u.lessonFetcherRepo.Fetch(ctx, teacher.ID)
 	if err != nil {
-		return false, err
+		return nil, false, err
 	}
 
 	if err := u.teacherRepo.CreateOrUpdate(ctx, fetchedTeacher); err != nil {
-		return false, err
+		return nil, false, err
 	}
-	if err := u.followingTeacherRepo.Create(ctx, &model2.FollowingTeacher{
+	ft := &model2.FollowingTeacher{
 		UserID:    user.ID,
 		TeacherID: teacher.ID,
-	}); err != nil {
-		return false, err
 	}
-	return updateFollowedTeacherAt, nil
+	if err := u.followingTeacherRepo.Create(ctx, ft); err != nil {
+		return nil, false, err
+	}
+	return ft, updateFollowedTeacherAt, nil
 }
 
 func (u *FollowingTeacher) ReachesFollowingTeacherLimit(ctx context.Context, userID uint, additionalTeachers int) (bool, error) {

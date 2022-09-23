@@ -1,12 +1,12 @@
 package rollbar
 
+//go:generate moq -out=client.moq.go . Client
+
 import (
 	"context"
 
 	"github.com/rollbar/rollbar-go"
 )
-
-//go:generate moq -out=client.moq.go . Client
 
 // Client abstracts rollbar.Client
 type Client interface {

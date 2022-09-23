@@ -2,7 +2,6 @@ package logger
 
 import (
 	"io"
-	"io/ioutil"
 	"strings"
 
 	"go.uber.org/zap"
@@ -59,7 +58,7 @@ func NewZapLogger(
 		encoderConfig = &c
 	}
 	if len(writers) == 0 {
-		writers = append(writers, ioutil.Discard)
+		writers = append(writers, io.Discard)
 	}
 	enabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= logLevel

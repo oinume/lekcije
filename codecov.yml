@@ -25,3 +25,4 @@ ignore:
   - "**/*.moq.go"
   - "**/generated.go"
   - "**/models_gen.go"
+  - "**/model2/*.go"
