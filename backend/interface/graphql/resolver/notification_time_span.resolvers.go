@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/morikuni/failure"
+
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 )
