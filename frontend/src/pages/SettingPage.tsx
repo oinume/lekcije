@@ -40,7 +40,7 @@ export const SettingPage: React.FC = () => {
   const graphqlClient = createGraphQLClient();
   const updateViewerMutation = useUpdateViewerMutation<GraphQLError>(graphqlClient, {
     async onSuccess() {
-      await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
+      await queryClient.invalidateQueries(useGetViewerWithNotificationTimeSpansQuery.getKey());
       toast.success('メールアドレスを更新しました！');
     },
     async onError(error) {
@@ -51,7 +51,7 @@ export const SettingPage: React.FC = () => {
 
   const updateNotificationTimeSpansMutation = useUpdateNotificationTimeSpansMutation<GraphQLError>(graphqlClient, {
     async onSuccess() {
-      await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
+      await queryClient.invalidateQueries(useGetViewerWithNotificationTimeSpansQuery.getKey());
       toast.success('レッスン希望時間帯を更新しました！');
     },
     async onError(error) {
