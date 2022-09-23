@@ -46,7 +46,7 @@ require (
 	goji.io/v3 v3.0.0
 	golang.org/x/net v0.0.0-20220921203646-d300de134e69
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
-	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
+	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 	golang.org/x/text v0.3.7
 	google.golang.org/api v0.96.0
 	google.golang.org/protobuf v1.28.1
