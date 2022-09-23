@@ -2,14 +2,12 @@ import React, {useState} from 'react';
 import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'react-toastify';
 import {Loader} from '../components/Loader';
-import {ErrorAlert} from '../components/ErrorAlert';
-import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
 import {NotificationTimeSpanModel} from '../models/NotificatonTimeSpan';
 import type {
-  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan, NotificationTimeSpanInput,
+  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
 } from '../graphql/generated';
 import {
   useGetViewerWithNotificationTimeSpansQuery, useUpdateNotificationTimeSpansMutation, useUpdateViewerMutation,
@@ -18,18 +16,7 @@ import type {GraphQLError} from '../http/graphql';
 import {createGraphQLClient, toMessage} from '../http/graphql';
 import {ToastContainer} from '../components/ToastContainer';
 
-type ToggleAlertState = {
-  isVisible: boolean;
-  kind: string;
-  message: string;
-};
-
 export const SettingPage: React.FC = () => {
-  const [alert, setAlert] = useState<ToggleAlertState>({
-    isVisible: false,
-    kind: '',
-    message: '',
-  });
   const [emailState, setEmailState] = useState<string | undefined>(undefined);
   const [notificationTimeSpansState, setNotificationTimeSpansState] = useState<NotificationTimeSpanModel[] | undefined>(
     undefined,
@@ -40,7 +27,7 @@ export const SettingPage: React.FC = () => {
   const graphqlClient = createGraphQLClient();
   const updateViewerMutation = useUpdateViewerMutation<GraphQLError>(graphqlClient, {
     async onSuccess() {
-      await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
+      await queryClient.invalidateQueries(useGetViewerWithNotificationTimeSpansQuery.getKey());
       toast.success('メールアドレスを更新しました！');
     },
     async onError(error) {
@@ -51,7 +38,7 @@ export const SettingPage: React.FC = () => {
 
   const updateNotificationTimeSpansMutation = useUpdateNotificationTimeSpansMutation<GraphQLError>(graphqlClient, {
     async onSuccess() {
-      await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
+      await queryClient.invalidateQueries(useGetViewerWithNotificationTimeSpansQuery.getKey());
       toast.success('レッスン希望時間帯を更新しました！');
     },
     async onError(error) {
@@ -60,36 +47,29 @@ export const SettingPage: React.FC = () => {
     },
   });
 
-  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient);
+  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient, undefined, {
+    onError(error) {
+      toast.error(toMessage(error, 'データの取得に失敗しました'));
+    },
+  });
   if (queryResult.isLoading) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
       <Loader isLoading={queryResult.isLoading}/>
     );
   }
-  // Console.log('BEFORE useGetMe');
-  // const getMeResult = useGetMe({});
-  // Console.log('AFTER useGetMe: isLoading = %s', isLoading);
-
-  // if (getMeResult.isLoading || getMeResult.isIdle) {
-  //   // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
-  //   return (
-  //     <Loader isLoading={getMeResult.isLoading}/>
-  //   );
-  // }
 
   if (queryResult.error) {
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-    console.error(`getViewerQuery: error = ${queryResult.error}, type=${typeof queryResult.error}`);
-    return <ErrorAlert message={toMessage(queryResult.error)}/>;
+    return (
+      <>
+        <ToastContainer closeOnClick={false}/>
+        <PageTitle>設定</PageTitle>
+      </>
+    );
   }
 
   const email = emailState ?? queryResult.data.viewer.email;
   const notificationTimeSpans = notificationTimeSpansState ?? toModels(queryResult.data.viewer.notificationTimeSpans);
-
-  const handleHideAlert = () => {
-    setAlert({...alert, isVisible: false});
-  };
 
   const handleAddTimeSpan = () => {
     const maxTimeSpans = 3;
@@ -142,7 +122,6 @@ export const SettingPage: React.FC = () => {
     <div>
       <ToastContainer closeOnClick={false}/>
       <PageTitle>設定</PageTitle>
-      <ToggleAlert handleCloseAlert={handleHideAlert} {...alert}/>
       <EmailForm
         email={email}
         handleOnChange={event => {

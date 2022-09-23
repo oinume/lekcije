@@ -1,8 +1,15 @@
 // TODO: Add method isZero() and parse().
+type MaybeNotificationTimeSpan = {
+  fromHour: number;
+  fromMinute: number;
+  toHour: number;
+  toMinute: number;
+};
+
 export class NotificationTimeSpanModel {
   [key: string]: any
 
-  static fromObject(o: any): NotificationTimeSpanModel {
+  static fromObject(o: MaybeNotificationTimeSpan): NotificationTimeSpanModel {
     return new NotificationTimeSpanModel(o.fromHour, o.fromMinute, o.toHour, o.toMinute);
   }
 

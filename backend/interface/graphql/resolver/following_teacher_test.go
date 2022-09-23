@@ -73,7 +73,8 @@ func TestCreateFollowingTeacher(t *testing.T) {
 						TeacherIDOrURL: "12345",
 					},
 					wantResult: &graphqlmodel.CreateFollowingTeacherPayload{
-						ID: fmt.Sprintf("%v-%v", user.ID, teacherID),
+						ID:        fmt.Sprintf("%v-%v", user.ID, teacherID),
+						TeacherID: teacherID,
 					},
 				}
 			},

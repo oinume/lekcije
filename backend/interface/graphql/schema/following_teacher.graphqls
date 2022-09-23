@@ -25,6 +25,7 @@ input CreateFollowingTeacherInput {
 
 type CreateFollowingTeacherPayload {
   id: ID!
+  teacherId: ID!
 }
 
 input DeleteFollowingTeachersInput {

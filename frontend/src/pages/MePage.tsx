@@ -1,24 +1,35 @@
 import React, {useState} from 'react';
 import {toast} from 'react-toastify';
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
 import {PageTitle} from '../components/PageTitle';
 import {Loader} from '../components/Loader';
-import {ErrorAlert} from '../components/ErrorAlert';
 import type {Teacher} from '../models/Teacher';
-import {useListFollowingTeachers} from '../hooks/useListFollowingTeachers';
 import {ToastContainer} from '../components/ToastContainer';
-import type {TwirpError} from '../http/twirp';
-import {twirpRequest} from '../http/twirp';
-import {queryKeyFollowingTeachers} from '../hooks/common';
-import type {GetViewerQuery} from '../graphql/generated';
-import {useGetViewerQuery} from '../graphql/generated';
+import type {GetViewerWithFollowingTeachersQuery} from '../graphql/generated';
+import {
+  useCreateFollowingTeacherMutation, useDeleteFollowingTeachersMutation,
+  useGetViewerWithFollowingTeachersQuery, useGetViewerWithNotificationTimeSpansQuery,
+} from '../graphql/generated';
 import type {GraphQLError} from '../http/graphql';
 import {createGraphQLClient, toMessage} from '../http/graphql';
+import type {FollowingTeacher} from '../models/FollowingTeacher';
+
+const graphqlClient = createGraphQLClient();
 
 export const MePage = () => {
-  const client = createGraphQLClient();
-  const getViewerResult = useGetViewerQuery<GetViewerQuery, GraphQLError>(client);
+  const getViewerResult = useGetViewerWithFollowingTeachersQuery<GetViewerWithFollowingTeachersQuery, GraphQLError>(graphqlClient, {}, {
+    onError(error) {
+      toast.error(toMessage(error, 'データの取得に失敗しました'));
+    },
+  });
   const showTutorial = getViewerResult.data ? getViewerResult.data.viewer.showTutorial : false;
+  const followingTeachers: FollowingTeacher[] = getViewerResult.data ? getViewerResult.data.viewer.followingTeachers.nodes.map(node => ({
+    teacher: {
+      id: node.teacher.id,
+      name: node.teacher.name,
+    },
+  })) : [];
+
   return (
     <div id="followingForm">
       <ToastContainer
@@ -28,25 +39,25 @@ export const MePage = () => {
       {
         getViewerResult.isLoading
           ? <Loader isLoading={getViewerResult.isLoading}/>
-          : <MeContent showTutorial={showTutorial}/>
+          : <MeContent followingTeachers={followingTeachers} showTutorial={showTutorial}/>
       }
-      {getViewerResult.isError ? <ErrorAlert message={toMessage(getViewerResult.error)}/> : <div/>}
     </div>
   );
 };
 
 type MeContentProps = {
+  followingTeachers: FollowingTeacher[];
   showTutorial: boolean; // eslint-disable-line react/boolean-prop-naming
 };
 
 // Help URL
 // https://lekcije.amebaownd.com/posts/{{ if .IsUserAgentPC }}2044879{{ end }}{{ if .IsUserAgentSP }}1577091{{ end }}{{ if .IsUserAgentTablet }}1577091{{ end }}
 
-const MeContent = ({showTutorial}: MeContentProps) => (
+const MeContent = ({followingTeachers, showTutorial}: MeContentProps) => (
   <>
     {showTutorial ? <Tutorial/> : <div/>}
     <CreateForm/>
-    <TeacherList/>
+    <TeacherList followingTeachers={followingTeachers}/>
   </>
 );
 
@@ -68,31 +79,26 @@ const CreateForm = () => {
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
 
   const queryClient = useQueryClient();
-  const createFollowingTeacherMutation = useMutation(
-    async (teacherIdOrUrl: string): Promise<Response> => twirpRequest(
-      '/twirp/api.v1.Me/CreateFollowingTeacher',
-      JSON.stringify({teacherIdOrUrl}),
-    ),
-    {
-      async onSuccess() {
-        await queryClient.invalidateQueries([queryKeyFollowingTeachers]);
-        setTeacherIdOrUrl('');
-        setSubmitDisabled(true);
-        toast.success('講師をフォローしました！');
-      },
-      onError(error: TwirpError) {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-        console.error(`createFollowingTeacherMutation.onError: err=${error}`);
-        toast.error(`講師のフォローに失敗しました: ${error.message}`);
-      },
+
+  const createFollowingTeacherMutation = useCreateFollowingTeacherMutation<GraphQLError>(graphqlClient, {
+    async onSuccess() {
+      await queryClient.invalidateQueries(useGetViewerWithFollowingTeachersQuery.getKey());
+      setTeacherIdOrUrl('');
+      setSubmitDisabled(true);
+      toast.success('講師をフォローしました！');
     },
-  );
+    onError(error) {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+      console.error(`useCreateFollowingTeacherMutation.onError: err=${error}`);
+      toast.error(toMessage(error, '講師のフォローに失敗しました'));
+    },
+  });
 
   return (
     <form
       onSubmit={event => {
         event.preventDefault();
-        createFollowingTeacherMutation.mutate(teacherIdOrUrl);
+        createFollowingTeacherMutation.mutate({input: {teacherIdOrUrl}});
       }}
     >
       <p>
@@ -127,12 +133,16 @@ const CreateForm = () => {
   );
 };
 
-const TeacherList = () => {
-  const [checkedIds, setCheckedIds] = useState<number[]>([]);
+type TeacherListProps = {
+  followingTeachers: FollowingTeacher[];
+};
+
+const TeacherList = ({followingTeachers}: TeacherListProps) => {
+  const [checkedIds, setCheckedIds] = useState<string[]>([]);
   const [deleteSubmitDisabled, setDeleteSubmitDisabled] = useState<boolean>(true);
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const targetId = Number.parseInt(event.target.value, 10);
+    const targetId = event.target.value;
     if (event.target.checked) {
       setCheckedIds([...checkedIds, targetId]);
       setDeleteSubmitDisabled(false);
@@ -144,42 +154,27 @@ const TeacherList = () => {
   };
 
   const queryClient = useQueryClient();
-  const deleteFollowingTeacherMutation = useMutation(
-    async (teacherIds: number[]): Promise<Response> => twirpRequest(
-      '/twirp/api.v1.Me/DeleteFollowingTeachers',
-      JSON.stringify({teacherIds}),
-    ),
-    {
-      async onSuccess() {
-        await queryClient.invalidateQueries([queryKeyFollowingTeachers]);
-        toast.success('講師のフォローを解除しました');
-        setDeleteSubmitDisabled(true);
-      },
-      onError(error: TwirpError) {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-        console.error(`deleteFollowingTeacherMutation.onError: err=${error}`);
-        toast.error(`講師のフォロー解除に失敗しました: ${error.message}`);
-      },
+  const deleteFollowingTeacherMutation = useDeleteFollowingTeachersMutation<GraphQLError>(graphqlClient, {
+    async onSuccess() {
+      await queryClient.invalidateQueries(useGetViewerWithFollowingTeachersQuery.getKey());
+      toast.success('講師のフォローを解除しました');
+      setDeleteSubmitDisabled(true);
     },
+    onError(error) {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+      console.error(`deleteFollowingTeacherMutation.onError: err=${error}`);
+      // toast.error(`講師のフォロー解除に失敗しました: ${error.message}`);
+      toast.error(toMessage(error, '講師のフォロー解除に失敗しました'));
+    },
+  },
   );
-
-  const result = useListFollowingTeachers({});
-  if (result.isLoading) {
-    return <Loader isLoading={result.isLoading}/>;
-  }
-
-  if (result.isError) {
-    return <ErrorAlert message={result.error.message}/>;
-  }
-
-  const {teachers} = result.data;
 
   return (
     <div id="followingTeachers">
       <form
         onSubmit={event => {
           event.preventDefault();
-          deleteFollowingTeacherMutation.mutate(checkedIds);
+          deleteFollowingTeacherMutation.mutate({input: {teacherIds: checkedIds}});
         }}
       >
         <table className="table table-striped table-hover">
@@ -200,7 +195,7 @@ const TeacherList = () => {
             </tr>
           </thead>
           <tbody>
-            {teachers.map(t => <TeacherRow key={t.id} teacher={t} handleOnChange={handleCheckboxChange}/>)}
+            {followingTeachers.map(ft => <TeacherRow key={ft.teacher.id} teacher={ft.teacher} handleOnChange={handleCheckboxChange}/>)}
           </tbody>
         </table>
       </form>

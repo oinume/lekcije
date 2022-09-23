@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/morikuni/failure"
@@ -53,7 +54,8 @@ func (r *mutationResolver) CreateFollowingTeacher(ctx context.Context, input mod
 	//	}
 	//}()
 	return &model.CreateFollowingTeacherPayload{
-		ID: followingTeacher.ID(),
+		ID:        followingTeacher.ID(),
+		TeacherID: fmt.Sprint(teacher.ID),
 	}, nil
 }
 

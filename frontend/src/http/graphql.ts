@@ -39,11 +39,11 @@ export type GraphQLError = {
   response: {errors: ErrorInfo[]};
 };
 
-export const toMessage = (error: GraphQLError): string => {
+export const toMessage = (error: GraphQLError, defaultMessage?: string): string => {
   const errs = error.response.errors;
   if (errs.length === 0) {
     return '';
   }
 
-  return `${errs[0].extensions.localizedMessage ?? ''} (${errs[0].extensions.code ?? ''})`;
+  return `${errs[0].extensions.localizedMessage ?? defaultMessage ?? ''} (${errs[0].extensions.code ?? ''})`;
 };
