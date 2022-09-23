@@ -28,11 +28,11 @@ type CreateFollowingTeacherPayload {
 }
 
 input DeleteFollowingTeachersInput {
-  ids: [ID!]!
+  teacherIds: [ID!]!
 }
 
 type DeleteFollowingTeachersPayload {
-  ids: [ID!]!
+  teacherIds: [ID!]!
 }
 
 extend type Mutation {

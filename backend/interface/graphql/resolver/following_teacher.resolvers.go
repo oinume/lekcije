@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/morikuni/failure"
-
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -64,7 +63,7 @@ func (r *mutationResolver) DeleteFollowingTeachers(ctx context.Context, input mo
 	if err != nil {
 		return nil, err
 	}
-	ids := input.Ids
+	ids := input.TeacherIds
 	if len(ids) == 0 {
 		return &model.DeleteFollowingTeachersPayload{}, nil
 	}
@@ -81,7 +80,7 @@ func (r *mutationResolver) DeleteFollowingTeachers(ctx context.Context, input mo
 		return nil, err
 	}
 	return &model.DeleteFollowingTeachersPayload{
-		Ids: ids,
+		TeacherIds: ids,
 	}, nil
 }
 

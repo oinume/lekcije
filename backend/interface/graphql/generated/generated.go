@@ -50,7 +50,7 @@ type ComplexityRoot struct {
 	}
 
 	DeleteFollowingTeachersPayload struct {
-		Ids func(childComplexity int) int
+		TeacherIds func(childComplexity int) int
 	}
 
 	Empty struct {
@@ -157,12 +157,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateFollowingTeacherPayload.ID(childComplexity), true
 
-	case "DeleteFollowingTeachersPayload.ids":
-		if e.complexity.DeleteFollowingTeachersPayload.Ids == nil {
+	case "DeleteFollowingTeachersPayload.teacherIds":
+		if e.complexity.DeleteFollowingTeachersPayload.TeacherIds == nil {
 			break
 		}
 
-		return e.complexity.DeleteFollowingTeachersPayload.Ids(childComplexity), true
+		return e.complexity.DeleteFollowingTeachersPayload.TeacherIds(childComplexity), true
 
 	case "Empty.id":
 		if e.complexity.Empty.ID == nil {
@@ -509,11 +509,11 @@ type CreateFollowingTeacherPayload {
 }
 
 input DeleteFollowingTeachersInput {
-  ids: [ID!]!
+  teacherIds: [ID!]!
 }
 
 type DeleteFollowingTeachersPayload {
-  ids: [ID!]!
+  teacherIds: [ID!]!
 }
 
 extend type Mutation {
@@ -819,8 +819,8 @@ func (ec *executionContext) fieldContext_CreateFollowingTeacherPayload_id(ctx co
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteFollowingTeachersPayload_ids(ctx context.Context, field graphql.CollectedField, obj *model.DeleteFollowingTeachersPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteFollowingTeachersPayload_ids(ctx, field)
+func (ec *executionContext) _DeleteFollowingTeachersPayload_teacherIds(ctx context.Context, field graphql.CollectedField, obj *model.DeleteFollowingTeachersPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteFollowingTeachersPayload_teacherIds(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -833,7 +833,7 @@ func (ec *executionContext) _DeleteFollowingTeachersPayload_ids(ctx context.Cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Ids, nil
+		return obj.TeacherIds, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -850,7 +850,7 @@ func (ec *executionContext) _DeleteFollowingTeachersPayload_ids(ctx context.Cont
 	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DeleteFollowingTeachersPayload_ids(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DeleteFollowingTeachersPayload_teacherIds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteFollowingTeachersPayload",
 		Field:      field,
@@ -1430,8 +1430,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteFollowingTeachers(ctx co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ids":
-				return ec.fieldContext_DeleteFollowingTeachersPayload_ids(ctx, field)
+			case "teacherIds":
+				return ec.fieldContext_DeleteFollowingTeachersPayload_teacherIds(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DeleteFollowingTeachersPayload", field.Name)
 		},
@@ -4315,18 +4315,18 @@ func (ec *executionContext) unmarshalInputDeleteFollowingTeachersInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ids"}
+	fieldsInOrder := [...]string{"teacherIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ids":
+		case "teacherIds":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ids"))
-			it.Ids, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherIds"))
+			it.TeacherIds, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4538,9 +4538,9 @@ func (ec *executionContext) _DeleteFollowingTeachersPayload(ctx context.Context,
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeleteFollowingTeachersPayload")
-		case "ids":
+		case "teacherIds":
 
-			out.Values[i] = ec._DeleteFollowingTeachersPayload_ids(ctx, field, obj)
+			out.Values[i] = ec._DeleteFollowingTeachersPayload_teacherIds(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

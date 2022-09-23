@@ -29,11 +29,11 @@ type CreateFollowingTeacherPayload struct {
 }
 
 type DeleteFollowingTeachersInput struct {
-	Ids []string `json:"ids"`
+	TeacherIds []string `json:"teacherIds"`
 }
 
 type DeleteFollowingTeachersPayload struct {
-	Ids []string `json:"ids"`
+	TeacherIds []string `json:"teacherIds"`
 }
 
 type Empty struct {
