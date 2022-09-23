@@ -1,5 +1,5 @@
 // TODO: Add method isZero() and parse().
-type MayBeNotificationTimeSpan = {
+type MaybeNotificationTimeSpan = {
   fromHour: number;
   fromMinute: number;
   toHour: number;
@@ -9,7 +9,7 @@ type MayBeNotificationTimeSpan = {
 export class NotificationTimeSpanModel {
   [key: string]: any
 
-  static fromObject(o: MayBeNotificationTimeSpan): NotificationTimeSpanModel {
+  static fromObject(o: MaybeNotificationTimeSpan): NotificationTimeSpanModel {
     return new NotificationTimeSpanModel(o.fromHour, o.fromMinute, o.toHour, o.toMinute);
   }
 
