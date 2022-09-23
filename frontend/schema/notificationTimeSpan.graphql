@@ -1,0 +1,10 @@
+mutation updateNotificationTimeSpans($input: UpdateNotificationTimeSpansInput!) {
+  updateNotificationTimeSpans(input: $input) {
+    timeSpans {
+      fromHour
+      fromMinute
+      toHour
+      toMinute
+    }
+  }
+}

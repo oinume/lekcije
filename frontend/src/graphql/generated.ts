@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { RequestInit } from 'graphql-request/dist/types.dom';
-import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
+import { useMutation, useQuery, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -34,7 +34,13 @@ export type FollowingTeacher = {
 export type Mutation = {
   __typename?: 'Mutation';
   createEmpty?: Maybe<Empty>;
+  updateNotificationTimeSpans?: Maybe<NotificationTimeSpanPayload>;
   updateViewer: User;
+};
+
+
+export type MutationUpdateNotificationTimeSpansArgs = {
+  input: UpdateNotificationTimeSpansInput;
 };
 
 
@@ -50,6 +56,18 @@ export type NotificationTimeSpan = {
   toMinute: Scalars['Int'];
 };
 
+export type NotificationTimeSpanInput = {
+  fromHour: Scalars['Int'];
+  fromMinute: Scalars['Int'];
+  toHour: Scalars['Int'];
+  toMinute: Scalars['Int'];
+};
+
+export type NotificationTimeSpanPayload = {
+  __typename?: 'NotificationTimeSpanPayload';
+  timeSpans?: Maybe<Array<NotificationTimeSpan>>;
+};
+
 export type Query = {
   __typename?: 'Query';
   empty?: Maybe<Empty>;
@@ -61,6 +79,10 @@ export type Teacher = {
   __typename?: 'Teacher';
   id: Scalars['ID'];
   name: Scalars['String'];
+};
+
+export type UpdateNotificationTimeSpansInput = {
+  timeSpans: Array<NotificationTimeSpanInput>;
 };
 
 export type UpdateViewerInput = {
@@ -75,6 +97,13 @@ export type User = {
   notificationTimeSpans: Array<NotificationTimeSpan>;
   showTutorial: Scalars['Boolean'];
 };
+
+export type UpdateNotificationTimeSpansMutationVariables = Exact<{
+  input: UpdateNotificationTimeSpansInput;
+}>;
+
+
+export type UpdateNotificationTimeSpansMutation = { __typename?: 'Mutation', updateNotificationTimeSpans?: { __typename?: 'NotificationTimeSpanPayload', timeSpans?: Array<{ __typename?: 'NotificationTimeSpan', fromHour: number, fromMinute: number, toHour: number, toMinute: number }> | null } | null };
 
 export type GetViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -99,6 +128,31 @@ export type UpdateViewerMutationVariables = Exact<{
 export type UpdateViewerMutation = { __typename?: 'Mutation', updateViewer: { __typename?: 'User', id: string, email: string } };
 
 
+export const UpdateNotificationTimeSpansDocument = `
+    mutation updateNotificationTimeSpans($input: UpdateNotificationTimeSpansInput!) {
+  updateNotificationTimeSpans(input: $input) {
+    timeSpans {
+      fromHour
+      fromMinute
+      toHour
+      toMinute
+    }
+  }
+}
+    `;
+export const useUpdateNotificationTimeSpansMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(
+      client: GraphQLClient,
+      options?: UseMutationOptions<UpdateNotificationTimeSpansMutation, TError, UpdateNotificationTimeSpansMutationVariables, TContext>,
+      headers?: RequestInit['headers']
+    ) =>
+    useMutation<UpdateNotificationTimeSpansMutation, TError, UpdateNotificationTimeSpansMutationVariables, TContext>(
+      ['updateNotificationTimeSpans'],
+      (variables?: UpdateNotificationTimeSpansMutationVariables) => fetcher<UpdateNotificationTimeSpansMutation, UpdateNotificationTimeSpansMutationVariables>(client, UpdateNotificationTimeSpansDocument, variables, headers)(),
+      options
+    );
 export const GetViewerDocument = `
     query getViewer {
   viewer {
