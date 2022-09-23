@@ -12,4 +12,5 @@ type FollowingTeacher interface {
 	DeleteByUserIDAndTeacherIDs(ctx context.Context, userID uint, teacherIDs []uint) error
 	FindTeachersByUserID(ctx context.Context, userID uint) ([]*model2.Teacher, error)
 	FindByUserID(ctx context.Context, userID uint) ([]*model2.FollowingTeacher, error)
+	FindByUserIDAndTeacherID(ctx context.Context, userID uint, teacherID uint) (*model2.FollowingTeacher, error)
 }
