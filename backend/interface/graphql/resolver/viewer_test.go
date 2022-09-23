@@ -36,7 +36,7 @@ func TestUpdateViewer(t *testing.T) {
 	type testCase struct {
 		apiToken      string
 		input         graphqlmodel.UpdateViewerInput
-		want          *graphqlmodel.User
+		wantResult    *graphqlmodel.User
 		wantErrorCode failure.StringCode
 	}
 	tests := map[string]struct {
@@ -56,7 +56,7 @@ func TestUpdateViewer(t *testing.T) {
 					input: graphqlmodel.UpdateViewerInput{
 						Email: &newEmail,
 					},
-					want: &graphqlmodel.User{
+					wantResult: &graphqlmodel.User{
 						ID:           fmt.Sprint(user.ID),
 						Email:        newEmail,
 						ShowTutorial: !user.IsFollowedTeacher(),
@@ -79,7 +79,7 @@ func TestUpdateViewer(t *testing.T) {
 					input: graphqlmodel.UpdateViewerInput{
 						Email: &newEmail,
 					},
-					want: &graphqlmodel.User{
+					wantResult: &graphqlmodel.User{
 						ID:           fmt.Sprint(user.ID),
 						Email:        user.Email,
 						ShowTutorial: !user.IsFollowedTeacher(),
@@ -102,7 +102,7 @@ func TestUpdateViewer(t *testing.T) {
 					input: graphqlmodel.UpdateViewerInput{
 						Email: &newEmail,
 					},
-					want: &graphqlmodel.User{
+					wantResult: &graphqlmodel.User{
 						ID:    fmt.Sprint(user.ID),
 						Email: newEmail,
 					},
@@ -116,7 +116,6 @@ func TestUpdateViewer(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 			tc := test.setup(ctx)
-			resolver.Query()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
 			got, err := resolver.Mutation().UpdateViewer(ctx, tc.input)
 			if err != nil {
@@ -135,7 +134,7 @@ func TestUpdateViewer(t *testing.T) {
 				t.Fatalf("wantErrorCode is not empty but no error: wantErrorCode=%v", tc.wantErrorCode)
 			}
 
-			assertion.AssertEqual(t, tc.want, got, "")
+			assertion.AssertEqual(t, tc.wantResult, got, "")
 		})
 	}
 }

@@ -1,15 +1,15 @@
-package graphqltest
+package resolver
 
 import (
 	"context"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/Khan/genqlient/graphql"
 	"github.com/morikuni/failure"
 
+	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
+	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
@@ -18,28 +18,25 @@ import (
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
-var _ = `# @genqlient
-mutation UpdateNotificationTimeSpans($input: UpdateNotificationTimeSpansInput!) {
-  updateNotificationTimeSpans(input: $input) {
-    timeSpans {
-      fromHour
-      fromMinute
-      toHour
-      toMinute
-    }
-  }
-}
-`
-
-func TestUpdateNotificationTimeSpan(t *testing.T) {
+func TestUpdateNotificationTimeSpans(t *testing.T) {
 	helper := model.NewTestHelper()
 	db := helper.DB(t)
 	repos := mysqltest.NewRepositories(db.DB())
+	notificationTimeSpanUsecase := usecase.NewNotificationTimeSpan(repos.NotificationTimeSpan())
+	userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
+	resolver := NewResolver(
+		repos.FollowingTeacher(),
+		repos.NotificationTimeSpan(),
+		notificationTimeSpanUsecase,
+		repos.Teacher(),
+		repos.User(),
+		userUsecase,
+	)
 
 	type testCase struct {
 		apiToken      string
-		input         UpdateNotificationTimeSpansInput
-		wantResult    UpdateNotificationTimeSpansUpdateNotificationTimeSpansNotificationTimeSpanPayload
+		input         graphqlmodel.UpdateNotificationTimeSpansInput
+		wantResult    *graphqlmodel.NotificationTimeSpanPayload
 		wantErrorCode failure.StringCode
 	}
 	tests := map[string]struct {
@@ -55,8 +52,8 @@ func TestUpdateNotificationTimeSpan(t *testing.T) {
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					input: UpdateNotificationTimeSpansInput{
-						TimeSpans: []NotificationTimeSpanInput{
+					input: graphqlmodel.UpdateNotificationTimeSpansInput{
+						TimeSpans: []*graphqlmodel.NotificationTimeSpanInput{
 							{
 								FromHour:   13,
 								FromMinute: 00,
@@ -71,8 +68,8 @@ func TestUpdateNotificationTimeSpan(t *testing.T) {
 							},
 						},
 					},
-					wantResult: UpdateNotificationTimeSpansUpdateNotificationTimeSpansNotificationTimeSpanPayload{
-						TimeSpans: []UpdateNotificationTimeSpansUpdateNotificationTimeSpansNotificationTimeSpanPayloadTimeSpansNotificationTimeSpan{
+					wantResult: &graphqlmodel.NotificationTimeSpanPayload{
+						TimeSpans: []*graphqlmodel.NotificationTimeSpan{
 							{
 								FromHour:   13,
 								FromMinute: 00,
@@ -100,8 +97,8 @@ func TestUpdateNotificationTimeSpan(t *testing.T) {
 				repos.CreateUserAPITokens(ctx, t, userAPIToken)
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					input: UpdateNotificationTimeSpansInput{
-						TimeSpans: []NotificationTimeSpanInput{
+					input: graphqlmodel.UpdateNotificationTimeSpansInput{
+						TimeSpans: []*graphqlmodel.NotificationTimeSpanInput{
 							{
 								FromHour:   13,
 								FromMinute: 00,
@@ -138,21 +135,8 @@ func TestUpdateNotificationTimeSpan(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 			tc := test.setup(ctx)
-			notificationTimeSpanUsecase := usecase.NewNotificationTimeSpan(repos.NotificationTimeSpan())
-			userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
-			graphqlServer := newGraphQLServer(repos, notificationTimeSpanUsecase, userUsecase)
-			server := httptest.NewServer(setAuthorizationContext(graphqlServer))
-			t.Cleanup(func() { server.Close() })
-
-			httpClient := server.Client()
-			transport := httpClient.Transport
-			httpClient.Transport = &authTransport{
-				parent: transport,
-				token:  tc.apiToken,
-			}
-			graphqlClient := graphql.NewClient(server.URL, httpClient)
-
-			resp, err := UpdateNotificationTimeSpans(ctx, graphqlClient, tc.input)
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
+			got, err := resolver.Mutation().UpdateNotificationTimeSpans(ctx, tc.input)
 			if err != nil {
 				if tc.wantErrorCode == "" {
 					t.Fatalf("unexpected error: %v", err)
@@ -168,7 +152,7 @@ func TestUpdateNotificationTimeSpan(t *testing.T) {
 				t.Fatalf("wantErrorCode is not empty but no error: wantErrorCode=%v", tc.wantErrorCode)
 			}
 
-			assertion.AssertEqual(t, tc.wantResult, resp.GetUpdateNotificationTimeSpans(), "")
+			assertion.AssertEqual(t, tc.wantResult, got, "")
 		})
 	}
 }
