@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/big"
 	"net/http"
 	"os"
@@ -222,7 +222,7 @@ func (t *redirectTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		Request:    req,
 		StatusCode: http.StatusFound,
 		Status:     "302 Found",
-		Body:       ioutil.NopCloser(strings.NewReader("")),
+		Body:       io.NopCloser(strings.NewReader("")),
 	}
 	resp.Header.Set("Location", "https://twitter.com/")
 	return resp, nil
@@ -240,7 +240,7 @@ func (t *responseTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		Request:    req,
 		StatusCode: t.statusCode,
 		Status:     t.status,
-		Body:       ioutil.NopCloser(strings.NewReader(t.content)),
+		Body:       io.NopCloser(strings.NewReader(t.content)),
 	}
 	return resp, nil
 }

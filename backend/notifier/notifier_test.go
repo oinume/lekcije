@@ -3,7 +3,7 @@ package notifier
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -44,13 +44,13 @@ func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, erro
 		StatusCode: http.StatusAccepted,
 		Status:     "202 Accepted",
 	}
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		return resp, err
 	}
 	t.requestBody = string(body)
 	defer req.Body.Close()
-	resp.Body = ioutil.NopCloser(strings.NewReader(""))
+	resp.Body = io.NopCloser(strings.NewReader(""))
 	return resp, nil
 }
 

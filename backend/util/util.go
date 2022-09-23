@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -125,7 +124,7 @@ func GenerateTempFileFromBase64String(dir, prefix, source string) (*os.File, err
 	if err != nil {
 		return nil, errors.NewInternalError(errors.WithError(err))
 	}
-	f, err := ioutil.TempFile(dir, prefix)
+	f, err := os.CreateTemp(dir, prefix)
 	if err != nil {
 		return nil, errors.NewInternalError(errors.WithError(err))
 	}

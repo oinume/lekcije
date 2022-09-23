@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptrace"
@@ -150,7 +149,7 @@ func (f *lessonFetcher) Fetch(ctx context.Context, teacherID uint) (*model2.Teac
 func (f *lessonFetcher) fetchContent(ctx context.Context, url string) (io.ReadCloser, error) {
 	clientTrace := otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
 	ctx = httptrace.WithClientTrace(ctx, clientTrace)
-	nopCloser := ioutil.NopCloser(strings.NewReader(""))
+	nopCloser := io.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nopCloser, errors.NewInternalError(
