@@ -1,6 +1,6 @@
 export class Teacher {
   constructor(
-    public id: number | string,
+    public id: string,
     public name: string,
   ) {}
 }
