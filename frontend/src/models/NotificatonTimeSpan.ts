@@ -4,7 +4,7 @@ type MayBeNotificationTimeSpan = {
   fromMinute: number;
   toHour: number;
   toMinute: number;
-}
+};
 
 export class NotificationTimeSpanModel {
   [key: string]: any

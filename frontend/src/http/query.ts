@@ -1,4 +1,4 @@
-import {DefaultOptions} from '@tanstack/react-query';
+import type {DefaultOptions} from '@tanstack/react-query';
 
 export const defaultQueryClientOptions: Omit<DefaultOptions, any> = {
   mutations: {

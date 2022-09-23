@@ -50,7 +50,7 @@ export const SettingPage: React.FC = () => {
   const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient, undefined, {
     onError(error) {
       toast.error(toMessage(error, 'データの取得に失敗しました'));
-    }
+    },
   });
   if (queryResult.isLoading) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
@@ -143,6 +143,4 @@ export const SettingPage: React.FC = () => {
   );
 };
 
-const toModels = (timeSpans: NotificationTimeSpan[]): NotificationTimeSpanModel[] => {
-  return timeSpans.map<NotificationTimeSpanModel>(o => NotificationTimeSpanModel.fromObject(o));
-}
+const toModels = (timeSpans: NotificationTimeSpan[]): NotificationTimeSpanModel[] => timeSpans.map<NotificationTimeSpanModel>(o => NotificationTimeSpanModel.fromObject(o));
