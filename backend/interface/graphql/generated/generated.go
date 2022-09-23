@@ -49,6 +49,10 @@ type ComplexityRoot struct {
 		ID func(childComplexity int) int
 	}
 
+	DeleteFollowingTeachersPayload struct {
+		TeacherIds func(childComplexity int) int
+	}
+
 	Empty struct {
 		ID func(childComplexity int) int
 	}
@@ -73,6 +77,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateEmpty                 func(childComplexity int) int
 		CreateFollowingTeacher      func(childComplexity int, input model.CreateFollowingTeacherInput) int
+		DeleteFollowingTeachers     func(childComplexity int, input model.DeleteFollowingTeachersInput) int
 		UpdateNotificationTimeSpans func(childComplexity int, input model.UpdateNotificationTimeSpansInput) int
 		UpdateViewer                func(childComplexity int, input model.UpdateViewerInput) int
 	}
@@ -116,6 +121,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateEmpty(ctx context.Context) (*model.Empty, error)
 	CreateFollowingTeacher(ctx context.Context, input model.CreateFollowingTeacherInput) (*model.CreateFollowingTeacherPayload, error)
+	DeleteFollowingTeachers(ctx context.Context, input model.DeleteFollowingTeachersInput) (*model.DeleteFollowingTeachersPayload, error)
 	UpdateNotificationTimeSpans(ctx context.Context, input model.UpdateNotificationTimeSpansInput) (*model.NotificationTimeSpanPayload, error)
 	UpdateViewer(ctx context.Context, input model.UpdateViewerInput) (*model.User, error)
 }
@@ -150,6 +156,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateFollowingTeacherPayload.ID(childComplexity), true
+
+	case "DeleteFollowingTeachersPayload.teacherIds":
+		if e.complexity.DeleteFollowingTeachersPayload.TeacherIds == nil {
+			break
+		}
+
+		return e.complexity.DeleteFollowingTeachersPayload.TeacherIds(childComplexity), true
 
 	case "Empty.id":
 		if e.complexity.Empty.ID == nil {
@@ -232,6 +245,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateFollowingTeacher(childComplexity, args["input"].(model.CreateFollowingTeacherInput)), true
+
+	case "Mutation.deleteFollowingTeachers":
+		if e.complexity.Mutation.DeleteFollowingTeachers == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteFollowingTeachers_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteFollowingTeachers(childComplexity, args["input"].(model.DeleteFollowingTeachersInput)), true
 
 	case "Mutation.updateNotificationTimeSpans":
 		if e.complexity.Mutation.UpdateNotificationTimeSpans == nil {
@@ -390,6 +415,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateFollowingTeacherInput,
+		ec.unmarshalInputDeleteFollowingTeachersInput,
 		ec.unmarshalInputNotificationTimeSpanInput,
 		ec.unmarshalInputUpdateNotificationTimeSpansInput,
 		ec.unmarshalInputUpdateViewerInput,
@@ -482,8 +508,17 @@ type CreateFollowingTeacherPayload {
   id: ID!
 }
 
+input DeleteFollowingTeachersInput {
+  teacherIds: [ID!]!
+}
+
+type DeleteFollowingTeachersPayload {
+  teacherIds: [ID!]!
+}
+
 extend type Mutation {
   createFollowingTeacher(input: CreateFollowingTeacherInput!): CreateFollowingTeacherPayload
+  deleteFollowingTeachers(input: DeleteFollowingTeachersInput!): DeleteFollowingTeachersPayload
 }
 `, BuiltIn: false},
 	{Name: "../schema/notification_time_span.graphqls", Input: `type NotificationTimeSpan {
@@ -592,6 +627,21 @@ func (ec *executionContext) field_Mutation_createFollowingTeacher_args(ctx conte
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateFollowingTeacherInput2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐCreateFollowingTeacherInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteFollowingTeachers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.DeleteFollowingTeachersInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDeleteFollowingTeachersInput2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐDeleteFollowingTeachersInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -759,6 +809,50 @@ func (ec *executionContext) _CreateFollowingTeacherPayload_id(ctx context.Contex
 func (ec *executionContext) fieldContext_CreateFollowingTeacherPayload_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateFollowingTeacherPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteFollowingTeachersPayload_teacherIds(ctx context.Context, field graphql.CollectedField, obj *model.DeleteFollowingTeachersPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteFollowingTeachersPayload_teacherIds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeacherIds, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteFollowingTeachersPayload_teacherIds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteFollowingTeachersPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1294,6 +1388,62 @@ func (ec *executionContext) fieldContext_Mutation_createFollowingTeacher(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createFollowingTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteFollowingTeachers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteFollowingTeachers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteFollowingTeachers(rctx, fc.Args["input"].(model.DeleteFollowingTeachersInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.DeleteFollowingTeachersPayload)
+	fc.Result = res
+	return ec.marshalODeleteFollowingTeachersPayload2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐDeleteFollowingTeachersPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteFollowingTeachers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "teacherIds":
+				return ec.fieldContext_DeleteFollowingTeachersPayload_teacherIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteFollowingTeachersPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteFollowingTeachers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4158,6 +4308,34 @@ func (ec *executionContext) unmarshalInputCreateFollowingTeacherInput(ctx contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteFollowingTeachersInput(ctx context.Context, obj interface{}) (model.DeleteFollowingTeachersInput, error) {
+	var it model.DeleteFollowingTeachersInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teacherIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teacherIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherIds"))
+			it.TeacherIds, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNotificationTimeSpanInput(ctx context.Context, obj interface{}) (model.NotificationTimeSpanInput, error) {
 	var it model.NotificationTimeSpanInput
 	asMap := map[string]interface{}{}
@@ -4350,6 +4528,34 @@ func (ec *executionContext) _CreateFollowingTeacherPayload(ctx context.Context, 
 	return out
 }
 
+var deleteFollowingTeachersPayloadImplementors = []string{"DeleteFollowingTeachersPayload"}
+
+func (ec *executionContext) _DeleteFollowingTeachersPayload(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteFollowingTeachersPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteFollowingTeachersPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteFollowingTeachersPayload")
+		case "teacherIds":
+
+			out.Values[i] = ec._DeleteFollowingTeachersPayload_teacherIds(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var emptyImplementors = []string{"Empty"}
 
 func (ec *executionContext) _Empty(ctx context.Context, sel ast.SelectionSet, obj *model.Empty) graphql.Marshaler {
@@ -4526,6 +4732,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createFollowingTeacher(ctx, field)
+			})
+
+		case "deleteFollowingTeachers":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteFollowingTeachers(ctx, field)
 			})
 
 		case "updateNotificationTimeSpans":
@@ -5226,6 +5438,11 @@ func (ec *executionContext) unmarshalNCreateFollowingTeacherInput2githubᚗcom�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNDeleteFollowingTeachersInput2githubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐDeleteFollowingTeachersInput(ctx context.Context, v interface{}) (model.DeleteFollowingTeachersInput, error) {
+	res, err := ec.unmarshalInputDeleteFollowingTeachersInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNFollowingTeacher2ᚕᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐFollowingTeacherᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FollowingTeacher) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -5361,6 +5578,38 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -5797,6 +6046,13 @@ func (ec *executionContext) marshalOCreateFollowingTeacherPayload2ᚖgithubᚗco
 		return graphql.Null
 	}
 	return ec._CreateFollowingTeacherPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODeleteFollowingTeachersPayload2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐDeleteFollowingTeachersPayload(ctx context.Context, sel ast.SelectionSet, v *model.DeleteFollowingTeachersPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteFollowingTeachersPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOEmpty2ᚖgithubᚗcomᚋoinumeᚋlekcijeᚋbackendᚋinterfaceᚋgraphqlᚋmodelᚐEmpty(ctx context.Context, sel ast.SelectionSet, v *model.Empty) graphql.Marshaler {
