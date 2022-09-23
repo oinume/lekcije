@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'react-toastify';
 import {Loader} from '../components/Loader';
 import {ErrorAlert} from '../components/ErrorAlert';
@@ -8,13 +8,11 @@ import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
 import {NotificationTimeSpanModel} from '../models/NotificatonTimeSpan';
-import {queryKeyMe} from '../hooks/common';
-import {twirpRequest} from '../http/twirp';
-import {UseMutationResultAlert} from '../components/UseMutationResultAlert';
 import type {
-  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan} from '../graphql/generated';
+  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan, NotificationTimeSpanInput,
+} from '../graphql/generated';
 import {
-  useGetViewerWithNotificationTimeSpansQuery, useUpdateViewerMutation,
+  useGetViewerWithNotificationTimeSpansQuery, useUpdateNotificationTimeSpansMutation, useUpdateViewerMutation,
 } from '../graphql/generated';
 import type {GraphQLError} from '../http/graphql';
 import {createGraphQLClient, toMessage} from '../http/graphql';
@@ -51,19 +49,16 @@ export const SettingPage: React.FC = () => {
     },
   });
 
-  const updateMeNotificationTimeSpanMutation = useMutation(
-    async (timeSpans: NotificationTimeSpanModel[]): Promise<Response> => twirpRequest(
-      '/twirp/api.v1.Me/UpdateNotificationTimeSpan',
-      JSON.stringify({
-        notificationTimeSpans: timeSpans,
-      }),
-    ),
-    {
-      async onSuccess() {
-        await queryClient.invalidateQueries([queryKeyMe]);
-      },
+  const updateNotificationTimeSpansMutation = useUpdateNotificationTimeSpansMutation<GraphQLError>(graphqlClient, {
+    async onSuccess() {
+      await queryClient.invalidateQueries([useGetViewerWithNotificationTimeSpansQuery.getKey]);
+      toast.success('レッスン希望時間帯を更新しました！');
     },
-  );
+    async onError(error) {
+      console.error(error.response);
+      toast.error(toMessage(error));
+    },
+  });
 
   const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient);
   if (queryResult.isLoading) {
@@ -138,7 +133,9 @@ export const SettingPage: React.FC = () => {
 
     setNotificationTimeSpansState(timeSpans);
     // Console.log('BEFORE updateMeNotificationTimeSpanMutation.mutate()');
-    updateMeNotificationTimeSpanMutation.mutate(timeSpans);
+    updateNotificationTimeSpansMutation.mutate({
+      input: {timeSpans},
+    });
   };
 
   return (
@@ -146,7 +143,6 @@ export const SettingPage: React.FC = () => {
       <ToastContainer closeOnClick={false}/>
       <PageTitle>設定</PageTitle>
       <ToggleAlert handleCloseAlert={handleHideAlert} {...alert}/>
-      <UseMutationResultAlert result={updateMeNotificationTimeSpanMutation} name="レッスン希望時間帯"/>
       <EmailForm
         email={email}
         handleOnChange={event => {
