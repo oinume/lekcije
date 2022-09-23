@@ -27,6 +27,15 @@ type CreateFollowingTeacherPayload {
   id: ID!
 }
 
+input DeleteFollowingTeachersInput {
+  ids: [ID!]!
+}
+
+type DeleteFollowingTeachersPayload {
+  ids: [ID!]!
+}
+
 extend type Mutation {
   createFollowingTeacher(input: CreateFollowingTeacherInput!): CreateFollowingTeacherPayload
+  deleteFollowingTeachers(input: DeleteFollowingTeachersInput!): DeleteFollowingTeachersPayload
 }

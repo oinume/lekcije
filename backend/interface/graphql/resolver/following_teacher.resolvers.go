@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/morikuni/failure"
 
@@ -54,6 +55,33 @@ func (r *mutationResolver) CreateFollowingTeacher(ctx context.Context, input mod
 	//}()
 	return &model.CreateFollowingTeacherPayload{
 		ID: followingTeacher.ID(),
+	}, nil
+}
+
+// DeleteFollowingTeachers is the resolver for the deleteFollowingTeachers field.
+func (r *mutationResolver) DeleteFollowingTeachers(ctx context.Context, input model.DeleteFollowingTeachersInput) (*model.DeleteFollowingTeachersPayload, error) {
+	user, err := authenticateFromContext(ctx, r.userUsecase)
+	if err != nil {
+		return nil, err
+	}
+	ids := input.Ids
+	if len(ids) == 0 {
+		return &model.DeleteFollowingTeachersPayload{}, nil
+	}
+	teacherIDs := make([]uint, len(ids))
+	for i, id := range ids {
+		tid, err := strconv.ParseUint(id, 10, 32)
+		if err != nil {
+			return nil, failure.Translate(err, lerrors.Internal)
+		}
+		teacherIDs[i] = uint(tid)
+	}
+
+	if err := r.followingTeacherUsecase.DeleteFollowingTeachers(ctx, user.ID, teacherIDs); err != nil {
+		return nil, err
+	}
+	return &model.DeleteFollowingTeachersPayload{
+		Ids: ids,
 	}, nil
 }
 
