@@ -5,9 +5,15 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 )
+
+// CreateFollowingTeacher is the resolver for the createFollowingTeacher field.
+func (r *mutationResolver) CreateFollowingTeacher(ctx context.Context, input model.CreateFollowingTeacherInput) (*model.CreateFollowingTeacherPayload, error) {
+	panic(fmt.Errorf("not implemented: CreateFollowingTeacher - createFollowingTeacher"))
+}
 
 // FollowingTeachers is the resolver for the followingTeachers field.
 func (r *queryResolver) FollowingTeachers(ctx context.Context) ([]*model.FollowingTeacher, error) {

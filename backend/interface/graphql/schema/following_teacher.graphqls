@@ -18,3 +18,15 @@ type FollowingTeacherConnection implements Connection {
 extend type Query {
   followingTeachers: [FollowingTeacher!]!
 }
+
+input CreateFollowingTeacherInput {
+  teacherIdOrUrl: String!
+}
+
+type CreateFollowingTeacherPayload {
+  id: ID!
+}
+
+extend type Mutation {
+  createFollowingTeacher(input: CreateFollowingTeacherInput!): CreateFollowingTeacherPayload
+}
