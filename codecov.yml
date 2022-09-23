@@ -23,3 +23,5 @@ ignore:
   - "**/*.pb.go"
   - "**/*.twirp.go"
   - "**/*.moq.go"
+  - "**/generated.go"
+  - "**/models_gen.go"

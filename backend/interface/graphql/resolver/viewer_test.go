@@ -1,19 +1,16 @@
-package graphqltest
+package resolver
 
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/Khan/genqlient/graphql"
 	"github.com/morikuni/failure"
 
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/errors"
-	interfacehttp "github.com/oinume/lekcije/backend/interface/http"
+	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
@@ -22,24 +19,24 @@ import (
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
-var _ = `# @genqlient
-mutation UpdateViewer($input: UpdateViewerInput!) {
-  updateViewer(input: $input) {
-    id
-    email
-  }
-}
-`
-
 func TestUpdateViewer(t *testing.T) {
 	helper := model.NewTestHelper()
 	db := helper.DB(t)
 	repos := mysqltest.NewRepositories(db.DB())
+	userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
+	resolver := NewResolver(
+		repos.FollowingTeacher(),
+		repos.NotificationTimeSpan(),
+		nil,
+		repos.Teacher(),
+		repos.User(),
+		userUsecase,
+	)
 
 	type testCase struct {
 		apiToken      string
-		input         UpdateViewerInput
-		wantResult    UpdateViewerUpdateViewerUser
+		input         graphqlmodel.UpdateViewerInput
+		want          *graphqlmodel.User
 		wantErrorCode failure.StringCode
 	}
 	tests := map[string]struct {
@@ -56,12 +53,13 @@ func TestUpdateViewer(t *testing.T) {
 				newEmail := fmt.Sprintf("updated-%d@example.com", user.ID)
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					input: UpdateViewerInput{
-						Email: newEmail,
+					input: graphqlmodel.UpdateViewerInput{
+						Email: &newEmail,
 					},
-					wantResult: UpdateViewerUpdateViewerUser{
-						Id:    fmt.Sprint(user.ID),
-						Email: newEmail,
+					want: &graphqlmodel.User{
+						ID:           fmt.Sprint(user.ID),
+						Email:        newEmail,
+						ShowTutorial: !user.IsFollowedTeacher(),
 					},
 					wantErrorCode: "",
 				}
@@ -78,12 +76,13 @@ func TestUpdateViewer(t *testing.T) {
 				newEmail := "invalid"
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					input: UpdateViewerInput{
-						Email: newEmail,
+					input: graphqlmodel.UpdateViewerInput{
+						Email: &newEmail,
 					},
-					wantResult: UpdateViewerUpdateViewerUser{
-						Id:    fmt.Sprint(user.ID),
-						Email: newEmail,
+					want: &graphqlmodel.User{
+						ID:           fmt.Sprint(user.ID),
+						Email:        user.Email,
+						ShowTutorial: !user.IsFollowedTeacher(),
 					},
 					wantErrorCode: errors.InvalidArgument,
 				}
@@ -100,11 +99,11 @@ func TestUpdateViewer(t *testing.T) {
 				newEmail := user.Email
 				return &testCase{
 					apiToken: userAPIToken.Token,
-					input: UpdateViewerInput{
-						Email: newEmail,
+					input: graphqlmodel.UpdateViewerInput{
+						Email: &newEmail,
 					},
-					wantResult: UpdateViewerUpdateViewerUser{
-						Id:    fmt.Sprint(user.ID),
+					want: &graphqlmodel.User{
+						ID:    fmt.Sprint(user.ID),
 						Email: newEmail,
 					},
 					wantErrorCode: errors.InvalidArgument,
@@ -117,21 +116,9 @@ func TestUpdateViewer(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 			tc := test.setup(ctx)
-			notificationTimeSpanUsecase := usecase.NewNotificationTimeSpan(repos.NotificationTimeSpan())
-			userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
-			graphqlServer := newGraphQLServer(repos, notificationTimeSpanUsecase, userUsecase)
-			server := httptest.NewServer(setAuthorizationContext(graphqlServer))
-			t.Cleanup(func() { server.Close() })
-
-			httpClient := server.Client()
-			transport := httpClient.Transport
-			httpClient.Transport = &authTransport{
-				parent: transport,
-				token:  tc.apiToken,
-			}
-			graphqlClient := graphql.NewClient(server.URL, httpClient)
-
-			resp, err := UpdateViewer(ctx, graphqlClient, tc.input)
+			resolver.Query()
+			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
+			got, err := resolver.Mutation().UpdateViewer(ctx, tc.input)
 			if err != nil {
 				if tc.wantErrorCode == "" {
 					t.Fatalf("unexpected error: %v", err)
@@ -142,25 +129,13 @@ func TestUpdateViewer(t *testing.T) {
 					return // OK
 				}
 			}
+			fmt.Printf("user = %+v\n", got)
 
 			if tc.wantErrorCode != "" {
 				t.Fatalf("wantErrorCode is not empty but no error: wantErrorCode=%v", tc.wantErrorCode)
 			}
 
-			assertion.AssertEqual(t, tc.wantResult, resp.GetUpdateViewer(), "")
+			assertion.AssertEqual(t, tc.want, got, "")
 		})
 	}
-}
-
-func setAuthorizationContext(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		auth, err := interfacehttp.ParseAuthorizationHeader(r.Header.Get("authorization"))
-		if err != nil {
-			h.ServeHTTP(w, r)
-			return
-		}
-		r = r.WithContext(context_data.SetAPIToken(r.Context(), strings.TrimSpace(auth)))
-		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(fn)
 }
