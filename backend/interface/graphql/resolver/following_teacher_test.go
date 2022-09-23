@@ -88,7 +88,7 @@ func TestCreateFollowingTeacher(t *testing.T) {
 			ctx := context.Background()
 			tc := test.setup(ctx)
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
-			got, err := resolver.Mutation().CreateFollowingTeacher(ctx, tc.input)
+			gotResult, err := resolver.Mutation().CreateFollowingTeacher(ctx, tc.input)
 			if err != nil {
 				if tc.wantErrorCode == "" {
 					t.Fatalf("unexpected error: %v", err)
@@ -104,7 +104,7 @@ func TestCreateFollowingTeacher(t *testing.T) {
 				t.Fatalf("wantErrorCode is not empty but no error: wantErrorCode=%v", tc.wantErrorCode)
 			}
 
-			assertion.AssertEqual(t, tc.wantResult, got, "")
+			assertion.AssertEqual(t, tc.wantResult, gotResult, "")
 		})
 	}
 }
