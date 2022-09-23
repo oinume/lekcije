@@ -16,7 +16,7 @@ import (
 )
 
 // FollowingTeachers is the resolver for the followingTeachers field.
-func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User) ([]*model.FollowingTeacher, error) {
+func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User, first *int, after *string, last *int, before *string) (*model.FollowingTeacherConnection, error) {
 	userID, err := strconv.ParseUint(obj.ID, 10, 32)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,9 @@ func (r *userResolver) FollowingTeachers(ctx context.Context, obj *model.User) (
 		}
 	}
 
-	return followingTeachers, nil
+	return &model.FollowingTeacherConnection{
+		Nodes: followingTeachers,
+	}, nil
 }
 
 // NotificationTimeSpans is the resolver for the notificationTimeSpans field.

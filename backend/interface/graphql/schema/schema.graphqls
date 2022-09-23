@@ -2,6 +2,26 @@ type Empty {
   id: ID!
 }
 
+interface Node {
+  id: ID!
+}
+
+interface Edge {
+  cursor: String!
+  node: Node!
+}
+
+interface Connection {
+  pageInfo: PageInfo!
+  edges: [Edge!]!
+  nodes: [Node!]!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
 type Query {
   empty: Empty
 }

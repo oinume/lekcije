@@ -2,6 +2,24 @@
 
 package model
 
+type Connection interface {
+	IsConnection()
+	GetPageInfo() *PageInfo
+	GetEdges() []Edge
+	GetNodes() []Node
+}
+
+type Edge interface {
+	IsEdge()
+	GetCursor() string
+	GetNode() Node
+}
+
+type Node interface {
+	IsNode()
+	GetID() string
+}
+
 type Empty struct {
 	ID string `json:"id"`
 }
@@ -11,6 +29,47 @@ type FollowingTeacher struct {
 	Teacher   *Teacher `json:"teacher"`
 	CreatedAt string   `json:"createdAt"`
 }
+
+func (FollowingTeacher) IsNode()            {}
+func (this FollowingTeacher) GetID() string { return this.ID }
+
+type FollowingTeacherConnection struct {
+	PageInfo *PageInfo               `json:"pageInfo"`
+	Edges    []*FollowingTeacherEdge `json:"edges"`
+	Nodes    []*FollowingTeacher     `json:"nodes"`
+}
+
+func (FollowingTeacherConnection) IsConnection()               {}
+func (this FollowingTeacherConnection) GetPageInfo() *PageInfo { return this.PageInfo }
+func (this FollowingTeacherConnection) GetEdges() []Edge {
+	if this.Edges == nil {
+		return nil
+	}
+	interfaceSlice := make([]Edge, 0, len(this.Edges))
+	for _, concrete := range this.Edges {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+func (this FollowingTeacherConnection) GetNodes() []Node {
+	if this.Nodes == nil {
+		return nil
+	}
+	interfaceSlice := make([]Node, 0, len(this.Nodes))
+	for _, concrete := range this.Nodes {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+type FollowingTeacherEdge struct {
+	Cursor string            `json:"cursor"`
+	Node   *FollowingTeacher `json:"node"`
+}
+
+func (FollowingTeacherEdge) IsEdge()                {}
+func (this FollowingTeacherEdge) GetCursor() string { return this.Cursor }
+func (this FollowingTeacherEdge) GetNode() Node     { return *this.Node }
 
 type NotificationTimeSpan struct {
 	FromHour   int `json:"fromHour"`
@@ -28,6 +87,11 @@ type NotificationTimeSpanInput struct {
 
 type NotificationTimeSpanPayload struct {
 	TimeSpans []*NotificationTimeSpan `json:"timeSpans"`
+}
+
+type PageInfo struct {
+	HasNextPage     bool `json:"hasNextPage"`
+	HasPreviousPage bool `json:"hasPreviousPage"`
 }
 
 type Teacher struct {
