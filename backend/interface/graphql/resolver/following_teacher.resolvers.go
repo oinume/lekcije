@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/morikuni/failure"
-
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/model2"

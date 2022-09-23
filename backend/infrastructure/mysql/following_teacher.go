@@ -86,7 +86,10 @@ func (r *followingTeacherRepository) FindTeachersByUserID(ctx context.Context, u
 func (r *followingTeacherRepository) FindByUserID(
 	ctx context.Context, userID uint,
 ) ([]*model2.FollowingTeacher, error) {
-	fts, err := model2.FollowingTeachers(qm.Where("user_id = ?", userID)).All(ctx, r.db)
+	fts, err := model2.FollowingTeachers(
+		qm.Where("user_id = ?", userID),
+		qm.OrderBy("created_at DESC"),
+	).All(ctx, r.db)
 	if err != nil {
 		return nil, errors.NewInternalError(
 			errors.WithError(err),
