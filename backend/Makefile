@@ -57,10 +57,10 @@ db/generate:
 gqlgen:
 	go run github.com/99designs/gqlgen generate
 
-.PHONY: mock/genereate ## Generate mock files with moq
+.PHONY: mock/generate ## Generate mock files with moq
 mock/generate:
 	find . -name "*.moq.go" | xargs rm -f
-	cd backend && go generate ./...
+	go generate ./...
 
 .PHONY: test
 test: go/test
