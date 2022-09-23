@@ -26,6 +26,7 @@ func TestUpdateViewer(t *testing.T) {
 	userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
 	resolver := NewResolver(
 		repos.FollowingTeacher(),
+		nil,
 		repos.NotificationTimeSpan(),
 		nil,
 		repos.Teacher(),

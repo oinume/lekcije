@@ -26,6 +26,7 @@ func TestUpdateNotificationTimeSpans(t *testing.T) {
 	userUsecase := usecase.NewUser(repos.DB(), repos.User(), repos.UserGoogle())
 	resolver := NewResolver(
 		repos.FollowingTeacher(),
+		nil,
 		repos.NotificationTimeSpan(),
 		notificationTimeSpanUsecase,
 		repos.Teacher(),

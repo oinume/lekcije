@@ -184,7 +184,7 @@ func (s *MeService) CreateFollowingTeacher(
 		return nil, twirp.InvalidArgumentError("teacher_id_or_url", "講師のURLまたはIDが正しくありません")
 	}
 
-	updateFollowedTeacherAt, err := s.followingTeacherUsecase.FollowTeacher(ctx, model2.NewUserFromModel(user), teacher)
+	_, updateFollowedTeacherAt, err := s.followingTeacherUsecase.FollowTeacher(ctx, model2.NewUserFromModel(user), teacher)
 	if err != nil {
 		return nil, err
 	}
