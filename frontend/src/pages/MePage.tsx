@@ -3,7 +3,6 @@ import {toast} from 'react-toastify';
 import {useQueryClient} from '@tanstack/react-query';
 import {PageTitle} from '../components/PageTitle';
 import {Loader} from '../components/Loader';
-import {ErrorAlert} from '../components/ErrorAlert';
 import type {Teacher} from '../models/Teacher';
 import {ToastContainer} from '../components/ToastContainer';
 import type {GetViewerWithFollowingTeachersQuery} from '../graphql/generated';
@@ -42,7 +41,6 @@ export const MePage = () => {
           ? <Loader isLoading={getViewerResult.isLoading}/>
           : <MeContent followingTeachers={followingTeachers} showTutorial={showTutorial}/>
       }
-      {getViewerResult.isError ? <ErrorAlert message={toMessage(getViewerResult.error)}/> : <div/>}
     </div>
   );
 };

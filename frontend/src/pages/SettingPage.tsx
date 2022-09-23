@@ -2,14 +2,13 @@ import React, {useState} from 'react';
 import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'react-toastify';
 import {Loader} from '../components/Loader';
-import {ErrorAlert} from '../components/ErrorAlert';
 import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
 import {NotificationTimeSpanModel} from '../models/NotificatonTimeSpan';
 import type {
-  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan, NotificationTimeSpanInput,
+  GetViewerWithNotificationTimeSpansQuery, NotificationTimeSpan,
 } from '../graphql/generated';
 import {
   useGetViewerWithNotificationTimeSpansQuery, useUpdateNotificationTimeSpansMutation, useUpdateViewerMutation,
@@ -60,28 +59,25 @@ export const SettingPage: React.FC = () => {
     },
   });
 
-  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient);
+  const queryResult = useGetViewerWithNotificationTimeSpansQuery<GetViewerWithNotificationTimeSpansQuery, GraphQLError>(graphqlClient, undefined, {
+    onError(error) {
+      toast.error(toMessage(error, 'データの取得に失敗しました'));
+    }
+  });
   if (queryResult.isLoading) {
     // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
     return (
       <Loader isLoading={queryResult.isLoading}/>
     );
   }
-  // Console.log('BEFORE useGetMe');
-  // const getMeResult = useGetMe({});
-  // Console.log('AFTER useGetMe: isLoading = %s', isLoading);
-
-  // if (getMeResult.isLoading || getMeResult.isIdle) {
-  //   // TODO: Loaderコンポーネントの子供にフォームのコンポーネントをセットして、フォームは出すようにする
-  //   return (
-  //     <Loader isLoading={getMeResult.isLoading}/>
-  //   );
-  // }
 
   if (queryResult.error) {
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
-    console.error(`getViewerQuery: error = ${queryResult.error}, type=${typeof queryResult.error}`);
-    return <ErrorAlert message={toMessage(queryResult.error)}/>;
+    return (
+      <>
+        <ToastContainer closeOnClick={false}/>
+        <PageTitle>設定</PageTitle>
+      </>
+    );
   }
 
   const email = emailState ?? queryResult.data.viewer.email;
@@ -164,4 +160,6 @@ export const SettingPage: React.FC = () => {
   );
 };
 
-const toModels = (timeSpans: NotificationTimeSpan[]): NotificationTimeSpanModel[] => timeSpans.map<NotificationTimeSpanModel>(o => NotificationTimeSpanModel.fromObject(o));
+const toModels = (timeSpans: NotificationTimeSpan[]): NotificationTimeSpanModel[] => {
+  return timeSpans.map<NotificationTimeSpanModel>(o => NotificationTimeSpanModel.fromObject(o));
+}
