@@ -25,9 +25,11 @@ query getViewerWithFollowingTeachers {
     id
     email
     followingTeachers {
-      teacher {
-        id
-        name
+      nodes {
+        teacher {
+          id
+          name
+        }
       }
     }
     showTutorial

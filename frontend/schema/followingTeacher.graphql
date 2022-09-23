@@ -1,0 +1,12 @@
+mutation createFollowingTeacher($input: CreateFollowingTeacherInput!) {
+  createFollowingTeacher(input: $input) {
+    id
+    teacherId
+  }
+}
+
+mutation deleteFollowingTeachers($input: DeleteFollowingTeachersInput!) {
+  deleteFollowingTeachers(input: $input) {
+    teacherIds
+  }
+}
