@@ -5,9 +5,11 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/morikuni/failure"
+
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -53,7 +55,8 @@ func (r *mutationResolver) CreateFollowingTeacher(ctx context.Context, input mod
 	//	}
 	//}()
 	return &model.CreateFollowingTeacherPayload{
-		ID: followingTeacher.ID(),
+		ID:        followingTeacher.ID(),
+		TeacherID: fmt.Sprint(teacher.ID),
 	}, nil
 }
 

@@ -25,7 +25,8 @@ type CreateFollowingTeacherInput struct {
 }
 
 type CreateFollowingTeacherPayload struct {
-	ID string `json:"id"`
+	ID        string `json:"id"`
+	TeacherID string `json:"teacherId"`
 }
 
 type DeleteFollowingTeachersInput struct {
