@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {useQueryClient} from '@tanstack/react-query';
 import {toast} from 'react-toastify';
 import {Loader} from '../components/Loader';
-import {ToggleAlert} from '../components/ToggleAlert';
 import {EmailForm} from '../components/setting/EmailForm';
 import {NotificationTimeSpanForm} from '../components/setting/NotificationTimeSpanForm';
 import {PageTitle} from '../components/PageTitle';
@@ -17,18 +16,7 @@ import type {GraphQLError} from '../http/graphql';
 import {createGraphQLClient, toMessage} from '../http/graphql';
 import {ToastContainer} from '../components/ToastContainer';
 
-type ToggleAlertState = {
-  isVisible: boolean;
-  kind: string;
-  message: string;
-};
-
 export const SettingPage: React.FC = () => {
-  const [alert, setAlert] = useState<ToggleAlertState>({
-    isVisible: false,
-    kind: '',
-    message: '',
-  });
   const [emailState, setEmailState] = useState<string | undefined>(undefined);
   const [notificationTimeSpansState, setNotificationTimeSpansState] = useState<NotificationTimeSpanModel[] | undefined>(
     undefined,
@@ -83,10 +71,6 @@ export const SettingPage: React.FC = () => {
   const email = emailState ?? queryResult.data.viewer.email;
   const notificationTimeSpans = notificationTimeSpansState ?? toModels(queryResult.data.viewer.notificationTimeSpans);
 
-  const handleHideAlert = () => {
-    setAlert({...alert, isVisible: false});
-  };
-
   const handleAddTimeSpan = () => {
     const maxTimeSpans = 3;
     if (notificationTimeSpans.length >= maxTimeSpans) {
@@ -138,7 +122,6 @@ export const SettingPage: React.FC = () => {
     <div>
       <ToastContainer closeOnClick={false}/>
       <PageTitle>設定</PageTitle>
-      <ToggleAlert handleCloseAlert={handleHideAlert} {...alert}/>
       <EmailForm
         email={email}
         handleOnChange={event => {
