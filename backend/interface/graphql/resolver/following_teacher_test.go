@@ -10,7 +10,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/context_data"
+	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/repository"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
@@ -42,6 +44,7 @@ func TestCreateFollowingTeacher(t *testing.T) {
 	resolver := NewResolver(
 		repos.FollowingTeacher(),
 		followingTeacherUsecase,
+		di.NewGAMeasurementUsecase(ga_measurement.NewFakeClient()),
 		repos.NotificationTimeSpan(),
 		notificationTimeSpanUsecase,
 		repos.Teacher(),
@@ -129,6 +132,7 @@ func TestDeleteFollowingTeachers(t *testing.T) {
 	resolver := NewResolver(
 		repos.FollowingTeacher(),
 		followingTeacherUsecase,
+		di.NewGAMeasurementUsecase(ga_measurement.NewFakeClient()),
 		repos.NotificationTimeSpan(),
 		notificationTimeSpanUsecase,
 		repos.Teacher(),

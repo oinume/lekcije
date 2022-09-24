@@ -9,7 +9,9 @@ import (
 	"github.com/morikuni/failure"
 
 	"github.com/oinume/lekcije/backend/context_data"
+	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
@@ -27,6 +29,7 @@ func TestUpdateViewer(t *testing.T) {
 	resolver := NewResolver(
 		repos.FollowingTeacher(),
 		nil,
+		di.NewGAMeasurementUsecase(ga_measurement.NewFakeClient()),
 		repos.NotificationTimeSpan(),
 		nil,
 		repos.Teacher(),

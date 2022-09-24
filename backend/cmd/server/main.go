@@ -133,6 +133,7 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	gqlResolver := resolver.NewResolver(
 		mysql.NewFollowingTeacherRepository(args.DB),
 		di.NewFollowingTeacherUsecase(args.AppLogger, args.DB, mCountryList),
+		di.NewGAMeasurementUsecase(args.GAMeasurementClient),
 		mysql.NewNotificationTimeSpanRepository(args.DB),
 		di.NewNotificationTimeSpanUsecase(args.DB),
 		mysql.NewTeacherRepository(args.DB),
