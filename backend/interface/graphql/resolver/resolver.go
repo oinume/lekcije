@@ -12,6 +12,7 @@ import (
 type Resolver struct {
 	followingTeacherRepo        repository.FollowingTeacher
 	followingTeacherUsecase     *usecase.FollowingTeacher
+	gaMeasurementUsecase        *usecase.GAMeasurement
 	notificationTimeSpanRepo    repository.NotificationTimeSpan
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan
 	teacherRepo                 repository.Teacher
@@ -22,6 +23,7 @@ type Resolver struct {
 func NewResolver(
 	followingTeacherRepo repository.FollowingTeacher,
 	followingTeacherUsecase *usecase.FollowingTeacher,
+	gaMeasurementUsecase *usecase.GAMeasurement,
 	notificationTimeSpanRepo repository.NotificationTimeSpan,
 	notificationTimeSpanUsecase *usecase.NotificationTimeSpan,
 	teacherRepo repository.Teacher,
@@ -31,6 +33,7 @@ func NewResolver(
 	return &Resolver{
 		followingTeacherRepo:        followingTeacherRepo,
 		followingTeacherUsecase:     followingTeacherUsecase,
+		gaMeasurementUsecase:        gaMeasurementUsecase,
 		notificationTimeSpanRepo:    notificationTimeSpanRepo,
 		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
 		teacherRepo:                 teacherRepo,

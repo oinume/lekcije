@@ -156,7 +156,7 @@ func Test_MeService_CreateFollowingTeacher(t *testing.T) {
 
 			client := twirptest.NewJSONClient()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
-			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
+			ctx = context_data.SetGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.CreateFollowingTeacherResponse{}
 			gotStatusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.MePathPrefix+"CreateFollowingTeacher",
@@ -260,7 +260,7 @@ func Test_MeService_DeleteFollowingTeacher(t *testing.T) {
 
 			client := twirptest.NewJSONClient()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
-			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
+			ctx = context_data.SetGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.DeleteFollowingTeachersResponse{}
 			gotStatusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.MePathPrefix+"DeleteFollowingTeachers",
@@ -470,7 +470,7 @@ func Test_MeService_UpdateMeEmail(t *testing.T) {
 
 			client := twirptest.NewJSONClient()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
-			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
+			ctx = context_data.SetGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.UpdateEmailResponse{}
 			statusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.MePathPrefix+"UpdateEmail",
@@ -558,7 +558,7 @@ func Test_MeService_UpdateMeNotificationTimeSpan(t *testing.T) {
 
 			client := twirptest.NewJSONClient()
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
-			ctx = context_data.WithGAMeasurementEvent(ctx, newGAMeasurementEvent())
+			ctx = context_data.SetGAMeasurementEvent(ctx, newGAMeasurementEvent())
 			gotResponse := &api_v1.UpdateNotificationTimeSpanResponse{}
 			statusCode, err := client.SendRequest(
 				ctx, t, handler, api_v1.MePathPrefix+"UpdateNotificationTimeSpan",

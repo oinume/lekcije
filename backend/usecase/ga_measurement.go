@@ -22,7 +22,7 @@ func (u *GAMeasurement) SendEvent(
 	values *model2.GAMeasurementEvent,
 	category, action, label string,
 	value int64,
-	userID uint32,
+	userID uint32, // TODO: uint
 ) error {
 	return u.gaMeasurementRepo.SendEvent(ctx, values, category, action, label, value, userID)
 }

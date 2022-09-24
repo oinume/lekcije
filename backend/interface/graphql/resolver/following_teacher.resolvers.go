@@ -7,8 +7,11 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/morikuni/failure"
+
+	"github.com/oinume/lekcije/backend/context_data"
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -30,29 +33,30 @@ func (r *mutationResolver) CreateFollowingTeacher(ctx context.Context, input mod
 		return nil, failure.New(lerrors.InvalidArgument, failure.Messagef("講師のURLまたはIDが正しくありません"))
 	}
 
-	followingTeacher, _, err := r.followingTeacherUsecase.FollowTeacher(ctx, user, teacher)
+	followingTeacher, updateFollowedTeacherAt, err := r.followingTeacherUsecase.FollowTeacher(ctx, user, teacher)
 	if err != nil {
 		return nil, err
 	}
 
-	//go func() {
-	//	if err := r.gaMeasurementUsecase.SendEvent(
-	//		ctx, context_data.MustGAMeasurementEvent(ctx),
-	//		model2.GAMeasurementEventCategoryFollowingTeacher,
-	//		"follow", fmt.Sprint(teacher.ID), 1, user.ID,
-	//	); err != nil {
-	//		panic(err)
-	//	}
-	//	if updateFollowedTeacherAt {
-	//		if err := s.gaMeasurementUsecase.SendEvent(
-	//			ctx, context_data.MustGAMeasurementEvent(ctx),
-	//			model2.GAMeasurementEventCategoryUser,
-	//			"followFirstTime", fmt.Sprint(user.ID), 0, user.ID,
-	//		); err != nil {
-	//			panic(err)
-	//		}
-	//	}
-	//}()
+	go func() {
+		if err := r.gaMeasurementUsecase.SendEvent(
+			ctx, context_data.MustGAMeasurementEvent(ctx),
+			model2.GAMeasurementEventCategoryFollowingTeacher,
+			"follow", fmt.Sprint(teacher.ID), 1, uint32(user.ID),
+		); err != nil {
+			panic(err)
+		}
+		if updateFollowedTeacherAt {
+			if err := r.gaMeasurementUsecase.SendEvent(
+				ctx, context_data.MustGAMeasurementEvent(ctx),
+				model2.GAMeasurementEventCategoryUser,
+				"followFirstTime", fmt.Sprint(user.ID), 0, uint32(user.ID),
+			); err != nil {
+				panic(err)
+			}
+		}
+	}()
+
 	return &model.CreateFollowingTeacherPayload{
 		ID:        followingTeacher.ID(),
 		TeacherID: fmt.Sprint(teacher.ID),
@@ -81,6 +85,20 @@ func (r *mutationResolver) DeleteFollowingTeachers(ctx context.Context, input mo
 	if err := r.followingTeacherUsecase.DeleteFollowingTeachers(ctx, user.ID, teacherIDs); err != nil {
 		return nil, err
 	}
+
+	go func() {
+		if err := r.gaMeasurementUsecase.SendEvent(
+			ctx, context_data.MustGAMeasurementEvent(ctx),
+			model2.GAMeasurementEventCategoryFollowingTeacher,
+			"unfollow",
+			strings.Join(input.TeacherIds, ","),
+			1,
+			uint32(user.ID),
+		); err != nil {
+			panic(err)
+		}
+	}()
+
 	return &model.DeleteFollowingTeachersPayload{
 		TeacherIds: ids,
 	}, nil

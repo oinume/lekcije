@@ -8,7 +8,9 @@ import (
 	"github.com/morikuni/failure"
 
 	"github.com/oinume/lekcije/backend/context_data"
+	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
@@ -27,6 +29,7 @@ func TestUpdateNotificationTimeSpans(t *testing.T) {
 	resolver := NewResolver(
 		repos.FollowingTeacher(),
 		nil,
+		di.NewGAMeasurementUsecase(ga_measurement.NewFakeClient()),
 		repos.NotificationTimeSpan(),
 		notificationTimeSpanUsecase,
 		repos.Teacher(),
@@ -137,6 +140,7 @@ func TestUpdateNotificationTimeSpans(t *testing.T) {
 			ctx := context.Background()
 			tc := test.setup(ctx)
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
+			ctx = context_data.SetGAMeasurementEvent(ctx, &model2.GAMeasurementEvent{})
 			got, err := resolver.Mutation().UpdateNotificationTimeSpans(ctx, tc.input)
 			if err != nil {
 				if tc.wantErrorCode == "" {
