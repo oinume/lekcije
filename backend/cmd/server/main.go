@@ -121,14 +121,9 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	userAPIToken := di.NewUserAPITokenUsecase(args.DB)
 	server := interfaces_http.NewServer(args, errorRecorder, userAPIToken)
 	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
-	errorRecorderHooks := interfaces_http.NewErrorRecorderHooks(errorRecorder)
 	mCountryList := di.MustNewMCountryList(context.Background(), args.DB)
-	meServer := di.NewMeServer(
-		args.AppLogger, args.GormDB, errorRecorderHooks, args.GAMeasurementClient, mCountryList,
-	)
 	server.Setup(mux)
 	oauthServer.Setup(mux)
-	interfaces_http.SetupTwirpServer(mux, meServer)
 
 	gqlResolver := resolver.NewResolver(
 		mysql.NewFollowingTeacherRepository(args.DB),
