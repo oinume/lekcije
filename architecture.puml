@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+participant Browser as browser
+participant Cloudflare as cloudflare
+participant Heroku as heroku
+participant "Cloud Storage" as storage
+
+browser -> cloudflare: www.lekcije.com
+cloudflare -> heroku: request
+heroku -> cloudflare: HTML
+cloudflare -> browser: HTML
+browser -> cloudflare: asset.lekcije.com
+cloudflare -> storage: request
+storage -> cloudflare: JS, CSS
+cloudflare -> browser: JS, CSS
+browser -> cloudflare: API request
+cloudflare -> heroku: API request
+heroku -> cloudflare: API response
+cloudflare -> browser: API response
+@enduml
