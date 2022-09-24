@@ -5,10 +5,14 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/morikuni/failure"
+
+	"github.com/oinume/lekcije/backend/context_data"
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/interface/graphql/model"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 // UpdateViewer is the resolver for the updateViewer field.
@@ -38,8 +42,22 @@ func (r *mutationResolver) UpdateViewer(ctx context.Context, input model.UpdateV
 	if err := r.userUsecase.UpdateEmail(ctx, user.ID, email); err != nil {
 		return nil, err
 	}
-
 	user.Email = email
+
+	go func() {
+		if err := r.gaMeasurementUsecase.SendEvent(
+			ctx,
+			context_data.MustGAMeasurementEvent(ctx),
+			model2.GAMeasurementEventCategoryUser,
+			"update",
+			fmt.Sprint(user.ID),
+			0,
+			uint32(user.ID),
+		); err != nil {
+			panic(err) // TODO: Better error handling
+		}
+	}()
+
 	return toGraphQLUser(user), nil
 }
 

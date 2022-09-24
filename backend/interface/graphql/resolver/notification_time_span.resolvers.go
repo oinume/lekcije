@@ -5,10 +5,14 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/morikuni/failure"
+
+	"github.com/oinume/lekcije/backend/context_data"
 	lerrors "github.com/oinume/lekcije/backend/errors"
 	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 // UpdateNotificationTimeSpans is the resolver for the updateNotificationTimeSpans field.
@@ -26,6 +30,21 @@ func (r *mutationResolver) UpdateNotificationTimeSpans(ctx context.Context, inpu
 	if err := r.notificationTimeSpanUsecase.UpdateAll(ctx, user.ID, timeSpans); err != nil {
 		return nil, err
 	}
+
+	go func() {
+		if err := r.gaMeasurementUsecase.SendEvent(
+			ctx,
+			context_data.MustGAMeasurementEvent(ctx),
+			model2.GAMeasurementEventCategoryUser,
+			"updateNotificationTimeSpan",
+			fmt.Sprint(user.ID),
+			0,
+			uint32(user.ID),
+		); err != nil {
+			panic(err) // TODO: Better error handling
+		}
+	}()
+
 	timeSpansGraphQL, err := toGraphQLNotificationTimeSpans(timeSpans)
 	if err != nil {
 		return nil, err
