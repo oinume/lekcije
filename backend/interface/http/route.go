@@ -4,8 +4,6 @@ import (
 	stats_api "github.com/fukata/golang-stats-api-handler"
 	"goji.io/v3"
 	"goji.io/v3/pat"
-
-	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
 
 func (s *server) Setup(mux *goji.Mux) {
@@ -34,9 +32,4 @@ func (s *server) Setup(mux *goji.Mux) {
 	mux.HandleFunc(pat.Get("/api/debug/httpHeader"), s.getAPIDebugHTTPHeader)
 	mux.HandleFunc(pat.Post("/api/webhook/sendGrid"), s.postAPISendGridEventWebhook)
 	mux.HandleFunc(pat.Get("/api/stats"), stats_api.Handler)
-}
-
-func SetupTwirpServer(mux *goji.Mux, meServer api_v1.TwirpServer) {
-	// TODO: Define UserServer etc in *server and setup mux inside it
-	mux.Handle(pat.Post(api_v1.MePathPrefix+"*"), meServer)
 }

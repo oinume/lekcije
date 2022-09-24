@@ -4,15 +4,11 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
-	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	ihttp "github.com/oinume/lekcije/backend/interface/http"
-	"github.com/oinume/lekcije/backend/model2"
-	api_v1 "github.com/oinume/lekcije/backend/proto_gen/proto/api/v1"
 )
 
 func NewOAuthServer(
@@ -30,25 +26,5 @@ func NewOAuthServer(
 		senderHTTPClient,
 		NewUserUsecase(db),
 		NewUserAPITokenUsecase(db),
-	)
-}
-
-func NewMeServer(
-	appLogger *zap.Logger,
-	db *gorm.DB,
-	errorRecorderHooks *twirp.ServerHooks,
-	gaMeasurementClient ga_measurement.Client,
-	mCountryList *model2.MCountryList,
-) api_v1.TwirpServer {
-	meService := ihttp.NewMeService(
-		db, appLogger,
-		NewFollowingTeacherUsecase(appLogger, db.DB(), mCountryList),
-		NewGAMeasurementUsecase(gaMeasurementClient),
-		NewNotificationTimeSpanUsecase(db.DB()),
-		NewUserUsecase(db.DB()),
-	)
-	return api_v1.NewMeServer(
-		meService,
-		twirp.WithServerHooks(errorRecorderHooks),
 	)
 }
