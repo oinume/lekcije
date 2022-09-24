@@ -15,6 +15,7 @@ npm-debug.log*
 
 vendor
 .env
+*.log
 
 # DB
 db/dbconf-production.yml
