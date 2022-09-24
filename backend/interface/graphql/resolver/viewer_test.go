@@ -121,6 +121,7 @@ func TestUpdateViewer(t *testing.T) {
 			ctx := context.Background()
 			tc := test.setup(ctx)
 			ctx = context_data.SetAPIToken(ctx, tc.apiToken)
+			ctx = context_data.SetGAMeasurementEvent(ctx, &model2.GAMeasurementEvent{})
 			got, err := resolver.Mutation().UpdateViewer(ctx, tc.input)
 			if err != nil {
 				if tc.wantErrorCode == "" {

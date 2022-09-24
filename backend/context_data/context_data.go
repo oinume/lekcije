@@ -67,7 +67,7 @@ func GetAPIToken(ctx context.Context) (string, error) {
 	return "", errors.NewNotFoundError(errors.WithMessage("failed to get api token from context"))
 }
 
-func WithGAMeasurementEvent(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
+func SetGAMeasurementEvent(ctx context.Context, v *model2.GAMeasurementEvent) context.Context {
 	return context.WithValue(ctx, eventValuesKey{}, v)
 }
 
