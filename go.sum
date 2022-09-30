@@ -86,11 +86,11 @@ github.com/ClickHouse/clickhouse-go/v2 v2.2.0 h1:dj00TDKY+xwuTJdbpspCSmTLFyWzRJe
 github.com/ClickHouse/clickhouse-go/v2 v2.2.0/go.mod h1:8f2XZUi7XoeU+uPIytSi1cvx8fmJxi7vIgqpvYTF1+o=
 github.com/DATA-DOG/go-sqlmock v1.4.1 h1:ThlnYciV1iM/V0OSF/dtkqWb6xo5qITT1TJBG1MRDJM=
 github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.8 h1:gJotWbuzSbr350EljD1zTNy3l4NiigjDVeVBWf7ERgk=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.8/go.mod h1:Cy0FEJrgXiz3UbLX/ZRlHPQxq605mGwz14ac+peTwQo=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.32.8 h1:ehU1r1DPZfv3Qfi0r7C24UAi0sozSwiSHtqwD1sdL8k=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.8 h1:FJ3zlcMfrS9iv06vzg1V73RlfrHZPsyfdkKrqGYAT4E=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.8/go.mod h1:/G0zPXsUx5gZUd6ryJakuDo4VR7EJScegf1ZNK8xIGs=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.9.0 h1:OdiKeirSJ2Y8QMK/E7LOasoIJUQ3kLrIt+AFoVcajDg=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.9.0/go.mod h1:0U7WCkIC6l7b0YLIXhH5SvOHtKyo3gpKGS061MFahsw=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.33.0 h1:WGf4L3BLM+7+RUxz3czAnWQ6ohZUxZkAzgCTm2jxUqE=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.33.0 h1:+Z8Iw93t626kmOFMF+ZvTVpVXPMxbAOEJYpula80az4=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.33.0/go.mod h1:usNlVDrVPvqJZkz411dXfpyKqwkVgSE9kr24uinj+nU=
 github.com/Khan/genqlient v0.5.0 h1:TMZJ+tl/BpbmGyIBiXzKzUftDhw4ZWxQZ+1ydn0gyII=
 github.com/Khan/genqlient v0.5.0/go.mod h1:EpIvDVXYm01GP6AXzjA7dKriPTH6GmtpmvTAwUUqIX8=
 github.com/Masterminds/goutils v1.1.1 h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
@@ -665,8 +665,8 @@ go.opentelemetry.io/otel/exporters/jaeger v1.10.0 h1:7W3aVVjEYayu/GOqOVF4mbTvnCu
 go.opentelemetry.io/otel/exporters/jaeger v1.10.0/go.mod h1:n9IGyx0fgyXXZ/i0foLHNxtET9CzXHzZeKCucvRBFgA=
 go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.10.0 h1:c9UtMu/qnbLlVwTwt+ABrURrioEruapIslTDYZHJe2w=
 go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.10.0/go.mod h1:h3Lrh9t3Dnqp3NPwAZx7i37UFX7xrfnO1D+fuClREOA=
-go.opentelemetry.io/otel/metric v0.32.0 h1:lh5KMDB8xlMM4kwE38vlZJ3rZeiWrjw3As1vclfC01k=
-go.opentelemetry.io/otel/metric v0.32.0/go.mod h1:PVDNTt297p8ehm949jsIzd+Z2bIZJYQQG/uuHTeWFHY=
+go.opentelemetry.io/otel/metric v0.32.1 h1:ftff5LSBCIDwL0UkhBuDg8j9NNxx2IusvJ18q9h6RC4=
+go.opentelemetry.io/otel/metric v0.32.1/go.mod h1:iLPP7FaKMAD5BIxJ2VX7f2KTuz//0QK2hEUyti5psqQ=
 go.opentelemetry.io/otel/sdk v1.10.0 h1:jZ6K7sVn04kk/3DNUdJ4mqRlGDiXAVuIG+MMENpTNdY=
 go.opentelemetry.io/otel/sdk v1.10.0/go.mod h1:vO06iKzD5baltJz1zarxMCNHFpUlUiOy4s65ECtn6kE=
 go.opentelemetry.io/otel/trace v1.7.0/go.mod h1:fzLSB9nqR2eXzxPXb2JW9IKE+ScyXA48yyE4TNvoHqU=
