@@ -126,3 +126,73 @@ jobs:
           skip-go-installation: true
           skip-pkg-cache: true
           skip-build-cache: true
+  deploy:
+    name: deploy
+#    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+#      - uses: actions/cache@v3
+#        id: cache
+#        with:
+#          path: ${{ env.GOPATH }}/pkg/mod
+#          key: ${{ runner.os }}-backend-deploy-${{ hashFiles('go.sum') }}-${{ env.CACHE_VERSION }}
+#          restore-keys: |
+#            ${{ runner.os }}-backend-deploy
+      - uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
+      - uses: actions/setup-go@v3
+        with:
+          cache: true
+          cache-dependency-path: "go.sum"
+          go-version-file: "go.mod"
+      - uses: imjasonh/setup-ko@v0.6
+        env:
+          KO_DOCKER_REPO: gcr.io/oinume-lekcije
+      - name: Build container image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMIT=$(git rev-parse --short HEAD)
+          BRANCH=$(basename ${GITHUB_REF})
+          TAG=$(echo "${BRANCH}" | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-"${COMMIT}"
+          IMAGE=$(ko build --base-import-paths -t ${TAG} ./cmd/server)
+          echo "COMMIT=$COMMIT" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+        working-directory: backend
+      - id: deploy
+        name: Deploy container image to Cloud Run
+        uses: "google-github-actions/deploy-cloudrun@v0"
+        with:
+          service: server
+          image: ${{ env.IMAGE }}
+          region: asia-northeast1
+          env_vars: |
+            ENABLE_FETCHER_HTTP2=true
+            ENABLE_STACKDRIVER_PROFILER=false
+            ENABLE_TRACE=false
+            GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
+            GCP_SERVICE_ACCOUNT_ID=${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+            GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_ANALYTICS_ID }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            GOGC=80
+            MYSQL_PORT=3306
+            MYSQL_DATABASE=lekcije
+            ROLLBAR_ACCESS_TOKEN=${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+            SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
+            VERSION_HASH=${{ env.COMMIT }}
+          secrets: |
+            MYSQL_USER=mysql-user:latest
+            MYSQL_PASSWORD=mysql-password:latest
+            MYSQL_HOST=mysql-host:latest
+      - name: Update traffic to latest
+        run: gcloud run services update-traffic server --project=${{ secrets.GCP_PROJECT_ID }} --region=asia-northeast1 --to-latest
+#      - name: Check the deployed URL with curl
+#        run: |
+#          curl -f "${{ steps.deploy.outputs.url }}/health-check"
