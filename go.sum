@@ -86,11 +86,11 @@ github.com/ClickHouse/clickhouse-go/v2 v2.2.0 h1:dj00TDKY+xwuTJdbpspCSmTLFyWzRJe
 github.com/ClickHouse/clickhouse-go/v2 v2.2.0/go.mod h1:8f2XZUi7XoeU+uPIytSi1cvx8fmJxi7vIgqpvYTF1+o=
 github.com/DATA-DOG/go-sqlmock v1.4.1 h1:ThlnYciV1iM/V0OSF/dtkqWb6xo5qITT1TJBG1MRDJM=
 github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.8 h1:gJotWbuzSbr350EljD1zTNy3l4NiigjDVeVBWf7ERgk=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.8/go.mod h1:Cy0FEJrgXiz3UbLX/ZRlHPQxq605mGwz14ac+peTwQo=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.32.8 h1:ehU1r1DPZfv3Qfi0r7C24UAi0sozSwiSHtqwD1sdL8k=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.8 h1:FJ3zlcMfrS9iv06vzg1V73RlfrHZPsyfdkKrqGYAT4E=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.8/go.mod h1:/G0zPXsUx5gZUd6ryJakuDo4VR7EJScegf1ZNK8xIGs=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.9.0 h1:OdiKeirSJ2Y8QMK/E7LOasoIJUQ3kLrIt+AFoVcajDg=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.9.0/go.mod h1:0U7WCkIC6l7b0YLIXhH5SvOHtKyo3gpKGS061MFahsw=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.33.0 h1:WGf4L3BLM+7+RUxz3czAnWQ6ohZUxZkAzgCTm2jxUqE=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.33.0 h1:+Z8Iw93t626kmOFMF+ZvTVpVXPMxbAOEJYpula80az4=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.33.0/go.mod h1:usNlVDrVPvqJZkz411dXfpyKqwkVgSE9kr24uinj+nU=
 github.com/Khan/genqlient v0.5.0 h1:TMZJ+tl/BpbmGyIBiXzKzUftDhw4ZWxQZ+1ydn0gyII=
 github.com/Khan/genqlient v0.5.0/go.mod h1:EpIvDVXYm01GP6AXzjA7dKriPTH6GmtpmvTAwUUqIX8=
 github.com/Masterminds/goutils v1.1.1 h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
