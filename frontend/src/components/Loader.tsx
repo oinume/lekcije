@@ -1,4 +1,5 @@
-import React, {CSSProperties} from 'react';
+import type {CSSProperties} from 'react';
+import React from 'react';
 import {ClipLoader} from 'react-spinners';
 
 type Props = {
