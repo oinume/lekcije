@@ -158,6 +158,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          export KO_DATA_PATH=./cmd/server/kodata
+          mkdir -p $KO_DATA_PATH/html
+          rsync -avz ../frontend/html/ $KO_DATA_PATH/html/
           COMMIT=$(git rev-parse --short HEAD)
           BRANCH=$(basename ${GITHUB_REF})
           TAG=$(echo "${BRANCH}" | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-"${COMMIT}"
