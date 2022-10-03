@@ -37,7 +37,6 @@ type Trace struct {
 type Vars struct {
 	*MySQL
 	*Trace
-	EncryptionKey             string `env:"ENCRYPTION_KEY"`
 	NodeEnv                   string `env:"NODE_ENV"`
 	ServiceEnv                string `env:"LEKCIJE_ENV" required:"true"`
 	GCPProjectID              string `env:"GCP_PROJECT_ID"`
