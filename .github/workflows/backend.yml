@@ -184,6 +184,7 @@ jobs:
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             GOGC=80
+            LEKCIJE_ENV=production
             MYSQL_PORT=3306
             MYSQL_DATABASE=lekcije
             ROLLBAR_ACCESS_TOKEN=${{ secrets.ROLLBAR_ACCESS_TOKEN }}
