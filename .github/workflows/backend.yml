@@ -165,8 +165,9 @@ jobs:
           BRANCH=$(basename ${GITHUB_REF})
           TAG=$(echo "${BRANCH}" | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-"${COMMIT}"
           IMAGE=$(ko build --base-import-paths -t ${TAG} ./cmd/server)
-          echo "COMMIT=$COMMIT" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          VERSION_HASH=$(cat ../VERSION_HASH.txt)
+          echo "VERSION_HASH=$VERSION_HASH" >> $GITHUB_ENV
         working-directory: backend
       - id: deploy
         name: Deploy container image to Cloud Run
@@ -189,7 +190,7 @@ jobs:
             MYSQL_DATABASE=lekcije
             ROLLBAR_ACCESS_TOKEN=${{ secrets.ROLLBAR_ACCESS_TOKEN }}
             SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
-            VERSION_HASH=${{ env.COMMIT }}
+            VERSION_HASH=${{ env.VERSION_HASH }}
           secrets: |
             MYSQL_USER=mysql-user:latest
             MYSQL_PASSWORD=mysql-password:latest
