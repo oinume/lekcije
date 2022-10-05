@@ -129,3 +129,11 @@ jobs:
           /opt/heroku/bin/heroku config:set VERSION_HASH=$HASH -a lekcije
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      - name: Write VERSION_HASH.txt
+        run: |
+          HASH=$(make print-version-hash)
+          echo $HASH > VERSION_HASH.txt
+      - name: Commit VERSION_HASH.txt
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update VERSION_HASH.txt"
