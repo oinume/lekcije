@@ -1,4 +1,4 @@
-VERSION_HASH_VALUE = $(shell git rev-parse HEAD | cut -c-7)
+VERSION_HASH_VALUE = $(shell git rev-parse --short HEAD)
 
 .PHONY: minify-static-development
 minify-static-development:
