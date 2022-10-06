@@ -9,6 +9,7 @@ on:
       - "go.mod"
       - "go.sum"
       - ".github/workflows/backend.yaml"
+      - "VERSION_HASH.txt"
 env:
   CACHE_VERSION: 4
   GOPATH: /home/runner/go
