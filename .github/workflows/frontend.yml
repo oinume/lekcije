@@ -132,7 +132,8 @@ jobs:
       - name: Write VERSION_HASH.txt
         run: |
           HASH=$(make print-version-hash)
-          echo $HASH > VERSION_HASH.txt
+          echo $HASH > ../VERSION_HASH.txt
+          git status
       - name: Commit VERSION_HASH.txt
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
