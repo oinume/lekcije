@@ -24,6 +24,10 @@ const (
 )
 
 func TemplateDir() string {
+	koDataPath := os.Getenv("KO_DATA_PATH")
+	if koDataPath != "" {
+		return filepath.Join(koDataPath, "html")
+	}
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
