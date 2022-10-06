@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "oinume-lekcije",
+  "private_key_id": "8d33d863f70b0107e8c736f5059a24016879b3e9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCjWwKqLkJLHOS1\nes3Tu8LutCbAJWjB1W0RGhPPBrnUAUz0xscl5bBMx1HaV5ACYHuBPIAPWfMqMAzf\nxaO4nZLdKtpXhkCx4uV2F3IRROlcB9YaPJCErrvQvVOhaZYyUxTegujTKEswi8ha\nAcSgvUAqGGGf8Wz5XgPcGqJnDjM3cnTqWWqI33zFfIp9Sh8LOtr5fxzqgHFMQGof\n//AKGCMRPGWKA8yEToZCV9Fbqzi/PevuZdNQDnSm9xsCevMpK+xiErV4dfNez0nB\nSkWRqZ0QrzXC1kR7j5WuugyCkDjef/ZNmolHqrVEVig/ZptDvQhsbqkbn0MzIjgs\nytHgvdApAgMBAAECggEANIUJvcpCoSCofZp+e3EWEqXUAZnlbNBgEQwHy1tXuowy\ngE46b/pBbOX2cJMPZ1w6yQm5CHZ8ghdRxE4oPa5Xrgjdix9MRIT1DjsqftffiSmx\n0dygADCnjMyaCz7FvedNQd7n2R/O0MxYPWvtGlrOOtp85K37wc7SwdzEUwrTN6Nu\n180hFR4rPFhRDW7vOkmR+XoTVvfkqNI5i9b2AgofWKbnu7kxf1tEH/POl1r4BV0p\nENnNjAEL6l3Fs+3ANUtt7a0TjokO3aZKtzwjTuZp06qpVpYXwe0W9dN+jgsAEyOH\nzqr03qlXKS+xxt2t7QEN7HJGrdyp+kMpqz8+R1rYmwKBgQDTP9cmjjBTsR3coaO0\nddHJkdlb2axI7Yub8HDSGqyW/UWC4mwtCcJentODCXZMnWmlVR4fQwww07mRc/5j\n3GJY1ICdrCwl3IzwJVA0uX7qBM3RpoNiidZQf4Ujtxkr9Vcwia2rd660MDkd+9s0\n1UrFfNdHrCsOaz2rRci3B9WmcwKBgQDF9dyOr0YtQkbcZPQvPeq57TI8tmuKj6WI\n7PqKTes2Hya1O0KuizB5OKMIL2EAwh4qOqXUBNyBM0sk5moXMAV3LqUlnF/l7ulz\n0NqiT+lTQ2xBf85l8bzbFQr55R/f/22pcrUcb8MrjbWS5HYry3h9MyEHaqmsPlgu\nCFqmx7ar8wKBgQC0hwwQMNbvzp6cW64Qm9cqEO/VZJGsyQPTwYhIpO71IX/zuBeF\n7Z8jSUur4bwtASC1X6YcRSn32BfvS1cMc9u/2eoH1Ijt2iq/VsPSKutghbZ2AXyq\nCu0RYcifmutx+3oFSsMVk3PDHKrTCtZrshLx7hvzbhhlfBP5d+ttLs7QLQKBgHuZ\ned9g0mk5w3KiWdARUbhKwB4mK9k0vT9T705hPiXpp0pquMSwRVC6qxhWNLO7gAgP\n3DAX5PGKbDWa48ycgB0c86IbE8lFtV9JnOjRCjahlzsCKIWAPNFxPwwuIgvCuN6e\nrzQVF//el+siWCIaBZ3uSYYO8+eGeZosPyV49rY/AoGBAMSKfO9e6LiCEDWrKHX2\nugxlrmyITVMuoOeZHJXW4yC+Egn6u7hJRg7mjHA2hh9c4UxLHxu5FITr/FATaxoc\nErbp0Bnkwe+XETbH5EY1g4egoyjU2u9nTuzyLPSa6LflhOcATfL74nYnCJI8XBrr\nDO4qpiLfz/iOUC4YpoDEpvt3\n-----END PRIVATE KEY-----\n",
+  "client_email": "lekcije-ci@oinume-lekcije.iam.gserviceaccount.com",
+  "client_id": "103233194485716538883",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/lekcije-ci%40oinume-lekcije.iam.gserviceaccount.com"
+}
