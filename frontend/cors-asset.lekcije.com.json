@@ -1,6 +1,6 @@
 [
     {
-      "origin": ["https://www.lekcije.com"],
+      "origin": ["https://www.lekcije.com", "https://server-ofom7nvdha-an.a.run.app"],
       "responseHeader": [
         "Authorization",
         "Content-Type",
