@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -20,6 +21,10 @@ type lessonRepository struct {
 
 func NewLessonRepository(db *sql.DB) repository.Lesson {
 	return &lessonRepository{db: db}
+}
+
+func (r *lessonRepository) Create(ctx context.Context, lesson *model2.Lesson) error {
+	return lesson.Insert(ctx, r.db, boil.Infer())
 }
 
 func (r *lessonRepository) FindAllByTeacherIDsDatetimeBetween(

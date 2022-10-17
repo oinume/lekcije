@@ -10,6 +10,7 @@ import (
 )
 
 type Lesson interface {
+	Create(ctx context.Context, lesson *model2.Lesson) error
 	FindAllByTeacherIDsDatetimeBetween(
 		ctx context.Context, teacherID uint,
 		fromDate, toDate time.Time,
