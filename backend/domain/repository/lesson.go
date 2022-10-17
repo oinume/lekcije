@@ -4,11 +4,17 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/oinume/lekcije/backend/model2"
 )
 
-type Lesson interface{}
+type Lesson interface {
+	FindAllByTeacherIDsDatetimeBetween(
+		ctx context.Context, teacherID uint,
+		fromDate, toDate time.Time,
+	) ([]*model2.Lesson, error)
+}
 
 type LessonFetcher interface {
 	Close()

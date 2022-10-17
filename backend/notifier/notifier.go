@@ -32,6 +32,7 @@ type Notifier struct {
 	fetcher         repository.LessonFetcher
 	dryRun          bool
 	lessonService   *model.LessonService
+	lessonUsecase   *usecase.Lesson
 	teachers        map[uint32]*model.Teacher
 	fetchedLessons  map[uint32][]*model.Lesson
 	sender          emailer.Sender
@@ -101,6 +102,7 @@ func NewNotifier(
 	errorRecorder *usecase.ErrorRecorder,
 	fetcher repository.LessonFetcher,
 	dryRun bool,
+	lessonUsecase *usecase.Lesson,
 	sender emailer.Sender,
 	storageClient *storage.Client,
 ) *Notifier {
@@ -110,6 +112,7 @@ func NewNotifier(
 		errorRecorder:   errorRecorder,
 		fetcher:         fetcher,
 		dryRun:          dryRun,
+		lessonUsecase:   lessonUsecase,
 		teachers:        make(map[uint32]*model.Teacher, 1000),
 		fetchedLessons:  make(map[uint32][]*model.Lesson, 1000),
 		sender:          sender,
@@ -236,7 +239,8 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	now := time.Now().In(config.LocalLocation())
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalLocation())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, uint32(teacher.ID), fromDate, toDate)
+	lastFetchedLessons, err := n.lessonUsecase.FindLessons(ctx, teacher.ID, fromDate, toDate)
+	//	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, uint32(teacher.ID), fromDate, toDate)
 	if err != nil {
 		return nil, nil, err
 	}
