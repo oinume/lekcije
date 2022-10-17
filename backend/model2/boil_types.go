@@ -106,6 +106,23 @@ func AllLessonStatus() []string {
 	}
 }
 
+// Enum values for LessonStatusLogStatus
+const (
+	LessonStatusLogStatusFinished  string = "finished"
+	LessonStatusLogStatusReserved  string = "reserved"
+	LessonStatusLogStatusAvailable string = "available"
+	LessonStatusLogStatusCancelled string = "cancelled"
+)
+
+func AllLessonStatusLogStatus() []string {
+	return []string{
+		LessonStatusLogStatusFinished,
+		LessonStatusLogStatusReserved,
+		LessonStatusLogStatusAvailable,
+		LessonStatusLogStatusCancelled,
+	}
+}
+
 // Enum values for StatDailyNotificationEventEvent
 const (
 	StatDailyNotificationEventEventClick     string = "click"

@@ -20,7 +20,7 @@ pkgname = "model2"
   user    = "%s"
   pass    = "%s"
   sslmode = "false"
-  blacklist = ["goose_db_version", "lesson_status_log"]
+  blacklist = ["goose_db_version"]
 `
 	s := fmt.Sprintf(
 		t,
