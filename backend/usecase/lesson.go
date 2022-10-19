@@ -24,3 +24,7 @@ func (u *Lesson) FindLessons(
 ) ([]*model2.Lesson, error) {
 	return u.lessonRepo.FindAllByTeacherIDsDatetimeBetween(ctx, teacherID, fromDate, toDate)
 }
+
+func (u *Lesson) GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*model2.Lesson) []*model2.Lesson {
+	return u.lessonRepo.GetNewAvailableLessons(ctx, oldLessons, newLessons)
+}
