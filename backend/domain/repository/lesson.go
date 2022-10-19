@@ -15,6 +15,7 @@ type Lesson interface {
 		ctx context.Context, teacherID uint,
 		fromDate, toDate time.Time,
 	) ([]*model2.Lesson, error)
+	GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*model2.Lesson) []*model2.Lesson
 }
 
 type LessonFetcher interface {

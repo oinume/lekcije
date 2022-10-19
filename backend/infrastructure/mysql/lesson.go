@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -52,4 +53,40 @@ func (r *lessonRepository) FindAllByTeacherIDsDatetimeBetween(
 		return nil, err
 	}
 	return lessons, nil
+}
+
+func (r *lessonRepository) GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*model2.Lesson) []*model2.Lesson {
+	// Pattern
+	// 2016-01-01 00:00@Any -> Available
+	oldLessonsMap := make(map[string]*model2.Lesson, len(oldLessons))
+	newLessonsMap := make(map[string]*model2.Lesson, len(newLessons))
+	availableLessons := make([]*model2.Lesson, 0, len(oldLessons)+len(newLessons))
+	availableLessonsMap := make(map[string]*model2.Lesson, len(oldLessons)+len(newLessons))
+	for _, l := range oldLessons {
+		oldLessonsMap[model2.LessonDatetime(l.Datetime).String()] = l // TODO: Use LessonDatetime type as key
+	}
+	for _, l := range newLessons {
+		newLessonsMap[model2.LessonDatetime(l.Datetime).String()] = l
+	}
+	for datetime, oldLesson := range oldLessonsMap {
+		newLesson, newLessonExists := newLessonsMap[datetime]
+		oldStatus := strings.ToLower(oldLesson.Status)
+		newStatus := strings.ToLower(newLesson.Status)
+		if newLessonExists && oldStatus != "available" && newStatus == "available" {
+			// exists in oldLessons and newLessons and "any status" -> "available"
+			availableLessons = append(availableLessons, newLesson)
+			availableLessonsMap[datetime] = newLesson
+		}
+	}
+	for _, l := range newLessons {
+		datetime := model2.LessonDatetime(l.Datetime).String()
+		if _, ok := oldLessonsMap[datetime]; !ok && strings.ToLower(l.Status) == "available" {
+			// not exists in oldLessons
+			availableLessons = append(availableLessons, l)
+			availableLessonsMap[datetime] = l
+		}
+	}
+
+	// TODO: sort availableLessonsMap by datetime
+	return availableLessons
 }
