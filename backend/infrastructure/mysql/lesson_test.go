@@ -13,6 +13,7 @@ import (
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/model2"
+	"github.com/oinume/lekcije/backend/randoms"
 )
 
 func Test_lessonRepository_FindAllByTeacherIDsDatetimeBetween(t *testing.T) {
@@ -32,7 +33,7 @@ func Test_lessonRepository_FindAllByTeacherIDsDatetimeBetween(t *testing.T) {
 	}{
 		"normal": {
 			setup: func(ctx context.Context) *testCase {
-				const teacherID = 1
+				teacherID := uint(randoms.MustNewInt64(10000000))
 				l1 := modeltest.NewLesson(func(l *model2.Lesson) {
 					l.TeacherID = teacherID
 					l.Datetime = time.Date(2022, 11, 1, 10, 0, 0, 0, config.DefaultVars.LocalLocation)
@@ -58,7 +59,7 @@ func Test_lessonRepository_FindAllByTeacherIDsDatetimeBetween(t *testing.T) {
 		},
 		"no records": {
 			setup: func(ctx context.Context) *testCase {
-				const teacherID = 2
+				teacherID := uint(randoms.MustNewInt64(10000000))
 				l1 := modeltest.NewLesson(func(l *model2.Lesson) {
 					l.TeacherID = teacherID
 					l.Datetime = time.Date(2022, 11, 1, 10, 0, 0, 0, config.DefaultVars.LocalLocation)
@@ -87,4 +88,74 @@ func Test_lessonRepository_FindAllByTeacherIDsDatetimeBetween(t *testing.T) {
 			assertion.AssertEqual(t, tc.want, got, "", cmpopts.EquateApproxTime(10*time.Second))
 		})
 	}
+}
+
+func Test_lessonRepository_GetNewAvailableLessons(t *testing.T) {
+	repo := mysql.NewLessonRepository(helper.DB(t).DB())
+
+	type testCase struct {
+		oldLessons []*model2.Lesson
+		newLessons []*model2.Lesson
+		want       []*model2.Lesson
+	}
+	tests := map[string]struct {
+		setup func(ctx context.Context) *testCase
+	}{
+		"one available lessons": {
+			setup: func(ctx context.Context) *testCase {
+				teacherID := uint(randoms.MustNewInt64(100000))
+				datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
+				lessons1 := newLessons(teacherID, datetime, "Reserved", 3)
+				lessons2 := newLessons(teacherID, datetime, "Reserved", 3)
+				lessons2[1].Status = "Available"
+				return &testCase{
+					oldLessons: lessons1,
+					newLessons: lessons2,
+					want: []*model2.Lesson{
+						lessons2[1],
+					},
+				}
+			},
+		},
+		"no available lessons": {
+			setup: func(ctx context.Context) *testCase {
+				teacherID := uint(randoms.MustNewInt64(100000))
+				datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
+				lessons1 := newLessons(teacherID, datetime, "Reserved", 3)
+				lessons2 := newLessons(teacherID, datetime, "Reserved", 3)
+				// There are available lessons in old, means no difference between lessons1 and lessons2
+				lessons1[0].Status = "Available"
+				lessons2[0].Status = "Available"
+				return &testCase{
+					oldLessons: lessons1,
+					newLessons: lessons2,
+					want:       []*model2.Lesson{},
+				}
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			tc := tt.setup(ctx)
+			got := repo.GetNewAvailableLessons(ctx, tc.oldLessons, tc.newLessons)
+			assertion.AssertEqual(t, len(tc.want), len(got), "length of lessons doesn't match")
+			assertion.AssertEqual(t, tc.want, got, "")
+		})
+	}
+}
+
+func newLessons(teacherID uint, baseDatetime time.Time, status string, length int) []*model2.Lesson {
+	lessons := make([]*model2.Lesson, length)
+	now := time.Now().UTC()
+	for i := range lessons {
+		lessons[i] = &model2.Lesson{
+			TeacherID: teacherID,
+			Datetime:  baseDatetime.Add(time.Duration(i) * time.Hour),
+			Status:    status,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}
+	}
+	return lessons
 }
