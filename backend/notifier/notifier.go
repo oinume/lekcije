@@ -239,8 +239,8 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	now := time.Now().In(config.LocalLocation())
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalLocation())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	lastFetchedLessons, err := n.lessonUsecase.FindLessons(ctx, teacher.ID, fromDate, toDate)
-	//	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, uint32(teacher.ID), fromDate, toDate)
+	//lastFetchedLessons, err := n.lessonUsecase.FindLessons(ctx, teacher.ID, fromDate, toDate)
+	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, uint32(teacher.ID), fromDate, toDate)
 	if err != nil {
 		return nil, nil, err
 	}

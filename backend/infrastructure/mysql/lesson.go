@@ -49,35 +49,7 @@ func (r *lessonRepository) FindAllByTeacherIDsDatetimeBetween(
 		qm.Limit(1000),
 	).All(ctx, r.db)
 	if err != nil {
-		return nil, err // TODO: when no records
+		return nil, err
 	}
 	return lessons, nil
-
-	/*
-			lessons := make([]*model2.Lesson, 0, 1000)
-			sql := strings.TrimSpace(fmt.Sprintf(`
-		SELECT * FROM %s
-		WHERE
-		  teacher_id = ?
-		  AND DATE(datetime) BETWEEN ? AND ?
-		ORDER BY datetime ASC
-		LIMIT 1000
-			`, s.TableName()))
-
-			toDateAdded := toDate.Add(24 * 2 * time.Hour)
-			result := s.db.Raw(sql, teacherID, fromDate.Format("2006-01-02"), toDateAdded.Format("2006-01-02")).Scan(&lessons)
-			if result.Error != nil {
-				if result.RecordNotFound() {
-					return lessons, nil
-				}
-				return nil, errors.NewInternalError(
-					errors.WithError(result.Error),
-					errors.WithMessage("Failed to find lessons"),
-					errors.WithResource(errors.NewResource(s.TableName(), "teacherID", teacherID)),
-				)
-			}
-
-			return lessons, nil
-
-	*/
 }
