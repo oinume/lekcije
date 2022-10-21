@@ -26,3 +26,12 @@ func ParseLessonDatetime(s string) (LessonDatetime, error) {
 func (ld LessonDatetime) String() string {
 	return time.Time(ld).Format(lessonTimeFormat)
 }
+
+type TeacherLessons struct {
+	Teacher *Teacher
+	Lessons []*Lesson
+}
+
+func NewTeacherLessons(t *Teacher, l []*Lesson) *TeacherLessons {
+	return &TeacherLessons{Teacher: t, Lessons: l}
+}
