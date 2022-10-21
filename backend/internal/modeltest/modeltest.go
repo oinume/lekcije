@@ -9,9 +9,7 @@ import (
 	"github.com/oinume/lekcije/backend/randoms"
 )
 
-var jst = time.FixedZone("Asia/Tokyo", 9*60*60)
-
-func NewFollowingTeacher(setters ...func(ft *model2.FollowingTeacher)) *model2.FollowingTeacher {
+func NewFollowingTeacher(setters ...func(nts *model2.FollowingTeacher)) *model2.FollowingTeacher {
 	followingTeacher := &model2.FollowingTeacher{}
 	for _, setter := range setters {
 		setter(followingTeacher)
@@ -23,24 +21,6 @@ func NewFollowingTeacher(setters ...func(ft *model2.FollowingTeacher)) *model2.F
 		followingTeacher.TeacherID = uint(randoms.MustNewInt64(10000000))
 	}
 	return followingTeacher
-}
-
-func NewLesson(setters ...func(l *model2.Lesson)) *model2.Lesson {
-	lesson := &model2.Lesson{}
-	for _, setter := range setters {
-		setter(lesson)
-	}
-	if lesson.TeacherID == 0 {
-		lesson.TeacherID = uint(randoms.MustNewInt64(10000000))
-	}
-	if lesson.Datetime.IsZero() {
-		dt := time.Now().Add(4 * time.Hour)
-		lesson.Datetime = time.Date(dt.Year(), dt.Month(), dt.Day(), dt.Hour(), 0, 0, 0, jst)
-	}
-	if lesson.Status == "" {
-		lesson.Status = "available"
-	}
-	return lesson
 }
 
 func NewNotificationTimeSpan(setters ...func(nts *model2.NotificationTimeSpan)) *model2.NotificationTimeSpan {

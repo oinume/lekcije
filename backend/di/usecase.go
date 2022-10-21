@@ -36,10 +36,6 @@ func NewGAMeasurementUsecase(client iga_measurement.Client) *usecase.GAMeasureme
 	return usecase.NewGAMeasurement(iga_measurement.NewGAMeasurementRepository(client))
 }
 
-func NewLessonUsecase(db *sql.DB) *usecase.Lesson {
-	return usecase.NewLesson(mysql.NewLessonRepository(db))
-}
-
 func NewNotificationTimeSpanUsecase(db *sql.DB) *usecase.NotificationTimeSpan {
 	return usecase.NewNotificationTimeSpan(mysql.NewNotificationTimeSpanRepository(db))
 }
