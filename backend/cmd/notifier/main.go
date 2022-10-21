@@ -119,8 +119,7 @@ func (m *notifierMain) run(args []string) error {
 		appLogger,
 		irollbar.NewErrorRecorderRepository(rollbarClient),
 	)
-	lessonUsecase := di.NewLessonUsecase(db.DB())
-	n := notifier.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, lessonUsecase, sender, nil)
+	n := notifier.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, sender, nil)
 	defer n.Close(ctx, &model.StatNotifier{
 		Datetime:             startedAt,
 		Interval:             uint8(*notificationInterval),

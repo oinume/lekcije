@@ -14,7 +14,6 @@ type Repositories struct {
 	sqlDB                *sql.DB
 	db                   repository.DB
 	followingTeacher     repository.FollowingTeacher
-	lesson               repository.Lesson
 	notificationTimeSpan repository.NotificationTimeSpan
 	teacher              repository.Teacher
 	user                 repository.User
@@ -27,7 +26,6 @@ func NewRepositories(sqlDB *sql.DB) *Repositories {
 		sqlDB:                sqlDB,
 		db:                   mysql.NewDBRepository(sqlDB),
 		followingTeacher:     mysql.NewFollowingTeacherRepository(sqlDB),
-		lesson:               mysql.NewLessonRepository(sqlDB),
 		notificationTimeSpan: mysql.NewNotificationTimeSpanRepository(sqlDB),
 		teacher:              mysql.NewTeacherRepository(sqlDB),
 		user:                 mysql.NewUserRepository(sqlDB),
@@ -42,10 +40,6 @@ func (r *Repositories) DB() repository.DB {
 
 func (r *Repositories) FollowingTeacher() repository.FollowingTeacher {
 	return r.followingTeacher
-}
-
-func (r *Repositories) Lesson() repository.Lesson {
-	return r.lesson
 }
 
 func (r *Repositories) NotificationTimeSpan() repository.NotificationTimeSpan {
@@ -80,18 +74,6 @@ func (r *Repositories) CreateFollowingTeachers(ctx context.Context, t *testing.T
 	for _, ft := range followingTeachers {
 		if err := r.followingTeacher.Create(ctx, ft); err != nil {
 			t.Fatalf("CreateFollowingTeachers failed: %v", err)
-		}
-	}
-}
-
-func (r *Repositories) CreateLessons(
-	ctx context.Context, t *testing.T,
-	lessons ...*model2.Lesson,
-) {
-	t.Helper()
-	for _, lesson := range lessons {
-		if err := r.lesson.Create(ctx, lesson); err != nil {
-			t.Fatalf("CreateLessons failed: %v", err)
 		}
 	}
 }

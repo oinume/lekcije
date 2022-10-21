@@ -234,15 +234,13 @@ func (s *LessonService) GetNewAvailableLessons(ctx context.Context, oldLessons, 
 		newLessonsMap[l.Datetime.Format(lessonTimeFormat)] = l
 	}
 	for datetime, oldLesson := range oldLessonsMap {
-		newLesson, newLessonExists := newLessonsMap[datetime]
-		oldStatus := strings.ToLower(oldLesson.Status)
-		newStatus := strings.ToLower(newLesson.Status)
-		if newLessonExists && oldStatus != "available" && newStatus == "available" {
-			// exists in oldLessons and newLessons and "any status" -> "available"
+		if newLesson, ok := newLessonsMap[datetime]; ok && strings.ToLower(oldLesson.Status) != "available" && strings.ToLower(newLesson.Status) == "available" {
+			// exists in oldLessons and newLessons
 			availableLessons = append(availableLessons, newLesson)
 			availableLessonsMap[datetime] = newLesson
 		}
 	}
+
 	for _, l := range newLessons {
 		datetime := l.Datetime.Format(lessonTimeFormat)
 		if _, ok := oldLessonsMap[datetime]; !ok && strings.ToLower(l.Status) == "available" {
