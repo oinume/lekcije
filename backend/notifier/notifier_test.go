@@ -20,6 +20,7 @@ import (
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/internal/mock"
+	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/usecase"
@@ -137,7 +138,10 @@ func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
 
 func TestNotifier_SendNotification(t *testing.T) {
 	db := helper.DB(t)
+	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
+	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	lessonUsecase := usecase.NewLesson(repos.Lesson())
 
 	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	if err != nil {
@@ -158,7 +162,6 @@ func TestNotifier_SendNotification(t *testing.T) {
 			users = append(users, user)
 		}
 
-		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 		mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
 		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 		senderTransport := &mockSenderTransport{}
@@ -166,7 +169,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, nil)
+		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
 
 		ctx := context.Background()
 		for _, user := range users {
@@ -210,7 +213,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, sender, nil)
+		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
 		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -242,6 +245,8 @@ func TestNotifier_Close(t *testing.T) {
 	r := require.New(t)
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
+	repos := mysqltest.NewRepositories(db.DB())
+	lessonUsecase := usecase.NewLesson(repos.Lesson())
 
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
@@ -262,7 +267,7 @@ func TestNotifier_Close(t *testing.T) {
 	mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
 	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 
-	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, sender, nil)
+	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(context.Background(), &model.StatNotifier{
