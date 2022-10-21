@@ -28,7 +28,7 @@
     "@graphql-codegen/schema-ast": "^2.5.1",
     "@graphql-codegen/typescript": "^2.7.3",
     "@graphql-codegen/typescript-operations": "^2.5.3",
-    "@graphql-codegen/typescript-react-apollo": "3.3.4",
+    "@graphql-codegen/typescript-react-apollo": "3.3.5",
     "@graphql-codegen/typescript-react-query": "^4.0.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.2.0",
