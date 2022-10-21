@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/profiler v0.3.0
 	cloud.google.com/go/storage v1.27.0
 	github.com/99designs/gqlgen v0.17.20
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.9.0
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.1
 	github.com/Khan/genqlient v0.5.0
 	github.com/Songmu/retry v0.1.0
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
@@ -41,7 +41,7 @@ require (
 	go.opentelemetry.io/otel v1.11.1
 	go.opentelemetry.io/otel/exporters/jaeger v1.10.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.10.0
-	go.opentelemetry.io/otel/sdk v1.10.0
+	go.opentelemetry.io/otel/sdk v1.11.0
 	go.uber.org/zap v1.23.0
 	goji.io/v3 v3.0.0
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b
@@ -59,7 +59,7 @@ require (
 	cloud.google.com/go/iam v0.3.0 // indirect
 	cloud.google.com/go/trace v1.2.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.33.0 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.34.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
@@ -131,7 +131,7 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
+	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
