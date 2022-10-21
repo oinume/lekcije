@@ -12,9 +12,11 @@ import (
 type Lesson interface {
 	Create(ctx context.Context, lesson *model2.Lesson) error
 	FindAllByTeacherIDsDatetimeBetween(
-		ctx context.Context, teacherID uint,
-		fromDate, toDate time.Time,
+		ctx context.Context, teacherID uint, fromDate, toDate time.Time,
 	) ([]*model2.Lesson, error)
+	FindAllByTeacherIDAndDatetimeAsMap(
+		ctx context.Context, teacherID uint, lessonsArgs []*model2.Lesson,
+	) (map[string]*model2.Lesson, error)
 	GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*model2.Lesson) []*model2.Lesson
 }
 

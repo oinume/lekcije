@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 
@@ -13,7 +14,9 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/repository"
+	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
+	"github.com/oinume/lekcije/backend/util"
 )
 
 type lessonRepository struct {
@@ -26,6 +29,34 @@ func NewLessonRepository(db *sql.DB) repository.Lesson {
 
 func (r *lessonRepository) Create(ctx context.Context, lesson *model2.Lesson) error {
 	return lesson.Insert(ctx, r.db, boil.Infer())
+}
+
+func (r *lessonRepository) FindAllByTeacherIDAndDatetimeAsMap(
+	ctx context.Context, teacherID uint, lessonsArgs []*model2.Lesson,
+) (map[string]*model2.Lesson, error) {
+	if len(lessonsArgs) == 0 {
+		return nil, nil
+	}
+
+	datetimes := make([]string, len(lessonsArgs))
+	for i, l := range lessonsArgs {
+		datetimes[i] = l.Datetime.Format(model2.DBDatetimeFormat)
+	}
+
+	placeholder := model.Placeholders(util.StringToInterfaceSlice(datetimes...))
+	values := []interface{}{teacherID}
+	values = append(values, util.StringToInterfaceSlice(datetimes...)...)
+	where := fmt.Sprintf("teacher_id = ? AND datetime IN (%s)", placeholder)
+	lessons, err := model2.Lessons(qm.Where(where, values)).All(ctx, r.db)
+	if err != nil {
+		return nil, err
+	}
+
+	lessonsMap := make(map[string]*model2.Lesson, len(lessons))
+	for _, l := range lessons {
+		lessonsMap[model2.LessonDatetime(l.Datetime).String()] = l
+	}
+	return lessonsMap, nil
 }
 
 func (r *lessonRepository) FindAllByTeacherIDsDatetimeBetween(
