@@ -71,8 +71,7 @@ func (r *lessonRepository) GetNewAvailableLessons(ctx context.Context, oldLesson
 	for datetime, oldLesson := range oldLessonsMap {
 		newLesson, newLessonExists := newLessonsMap[datetime]
 		oldStatus := strings.ToLower(oldLesson.Status)
-		newStatus := strings.ToLower(newLesson.Status)
-		if newLessonExists && oldStatus != "available" && newStatus == "available" {
+		if newLessonExists && oldStatus != "available" && strings.ToLower(newLesson.Status) == "available" {
 			// exists in oldLessons and newLessons and "any status" -> "available"
 			availableLessons = append(availableLessons, newLesson)
 			availableLessonsMap[datetime] = newLesson
