@@ -47,13 +47,14 @@ func (r *lessonRepository) FindAllByTeacherIDAndDatetimeAsMap(
 	values := []interface{}{teacherID}
 	values = append(values, util.StringToInterfaceSlice(datetimes...)...)
 	where := fmt.Sprintf("teacher_id = ? AND datetime IN (%s)", placeholder)
-	lessons, err := model2.Lessons(qm.Where(where, values)).All(ctx, r.db)
+	lessons, err := model2.Lessons(qm.Where(where, values...)).All(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
 
 	lessonsMap := make(map[string]*model2.Lesson, len(lessons))
 	for _, l := range lessons {
+		// TODO: Use LessonDatetime type as key
 		lessonsMap[model2.LessonDatetime(l.Datetime).String()] = l
 	}
 	return lessonsMap, nil
