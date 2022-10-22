@@ -44,10 +44,10 @@ require (
 	go.opentelemetry.io/otel/sdk v1.11.1
 	go.uber.org/zap v1.23.0
 	goji.io/v3 v3.0.0
-	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b
+	golang.org/x/net v0.1.0
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
-	golang.org/x/text v0.3.8
+	golang.org/x/text v0.4.0
 	google.golang.org/api v0.99.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
@@ -131,7 +131,7 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
