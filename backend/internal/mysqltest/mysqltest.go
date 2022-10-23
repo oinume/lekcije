@@ -15,6 +15,7 @@ type Repositories struct {
 	db                   repository.DB
 	followingTeacher     repository.FollowingTeacher
 	lesson               repository.Lesson
+	lessonStatusLog      repository.LessonStatusLog
 	notificationTimeSpan repository.NotificationTimeSpan
 	teacher              repository.Teacher
 	user                 repository.User
@@ -28,6 +29,7 @@ func NewRepositories(sqlDB *sql.DB) *Repositories {
 		db:                   mysql.NewDBRepository(sqlDB),
 		followingTeacher:     mysql.NewFollowingTeacherRepository(sqlDB),
 		lesson:               mysql.NewLessonRepository(sqlDB),
+		lessonStatusLog:      mysql.NewLessonStatusLogRepository(sqlDB),
 		notificationTimeSpan: mysql.NewNotificationTimeSpanRepository(sqlDB),
 		teacher:              mysql.NewTeacherRepository(sqlDB),
 		user:                 mysql.NewUserRepository(sqlDB),
@@ -46,6 +48,10 @@ func (r *Repositories) FollowingTeacher() repository.FollowingTeacher {
 
 func (r *Repositories) Lesson() repository.Lesson {
 	return r.lesson
+}
+
+func (r *Repositories) LessonStatusLog() repository.LessonStatusLog {
+	return r.lessonStatusLog
 }
 
 func (r *Repositories) NotificationTimeSpan() repository.NotificationTimeSpan {
@@ -90,7 +96,7 @@ func (r *Repositories) CreateLessons(
 ) {
 	t.Helper()
 	for _, lesson := range lessons {
-		if err := r.lesson.Create(ctx, lesson); err != nil {
+		if err := r.lesson.Create(ctx, lesson, false); err != nil {
 			t.Fatalf("CreateLessons failed: %v", err)
 		}
 	}

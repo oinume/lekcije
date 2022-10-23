@@ -16,6 +16,64 @@ import (
 	"github.com/oinume/lekcije/backend/randoms"
 )
 
+func Test_lessonRepository_FindAllByTeacherIDAndDatetimeAsMap(t *testing.T) {
+	repo := mysql.NewLessonRepository(helper.DB(t).DB())
+	repos := mysqltest.NewRepositories(helper.DB(t).DB())
+
+	type testCase struct {
+		teacherID  uint
+		lessonArgs []*model2.Lesson
+	}
+	tests := map[string]struct {
+		setup   func(ctx context.Context) *testCase
+		wantErr bool
+	}{
+		"normal": {
+			setup: func(ctx context.Context) *testCase {
+				//boil.DebugMode = true
+				//boil.DebugWriter = os.Stdout
+				teacher := modeltest.NewTeacher()
+				repos.CreateTeachers(ctx, t, teacher)
+
+				l1 := modeltest.NewLesson(func(l *model2.Lesson) {
+					l.TeacherID = teacher.ID
+					l.Datetime = time.Date(2022, 11, 1, 10, 0, 0, 0, time.UTC)
+				})
+				l2 := modeltest.NewLesson(func(l *model2.Lesson) {
+					l.TeacherID = teacher.ID
+					l.Datetime = time.Date(2022, 11, 1, 10, 30, 0, 0, time.UTC)
+				})
+				lessons := []*model2.Lesson{l1, l2}
+				repos.CreateLessons(ctx, t, lessons...)
+
+				return &testCase{
+					teacherID:  teacher.ID,
+					lessonArgs: lessons,
+				}
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			tc := tt.setup(ctx)
+			gotLessonsMap, err := repo.FindAllByTeacherIDAndDatetimeAsMap(ctx, tc.teacherID, tc.lessonArgs)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("FindAllByTeacherIDAndDatetimeAsMap() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			assertion.AssertEqual(t, len(tc.lessonArgs), len(gotLessonsMap), "lesson length doesn't match")
+			for _, l := range tc.lessonArgs {
+				datetime := model2.LessonDatetime(l.Datetime).String()
+				_, ok := gotLessonsMap[datetime]
+				if !ok {
+					t.Errorf("key %q must exist in result map", datetime)
+				}
+			}
+		})
+	}
+}
+
 func Test_lessonRepository_FindAllByTeacherIDsDatetimeBetween(t *testing.T) {
 	repo := mysql.NewLessonRepository(helper.DB(t).DB())
 	repos := mysqltest.NewRepositories(helper.DB(t).DB())
