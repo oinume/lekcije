@@ -141,7 +141,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-	lessonUsecase := usecase.NewLesson(repos.Lesson())
+	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 
 	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	if err != nil {
@@ -246,7 +246,7 @@ func TestNotifier_Close(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	repos := mysqltest.NewRepositories(db.DB())
-	lessonUsecase := usecase.NewLesson(repos.Lesson())
+	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
