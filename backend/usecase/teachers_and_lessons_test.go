@@ -10,10 +10,10 @@ import (
 )
 
 func Test_TeachersAndLessons_FilterBy(t *testing.T) {
-	user := helper.CreateRandomUser(t)
+	user := modeltest.NewUser()
 	timeSpans := []*model.NotificationTimeSpan{
-		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
-		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
+		{UserID: uint32(user.ID), Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
+		{UserID: uint32(user.ID), Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
 	}
 	//teacher := helper.CreateRandomTeacher(t)
 	teacher := modeltest.NewTeacher()
@@ -28,7 +28,7 @@ func Test_TeachersAndLessons_FilterBy(t *testing.T) {
 	tal := newTeachersAndLessons(10)
 	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
 
-	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
+	filtered := tal.FilterBy(timeSpans)
 	if got, want := filtered.CountLessons(), 2; got != want {
 		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
 	}
@@ -62,7 +62,7 @@ func Test_TeachersAndLessons_FilterByEmpty(t *testing.T) {
 	tal := newTeachersAndLessons(10)
 	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
 
-	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
+	filtered := tal.FilterBy(timeSpans)
 	if got, want := filtered.CountLessons(), len(lessons); got != want {
 		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
 	}

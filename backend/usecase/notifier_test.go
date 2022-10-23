@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -23,9 +23,8 @@ import (
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/usecase"
 )
-
-var helper = model.NewTestHelper()
 
 type mockSenderTransport struct {
 	sync.Mutex
@@ -54,19 +53,12 @@ func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, erro
 	return resp, nil
 }
 
-func TestMain(m *testing.M) {
-	db := helper.DB(nil)
-	defer db.Close()
-	helper.TruncateAllTables(nil)
-	os.Exit(m.Run())
-}
-
-func TestNotifier_SendNotification(t *testing.T) {
+func Test_Notifier_SendNotification(t *testing.T) {
 	db := helper.DB(t)
 	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
-	errorRecorder := NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-	lessonUsecase := NewLesson(repos.Lesson(), repos.LessonStatusLog())
+	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 
 	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	if err != nil {
@@ -94,7 +86,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
+		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
 
 		ctx := context.Background()
 		for _, user := range users {
@@ -130,7 +122,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			t.Fatalf("UpdateAll failed: err=%v", err)
 		}
 
-		errorRecorder := NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 		mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
 		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 		senderTransport := &mockSenderTransport{}
@@ -138,7 +130,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
+		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
 		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -171,7 +163,7 @@ func TestNotifier_Close(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	repos := mysqltest.NewRepositories(db.DB())
-	lessonUsecase := NewLesson(repos.Lesson(), repos.LessonStatusLog())
+	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
@@ -183,7 +175,7 @@ func TestNotifier_Close(t *testing.T) {
 	teacher := helper.CreateTeacher(t, 3982, "Hena")
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
-	errorRecorder := NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	r.NoError(err, "fetcher.NewMockTransport failed")
 	fetcherHTTPClient := &http.Client{
@@ -192,7 +184,7 @@ func TestNotifier_Close(t *testing.T) {
 	mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
 	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 
-	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
+	n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(context.Background(), &model.StatNotifier{
