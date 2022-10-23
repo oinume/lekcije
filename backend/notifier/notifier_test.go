@@ -20,9 +20,11 @@ import (
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/internal/mock"
+	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -68,17 +70,18 @@ func TestTeachersAndLessons_FilterBy(t *testing.T) {
 		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
 		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
 	}
-	teacher := helper.CreateRandomTeacher(t)
+	//teacher := helper.CreateRandomTeacher(t)
+	teacher := modeltest.NewTeacher()
 	// TODO: table driven test
-	lessons := []*model.Lesson{
+	lessons := []*model2.Lesson{
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)}, // excluded
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)}, // included
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 17, 0, 0, 0, time.UTC)}, // excluded
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 21, 0, 0, 0, time.UTC)}, // included
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 23, 0, 0, 0, time.UTC)}, // excluded
 	}
-	tal := NewTeachersAndLessons(10)
-	tal.data[teacher.ID] = &model.TeacherLessons{Teacher: teacher, Lessons: lessons}
+	tal := newTeachersAndLessons(10)
+	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
 
 	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
 	if got, want := filtered.CountLessons(), 2; got != want {
@@ -91,7 +94,7 @@ func TestTeachersAndLessons_FilterBy(t *testing.T) {
 		{16, 0},
 		{21, 0},
 	}
-	tl := filtered.data[teacher.ID]
+	tl := filtered.data[uint32(teacher.ID)]
 	for i, wantTime := range wantTimes {
 		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
 			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
@@ -105,14 +108,14 @@ func TestTeachersAndLessons_FilterBy(t *testing.T) {
 func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
 	//user := helper.CreateRandomUser()
 	timeSpans := make([]*model.NotificationTimeSpan, 0)
-	teacher := helper.CreateRandomTeacher(t)
+	teacher := modeltest.NewTeacher()
 	// TODO: table driven test
-	lessons := []*model.Lesson{
+	lessons := []*model2.Lesson{
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)},
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)},
 	}
-	tal := NewTeachersAndLessons(10)
-	tal.data[teacher.ID] = &model.TeacherLessons{Teacher: teacher, Lessons: lessons}
+	tal := newTeachersAndLessons(10)
+	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
 
 	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
 	if got, want := filtered.CountLessons(), len(lessons); got != want {
@@ -125,7 +128,7 @@ func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
 		{15, 0},
 		{16, 0},
 	}
-	tl := filtered.data[teacher.ID]
+	tl := filtered.data[uint32(teacher.ID)]
 	for i, wantTime := range wantTimes {
 		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
 			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
