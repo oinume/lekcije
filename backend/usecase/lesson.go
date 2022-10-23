@@ -57,14 +57,6 @@ func (u *Lesson) UpdateLessons(ctx context.Context, lessons []*model2.Lesson) (i
 			if err := u.lessonRepo.UpdateStatus(ctx, lesson.ID, lesson.Status); err != nil {
 				return 0, err
 			}
-			//values := &model2.Lesson{Status: lesson.Status, UpdatedAt: now}
-			//if err := s.db.Model(lesson).Where("id = ?", l.ID).Updates(values).Error; err != nil {
-			//	return 0, errors.NewInternalError(
-			//		errors.WithError(err),
-			//	)
-			//}
-			rowsAffected++
-
 			if err := u.createLessonStatusLog(ctx, lesson.ID, lesson.Status, now); err != nil {
 				return 0, err
 			}
@@ -72,31 +64,15 @@ func (u *Lesson) UpdateLessons(ctx context.Context, lessons []*model2.Lesson) (i
 			// INSERT
 			dt := lesson.Datetime
 			lesson.Datetime = time.Date(dt.Year(), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
-
 			if err := u.lessonRepo.Create(ctx, lesson, true); err != nil {
 				return 0, err
 			}
-			//where := model2.Lesson{TeacherID: lesson.TeacherID, Datetime: lesson.Datetime}
-			//// TODO: Create with reload option
-			//if err := s.db.Where(where).FirstOrCreate(lesson).Error; err != nil {
-			//	return 0, errors.NewInternalError(
-			//		errors.WithError(err),
-			//		errors.WithMessage("FirstOrCreate failed"),
-			//		errors.WithResource(errors.NewResourceWithEntries(
-			//			s.TableName(),
-			//			[]errors.ResourceEntry{
-			//				{Key: "teacherID", Value: lesson.TeacherID},
-			//				{Key: "datetime", Value: lesson.Datetime},
-			//			},
-			//		)),
-			//	)
-			//}
-			rowsAffected++
 			// TODO: transaction
 			if err := u.createLessonStatusLog(ctx, lesson.ID, lesson.Status, now); err != nil {
 				return 0, err
 			}
 		}
+		rowsAffected++
 	}
 
 	return rowsAffected, nil

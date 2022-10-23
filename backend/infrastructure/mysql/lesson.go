@@ -143,9 +143,8 @@ func (r *lessonRepository) UpdateStatus(ctx context.Context, id uint64, newStatu
 		ID:     id,
 		Status: newStatus,
 	}
-	_, err := lesson.Update(ctx, r.db, boil.Whitelist("status"))
-	if err != nil {
+	if _, err := lesson.Update(ctx, r.db, boil.Whitelist("status")); err != nil {
 		return failure.Translate(err, errors.Internal, failure.Messagef("UpdateStatus failed for %v", id))
 	}
-	return err
+	return nil
 }
