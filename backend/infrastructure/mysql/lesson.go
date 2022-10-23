@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/morikuni/failure"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.opentelemetry.io/otel"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/repository"
+	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/util"
@@ -27,8 +29,22 @@ func NewLessonRepository(db *sql.DB) repository.Lesson {
 	return &lessonRepository{db: db}
 }
 
-func (r *lessonRepository) Create(ctx context.Context, lesson *model2.Lesson) error {
-	return lesson.Insert(ctx, r.db, boil.Infer())
+func (r *lessonRepository) Create(ctx context.Context, lesson *model2.Lesson, reload bool) error {
+	if err := lesson.Insert(ctx, r.db, boil.Infer()); err != nil {
+		return failure.Translate(
+			err, errors.Internal,
+			failure.Messagef("Create failed: teacherID=%v", lesson.TeacherID),
+		)
+	}
+	if reload {
+		if err := lesson.Reload(ctx, r.db); err != nil {
+			return failure.Translate(
+				err, errors.Internal,
+				failure.Messagef("Reload after Create failed: teacherID=%v", lesson.TeacherID),
+			)
+		}
+	}
+	return nil
 }
 
 func (r *lessonRepository) FindAllByTeacherIDAndDatetimeAsMap(
@@ -120,4 +136,16 @@ func (r *lessonRepository) GetNewAvailableLessons(ctx context.Context, oldLesson
 
 	// TODO: sort availableLessonsMap by datetime
 	return availableLessons
+}
+
+func (r *lessonRepository) UpdateStatus(ctx context.Context, id uint64, newStatus string) error {
+	lesson := &model2.Lesson{
+		ID:     id,
+		Status: newStatus,
+	}
+	_, err := lesson.Update(ctx, r.db, boil.Whitelist("status"))
+	if err != nil {
+		return failure.Translate(err, errors.Internal, failure.Messagef("UpdateStatus failed for %v", id))
+	}
+	return err
 }

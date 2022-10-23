@@ -10,7 +10,7 @@ import (
 )
 
 type Lesson interface {
-	Create(ctx context.Context, lesson *model2.Lesson) error
+	Create(ctx context.Context, lesson *model2.Lesson, reload bool) error
 	FindAllByTeacherIDsDatetimeBetween(
 		ctx context.Context, teacherID uint, fromDate, toDate time.Time,
 	) ([]*model2.Lesson, error)
@@ -18,6 +18,7 @@ type Lesson interface {
 		ctx context.Context, teacherID uint, lessonsArgs []*model2.Lesson,
 	) (map[string]*model2.Lesson, error)
 	GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*model2.Lesson) []*model2.Lesson
+	UpdateStatus(ctx context.Context, id uint64, newStatus string) error
 }
 
 type LessonFetcher interface {
