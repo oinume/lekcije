@@ -22,7 +22,6 @@ import (
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/notifier"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -120,8 +119,8 @@ func (m *notifierMain) run(args []string) error {
 		irollbar.NewErrorRecorderRepository(rollbarClient),
 	)
 	lessonUsecase := di.NewLessonUsecase(db.DB())
-	n := notifier.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, lessonUsecase, sender, nil)
-	defer n.Close(ctx, &model.StatNotifier{
+	notifier := usecase.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, lessonUsecase, sender, nil)
+	defer notifier.Close(ctx, &model.StatNotifier{
 		Datetime:             startedAt,
 		Interval:             uint8(*notificationInterval),
 		Elapsed:              0,
@@ -129,7 +128,7 @@ func (m *notifierMain) run(args []string) error {
 		FollowedTeacherCount: 0,
 	})
 	for _, user := range users {
-		if err := n.SendNotification(ctx, user); err != nil {
+		if err := notifier.SendNotification(ctx, user); err != nil {
 			return err
 		}
 	}

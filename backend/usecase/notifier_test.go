@@ -1,4 +1,4 @@
-package notifier
+package usecase
 
 import (
 	"context"
@@ -20,12 +20,9 @@ import (
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/internal/mock"
-	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/model2"
-	"github.com/oinume/lekcije/backend/usecase"
 )
 
 var helper = model.NewTestHelper()
@@ -64,87 +61,12 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestTeachersAndLessons_FilterBy(t *testing.T) {
-	user := helper.CreateRandomUser(t)
-	timeSpans := []*model.NotificationTimeSpan{
-		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
-		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
-	}
-	//teacher := helper.CreateRandomTeacher(t)
-	teacher := modeltest.NewTeacher()
-	// TODO: table driven test
-	lessons := []*model2.Lesson{
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)}, // excluded
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)}, // included
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 17, 0, 0, 0, time.UTC)}, // excluded
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 21, 0, 0, 0, time.UTC)}, // included
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 23, 0, 0, 0, time.UTC)}, // excluded
-	}
-	tal := newTeachersAndLessons(10)
-	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
-
-	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
-	if got, want := filtered.CountLessons(), 2; got != want {
-		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
-	}
-
-	wantTimes := []struct {
-		hour, minute int
-	}{
-		{16, 0},
-		{21, 0},
-	}
-	tl := filtered.data[uint32(teacher.ID)]
-	for i, wantTime := range wantTimes {
-		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
-			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
-		}
-		if got, want := tl.Lessons[i].Datetime.Minute(), wantTime.minute; got != want {
-			t.Errorf("unexpected minute: got=%v, want=%v", got, want)
-		}
-	}
-}
-
-func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
-	//user := helper.CreateRandomUser()
-	timeSpans := make([]*model.NotificationTimeSpan, 0)
-	teacher := modeltest.NewTeacher()
-	// TODO: table driven test
-	lessons := []*model2.Lesson{
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)},
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)},
-	}
-	tal := newTeachersAndLessons(10)
-	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
-
-	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
-	if got, want := filtered.CountLessons(), len(lessons); got != want {
-		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
-	}
-
-	wantTimes := []struct {
-		hour, minute int
-	}{
-		{15, 0},
-		{16, 0},
-	}
-	tl := filtered.data[uint32(teacher.ID)]
-	for i, wantTime := range wantTimes {
-		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
-			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
-		}
-		if got, want := tl.Lessons[i].Datetime.Minute(), wantTime.minute; got != want {
-			t.Errorf("unexpected minute: got=%v, want=%v", got, want)
-		}
-	}
-}
-
 func TestNotifier_SendNotification(t *testing.T) {
 	db := helper.DB(t)
 	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
-	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
+	errorRecorder := NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	lessonUsecase := NewLesson(repos.Lesson(), repos.LessonStatusLog())
 
 	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	if err != nil {
@@ -208,7 +130,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			t.Fatalf("UpdateAll failed: err=%v", err)
 		}
 
-		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+		errorRecorder := NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 		mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
 		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 		senderTransport := &mockSenderTransport{}
@@ -249,7 +171,7 @@ func TestNotifier_Close(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	repos := mysqltest.NewRepositories(db.DB())
-	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
+	lessonUsecase := NewLesson(repos.Lesson(), repos.LessonStatusLog())
 
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
@@ -261,7 +183,7 @@ func TestNotifier_Close(t *testing.T) {
 	teacher := helper.CreateTeacher(t, 3982, "Hena")
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
-	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	errorRecorder := NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
 	r.NoError(err, "fetcher.NewMockTransport failed")
 	fetcherHTTPClient := &http.Client{
