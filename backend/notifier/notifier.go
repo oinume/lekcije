@@ -281,7 +281,7 @@ func (n *Notifier) toModelTeacher(teacher *model2.Teacher) *model.Teacher {
 	}
 }
 
-func (n *Notifier) toModel(teacher *model2.Teacher, lessons []*model2.Lesson) (*model.Teacher, []*model.Lesson) {
+func (n *Notifier) toModel(teacher *model2.Teacher, lessons []*model2.Lesson) (*model.Teacher, []*model.Lesson) { //nolint:unused
 	var rating float64
 	if teacher.Rating.Big != nil {
 		rating, _ = teacher.Rating.Big.Float64()
