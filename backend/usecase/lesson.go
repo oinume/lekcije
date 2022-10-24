@@ -49,8 +49,8 @@ func (u *Lesson) UpdateLessons(ctx context.Context, lessons []*model2.Lesson) (i
 	now := time.Now().UTC()
 	for _, lesson := range lessons {
 		lesson.Status = strings.ToLower(lesson.Status)
-		if l, ok := existingLessons[model2.LessonDatetime(lesson.Datetime).String()]; ok {
-			if lesson.Status == l.Status {
+		if existing, ok := existingLessons[model2.LessonDatetime(lesson.Datetime).String()]; ok {
+			if lesson.Status == existing.Status {
 				continue
 			}
 			// UPDATE
@@ -64,11 +64,12 @@ func (u *Lesson) UpdateLessons(ctx context.Context, lessons []*model2.Lesson) (i
 			// INSERT
 			dt := lesson.Datetime
 			lesson.Datetime = time.Date(dt.Year(), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
-			if err := u.lessonRepo.Create(ctx, lesson, true); err != nil {
+			l, err := u.lessonRepo.FindOrCreate(ctx, lesson, true)
+			if err != nil {
 				return 0, err
 			}
 			// TODO: transaction
-			if err := u.createLessonStatusLog(ctx, lesson.ID, lesson.Status, now); err != nil {
+			if err := u.createLessonStatusLog(ctx, l.ID, l.Status, now); err != nil {
 				return 0, err
 			}
 		}
