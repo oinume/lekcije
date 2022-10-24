@@ -217,3 +217,44 @@ func newLessons(teacherID uint, baseDatetime time.Time, status string, length in
 	}
 	return lessons
 }
+
+func Test_lessonRepository_FindOrCreate(t *testing.T) {
+	repo := mysql.NewLessonRepository(helper.DB(t).DB())
+	repos := mysqltest.NewRepositories(helper.DB(t).DB())
+
+	type testCase struct {
+		lesson *model2.Lesson
+	}
+	tests := map[string]struct {
+		setup func(ctx context.Context) *testCase
+	}{
+		"create new one": {
+			setup: func(ctx context.Context) *testCase {
+				l := modeltest.NewLesson()
+				return &testCase{
+					lesson: l,
+				}
+			},
+		},
+		"exist": {
+			setup: func(ctx context.Context) *testCase {
+				l := modeltest.NewLesson()
+				repos.CreateLessons(ctx, t, l)
+				return &testCase{
+					lesson: l,
+				}
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			tc := tt.setup(ctx)
+			got, err := repo.FindOrCreate(ctx, tc.lesson, true)
+			if err != nil {
+				t.Fatalf("FindOrCreate(): unexpected error = %v", err)
+			}
+			assertion.AssertEqual(t, tc.lesson, got, "", cmpopts.EquateApproxTime(10*time.Second))
+		})
+	}
+}
