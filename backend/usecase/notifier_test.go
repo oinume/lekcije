@@ -1,4 +1,4 @@
-package notifier
+package usecase_test
 
 import (
 	"context"
@@ -20,15 +20,11 @@ import (
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/internal/mock"
-	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
-	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/usecase"
 )
-
-var helper = model.NewTestHelper()
 
 type mockSenderTransport struct {
 	sync.Mutex
@@ -57,89 +53,7 @@ func (t *mockSenderTransport) RoundTrip(req *http.Request) (*http.Response, erro
 	return resp, nil
 }
 
-func TestMain(m *testing.M) {
-	db := helper.DB(nil)
-	defer db.Close()
-	helper.TruncateAllTables(nil)
-	os.Exit(m.Run())
-}
-
-func TestTeachersAndLessons_FilterBy(t *testing.T) {
-	user := helper.CreateRandomUser(t)
-	timeSpans := []*model.NotificationTimeSpan{
-		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
-		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
-	}
-	//teacher := helper.CreateRandomTeacher(t)
-	teacher := modeltest.NewTeacher()
-	// TODO: table driven test
-	lessons := []*model2.Lesson{
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)}, // excluded
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)}, // included
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 17, 0, 0, 0, time.UTC)}, // excluded
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 21, 0, 0, 0, time.UTC)}, // included
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 23, 0, 0, 0, time.UTC)}, // excluded
-	}
-	tal := newTeachersAndLessons(10)
-	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
-
-	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
-	if got, want := filtered.CountLessons(), 2; got != want {
-		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
-	}
-
-	wantTimes := []struct {
-		hour, minute int
-	}{
-		{16, 0},
-		{21, 0},
-	}
-	tl := filtered.data[uint32(teacher.ID)]
-	for i, wantTime := range wantTimes {
-		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
-			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
-		}
-		if got, want := tl.Lessons[i].Datetime.Minute(), wantTime.minute; got != want {
-			t.Errorf("unexpected minute: got=%v, want=%v", got, want)
-		}
-	}
-}
-
-func TestTeachersAndLessons_FilterByEmpty(t *testing.T) {
-	//user := helper.CreateRandomUser()
-	timeSpans := make([]*model.NotificationTimeSpan, 0)
-	teacher := modeltest.NewTeacher()
-	// TODO: table driven test
-	lessons := []*model2.Lesson{
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 15, 0, 0, 0, time.UTC)},
-		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)},
-	}
-	tal := newTeachersAndLessons(10)
-	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
-
-	filtered := tal.FilterBy(model.NotificationTimeSpanList(timeSpans))
-	if got, want := filtered.CountLessons(), len(lessons); got != want {
-		t.Fatalf("unexpected filtered lessons count: got=%v, want=%v", got, want)
-	}
-
-	wantTimes := []struct {
-		hour, minute int
-	}{
-		{15, 0},
-		{16, 0},
-	}
-	tl := filtered.data[uint32(teacher.ID)]
-	for i, wantTime := range wantTimes {
-		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
-			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
-		}
-		if got, want := tl.Lessons[i].Datetime.Minute(), wantTime.minute; got != want {
-			t.Errorf("unexpected minute: got=%v, want=%v", got, want)
-		}
-	}
-}
-
-func TestNotifier_SendNotification(t *testing.T) {
+func Test_Notifier_SendNotification(t *testing.T) {
 	db := helper.DB(t)
 	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
@@ -172,7 +86,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
+		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
 
 		ctx := context.Background()
 		for _, user := range users {
@@ -216,7 +130,7 @@ func TestNotifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
+		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
 		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -270,7 +184,7 @@ func TestNotifier_Close(t *testing.T) {
 	mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
 	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 
-	n := NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
+	n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(context.Background(), &model.StatNotifier{
