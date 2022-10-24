@@ -31,16 +31,16 @@ func NewLessonRepository(db *sql.DB) repository.Lesson {
 
 func (r *lessonRepository) Create(ctx context.Context, lesson *model2.Lesson, reload bool) error {
 	if err := lesson.Insert(ctx, r.db, boil.Infer()); err != nil {
-		return failure.Translate(
-			err, errors.Internal,
-			failure.Messagef("Create failed: teacherID=%v", lesson.TeacherID),
+		return failure.MarkUnexpected(
+			err, failure.Messagef("Create failed: teacherID=%v", lesson.TeacherID),
+			failure.Context{"teacherID": fmt.Sprint(lesson.TeacherID), "datetime": lesson.Datetime.String()},
 		)
 	}
 	if reload {
 		if err := lesson.Reload(ctx, r.db); err != nil {
-			return failure.Translate(
-				err, errors.Internal,
-				failure.Messagef("Reload after Create failed: teacherID=%v", lesson.TeacherID),
+			return failure.MarkUnexpected(
+				err, failure.Messagef("Reload after Create failed: teacherID=%v", lesson.TeacherID),
+				failure.Context{"teacherID": fmt.Sprint(lesson.TeacherID), "datetime": lesson.Datetime.String()},
 			)
 		}
 	}
@@ -101,6 +101,29 @@ func (r *lessonRepository) FindAllByTeacherIDsDatetimeBetween(
 		return nil, err
 	}
 	return lessons, nil
+}
+
+func (r *lessonRepository) FindOrCreate(ctx context.Context, lesson *model2.Lesson, reload bool) (*model2.Lesson, error) {
+	var condition qm.QueryMod
+	if lesson.ID != 0 {
+		condition = qm.Where("id = ?", lesson.ID)
+	} else {
+		condition = qm.Where(
+			"teacher_id = ? AND datetime = ?",
+			lesson.TeacherID, lesson.Datetime.Format(model2.DBDatetimeFormat),
+		)
+	}
+	found, err := model2.Lessons(condition).One(ctx, r.db)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			if err := r.Create(ctx, lesson, reload); err != nil {
+				return nil, err
+			}
+			return lesson, nil
+		}
+		return nil, err
+	}
+	return found, nil // Do nothing when the lesson exists
 }
 
 func (r *lessonRepository) GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*model2.Lesson) []*model2.Lesson {
