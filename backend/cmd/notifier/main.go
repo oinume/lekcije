@@ -14,7 +14,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/cli"
-	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
@@ -22,6 +21,7 @@ import (
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/registry"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -98,7 +98,7 @@ func (m *notifierMain) run(args []string) error {
 	if err != nil {
 		return err
 	}
-	mCountryList := di.MustNewMCountryList(ctx, db.DB())
+	mCountryList := registry.MustNewMCountryList(ctx, db.DB())
 	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountryList, appLogger)
 
 	var sender emailer.Sender
@@ -118,7 +118,7 @@ func (m *notifierMain) run(args []string) error {
 		appLogger,
 		irollbar.NewErrorRecorderRepository(rollbarClient),
 	)
-	lessonUsecase := di.NewLessonUsecase(db.DB())
+	lessonUsecase := registry.NewLessonUsecase(db.DB())
 	notifier := usecase.NewNotifier(appLogger, db, errorRecorder, lessonFetcher, *dryRun, lessonUsecase, sender, nil)
 	defer notifier.Close(ctx, &model.StatNotifier{
 		Datetime:             startedAt,

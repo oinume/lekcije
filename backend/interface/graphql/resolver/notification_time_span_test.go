@@ -8,7 +8,6 @@ import (
 	"github.com/morikuni/failure"
 
 	"github.com/oinume/lekcije/backend/context_data"
-	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	graphqlmodel "github.com/oinume/lekcije/backend/interface/graphql/model"
@@ -17,6 +16,7 @@ import (
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
+	"github.com/oinume/lekcije/backend/registry"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -29,7 +29,7 @@ func TestUpdateNotificationTimeSpans(t *testing.T) {
 	resolver := NewResolver(
 		repos.FollowingTeacher(),
 		nil,
-		di.NewGAMeasurementUsecase(ga_measurement.NewFakeClient()),
+		registry.NewGAMeasurementUsecase(ga_measurement.NewFakeClient()),
 		repos.NotificationTimeSpan(),
 		notificationTimeSpanUsecase,
 		repos.Teacher(),

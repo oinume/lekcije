@@ -12,11 +12,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/cli"
-	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/registry"
 )
 
 func main() {
@@ -80,7 +80,7 @@ func (m *teacherErrorResetterMain) run(args []string) error {
 		return err
 	}
 
-	mCountryList := di.MustNewMCountryList(ctx, m.db.DB())
+	mCountryList := registry.MustNewMCountryList(ctx, m.db.DB())
 	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(m.httpClient, *concurrency, false, mCountryList, appLogger)
 	defer lessonFetcher.Close()
 	for _, t := range teachers {

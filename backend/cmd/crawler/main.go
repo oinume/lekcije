@@ -14,12 +14,12 @@ import (
 
 	"github.com/oinume/lekcije/backend/cli"
 	"github.com/oinume/lekcije/backend/crawler"
-	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/registry"
 )
 
 func main() {
@@ -76,7 +76,7 @@ func (m *crawlerMain) run(args []string) error {
 	defer func() { _ = db.Close() }()
 
 	loader := m.createLoader(db, *specifiedIDs, *followedOnly, *all, *newOnly)
-	mCountryList := di.MustNewMCountryList(ctx, db.DB())
+	mCountryList := registry.MustNewMCountryList(ctx, db.DB())
 	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrency, false, mCountryList, appLogger)
 	teacherRepo := mysql.NewTeacherRepository(db.DB())
 	for cursor := loader.GetInitialCursor(); cursor != ""; {
