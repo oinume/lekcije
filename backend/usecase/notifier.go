@@ -204,7 +204,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 		nil
 }
 
-func (n *Notifier) toModelTeacher(teacher *model2.Teacher) *model.Teacher {
+func (n *Notifier) toModelTeacher(teacher *model2.Teacher) *model.Teacher { //nolint:unused
 	var rating float64
 	if teacher.Rating.Big != nil {
 		rating, _ = teacher.Rating.Big.Float64()
