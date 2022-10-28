@@ -21,7 +21,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
 	github.com/matryer/moq v0.2.7
-	github.com/morikuni/failure v1.0.0
+	github.com/morikuni/failure v1.1.2
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose/v3 v3.7.0

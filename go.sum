@@ -507,8 +507,8 @@ github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lN
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/modocache/gover v0.0.0-20171022184752-b58185e213c5/go.mod h1:caMODM3PzxT8aQXRPkAt8xlV/e7d7w8GM5g0fa5F0D8=
 github.com/montanaflynn/stats v0.6.6/go.mod h1:etXPPgVO6n31NxCd9KQUMvCM+ve0ruNzt6R8Bnaayow=
-github.com/morikuni/failure v1.0.0 h1:lry/46i7j0FbzsT1oYXArGTCv37GRbV00iCHaYvd7oQ=
-github.com/morikuni/failure v1.0.0/go.mod h1:+IjvKCz9B/D4BQrTzYLwERdWyMkGJdu+q5gri9dWecg=
+github.com/morikuni/failure v1.1.2 h1:sD7RTQglZDw0r/z4Vl/bqEMQsq/lFCjD6siaeQCtxM8=
+github.com/morikuni/failure v1.1.2/go.mod h1:L0J9wqj1oMinkEy0raB974kGFVDH2sEKZFafjB10O+8=
 github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93 h1:qonXFuvdBBJ7LLj1SLHcDkzzRXPQNAazt5ca7o0cqgw=
 github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93/go.mod h1:EWE6gUdidEK0AYWcXJsI2x8qbEqIDGJ87019WZiQlVM=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
