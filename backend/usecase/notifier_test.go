@@ -15,7 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
@@ -23,6 +22,7 @@ import (
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/registry"
 	"github.com/oinume/lekcije/backend/usecase"
 )
 
@@ -79,7 +79,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 			users = append(users, user)
 		}
 
-		mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
+		mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
 		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
@@ -123,7 +123,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		}
 
 		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-		mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
+		mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
 		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 		senderTransport := &mockSenderTransport{}
 		senderHTTPClient := &http.Client{
@@ -181,7 +181,7 @@ func TestNotifier_Close(t *testing.T) {
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
 	}
-	mCountryList := di.MustNewMCountryList(context.Background(), db.DB())
+	mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
 	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 
 	n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)

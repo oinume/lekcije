@@ -17,11 +17,10 @@ import (
 	"goji.io/v3"
 	"goji.io/v3/pat"
 
-	"github.com/oinume/lekcije/backend/di"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/event_logger"
-	"github.com/oinume/lekcije/backend/gcp"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
+	"github.com/oinume/lekcije/backend/infrastructure/gcp"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/infrastructure/open_telemetry"
 	interfaces "github.com/oinume/lekcije/backend/interface"
@@ -31,6 +30,7 @@ import (
 	interfaces_http "github.com/oinume/lekcije/backend/interface/http"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/registry"
 )
 
 const (
@@ -117,23 +117,23 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	mux := goji.NewMux()
 
 	// TODO: graceful shutdown
-	errorRecorder := di.NewErrorRecorderUsecase(args.AppLogger, args.RollbarClient)
-	userAPIToken := di.NewUserAPITokenUsecase(args.DB)
+	errorRecorder := registry.NewErrorRecorderUsecase(args.AppLogger, args.RollbarClient)
+	userAPIToken := registry.NewUserAPITokenUsecase(args.DB)
 	server := interfaces_http.NewServer(args, errorRecorder, userAPIToken)
-	oauthServer := di.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
-	mCountryList := di.MustNewMCountryList(context.Background(), args.DB)
+	oauthServer := registry.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
+	mCountryList := registry.MustNewMCountryList(context.Background(), args.DB)
 	server.Setup(mux)
 	oauthServer.Setup(mux)
 
 	gqlResolver := resolver.NewResolver(
 		mysql.NewFollowingTeacherRepository(args.DB),
-		di.NewFollowingTeacherUsecase(args.AppLogger, args.DB, mCountryList),
-		di.NewGAMeasurementUsecase(args.GAMeasurementClient),
+		registry.NewFollowingTeacherUsecase(args.AppLogger, args.DB, mCountryList),
+		registry.NewGAMeasurementUsecase(args.GAMeasurementClient),
 		mysql.NewNotificationTimeSpanRepository(args.DB),
-		di.NewNotificationTimeSpanUsecase(args.DB),
+		registry.NewNotificationTimeSpanUsecase(args.DB),
 		mysql.NewTeacherRepository(args.DB),
 		mysql.NewUserRepository(args.DB),
-		di.NewUserUsecase(args.DB),
+		registry.NewUserUsecase(args.DB),
 	)
 	gqlSchema := generated.NewExecutableSchema(generated.Config{
 		Resolvers: gqlResolver,
