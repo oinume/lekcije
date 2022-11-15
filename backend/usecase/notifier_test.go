@@ -203,3 +203,58 @@ func TestNotifier_Close(t *testing.T) {
 	a.NotEqual(teacher.Rating, updatedTeacher.Rating)
 	a.NotEqual(teacher.ReviewCount, updatedTeacher.ReviewCount)
 }
+
+func Test_Notifier_All(t *testing.T) {
+	db := helper.DB(t)
+	repos := mysqltest.NewRepositories(db.DB())
+	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
+	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
+	mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
+
+	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/49393.html")
+	if err != nil {
+		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
+	}
+	fetcherHTTPClient := &http.Client{
+		Transport: fetcherMockTransport,
+	}
+
+	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
+	senderTransport := &mockSenderTransport{}
+	senderHTTPClient := &http.Client{
+		Transport: senderTransport,
+	}
+	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+	notifier := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
+
+	user := helper.CreateRandomUser(t)
+	teacher := helper.CreateTeacher(t, 49393, "Judith")
+	helper.CreateFollowingTeacher(t, user.ID, teacher)
+
+	ctx := context.Background()
+	if err := notifier.SendNotification(ctx, user); err != nil {
+		t.Fatalf("SendNotification failed: %v", err)
+	}
+	notifier.Close(ctx, &model.StatNotifier{
+		Datetime:             time.Now().UTC(),
+		Interval:             10,
+		Elapsed:              1000,
+		UserCount:            1,
+		FollowedTeacherCount: 1,
+	})
+	// TODO: Lessonのデータを事前に作っておき、fetcherでフェッチしたレッスンとの差分が正しくアップデートされるかをテストする
+	// もしくは49393_updated.htmlを作っておき、available -> reservedにして再現するかを確認する
+}
+
+func createUsersAndFollowingTeachers(t *testing.T, num int) []*model.User {
+	users := make([]*model.User, 0, num)
+	for i := 0; i < num; i++ {
+		name := fmt.Sprintf("oinume+%02d", i)
+		user := helper.CreateUser(t, name, name+"@gmail.com")
+		teacher := helper.CreateRandomTeacher(t)
+		helper.CreateFollowingTeacher(t, user.ID, teacher)
+		users = append(users, user)
+	}
+	return users
+}
