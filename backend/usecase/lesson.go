@@ -54,10 +54,10 @@ func (u *Lesson) UpdateLessons(ctx context.Context, lessons []*model2.Lesson) (i
 				continue
 			}
 			// UPDATE
-			if err := u.lessonRepo.UpdateStatus(ctx, lesson.ID, lesson.Status); err != nil {
+			if err := u.lessonRepo.UpdateStatus(ctx, existing.ID, lesson.Status); err != nil {
 				return 0, err
 			}
-			if err := u.createLessonStatusLog(ctx, lesson.ID, lesson.Status, now); err != nil {
+			if err := u.createLessonStatusLog(ctx, existing.ID, lesson.Status, now); err != nil {
 				return 0, err
 			}
 		} else {

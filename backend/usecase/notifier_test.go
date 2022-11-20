@@ -280,6 +280,7 @@ func Test_Notifier_All(t *testing.T) {
 		UserCount:            1,
 		FollowedTeacherCount: 1,
 	})
+	// TODO: check lesson is updated
 }
 
 func createUsersAndFollowingTeachers(t *testing.T, num int) []*model.User {
