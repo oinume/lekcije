@@ -282,15 +282,3 @@ func Test_Notifier_All(t *testing.T) {
 	})
 	// TODO: check lesson is updated
 }
-
-func createUsersAndFollowingTeachers(t *testing.T, num int) []*model.User {
-	users := make([]*model.User, 0, num)
-	for i := 0; i < num; i++ {
-		name := fmt.Sprintf("oinume+%02d", i)
-		user := helper.CreateUser(t, name, name+"@gmail.com")
-		teacher := helper.CreateRandomTeacher(t)
-		helper.CreateFollowingTeacher(t, user.ID, teacher)
-		users = append(users, user)
-	}
-	return users
-}
