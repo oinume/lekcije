@@ -212,39 +212,74 @@ func Test_Notifier_All(t *testing.T) {
 	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 	mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
 
-	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/49393.html")
-	if err != nil {
-		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
-	}
+	fetcherMockTransport := mock.NewResponseTransport(func(rt *mock.ResponseTransport, req *http.Request) *http.Response {
+		resp := &http.Response{
+			Header:     make(http.Header),
+			Request:    req,
+			StatusCode: http.StatusOK,
+			Status:     "200 OK",
+		}
+		resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+
+		var file string
+		if rt.NumCalled == 1 {
+			file = "../infrastructure/dmm_eikaiwa/testdata/49393.html"
+		} else {
+			file = "../infrastructure/dmm_eikaiwa/testdata/49393-reserved.html"
+		}
+		f, err := os.Open(file)
+		if err != nil {
+			t.Fatalf("Failed to open file: %v: %v", file, err)
+		}
+		resp.Body = f
+		return resp
+	})
+	//fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/49393.html")
+	//if err != nil {
+	//	t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
+	//}
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
 	}
 
-	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
+	fetcher1 := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 	senderTransport := &mockSenderTransport{}
 	senderHTTPClient := &http.Client{
 		Transport: senderTransport,
 	}
 	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-	notifier := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
+	notifier1 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher1, false, lessonUsecase, sender, nil)
 
 	user := helper.CreateRandomUser(t)
 	teacher := helper.CreateTeacher(t, 49393, "Judith")
 	helper.CreateFollowingTeacher(t, user.ID, teacher)
 
 	ctx := context.Background()
-	if err := notifier.SendNotification(ctx, user); err != nil {
+	if err := notifier1.SendNotification(ctx, user); err != nil {
 		t.Fatalf("SendNotification failed: %v", err)
 	}
-	notifier.Close(ctx, &model.StatNotifier{
+	notifier1.Close(ctx, &model.StatNotifier{
 		Datetime:             time.Now().UTC(),
 		Interval:             10,
 		Elapsed:              1000,
 		UserCount:            1,
 		FollowedTeacherCount: 1,
 	})
-	// TODO: Lessonのデータを事前に作っておき、fetcherでフェッチしたレッスンとの差分が正しくアップデートされるかをテストする
-	// もしくは49393_updated.htmlを作っておき、available -> reservedにして再現するかを確認する
+
+	time.Sleep(1 * time.Second)
+
+	fetcher2 := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
+	notifier2 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher2, false, lessonUsecase, sender, nil)
+	if err := notifier2.SendNotification(ctx, user); err != nil {
+		t.Fatalf("SendNotification failed: %v", err)
+	}
+	notifier2.Close(ctx, &model.StatNotifier{
+		Datetime:             time.Now().UTC(),
+		Interval:             10,
+		Elapsed:              2000,
+		UserCount:            1,
+		FollowedTeacherCount: 1,
+	})
 }
 
 func createUsersAndFollowingTeachers(t *testing.T, num int) []*model.User {
