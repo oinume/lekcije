@@ -20,7 +20,7 @@ type Lesson interface {
 	FindByID(ctx context.Context, id uint64) (*model2.Lesson, error)
 	FindOrCreate(ctx context.Context, lesson *model2.Lesson, reload bool) (*model2.Lesson, error)
 	GetNewAvailableLessons(ctx context.Context, oldLessons, newLessons []*model2.Lesson) []*model2.Lesson
-	UpdateStatus(ctx context.Context, id uint64, newStatus string) error
+	UpdateStatus(ctx context.Context, id uint64, newStatus string) (int64, error)
 }
 
 type LessonFetcher interface {

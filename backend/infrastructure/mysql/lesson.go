@@ -165,17 +165,14 @@ func (r *lessonRepository) GetNewAvailableLessons(ctx context.Context, oldLesson
 	return availableLessons
 }
 
-func (r *lessonRepository) UpdateStatus(ctx context.Context, id uint64, newStatus string) error {
+func (r *lessonRepository) UpdateStatus(ctx context.Context, id uint64, newStatus string) (int64, error) {
 	lesson := &model2.Lesson{
 		ID:     id,
 		Status: newStatus,
 	}
-	_, err := lesson.Update(ctx, r.db, boil.Whitelist("status"))
+	rows, err := lesson.Update(ctx, r.db, boil.Whitelist("status"))
 	if err != nil {
-		return failure.Translate(err, errors.Internal, failure.Messagef("UpdateStatus failed for %v", id))
+		return 0, failure.Translate(err, errors.Internal, failure.Messagef("UpdateStatus failed for %v", id))
 	}
-	//if rows == 0 {
-	//	return failure.New(errors.Internal, failure.Messagef("UpdateStatus failed for %v: now rows affected", id))
-	//}
-	return nil
+	return rows, nil
 }
