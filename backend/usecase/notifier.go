@@ -29,10 +29,9 @@ type Notifier struct {
 	errorRecorder   *ErrorRecorder
 	fetcher         repository.LessonFetcher
 	dryRun          bool
-	lessonService   *model.LessonService
 	lessonUsecase   *Lesson
-	teachers        map[uint32]*model.Teacher
-	fetchedLessons  map[uint32][]*model.Lesson
+	teachers        map[uint32]*model2.Teacher
+	fetchedLessons  map[uint32][]*model2.Lesson
 	sender          emailer.Sender
 	senderWaitGroup *sync.WaitGroup
 	storageClient   *storage.Client
@@ -56,9 +55,8 @@ func NewNotifier(
 		fetcher:         fetcher,
 		dryRun:          dryRun,
 		lessonUsecase:   lessonUsecase,
-		lessonService:   model.NewLessonService(db),
-		teachers:        make(map[uint32]*model.Teacher, 1000),
-		fetchedLessons:  make(map[uint32][]*model.Lesson, 1000),
+		teachers:        make(map[uint32]*model2.Teacher, 1000),
+		fetchedLessons:  make(map[uint32][]*model2.Lesson, 1000),
 		sender:          sender,
 		senderWaitGroup: &sync.WaitGroup{},
 		storageClient:   storageClient,
@@ -115,7 +113,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 			defer n.Unlock()
 			n.teachers[teacherID] = fetched.Teacher
 			if _, ok := n.fetchedLessons[teacherID]; !ok {
-				n.fetchedLessons[teacherID] = make([]*model.Lesson, 0, 500)
+				n.fetchedLessons[teacherID] = make([]*model2.Lesson, 0, 500)
 			}
 			n.fetchedLessons[teacherID] = append(n.fetchedLessons[teacherID], fetched.Lessons...)
 			if len(newAvailable.Lessons) > 0 {
@@ -156,7 +154,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	ctx context.Context,
 	teacherID uint32,
-) (*model.TeacherLessons, *model.TeacherLessons, error) {
+) (*model2.TeacherLessons, *model2.TeacherLessons, error) {
 	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "NotificationTimeSpanService.FindByUserID")
 	span.SetAttributes(attribute.KeyValue{
 		Key:   "teacherID",
@@ -182,8 +180,8 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	now := time.Now().In(config.LocalLocation())
 	fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, config.LocalLocation())
 	toDate := fromDate.Add(24 * 6 * time.Hour)
-	//lastFetchedLessons, err := n.lessonUsecase.FindLessons(ctx, teacher.ID, fromDate, toDate)
-	lastFetchedLessons, err := n.lessonService.FindLessons(ctx, uint32(teacher.ID), fromDate, toDate)
+	lastFetchedLessons, err := n.lessonUsecase.FindLessons(ctx, teacher.ID, fromDate, toDate)
+	//lastFetchedLessons, err := n.lessonService.FindLessons(ctx, uint32(teacher.ID), fromDate, toDate)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -192,19 +190,19 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
 
-	modelTeacher, modelFetchedLessons := n.toModel(teacher, fetchedLessons)
-	newAvailableLessons := n.lessonService.GetNewAvailableLessons(ctx, lastFetchedLessons, modelFetchedLessons)
-	//newAvailableLessons := n.lessonUsecase.GetNewAvailableLessons(ctx, lastFetchedLessons, fetchedLessons)
+	//modelTeacher, modelFetchedLessons := n.toModel(teacher, fetchedLessons)
+	//newAvailableLessons := n.lessonService.GetNewAvailableLessons(ctx, lastFetchedLessons, modelFetchedLessons)
+	newAvailableLessons := n.lessonUsecase.GetNewAvailableLessons(ctx, lastFetchedLessons, fetchedLessons)
 	//fmt.Printf("newAvailableLessons ---\n")
 	//for _, l := range newAvailableLessons {
 	//	fmt.Printf("teacherID=%v, datetime=%v, status=%v\n", l.TeacherId, l.Datetime, l.Status)
 	//}
-	return model.NewTeacherLessons(modelTeacher, modelFetchedLessons),
-		model.NewTeacherLessons(modelTeacher, newAvailableLessons),
+	return model2.NewTeacherLessons(teacher, fetchedLessons),
+		model2.NewTeacherLessons(teacher, newAvailableLessons),
 		nil
 }
 
-func (n *Notifier) toModelTeacher(teacher *model2.Teacher) *model.Teacher { //nolint:unused
+func (n *Notifier) toModelTeacher(teacher *model2.Teacher) *model.Teacher {
 	var rating float64
 	if teacher.Rating.Big != nil {
 		rating, _ = teacher.Rating.Big.Float64()
@@ -290,8 +288,8 @@ func (n *Notifier) sendNotificationToUser(
 		To                string
 		TeacherNames      string
 		TeacherIDs        []uint32
-		Teachers          map[uint32]*model.Teacher
-		LessonsPerTeacher map[uint32]*model.TeacherLessons
+		Teachers          map[uint32]*model2.Teacher
+		LessonsPerTeacher map[uint32]*model2.TeacherLessons
 		WebURL            string
 	}{
 		To:                user.Email,
@@ -374,7 +372,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 		teacherService := model.NewTeacherService(n.db)
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
-				if err := teacherService.CreateOrUpdate(teacher); err != nil {
+				if err := teacherService.CreateOrUpdate(n.toModelTeacher(teacher)); err != nil {
 					n.appLogger.Error(
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
@@ -382,7 +380,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 					n.errorRecorder.Record(ctx, err, "")
 				}
 			}
-			if _, err := n.lessonService.UpdateLessons(lessons); err != nil {
+			if _, err := n.lessonUsecase.UpdateLessons(ctx, lessons); err != nil {
 				n.appLogger.Error(
 					"lessonService.UpdateLessons failed in Notifier.Close",
 					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),

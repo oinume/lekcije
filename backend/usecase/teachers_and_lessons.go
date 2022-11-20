@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 type teachersAndLessons struct {
-	data         map[uint32]*model.TeacherLessons
+	data         map[uint32]*model2.TeacherLessons
 	lessonsCount int
 	teacherIDs   []uint32
 }
@@ -30,7 +31,7 @@ func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *te
 	}
 	ret := newTeachersAndLessons(len(tal.data))
 	for teacherID, tl := range tal.data {
-		lessons := make([]*model.Lesson, 0, len(tl.Lessons))
+		lessons := make([]*model2.Lesson, 0, len(tl.Lessons))
 		for _, lesson := range tl.Lessons {
 			dt := lesson.Datetime
 			t, _ := time.Parse("15:04", fmt.Sprintf("%02d:%02d", dt.Hour(), dt.Minute()))
@@ -38,7 +39,7 @@ func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *te
 				lessons = append(lessons, lesson)
 			}
 		}
-		ret.data[teacherID] = model.NewTeacherLessons(tl.Teacher, lessons)
+		ret.data[teacherID] = model2.NewTeacherLessons(tl.Teacher, lessons)
 	}
 	return ret
 }
@@ -57,7 +58,7 @@ func (tal *teachersAndLessons) String() string {
 
 func newTeachersAndLessons(length int) *teachersAndLessons {
 	return &teachersAndLessons{
-		data:         make(map[uint32]*model.TeacherLessons, length),
+		data:         make(map[uint32]*model2.TeacherLessons, length),
 		lessonsCount: -1,
 		teacherIDs:   make([]uint32, 0, length),
 	}

@@ -203,3 +203,82 @@ func TestNotifier_Close(t *testing.T) {
 	a.NotEqual(teacher.Rating, updatedTeacher.Rating)
 	a.NotEqual(teacher.ReviewCount, updatedTeacher.ReviewCount)
 }
+
+func Test_Notifier_All(t *testing.T) {
+	db := helper.DB(t)
+	repos := mysqltest.NewRepositories(db.DB())
+	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
+	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
+	mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
+
+	fetcherMockTransport := mock.NewResponseTransport(func(rt *mock.ResponseTransport, req *http.Request) *http.Response {
+		resp := &http.Response{
+			Header:     make(http.Header),
+			Request:    req,
+			StatusCode: http.StatusOK,
+			Status:     "200 OK",
+		}
+		resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
+
+		var file string
+		if rt.NumCalled == 1 {
+			file = "../infrastructure/dmm_eikaiwa/testdata/49393.html"
+		} else {
+			file = "../infrastructure/dmm_eikaiwa/testdata/49393-reserved.html"
+		}
+		f, err := os.Open(file)
+		if err != nil {
+			t.Fatalf("Failed to open file: %v: %v", file, err)
+		}
+		resp.Body = f
+		return resp
+	})
+	//fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/49393.html")
+	//if err != nil {
+	//	t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
+	//}
+	fetcherHTTPClient := &http.Client{
+		Transport: fetcherMockTransport,
+	}
+
+	fetcher1 := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
+	senderTransport := &mockSenderTransport{}
+	senderHTTPClient := &http.Client{
+		Transport: senderTransport,
+	}
+	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+	notifier1 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher1, false, lessonUsecase, sender, nil)
+
+	user := helper.CreateRandomUser(t)
+	teacher := helper.CreateTeacher(t, 49393, "Judith")
+	helper.CreateFollowingTeacher(t, user.ID, teacher)
+
+	ctx := context.Background()
+	if err := notifier1.SendNotification(ctx, user); err != nil {
+		t.Fatalf("SendNotification failed: %v", err)
+	}
+	notifier1.Close(ctx, &model.StatNotifier{
+		Datetime:             time.Now().UTC(),
+		Interval:             10,
+		Elapsed:              1000,
+		UserCount:            1,
+		FollowedTeacherCount: 1,
+	})
+
+	time.Sleep(1 * time.Second)
+
+	fetcher2 := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
+	notifier2 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher2, false, lessonUsecase, sender, nil)
+	if err := notifier2.SendNotification(ctx, user); err != nil {
+		t.Fatalf("SendNotification failed: %v", err)
+	}
+	notifier2.Close(ctx, &model.StatNotifier{
+		Datetime:             time.Now().UTC(),
+		Interval:             10,
+		Elapsed:              2000,
+		UserCount:            1,
+		FollowedTeacherCount: 1,
+	})
+	// TODO: check lesson is updated
+}

@@ -29,7 +29,7 @@ func NewHTMLTransport(path string) (*HTMLTransport, error) {
 	}, nil
 }
 
-func NewMockTransportFromHTML(content string) *HTMLTransport {
+func NewHTMLTransportFromString(content string) *HTMLTransport {
 	return &HTMLTransport{
 		content: content,
 	}
@@ -47,5 +47,33 @@ func (t *HTMLTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
 	resp.Body = io.NopCloser(strings.NewReader(t.content))
+	return resp, nil
+}
+
+type ResponseTransport struct {
+	sync.Mutex
+	NumCalled    int
+	responseFunc func(*ResponseTransport, *http.Request) *http.Response
+}
+
+func NewResponseTransport(f func(*ResponseTransport, *http.Request) *http.Response) *ResponseTransport {
+	return &ResponseTransport{responseFunc: f}
+}
+
+func (t *ResponseTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	t.Lock()
+	t.NumCalled++
+	t.Unlock()
+	resp := t.responseFunc(t, req)
+	if resp.StatusCode == 0 {
+		resp.StatusCode = http.StatusOK
+		resp.Status = http.StatusText(http.StatusOK)
+	}
+	if ct := resp.Header.Get("Content-Type"); ct == "" {
+		resp.Header.Set("Content-Type", "text/plain; charset=UTF-8")
+	}
+	if resp.Body == nil {
+		resp.Body = io.NopCloser(strings.NewReader(""))
+	}
 	return resp, nil
 }
