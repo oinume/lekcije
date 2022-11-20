@@ -70,7 +70,6 @@ func (r *lessonRepository) FindAllByTeacherIDAndDatetimeAsMap(
 
 	lessonsMap := make(map[string]*model2.Lesson, len(lessons))
 	for _, l := range lessons {
-		fmt.Printf("l.ID = %v\n", l.ID)
 		// TODO: Use LessonDatetime type as key
 		lessonsMap[model2.LessonDatetime(l.Datetime).String()] = l
 	}
