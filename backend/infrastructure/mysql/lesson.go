@@ -70,6 +70,7 @@ func (r *lessonRepository) FindAllByTeacherIDAndDatetimeAsMap(
 
 	lessonsMap := make(map[string]*model2.Lesson, len(lessons))
 	for _, l := range lessons {
+		fmt.Printf("l.ID = %v\n", l.ID)
 		// TODO: Use LessonDatetime type as key
 		lessonsMap[model2.LessonDatetime(l.Datetime).String()] = l
 	}
@@ -101,6 +102,10 @@ func (r *lessonRepository) FindAllByTeacherIDsDatetimeBetween(
 		return nil, err
 	}
 	return lessons, nil
+}
+
+func (r *lessonRepository) FindByID(ctx context.Context, id uint64) (*model2.Lesson, error) {
+	return model2.Lessons(qm.Where("id = ?", id)).One(ctx, r.db)
 }
 
 func (r *lessonRepository) FindOrCreate(ctx context.Context, lesson *model2.Lesson, reload bool) (*model2.Lesson, error) {
@@ -166,8 +171,12 @@ func (r *lessonRepository) UpdateStatus(ctx context.Context, id uint64, newStatu
 		ID:     id,
 		Status: newStatus,
 	}
-	if _, err := lesson.Update(ctx, r.db, boil.Whitelist("status")); err != nil {
+	rows, err := lesson.Update(ctx, r.db, boil.Whitelist("status"))
+	if err != nil {
 		return failure.Translate(err, errors.Internal, failure.Messagef("UpdateStatus failed for %v", id))
+	}
+	if rows == 0 {
+		return failure.New(errors.Internal, failure.Messagef("UpdateStatus failed for %v: now rows affected", id))
 	}
 	return nil
 }

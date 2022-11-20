@@ -219,8 +219,9 @@ func newLessons(teacherID uint, baseDatetime time.Time, status string, length in
 }
 
 func Test_lessonRepository_FindOrCreate(t *testing.T) {
-	repo := mysql.NewLessonRepository(helper.DB(t).DB())
-	repos := mysqltest.NewRepositories(helper.DB(t).DB())
+	db := helper.DB(t)
+	repo := mysql.NewLessonRepository(db.DB())
+	repos := mysqltest.NewRepositories(db.DB())
 
 	type testCase struct {
 		lesson *model2.Lesson
@@ -252,9 +253,52 @@ func Test_lessonRepository_FindOrCreate(t *testing.T) {
 			tc := tt.setup(ctx)
 			got, err := repo.FindOrCreate(ctx, tc.lesson, true)
 			if err != nil {
-				t.Fatalf("FindOrCreate(): unexpected error = %v", err)
+				t.Fatalf("FindOrCreate failed: unexpected error = %v", err)
 			}
 			assertion.AssertEqual(t, tc.lesson, got, "", cmpopts.EquateApproxTime(10*time.Second))
 		})
 	}
+}
+
+func Test_lessonRepository_UpdateStatus(t *testing.T) {
+	db := helper.DB(t)
+	repo := mysql.NewLessonRepository(db.DB())
+	repos := mysqltest.NewRepositories(db.DB())
+
+	type testCase struct {
+		lesson    *model2.Lesson
+		newStatus string
+	}
+	tests := map[string]struct {
+		setup func(ctx context.Context) *testCase
+	}{
+		"normal": {
+			setup: func(ctx context.Context) *testCase {
+				l := modeltest.NewLesson(func(l *model2.Lesson) {
+					l.Status = "available"
+				})
+				repos.CreateLessons(ctx, t, l)
+				return &testCase{
+					lesson:    l,
+					newStatus: "reserved",
+				}
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			tc := tt.setup(ctx)
+			err := repo.UpdateStatus(ctx, tc.lesson.ID, tc.newStatus)
+			if err != nil {
+				t.Fatalf("UpdateStatus failed: unexpected error = %v", err)
+			}
+			got, err := repo.FindByID(ctx, tc.lesson.ID)
+			if err != nil {
+				t.Fatalf("FindByID failed: unexpected error = %v", err)
+			}
+			assertion.AssertEqual(t, tc.newStatus, got.Status, "status is not updated")
+		})
+	}
+
 }
