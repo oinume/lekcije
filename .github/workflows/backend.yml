@@ -142,6 +142,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          gcloud auth configure-docker
           export KO_DATA_PATH=./cmd/server/kodata
           mkdir -p $KO_DATA_PATH/html
           rsync -avz ../frontend/html/ $KO_DATA_PATH/html/
