@@ -120,7 +120,7 @@ jobs:
           skip-build-cache: true
   deploy:
     name: deploy
-#    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -129,10 +129,6 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
       - uses: google-github-actions/setup-gcloud@v1
-#        with:
-#          project_id: ${{ secrets.GCP_PROJECT_ID }}
-#          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-#          export_default_credentials: true
       - uses: actions/setup-go@v3
         with:
           cache: true
