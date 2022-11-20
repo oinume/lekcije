@@ -289,7 +289,7 @@ func Test_lessonRepository_UpdateStatus(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 			tc := tt.setup(ctx)
-			err := repo.UpdateStatus(ctx, tc.lesson.ID, tc.newStatus)
+			_, err := repo.UpdateStatus(ctx, tc.lesson.ID, tc.newStatus)
 			if err != nil {
 				t.Fatalf("UpdateStatus failed: unexpected error = %v", err)
 			}
