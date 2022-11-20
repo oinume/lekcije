@@ -170,12 +170,12 @@ func (r *lessonRepository) UpdateStatus(ctx context.Context, id uint64, newStatu
 		ID:     id,
 		Status: newStatus,
 	}
-	rows, err := lesson.Update(ctx, r.db, boil.Whitelist("status"))
+	_, err := lesson.Update(ctx, r.db, boil.Whitelist("status"))
 	if err != nil {
 		return failure.Translate(err, errors.Internal, failure.Messagef("UpdateStatus failed for %v", id))
 	}
-	if rows == 0 {
-		return failure.New(errors.Internal, failure.Messagef("UpdateStatus failed for %v: now rows affected", id))
-	}
+	//if rows == 0 {
+	//	return failure.New(errors.Internal, failure.Messagef("UpdateStatus failed for %v: now rows affected", id))
+	//}
 	return nil
 }
