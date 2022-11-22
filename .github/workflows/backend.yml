@@ -10,6 +10,11 @@ on:
       - "go.sum"
       - ".github/workflows/backend.yaml"
       - "VERSION_HASH.txt"
+  workflow_run:
+    workflows:
+      - "frontend"
+    types:
+      - "completed"
 env:
   CACHE_VERSION: 4
   GOPATH: /home/runner/go
