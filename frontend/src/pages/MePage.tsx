@@ -126,7 +126,7 @@ const CreateForm = () => {
             setTeacherIdOrUrl(event.currentTarget.value);
           }}
         />
-        <span className="px-2" />
+        <span className="px-2"/>
         <SubmitButton
           disabled={submitDisabled}
           loading={submitLoading}
