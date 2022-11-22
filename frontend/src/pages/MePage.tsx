@@ -13,6 +13,7 @@ import {
 import type {GraphQLError} from '../http/graphql';
 import {createGraphQLClient, toMessage} from '../http/graphql';
 import type {FollowingTeacher} from '../models/FollowingTeacher';
+import {SubmitButton} from '../components/SubmitButton';
 
 const graphqlClient = createGraphQLClient();
 
@@ -75,8 +76,9 @@ const Tutorial = () => (
 );
 
 const CreateForm = () => {
-  const [teacherIdOrUrl, setTeacherIdOrUrl] = useState<string>('');
-  const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
+  const [teacherIdOrUrl, setTeacherIdOrUrl] = useState('');
+  const [submitDisabled, setSubmitDisabled] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -85,6 +87,7 @@ const CreateForm = () => {
       await queryClient.invalidateQueries(useGetViewerWithFollowingTeachersQuery.getKey());
       setTeacherIdOrUrl('');
       setSubmitDisabled(true);
+      setSubmitLoading(false);
       toast.success('講師をフォローしました！');
     },
     onError(error) {
@@ -98,6 +101,8 @@ const CreateForm = () => {
     <form
       onSubmit={event => {
         event.preventDefault();
+        setSubmitDisabled(true);
+        setSubmitLoading(true);
         createFollowingTeacherMutation.mutate({input: {teacherIdOrUrl}});
       }}
     >
@@ -121,13 +126,13 @@ const CreateForm = () => {
             setTeacherIdOrUrl(event.currentTarget.value);
           }}
         />
-        <button
-          type="submit"
-          className="btn btn-primary"
+        <span className="px-2" />
+        <SubmitButton
           disabled={submitDisabled}
+          loading={submitLoading}
         >
           送信
-        </button>
+        </SubmitButton>
       </div>
     </form>
   );
@@ -139,7 +144,8 @@ type TeacherListProps = {
 
 const TeacherList = ({followingTeachers}: TeacherListProps) => {
   const [checkedIds, setCheckedIds] = useState<string[]>([]);
-  const [deleteSubmitDisabled, setDeleteSubmitDisabled] = useState<boolean>(true);
+  const [deleteSubmitDisabled, setDeleteSubmitDisabled] = useState(true);
+  const [deleteSubmitLoading, setDeleteSubmitLoading] = useState(false);
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const targetId = event.target.value;
@@ -159,6 +165,7 @@ const TeacherList = ({followingTeachers}: TeacherListProps) => {
       await queryClient.invalidateQueries(useGetViewerWithFollowingTeachersQuery.getKey());
       toast.success('講師のフォローを解除しました');
       setDeleteSubmitDisabled(true);
+      setDeleteSubmitLoading(false);
     },
     onError(error) {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
@@ -174,6 +181,8 @@ const TeacherList = ({followingTeachers}: TeacherListProps) => {
       <form
         onSubmit={event => {
           event.preventDefault();
+          setDeleteSubmitDisabled(true);
+          setDeleteSubmitLoading(true);
           deleteFollowingTeacherMutation.mutate({input: {teacherIds: checkedIds}});
         }}
       >
@@ -181,13 +190,12 @@ const TeacherList = ({followingTeachers}: TeacherListProps) => {
           <thead>
             <tr>
               <th scope="col" className="col-md-1">
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-sm"
+                <SubmitButton
                   disabled={deleteSubmitDisabled}
+                  loading={deleteSubmitLoading}
                 >
                   削除
-                </button>
+                </SubmitButton>
               </th>
               <th scope="col" className="col-md-11">
                 講師
