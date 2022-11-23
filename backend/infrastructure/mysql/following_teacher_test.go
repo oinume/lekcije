@@ -2,7 +2,6 @@ package mysql_test
 
 import (
 	"context"
-	"sort"
 	"testing"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
+	"github.com/oinume/lekcije/backend/internal/slice_util"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -55,9 +55,7 @@ func Test_followingTeacherRepository_FindTeacherIDsByUserID(t *testing.T) {
 				repos.CreateFollowingTeachers(ctx, t, ft1, ft2)
 
 				teacherIDs := []uint{teacher1.ID, teacher2.ID}
-				sort.Slice(teacherIDs, func(i, j int) bool {
-					return i > j
-				})
+				slice_util.Sort(teacherIDs)
 				return &testCase{
 					userID:         user.ID,
 					lastLessonAt:   now,
@@ -77,9 +75,7 @@ func Test_followingTeacherRepository_FindTeacherIDsByUserID(t *testing.T) {
 				return
 			}
 
-			sort.Slice(gotTeacherIDs, func(i, j int) bool {
-				return i > j
-			})
+			slice_util.Sort(gotTeacherIDs)
 			assertion.AssertEqual(t, tc.wantTeacherIDs, gotTeacherIDs, "")
 		})
 	}
