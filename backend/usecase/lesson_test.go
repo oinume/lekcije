@@ -78,3 +78,56 @@ func Test_Lesson_UpdateLessons(t *testing.T) {
 		})
 	}
 }
+
+/* TODO: Add test case
+func TestLessonService_UpdateLessonsOverwrite(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+
+	teacherID := uint32(randoms.MustNewInt64(999999))
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
+	lessons := createLessons(teacherID, datetime, "Available", 5)
+	affected, err := lessonService.UpdateLessons(lessons)
+	r.NoError(err)
+	a.EqualValues(len(lessons), affected)
+
+	time.Sleep(1 * time.Second)
+	lessons[0].Status = "Reserved"
+	affected, err = lessonService.UpdateLessons(lessons)
+	r.NoError(err)
+	a.EqualValues(1, affected)
+
+	foundLessons, err := lessonService.FindLessons(context.Background(), teacherID, datetime, datetime)
+	r.NoError(err)
+	a.Equal(strings.ToLower(foundLessons[0].Status), "reserved")
+
+	logs, err := lessonStatusLogService.FindAllByLessonID(foundLessons[0].ID)
+	r.NoError(err)
+	a.Equal(2, len(logs))
+}
+
+func TestLessonService_UpdateLessonsNoChange(t *testing.T) {
+	a := assert.New(t)
+	r := require.New(t)
+
+	teacherID := uint32(randoms.MustNewInt64(999999))
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
+	lessons := createLessons(teacherID, datetime, "Available", 5)
+	affected, err := lessonService.UpdateLessons(lessons)
+	r.NoError(err)
+	a.EqualValues(len(lessons), affected)
+
+	affected, err = lessonService.UpdateLessons(lessons)
+	r.NoError(err)
+	a.EqualValues(0, affected)
+
+	foundLessons, err := lessonService.FindLessons(context.Background(), teacherID, datetime, datetime)
+	r.NoError(err)
+	a.Equal(strings.ToLower(foundLessons[0].Status), "available")
+
+	logs, err := lessonStatusLogService.FindAllByLessonID(foundLessons[0].ID)
+	r.NoError(err)
+	a.Equal(1, len(logs))
+}
+
+*/

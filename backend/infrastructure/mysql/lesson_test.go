@@ -203,6 +203,34 @@ func Test_lessonRepository_GetNewAvailableLessons(t *testing.T) {
 	}
 }
 
+/* TODO: Add test case
+func TestLessonService_GetNewAvailableLessons1(t *testing.T) {
+	a := assert.New(t)
+
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
+	lessons1 := createLessons(1, datetime, "Reserved", 3)
+	lessons2 := createLessons(1, datetime, "Reserved", 3)
+	lessons2[1].Status = "Available"
+	// Test GetNewAvailableLessons returns a lesson when new lesson is "Available"
+	availableLessons := lessonService.GetNewAvailableLessons(context.Background(), lessons1, lessons2)
+	a.Equal(1, len(availableLessons))
+	a.Equal(datetime.Add(1*time.Hour), availableLessons[0].Datetime)
+}
+
+func TestLessonService_GetNewAvailableLessons2(t *testing.T) {
+	a := assert.New(t)
+
+	datetime := time.Date(2016, 10, 1, 14, 30, 0, 0, config.LocalLocation())
+	lessons1 := createLessons(1, datetime, "Reserved", 3)
+	lessons2 := createLessons(1, datetime, "Reserved", 3)
+	lessons1[0].Status = "Available"
+	lessons2[0].Status = "Available"
+	// Test GetNewAvailableLessons returns nothing when both lessons are "Available"
+	availableLessons := lessonService.GetNewAvailableLessons(context.Background(), lessons1, lessons2)
+	a.Equal(0, len(availableLessons))
+}
+*/
+
 func newLessons(teacherID uint, baseDatetime time.Time, status string, length int) []*model2.Lesson {
 	lessons := make([]*model2.Lesson, length)
 	now := time.Now().UTC()
