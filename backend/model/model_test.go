@@ -14,7 +14,6 @@ var (
 	//testDBURL                             string
 	eventLogEmailService                  *EventLogEmailService
 	followingTeacherService               *FollowingTeacherService
-	mPlanService                          *MPlanService
 	notificationTimeSpanService           *NotificationTimeSpanService
 	statDailyNotificationEventService     *StatDailyNotificationEventService
 	statDailyUserNotificationEventService *StatDailyUserNotificationEventService
@@ -30,7 +29,6 @@ func TestMain(m *testing.M) {
 
 	eventLogEmailService = NewEventLogEmailService(db)
 	followingTeacherService = NewFollowingTeacherService(db)
-	mPlanService = NewMPlanService(db)
 	notificationTimeSpanService = NewNotificationTimeSpanService(db)
 	statDailyNotificationEventService = NewStatDailyNotificationEventService(db)
 	statDailyUserNotificationEventService = NewStatDailyUserNotificationEventService(db)
