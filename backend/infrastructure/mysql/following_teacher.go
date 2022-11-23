@@ -5,11 +5,16 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/morikuni/failure"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
@@ -59,6 +64,41 @@ func (r *followingTeacherRepository) DeleteByUserIDAndTeacherIDs(ctx context.Con
 	}
 	_, err := model2.FollowingTeachers(qm.Where(where, args...)).DeleteAll(ctx, r.db)
 	return err
+}
+
+func (r *followingTeacherRepository) FindTeacherIDsByUserID(
+	ctx context.Context,
+	userID uint,
+	fetchErrorCount int,
+	lastLessonAt time.Time,
+) ([]uint, error) {
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "FollowingTeacherService.FindTeacherIDsByUserID")
+	span.SetAttributes(attribute.KeyValue{
+		Key:   "userID",
+		Value: attribute.Int64Value(int64(userID)),
+	})
+	defer span.End()
+
+	values := make([]*model2.FollowingTeacher, 0, 1000)
+	query := `
+	SELECT ft.teacher_id FROM following_teacher AS ft
+	INNER JOIN teacher AS t ON ft.teacher_id = t.id
+	WHERE
+      ft.user_id = ?
+      AND t.fetch_error_count <= ?
+      AND t.last_lesson_at >= ?
+	`
+	if err := queries.Raw(query, userID, fetchErrorCount, FormatDateTime(lastLessonAt)).Bind(ctx, r.db, &values); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Return empty slice without error
+		}
+		return nil, failure.Wrap(err)
+	}
+	ids := make([]uint, len(values))
+	for i, t := range values {
+		ids[i] = t.TeacherID
+	}
+	return ids, nil
 }
 
 func (r *followingTeacherRepository) FindTeachersByUserID(ctx context.Context, userID uint) ([]*model2.Teacher, error) {
