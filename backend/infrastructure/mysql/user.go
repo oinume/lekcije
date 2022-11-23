@@ -9,7 +9,9 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"go.opentelemetry.io/otel"
 
+	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
@@ -29,6 +31,29 @@ func (r *userRepository) CreateWithExec(ctx context.Context, exec repository.Exe
 	return user.Insert(ctx, exec, boil.Infer())
 }
 
+func (r *userRepository) FindAllByEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*model2.User, error) {
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "UserService.FindAllEmailVerifiedIsTrue")
+	defer span.End()
+
+	query := `
+		SELECT u.* FROM (SELECT DISTINCT(user_id) FROM following_teacher) AS ft
+		INNER JOIN user AS u ON ft.user_id = u.id
+		INNER JOIN m_plan AS mp ON u.plan_id = mp.id
+		WHERE
+		  u.email_verified = 1
+		  AND mp.notification_interval = ?
+		ORDER BY u.open_notification_at DESC
+`
+	users := make([]*model2.User, 0, 1000)
+	if err := queries.Raw(query, notificationInterval).Bind(ctx, r.db, &users); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Return empty slice without error
+		}
+		return nil, failure.Wrap(err)
+	}
+	return users, nil
+}
+
 func (r *userRepository) FindByAPIToken(ctx context.Context, apiToken string) (*model2.User, error) {
 	query := `
 		SELECT u.* FROM user AS u
@@ -41,7 +66,7 @@ func (r *userRepository) FindByAPIToken(ctx context.Context, apiToken string) (*
 		if err == sql.ErrNoRows {
 			return nil, failure.Translate(err, errors.NotFound)
 		}
-		return nil, failure.Translate(err, errors.Internal)
+		return nil, failure.Wrap(err)
 	}
 	// TODO: expose User.doAfterSelectHooks in template
 	return u, nil
