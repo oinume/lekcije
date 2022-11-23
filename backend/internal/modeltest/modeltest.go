@@ -63,7 +63,7 @@ func NewNotificationTimeSpan(setters ...func(nts *model2.NotificationTimeSpan)) 
 	return timeSpan
 }
 
-func NewTeacher(setters ...func(u *model2.Teacher)) *model2.Teacher {
+func NewTeacher(setters ...func(t *model2.Teacher)) *model2.Teacher {
 	teacher := &model2.Teacher{}
 	for _, setter := range setters {
 		setter(teacher)

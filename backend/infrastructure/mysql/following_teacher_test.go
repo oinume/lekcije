@@ -2,6 +2,7 @@ package mysql_test
 
 import (
 	"context"
+	"sort"
 	"testing"
 	"time"
 
@@ -53,10 +54,14 @@ func Test_followingTeacherRepository_FindTeacherIDsByUserID(t *testing.T) {
 				repos.CreateTeachers(ctx, t, teacher1, teacher2)
 				repos.CreateFollowingTeachers(ctx, t, ft1, ft2)
 
+				teacherIDs := []uint{teacher1.ID, teacher2.ID}
+				sort.Slice(teacherIDs, func(i, j int) bool {
+					return i > j
+				})
 				return &testCase{
 					userID:         user.ID,
 					lastLessonAt:   now,
-					wantTeacherIDs: []uint{teacher1.ID, teacher2.ID},
+					wantTeacherIDs: teacherIDs,
 				}
 			},
 		},
@@ -72,6 +77,9 @@ func Test_followingTeacherRepository_FindTeacherIDsByUserID(t *testing.T) {
 				return
 			}
 
+			sort.Slice(gotTeacherIDs, func(i, j int) bool {
+				return i > j
+			})
 			assertion.AssertEqual(t, tc.wantTeacherIDs, gotTeacherIDs, "")
 		})
 	}
