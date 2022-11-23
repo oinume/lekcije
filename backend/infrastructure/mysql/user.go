@@ -44,7 +44,7 @@ func (r *userRepository) FindAllByEmailVerifiedIsTrue(ctx context.Context, notif
 		  AND mp.notification_interval = ?
 		ORDER BY u.open_notification_at DESC
 `
-	var users []*model2.User
+	users := make([]*model2.User, 0, 1000)
 	if err := queries.Raw(query, notificationInterval).Bind(ctx, r.db, &users); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Return empty slice without error
