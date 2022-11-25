@@ -1,7 +1,6 @@
 package model
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -123,21 +122,6 @@ func (h *TestHelper) CreateTeacher(t *testing.T, id uint32, name string) *Teache
 
 func (h *TestHelper) CreateRandomTeacher(t *testing.T) *Teacher {
 	return h.CreateTeacher(t, uint32(randoms.MustNewInt64(9999999)), randoms.MustNewString(6))
-}
-
-func (h *TestHelper) LoadMCountries(t *testing.T) *MCountries {
-	db := h.DB(t)
-	// TODO: cache
-	mCountries, err := NewMCountryService(db).LoadAll(context.Background())
-	if err != nil {
-		e := fmt.Errorf("MCountryService.LoadAll failed: %v", err)
-		if t == nil {
-			panic(e)
-		} else {
-			t.Fatal(e)
-		}
-	}
-	return mCountries
 }
 
 func (h *TestHelper) CreateFollowingTeacher(t *testing.T, userID uint32, teacher *Teacher) *FollowingTeacher {

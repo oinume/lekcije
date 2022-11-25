@@ -119,18 +119,6 @@ func (s *UserService) Create(name, email string) (*User, error) {
 	return user, nil
 }
 
-func (s *UserService) UpdateFollowedTeacherAt(user *User) error { // TODO: delete
-	sql := "UPDATE user SET followed_teacher_at = NOW() WHERE id = ?"
-	if err := s.db.Exec(sql, user.ID).Error; err != nil {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to update followed_teacher_at"),
-			errors.WithResource(errors.NewResource(user.TableName(), "id", user.ID)),
-		)
-	}
-	return nil
-}
-
 func (s *UserService) UpdateOpenNotificationAt(userID uint32, t time.Time) error {
 	sql := "UPDATE user SET open_notification_at = ? WHERE id = ?"
 	if err := s.db.Exec(sql, t.Format(dbDatetimeFormat), userID).Error; err != nil {

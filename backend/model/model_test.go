@@ -14,17 +14,12 @@ var (
 	//testDBURL                             string
 	eventLogEmailService                  *EventLogEmailService
 	followingTeacherService               *FollowingTeacherService
-	lessonService                         *LessonService
-	lessonStatusLogService                *LessonStatusLogService
-	mCountryService                       *MCountryService
-	mPlanService                          *MPlanService
 	notificationTimeSpanService           *NotificationTimeSpanService
 	statDailyNotificationEventService     *StatDailyNotificationEventService
 	statDailyUserNotificationEventService *StatDailyUserNotificationEventService
 	statNotifierService                   *StatNotifierService
 	teacherService                        *TeacherService
 	userService                           *UserService
-	mCountries                            *MCountries
 )
 
 func TestMain(m *testing.M) {
@@ -34,17 +29,12 @@ func TestMain(m *testing.M) {
 
 	eventLogEmailService = NewEventLogEmailService(db)
 	followingTeacherService = NewFollowingTeacherService(db)
-	lessonService = NewLessonService(db)
-	lessonStatusLogService = NewLessonStatusLogService(db)
-	mCountryService = NewMCountryService(db)
-	mPlanService = NewMPlanService(db)
 	notificationTimeSpanService = NewNotificationTimeSpanService(db)
 	statDailyNotificationEventService = NewStatDailyNotificationEventService(db)
 	statDailyUserNotificationEventService = NewStatDailyUserNotificationEventService(db)
 	statNotifierService = NewStatNotifierService(db)
 	teacherService = NewTeacherService(db)
 	userService = NewUserService(db)
-	mCountries = helper.LoadMCountries(nil)
 
 	helper.TruncateAllTables(nil)
 	os.Exit(m.Run())
