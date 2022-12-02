@@ -85,7 +85,7 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.0",
     "ws": "^8.8.1",
-    "xo": "^0.52.3"
+    "xo": "^0.53.0"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.17.12",
