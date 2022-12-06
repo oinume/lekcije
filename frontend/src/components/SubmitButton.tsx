@@ -12,7 +12,7 @@ export const SubmitButton: React.FC<Props> = ({disabled, loading, children}) => 
     className="btn btn-primary"
     disabled={disabled}
   >
-    { children ? children : undefined }
+    { children ?? children }
     { loading ? <span className="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"/> : undefined }
   </button>
 );
