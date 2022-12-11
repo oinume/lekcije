@@ -22,7 +22,7 @@ jobs:
   server:
     working_directory: /go/src/github.com/oinume/lekcije
     docker:
-      - image: golang:1.18-bullseye
+      - image: golang:1.19-bullseye
         environment:
           ENABLE_TRACE: "false"
           GO111MODULE: "on"
