@@ -10,6 +10,8 @@ coverage:
       frontend:
         target: 5%
         threshold: 1%
+    patch:
+      default: off
 flags:
   backend:
     carryforward: true
