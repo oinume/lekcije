@@ -20,3 +20,7 @@ func NewTeacher(teacherRepo repository.Teacher) *Teacher {
 func (u *Teacher) CreateOrUpdate(ctx context.Context, teacher *model2.Teacher) error {
 	return u.teacherRepo.CreateOrUpdate(ctx, teacher)
 }
+
+func (u *Teacher) IncrementFetchErrorCount(ctx context.Context, id uint, value int) error {
+	return u.teacherRepo.IncrementFetchErrorCount(ctx, id, value)
+}

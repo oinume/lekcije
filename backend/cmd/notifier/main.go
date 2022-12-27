@@ -121,9 +121,10 @@ func (m *notifierMain) run(args []string) error {
 		irollbar.NewErrorRecorderRepository(rollbarClient),
 	)
 	lessonUsecase := registry.NewLessonUsecase(db.DB())
+	teacherUsecase := registry.NewTeacherUsecase(db.DB())
 	notifier := usecase.NewNotifier(
-		appLogger, db, errorRecorder, lessonFetcher, *dryRun, lessonUsecase, sender,
-		mysql.NewFollowingTeacherRepository(db.DB()),
+		appLogger, db, errorRecorder, lessonFetcher, *dryRun,
+		lessonUsecase, teacherUsecase, sender, mysql.NewFollowingTeacherRepository(db.DB()),
 	)
 	defer notifier.Close(ctx, &model.StatNotifier{
 		Datetime:             startedAt,

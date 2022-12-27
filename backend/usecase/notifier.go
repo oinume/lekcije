@@ -29,6 +29,7 @@ type Notifier struct {
 	fetcher              repository.LessonFetcher
 	dryRun               bool
 	lessonUsecase        *Lesson
+	teacherUsecase       *Teacher
 	teachers             map[uint]*model2.Teacher
 	fetchedLessons       map[uint][]*model2.Lesson
 	sender               emailer.Sender
@@ -44,6 +45,7 @@ func NewNotifier(
 	fetcher repository.LessonFetcher,
 	dryRun bool,
 	lessonUsecase *Lesson,
+	teacherUsecase *Teacher,
 	sender emailer.Sender,
 	followingTeacherRepo repository.FollowingTeacher,
 ) *Notifier {
@@ -54,6 +56,7 @@ func NewNotifier(
 		fetcher:              fetcher,
 		dryRun:               dryRun,
 		lessonUsecase:        lessonUsecase,
+		teacherUsecase:       teacherUsecase,
 		teachers:             make(map[uint]*model2.Teacher, 1000),
 		fetchedLessons:       make(map[uint][]*model2.Lesson, 1000),
 		sender:               sender,
@@ -91,7 +94,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) erro
 			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(ctx, teacherID)
 			if err != nil {
 				if errors.IsNotFound(err) {
-					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(uint32(teacherID), 1); err != nil {
+					if err := n.teacherUsecase.IncrementFetchErrorCount(ctx, teacherID, 1); err != nil {
 						n.appLogger.Error(
 							"IncrementFetchErrorCount failed",
 							zap.Uint("teacherID", teacherID), zap.Error(err),
@@ -364,10 +367,9 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 		ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "lessonService.UpdateLessons")
 		defer span.End()
 
-		teacherService := model.NewTeacherService(n.db)
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
-				if err := teacherService.CreateOrUpdate(n.toModelTeacher(teacher)); err != nil {
+				if err := n.teacherUsecase.CreateOrUpdate(ctx, teacher); err != nil {
 					n.appLogger.Error(
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
 						zap.Error(err), zap.Uint("teacherID", teacherID),
