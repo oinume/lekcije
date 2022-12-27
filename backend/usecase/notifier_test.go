@@ -60,6 +60,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	notificationTimeSpanUsecase := usecase.NewNotificationTimeSpan(repos.NotificationTimeSpan())
 	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 	teacherUsecase := usecase.NewTeacher(repos.Teacher())
 
@@ -95,7 +96,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
 		n := usecase.NewNotifier(
-			appLogger, db, errorRecorder, fetcher, true,
+			appLogger, db, errorRecorder, fetcher, true, notificationTimeSpanUsecase,
 			lessonUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
 		)
 
@@ -143,7 +144,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
 		n := usecase.NewNotifier(
-			appLogger, db, errorRecorder, fetcher, true,
+			appLogger, db, errorRecorder, fetcher, true, notificationTimeSpanUsecase,
 			lessonUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
 		)
 		if err := n.SendNotification(context.Background(), user); err != nil {
@@ -179,6 +180,7 @@ func TestNotifier_Close(t *testing.T) {
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	repos := mysqltest.NewRepositories(db.DB())
+	notificationTimeSpanUsecase := usecase.NewNotificationTimeSpan(repos.NotificationTimeSpan())
 	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 	teacherUsecase := usecase.NewTeacher(repos.Teacher())
 
@@ -203,7 +205,7 @@ func TestNotifier_Close(t *testing.T) {
 	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 
 	n := usecase.NewNotifier(
-		appLogger, db, errorRecorder, fetcher, false,
+		appLogger, db, errorRecorder, fetcher, false, notificationTimeSpanUsecase,
 		lessonUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
 	)
 	err = n.SendNotification(context.Background(), user)
@@ -231,6 +233,7 @@ func Test_Notifier_All(t *testing.T) {
 	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
+	notificationTimeSpanUsecase := usecase.NewNotificationTimeSpan(repos.NotificationTimeSpan())
 	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
 	teacherUsecase := usecase.NewTeacher(repos.Teacher())
 	mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
@@ -272,7 +275,7 @@ func Test_Notifier_All(t *testing.T) {
 	}
 	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
 	notifier1 := usecase.NewNotifier(
-		appLogger, db, errorRecorder, fetcher1, false,
+		appLogger, db, errorRecorder, fetcher1, false, notificationTimeSpanUsecase,
 		lessonUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
 	)
 
@@ -296,7 +299,7 @@ func Test_Notifier_All(t *testing.T) {
 
 	fetcher2 := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 	notifier2 := usecase.NewNotifier(
-		appLogger, db, errorRecorder, fetcher2, false,
+		appLogger, db, errorRecorder, fetcher2, false, notificationTimeSpanUsecase,
 		lessonUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
 	)
 	if err := notifier2.SendNotification(ctx, user); err != nil {

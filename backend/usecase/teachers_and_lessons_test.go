@@ -5,15 +5,14 @@ import (
 	"time"
 
 	"github.com/oinume/lekcije/backend/internal/modeltest"
-	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
 func Test_TeachersAndLessons_FilterBy(t *testing.T) {
 	user := modeltest.NewUser()
-	timeSpans := []*model.NotificationTimeSpan{
-		{UserID: uint32(user.ID), Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
-		{UserID: uint32(user.ID), Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
+	timeSpans := []*model2.NotificationTimeSpan{
+		{UserID: user.ID, Number: 1, FromTime: "15:30:00", ToTime: "16:30:00"},
+		{UserID: user.ID, Number: 2, FromTime: "20:00:00", ToTime: "22:00:00"},
 	}
 	teacher := modeltest.NewTeacher()
 	// TODO: table driven test
@@ -50,7 +49,7 @@ func Test_TeachersAndLessons_FilterBy(t *testing.T) {
 }
 
 func Test_TeachersAndLessons_FilterByEmpty(t *testing.T) {
-	timeSpans := make([]*model.NotificationTimeSpan, 0)
+	timeSpans := make([]*model2.NotificationTimeSpan, 0)
 	teacher := modeltest.NewTeacher()
 	// TODO: table driven test
 	lessons := []*model2.Lesson{
