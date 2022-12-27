@@ -63,12 +63,12 @@ func NewNotifier(
 	}
 }
 
-func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error {
+func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) error {
 	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	const maxFetchErrorCount = 5
 	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
 		ctx,
-		user.ID,
+		uint32(user.ID),
 		maxFetchErrorCount,
 		time.Now().Add(-1*60*24*time.Hour), /* 2 months */
 	)
@@ -129,7 +129,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model.User) error
 	wg.Wait()
 
 	notificationTimeSpanService := model.NewNotificationTimeSpanService(n.db)
-	timeSpans, err := notificationTimeSpanService.FindByUserID(ctx, user.ID)
+	timeSpans, err := notificationTimeSpanService.FindByUserID(ctx, uint32(user.ID))
 	if err != nil {
 		return err
 	}
@@ -257,7 +257,7 @@ func (n *Notifier) toModel(teacher *model2.Teacher, lessons []*model2.Lesson) (*
 
 func (n *Notifier) sendNotificationToUser(
 	ctx context.Context,
-	user *model.User,
+	user *model2.User,
 	lessonsPerTeacher *teachersAndLessons,
 ) error {
 	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "Notifier.sendNotificationToUser")

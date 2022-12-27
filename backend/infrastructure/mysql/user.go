@@ -32,7 +32,7 @@ func (r *userRepository) CreateWithExec(ctx context.Context, exec repository.Exe
 }
 
 func (r *userRepository) FindAllByEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*model2.User, error) {
-	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "UserService.FindAllEmailVerifiedIsTrue")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "userRepository.FindAllByEmailVerifiedIsTrue")
 	defer span.End()
 
 	query := `
