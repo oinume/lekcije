@@ -93,6 +93,7 @@ const CreateForm = () => {
     onError(error) {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
       console.error(`useCreateFollowingTeacherMutation.onError: err=${error}`);
+      setSubmitLoading(false);
       toast.error(toMessage(error, '講師のフォローに失敗しました'));
     },
   });
@@ -170,6 +171,7 @@ const TeacherList = ({followingTeachers}: TeacherListProps) => {
     onError(error) {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
       console.error(`deleteFollowingTeacherMutation.onError: err=${error}`);
+      setDeleteSubmitLoading(false);
       // toast.error(`講師のフォロー解除に失敗しました: ${error.message}`);
       toast.error(toMessage(error, '講師のフォロー解除に失敗しました'));
     },
