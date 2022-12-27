@@ -11,13 +11,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
+	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/mock"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
 	"github.com/oinume/lekcije/backend/internal/mysqltest"
@@ -175,8 +174,6 @@ func Test_Notifier_SendNotification(t *testing.T) {
 
 func TestNotifier_Close(t *testing.T) {
 	ctx := context.Background()
-	a := assert.New(t)
-	r := require.New(t)
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	repos := mysqltest.NewRepositories(db.DB())
@@ -192,12 +189,22 @@ func TestNotifier_Close(t *testing.T) {
 
 	user := modeltest.NewUser()
 	repos.CreateUsers(ctx, t, user)
-	teacher := helper.CreateTeacher(t, 3982, "Hena")
-	helper.CreateFollowingTeacher(t, uint32(user.ID), teacher)
+	teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
+		t.ID = 3982
+		t.Name = "Hena"
+	})
+	repos.CreateTeachers(ctx, t, teacher)
+	followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+		ft.UserID = user.ID
+		ft.TeacherID = teacher.ID
+	})
+	repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
-	r.NoError(err, "fetcher.NewMockTransport failed")
+	if err != nil {
+		t.Fatalf("fetcher.NewMockTransport failed: %v", err)
+	}
 	fetcherHTTPClient := &http.Client{
 		Transport: fetcherMockTransport,
 	}
@@ -208,8 +215,9 @@ func TestNotifier_Close(t *testing.T) {
 		appLogger, db, errorRecorder, fetcher, false, notificationTimeSpanUsecase,
 		lessonUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
 	)
-	err = n.SendNotification(context.Background(), user)
-	r.NoError(err, "SendNotification failed")
+	if err := n.SendNotification(context.Background(), user); err != nil {
+		t.Fatalf("SendNotification failed: %v", err)
+	}
 	n.Close(context.Background(), &model.StatNotifier{
 		Datetime:             time.Now().UTC(),
 		Interval:             10,
@@ -218,13 +226,14 @@ func TestNotifier_Close(t *testing.T) {
 		FollowedTeacherCount: 1,
 	})
 
-	teacherService := model.NewTeacherService(db)
-	updatedTeacher, err := teacherService.FindByPK(teacher.ID)
-	r.NoError(err)
-	a.NotEqual(teacher.CountryID, updatedTeacher.CountryID)
-	a.NotEqual(teacher.FavoriteCount, updatedTeacher.FavoriteCount)
-	a.NotEqual(teacher.Rating, updatedTeacher.Rating)
-	a.NotEqual(teacher.ReviewCount, updatedTeacher.ReviewCount)
+	updatedTeacher, err := repos.Teacher().FindByID(ctx, teacher.ID)
+	if err != nil {
+		t.Fatalf("FindByPK failed: %v", err)
+	}
+	assertion.AssertEqual(t, teacher.CountryID, updatedTeacher.CountryID, "CountryID")
+	assertion.AssertEqual(t, teacher.FavoriteCount, updatedTeacher.FavoriteCount, "FavoriteCount")
+	assertion.AssertEqual(t, teacher.Rating.String(), updatedTeacher.Rating.String(), "Rating")
+	assertion.AssertEqual(t, teacher.ReviewCount, updatedTeacher.ReviewCount, "ReviewCount")
 }
 
 func Test_Notifier_All(t *testing.T) {
