@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/jinzhu/gorm"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -24,17 +23,17 @@ import (
 )
 
 type Notifier struct {
-	appLogger       *zap.Logger
-	db              *gorm.DB
-	errorRecorder   *ErrorRecorder
-	fetcher         repository.LessonFetcher
-	dryRun          bool
-	lessonUsecase   *Lesson
-	teachers        map[uint32]*model2.Teacher
-	fetchedLessons  map[uint32][]*model2.Lesson
-	sender          emailer.Sender
-	senderWaitGroup *sync.WaitGroup
-	storageClient   *storage.Client
+	appLogger            *zap.Logger
+	db                   *gorm.DB
+	errorRecorder        *ErrorRecorder
+	fetcher              repository.LessonFetcher
+	dryRun               bool
+	lessonUsecase        *Lesson
+	teachers             map[uint]*model2.Teacher
+	fetchedLessons       map[uint][]*model2.Lesson
+	sender               emailer.Sender
+	senderWaitGroup      *sync.WaitGroup
+	followingTeacherRepo repository.FollowingTeacher
 	sync.Mutex
 }
 
@@ -46,37 +45,33 @@ func NewNotifier(
 	dryRun bool,
 	lessonUsecase *Lesson,
 	sender emailer.Sender,
-	storageClient *storage.Client,
+	followingTeacherRepo repository.FollowingTeacher,
 ) *Notifier {
 	return &Notifier{
-		appLogger:       appLogger,
-		db:              db,
-		errorRecorder:   errorRecorder,
-		fetcher:         fetcher,
-		dryRun:          dryRun,
-		lessonUsecase:   lessonUsecase,
-		teachers:        make(map[uint32]*model2.Teacher, 1000),
-		fetchedLessons:  make(map[uint32][]*model2.Lesson, 1000),
-		sender:          sender,
-		senderWaitGroup: &sync.WaitGroup{},
-		storageClient:   storageClient,
+		appLogger:            appLogger,
+		db:                   db,
+		errorRecorder:        errorRecorder,
+		fetcher:              fetcher,
+		dryRun:               dryRun,
+		lessonUsecase:        lessonUsecase,
+		teachers:             make(map[uint]*model2.Teacher, 1000),
+		fetchedLessons:       make(map[uint][]*model2.Lesson, 1000),
+		sender:               sender,
+		senderWaitGroup:      &sync.WaitGroup{},
+		followingTeacherRepo: followingTeacherRepo,
 	}
 }
 
 func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) error {
-	followingTeacherService := model.NewFollowingTeacherService(n.db)
 	const maxFetchErrorCount = 5
-	teacherIDs, err := followingTeacherService.FindTeacherIDsByUserID(
+	teacherIDs, err := n.followingTeacherRepo.FindTeacherIDsByUserID(
 		ctx,
-		uint32(user.ID),
+		user.ID,
 		maxFetchErrorCount,
 		time.Now().Add(-1*60*24*time.Hour), /* 2 months */
 	)
 	if err != nil {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessagef("Failed to FindTeacherIDsByUserID(): userID=%v", user.ID),
-		)
+		return err
 	}
 
 	if len(teacherIDs) == 0 {
@@ -91,21 +86,21 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) erro
 	wg := &sync.WaitGroup{}
 	for _, teacherID := range teacherIDs {
 		wg.Add(1)
-		go func(teacherID uint32) {
+		go func(teacherID uint) {
 			defer wg.Done()
 			fetched, newAvailable, err := n.fetchAndExtractNewAvailableLessons(ctx, teacherID)
 			if err != nil {
 				if errors.IsNotFound(err) {
-					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(teacherID, 1); err != nil {
+					if err := model.NewTeacherService(n.db).IncrementFetchErrorCount(uint32(teacherID), 1); err != nil {
 						n.appLogger.Error(
 							"IncrementFetchErrorCount failed",
-							zap.Uint("teacherID", uint(teacherID)), zap.Error(err),
+							zap.Uint("teacherID", teacherID), zap.Error(err),
 						)
 					}
-					n.appLogger.Warn("Cannot find teacher", zap.Uint("teacherID", uint(teacherID)))
+					n.appLogger.Warn("Cannot find teacher", zap.Uint("teacherID", teacherID))
 				}
 				// TODO: Record a case https://eikaiwa.dmm.com is down
-				n.appLogger.Error("Cannot fetch teacher", zap.Uint("teacherID", uint(teacherID)), zap.Error(err))
+				n.appLogger.Error("Cannot fetch teacher", zap.Uint("teacherID", teacherID), zap.Error(err))
 				return
 			}
 
@@ -153,7 +148,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) erro
 // Returns teacher, fetchedLessons, newAvailableLessons, error
 func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	ctx context.Context,
-	teacherID uint32,
+	teacherID uint,
 ) (*model2.TeacherLessons, *model2.TeacherLessons, error) {
 	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "NotificationTimeSpanService.FindByUserID")
 	span.SetAttributes(attribute.KeyValue{
@@ -162,7 +157,7 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	})
 	defer span.End()
 
-	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, uint(teacherID))
+	teacher, fetchedLessons, err := n.fetcher.Fetch(ctx, teacherID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -275,11 +270,11 @@ func (n *Notifier) sendNotificationToUser(
 	}
 
 	sort.Ints(teacherIDs)
-	var teacherIDs2 []uint32
+	var teacherIDs2 []uint
 	var teacherNames []string
 	for _, id := range teacherIDs {
-		teacherIDs2 = append(teacherIDs2, uint32(id))
-		teacherNames = append(teacherNames, n.teachers[uint32(id)].Name)
+		teacherIDs2 = append(teacherIDs2, uint(id))
+		teacherNames = append(teacherNames, n.teachers[uint(id)].Name)
 	}
 
 	// TODO: getEmailTemplate as a static file
@@ -287,9 +282,9 @@ func (n *Notifier) sendNotificationToUser(
 	data := struct {
 		To                string
 		TeacherNames      string
-		TeacherIDs        []uint32
-		Teachers          map[uint32]*model2.Teacher
-		LessonsPerTeacher map[uint32]*model2.TeacherLessons
+		TeacherIDs        []uint
+		Teachers          map[uint]*model2.Teacher
+		LessonsPerTeacher map[uint]*model2.TeacherLessons
 		WebURL            string
 	}{
 		To:                user.Email,
@@ -308,7 +303,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	email.SetCustomArg("email_type", model.EmailTypeNewLessonNotifier)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
-	email.SetCustomArg("teacher_ids", strings.Join(util.Uint32ToStringSlice(teacherIDs2...), ","))
+	email.SetCustomArg("teacher_ids", strings.Join(util.UintToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
 	n.appLogger.Info("sendNotificationToUser", zap.String("email", user.Email))
@@ -375,7 +370,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 				if err := teacherService.CreateOrUpdate(n.toModelTeacher(teacher)); err != nil {
 					n.appLogger.Error(
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
-						zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
+						zap.Error(err), zap.Uint("teacherID", teacherID),
 					)
 					n.errorRecorder.Record(ctx, err, "")
 				}
@@ -383,7 +378,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 			if _, err := n.lessonUsecase.UpdateLessons(ctx, lessons); err != nil {
 				n.appLogger.Error(
 					"lessonService.UpdateLessons failed in Notifier.Close",
-					zap.Error(err), zap.Uint("teacherID", uint(teacherID)),
+					zap.Error(err), zap.Uint("teacherID", teacherID),
 				)
 				n.errorRecorder.Record(ctx, err, "")
 			}

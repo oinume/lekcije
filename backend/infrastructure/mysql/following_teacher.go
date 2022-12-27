@@ -72,7 +72,7 @@ func (r *followingTeacherRepository) FindTeacherIDsByUserID(
 	fetchErrorCount int,
 	lastLessonAt time.Time,
 ) ([]uint, error) {
-	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "FollowingTeacherService.FindTeacherIDsByUserID")
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "followingTeacherRepository.FindTeacherIDsByUserID")
 	span.SetAttributes(attribute.KeyValue{
 		Key:   "userID",
 		Value: attribute.Int64Value(int64(userID)),
@@ -92,7 +92,7 @@ func (r *followingTeacherRepository) FindTeacherIDsByUserID(
 		if err == sql.ErrNoRows {
 			return nil, nil // Return empty slice without error
 		}
-		return nil, failure.Wrap(err)
+		return nil, failure.Wrap(err, errors.NewUserIDContext(userID))
 	}
 	ids := make([]uint, len(values))
 	for i, t := range values {

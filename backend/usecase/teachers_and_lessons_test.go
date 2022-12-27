@@ -25,7 +25,7 @@ func Test_TeachersAndLessons_FilterBy(t *testing.T) {
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 23, 0, 0, 0, time.UTC)}, // excluded
 	}
 	tal := newTeachersAndLessons(10)
-	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
+	tal.data[teacher.ID] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
 
 	filtered := tal.FilterBy(timeSpans)
 	if got, want := filtered.CountLessons(), 2; got != want {
@@ -38,7 +38,7 @@ func Test_TeachersAndLessons_FilterBy(t *testing.T) {
 		{16, 0},
 		{21, 0},
 	}
-	tl := filtered.data[uint32(teacher.ID)]
+	tl := filtered.data[teacher.ID]
 	for i, wantTime := range wantTimes {
 		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
 			t.Errorf("unexpected hour: got=%v, want=%v", got, want)
@@ -58,7 +58,7 @@ func Test_TeachersAndLessons_FilterByEmpty(t *testing.T) {
 		{TeacherID: teacher.ID, Datetime: time.Date(2018, 1, 1, 16, 0, 0, 0, time.UTC)},
 	}
 	tal := newTeachersAndLessons(10)
-	tal.data[uint32(teacher.ID)] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
+	tal.data[teacher.ID] = &model2.TeacherLessons{Teacher: teacher, Lessons: lessons}
 
 	filtered := tal.FilterBy(timeSpans)
 	if got, want := filtered.CountLessons(), len(lessons); got != want {
@@ -71,7 +71,7 @@ func Test_TeachersAndLessons_FilterByEmpty(t *testing.T) {
 		{15, 0},
 		{16, 0},
 	}
-	tl := filtered.data[uint32(teacher.ID)]
+	tl := filtered.data[teacher.ID]
 	for i, wantTime := range wantTimes {
 		if got, want := tl.Lessons[i].Datetime.Hour(), wantTime.hour; got != want {
 			t.Errorf("unexpected hour: got=%v, want=%v", got, want)

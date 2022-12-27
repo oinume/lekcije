@@ -10,7 +10,7 @@ import (
 )
 
 type teachersAndLessons struct {
-	data         map[uint32]*model2.TeacherLessons
+	data         map[uint]*model2.TeacherLessons
 	lessonsCount int
 	teacherIDs   []uint32
 }
@@ -58,7 +58,7 @@ func (tal *teachersAndLessons) String() string {
 
 func newTeachersAndLessons(length int) *teachersAndLessons {
 	return &teachersAndLessons{
-		data:         make(map[uint32]*model2.TeacherLessons, length),
+		data:         make(map[uint]*model2.TeacherLessons, length),
 		lessonsCount: -1,
 		teacherIDs:   make([]uint32, 0, length),
 	}
