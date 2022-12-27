@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -25,7 +24,7 @@ func (tal *teachersAndLessons) CountLessons() int {
 
 // FilterBy filters out by NotificationTimeSpanList.
 // If a lesson is within NotificationTimeSpanList, it'll be included in returned value.
-func (tal *teachersAndLessons) FilterBy(list model.NotificationTimeSpanList) *teachersAndLessons {
+func (tal *teachersAndLessons) FilterBy(list model2.NotificationTimeSpanList) *teachersAndLessons {
 	if len(list) == 0 {
 		return tal
 	}

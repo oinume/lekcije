@@ -23,18 +23,19 @@ import (
 )
 
 type Notifier struct {
-	appLogger            *zap.Logger
-	db                   *gorm.DB
-	errorRecorder        *ErrorRecorder
-	fetcher              repository.LessonFetcher
-	dryRun               bool
-	lessonUsecase        *Lesson
-	teacherUsecase       *Teacher
-	teachers             map[uint]*model2.Teacher
-	fetchedLessons       map[uint][]*model2.Lesson
-	sender               emailer.Sender
-	senderWaitGroup      *sync.WaitGroup
-	followingTeacherRepo repository.FollowingTeacher
+	appLogger                   *zap.Logger
+	db                          *gorm.DB
+	errorRecorder               *ErrorRecorder
+	fetcher                     repository.LessonFetcher
+	dryRun                      bool
+	notificationTimeSpanUsecase *NotificationTimeSpan
+	lessonUsecase               *Lesson
+	teacherUsecase              *Teacher
+	teachers                    map[uint]*model2.Teacher
+	fetchedLessons              map[uint][]*model2.Lesson
+	sender                      emailer.Sender
+	senderWaitGroup             *sync.WaitGroup
+	followingTeacherRepo        repository.FollowingTeacher
 	sync.Mutex
 }
 
@@ -44,24 +45,26 @@ func NewNotifier(
 	errorRecorder *ErrorRecorder,
 	fetcher repository.LessonFetcher,
 	dryRun bool,
+	notificationTimeSpanUsecase *NotificationTimeSpan,
 	lessonUsecase *Lesson,
 	teacherUsecase *Teacher,
 	sender emailer.Sender,
 	followingTeacherRepo repository.FollowingTeacher,
 ) *Notifier {
 	return &Notifier{
-		appLogger:            appLogger,
-		db:                   db,
-		errorRecorder:        errorRecorder,
-		fetcher:              fetcher,
-		dryRun:               dryRun,
-		lessonUsecase:        lessonUsecase,
-		teacherUsecase:       teacherUsecase,
-		teachers:             make(map[uint]*model2.Teacher, 1000),
-		fetchedLessons:       make(map[uint][]*model2.Lesson, 1000),
-		sender:               sender,
-		senderWaitGroup:      &sync.WaitGroup{},
-		followingTeacherRepo: followingTeacherRepo,
+		appLogger:                   appLogger,
+		db:                          db,
+		errorRecorder:               errorRecorder,
+		fetcher:                     fetcher,
+		dryRun:                      dryRun,
+		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
+		lessonUsecase:               lessonUsecase,
+		teacherUsecase:              teacherUsecase,
+		teachers:                    make(map[uint]*model2.Teacher, 1000),
+		fetchedLessons:              make(map[uint][]*model2.Lesson, 1000),
+		sender:                      sender,
+		senderWaitGroup:             &sync.WaitGroup{},
+		followingTeacherRepo:        followingTeacherRepo,
 	}
 }
 
@@ -126,8 +129,7 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) erro
 	}
 	wg.Wait()
 
-	notificationTimeSpanService := model.NewNotificationTimeSpanService(n.db)
-	timeSpans, err := notificationTimeSpanService.FindByUserID(ctx, uint32(user.ID))
+	timeSpans, err := n.notificationTimeSpanUsecase.FindByUserID(ctx, user.ID)
 	if err != nil {
 		return err
 	}
