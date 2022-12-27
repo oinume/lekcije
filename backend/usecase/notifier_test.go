@@ -93,7 +93,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
+		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, repos.FollowingTeacher())
 
 		for _, user := range users {
 			if err := n.SendNotification(ctx, user); err != nil {
@@ -138,7 +138,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 			Transport: senderTransport,
 		}
 		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, nil)
+		n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, true, lessonUsecase, sender, repos.FollowingTeacher())
 		if err := n.SendNotification(context.Background(), user); err != nil {
 			t.Fatalf("SendNotification failed: err=%v", err)
 		}
@@ -194,7 +194,7 @@ func TestNotifier_Close(t *testing.T) {
 	mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
 	fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 
-	n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, nil)
+	n := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher, false, lessonUsecase, sender, repos.FollowingTeacher())
 	err = n.SendNotification(context.Background(), user)
 	r.NoError(err, "SendNotification failed")
 	n.Close(context.Background(), &model.StatNotifier{
@@ -259,7 +259,7 @@ func Test_Notifier_All(t *testing.T) {
 		Transport: senderTransport,
 	}
 	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
-	notifier1 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher1, false, lessonUsecase, sender, nil)
+	notifier1 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher1, false, lessonUsecase, sender, repos.FollowingTeacher())
 
 	user := modeltest.NewUser()
 	repos.CreateUsers(ctx, t, user)
@@ -280,7 +280,7 @@ func Test_Notifier_All(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	fetcher2 := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
-	notifier2 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher2, false, lessonUsecase, sender, nil)
+	notifier2 := usecase.NewNotifier(appLogger, db, errorRecorder, fetcher2, false, lessonUsecase, sender, repos.FollowingTeacher())
 	if err := notifier2.SendNotification(ctx, user); err != nil {
 		t.Fatalf("SendNotification failed: %v", err)
 	}

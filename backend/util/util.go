@@ -54,6 +54,14 @@ func Uint32ToStringSlice(from ...uint32) []string {
 	return to
 }
 
+func UintToStringSlice(from ...uint) []string { // TODO: rewrite with generics
+	to := make([]string, len(from))
+	for i := range from {
+		to[i] = fmt.Sprint(from[i])
+	}
+	return to
+}
+
 func EncryptString(plainText string, encryptionKey string) (string, error) {
 	if encryptionKey == "" {
 		return "", fmt.Errorf("argument encryptionKey is empty")
