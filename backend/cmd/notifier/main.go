@@ -17,6 +17,7 @@ import (
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
+	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/infrastructure/open_telemetry"
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/logger"
@@ -94,7 +95,8 @@ func (m *notifierMain) run(args []string) error {
 	if *notificationInterval == 0 {
 		return fmt.Errorf("-notification-interval is required")
 	}
-	users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue(ctx, *notificationInterval)
+	users, err := mysql.NewUserRepository(db.DB()).FindAllByEmailVerifiedIsTrue(ctx, *notificationInterval)
+	//users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue(ctx, *notificationInterval)
 	if err != nil {
 		return err
 	}
