@@ -32,6 +32,10 @@ func (r *teacherRepository) CreateOrUpdate(ctx context.Context, teacher *model2.
 	return teacher.Upsert(ctx, r.db, boil.Infer(), boil.Infer())
 }
 
+func (r *teacherRepository) FindByID(ctx context.Context, id uint) (*model2.Teacher, error) {
+	return model2.Teachers(qm.WhereIn("id = ?", id)).One(ctx, r.db)
+}
+
 func (r *teacherRepository) FindByIDs(ctx context.Context, ids []uint) ([]*model2.Teacher, error) {
 	return model2.Teachers(qm.WhereIn("id IN ?", fromUintSlice(ids)...)).All(ctx, r.db)
 }

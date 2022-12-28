@@ -47,6 +47,10 @@ func NewNotificationTimeSpanUsecase(db *sql.DB) *usecase.NotificationTimeSpan {
 	return usecase.NewNotificationTimeSpan(mysql.NewNotificationTimeSpanRepository(db))
 }
 
+func NewStatNotifierUsecase(db *sql.DB) *usecase.StatNotifier {
+	return usecase.NewStatNotifier(mysql.NewStatNotifierRepository(db))
+}
+
 func NewTeacherUsecase(db *sql.DB) *usecase.Teacher {
 	return usecase.NewTeacher(mysql.NewTeacherRepository(db))
 }

@@ -28,8 +28,9 @@ type Notifier struct {
 	errorRecorder               *ErrorRecorder
 	fetcher                     repository.LessonFetcher
 	dryRun                      bool
-	notificationTimeSpanUsecase *NotificationTimeSpan
 	lessonUsecase               *Lesson
+	notificationTimeSpanUsecase *NotificationTimeSpan
+	statNotifierUsecase         *StatNotifier
 	teacherUsecase              *Teacher
 	teachers                    map[uint]*model2.Teacher
 	fetchedLessons              map[uint][]*model2.Lesson
@@ -45,8 +46,9 @@ func NewNotifier(
 	errorRecorder *ErrorRecorder,
 	fetcher repository.LessonFetcher,
 	dryRun bool,
-	notificationTimeSpanUsecase *NotificationTimeSpan,
 	lessonUsecase *Lesson,
+	notificationTimeSpanUsecase *NotificationTimeSpan,
+	statNotifierUsecase *StatNotifier,
 	teacherUsecase *Teacher,
 	sender emailer.Sender,
 	followingTeacherRepo repository.FollowingTeacher,
@@ -57,8 +59,9 @@ func NewNotifier(
 		errorRecorder:               errorRecorder,
 		fetcher:                     fetcher,
 		dryRun:                      dryRun,
-		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
 		lessonUsecase:               lessonUsecase,
+		notificationTimeSpanUsecase: notificationTimeSpanUsecase,
+		statNotifierUsecase:         statNotifierUsecase,
 		teacherUsecase:              teacherUsecase,
 		teachers:                    make(map[uint]*model2.Teacher, 1000),
 		fetchedLessons:              make(map[uint][]*model2.Lesson, 1000),
@@ -87,7 +90,6 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) erro
 	// Comment out due to papertrail limit
 	//logger.App.Info("n", zap.Uint("userID", uint(user.ID)), zap.Int("teachers", len(teacherIDs)))
 
-	//availableTeachersAndLessons := make(map[uint32][]*model.Lesson, 1000)
 	availableTeachersAndLessons := newTeachersAndLessons(1000)
 	wg := &sync.WaitGroup{}
 	for _, teacherID := range teacherIDs {
@@ -202,59 +204,6 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 		nil
 }
 
-func (n *Notifier) toModelTeacher(teacher *model2.Teacher) *model.Teacher { //nolint:unused
-	var rating float64
-	if teacher.Rating.Big != nil {
-		rating, _ = teacher.Rating.Big.Float64()
-	}
-	return &model.Teacher{
-		ID:                uint32(teacher.ID),
-		Name:              teacher.Name,
-		CountryID:         uint16(teacher.CountryID),
-		Gender:            teacher.Gender,
-		Birthday:          teacher.Birthday,
-		YearsOfExperience: uint8(teacher.YearsOfExperience),
-		FavoriteCount:     uint32(teacher.FavoriteCount),
-		ReviewCount:       uint32(teacher.ReviewCount),
-		Rating:            float32(rating),
-		LastLessonAt:      teacher.LastLessonAt,
-		FetchErrorCount:   teacher.FetchErrorCount,
-		CreatedAt:         teacher.CreatedAt,
-		UpdatedAt:         teacher.UpdatedAt,
-	}
-}
-
-func (n *Notifier) toModel(teacher *model2.Teacher, lessons []*model2.Lesson) (*model.Teacher, []*model.Lesson) { //nolint:unused
-	var rating float64
-	if teacher.Rating.Big != nil {
-		rating, _ = teacher.Rating.Big.Float64()
-	}
-	t := &model.Teacher{
-		ID:                uint32(teacher.ID),
-		Name:              teacher.Name,
-		CountryID:         uint16(teacher.CountryID),
-		Gender:            teacher.Gender,
-		Birthday:          teacher.Birthday,
-		YearsOfExperience: uint8(teacher.YearsOfExperience),
-		FavoriteCount:     uint32(teacher.FavoriteCount),
-		ReviewCount:       uint32(teacher.ReviewCount),
-		Rating:            float32(rating),
-		LastLessonAt:      teacher.LastLessonAt,
-		FetchErrorCount:   teacher.FetchErrorCount,
-		CreatedAt:         teacher.CreatedAt,
-		UpdatedAt:         teacher.UpdatedAt,
-	}
-	modelFetchedLessons := make([]*model.Lesson, len(lessons))
-	for i, l := range lessons {
-		modelFetchedLessons[i] = &model.Lesson{
-			TeacherID: uint32(l.TeacherID),
-			Datetime:  l.Datetime,
-			Status:    l.Status,
-		}
-	}
-	return t, modelFetchedLessons
-}
-
 func (n *Notifier) sendNotificationToUser(
 	ctx context.Context,
 	user *model2.User,
@@ -359,7 +308,7 @@ https://lekcije.amebaownd.com/posts/10340104
 	`)
 }
 
-func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
+func (n *Notifier) Close(ctx context.Context, stat *model2.StatNotifier) {
 	n.senderWaitGroup.Wait()
 	defer n.fetcher.Close()
 	defer func() {
@@ -389,9 +338,9 @@ func (n *Notifier) Close(ctx context.Context, stat *model.StatNotifier) {
 		}
 	}()
 	if stat.Interval == 10 {
-		stat.Elapsed = uint32(time.Now().UTC().Sub(stat.Datetime) / time.Millisecond)
-		stat.FollowedTeacherCount = uint32(len(n.teachers))
-		if err := model.NewStatNotifierService(n.db).CreateOrUpdate(stat); err != nil {
+		stat.Elapsed = uint(time.Now().UTC().Sub(stat.Datetime) / time.Millisecond)
+		stat.FollowedTeacherCount = uint(len(n.teachers))
+		if err := n.statNotifierUsecase.CreateOrUpdate(ctx, stat); err != nil {
 			n.appLogger.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
 		}
 	}

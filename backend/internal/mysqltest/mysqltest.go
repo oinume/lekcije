@@ -17,6 +17,7 @@ type Repositories struct {
 	lesson               repository.Lesson
 	lessonStatusLog      repository.LessonStatusLog
 	notificationTimeSpan repository.NotificationTimeSpan
+	statNotifier         repository.StatNotifier
 	teacher              repository.Teacher
 	user                 repository.User
 	userAPIToken         repository.UserAPIToken
@@ -31,6 +32,7 @@ func NewRepositories(sqlDB *sql.DB) *Repositories {
 		lesson:               mysql.NewLessonRepository(sqlDB),
 		lessonStatusLog:      mysql.NewLessonStatusLogRepository(sqlDB),
 		notificationTimeSpan: mysql.NewNotificationTimeSpanRepository(sqlDB),
+		statNotifier:         mysql.NewStatNotifierRepository(sqlDB),
 		teacher:              mysql.NewTeacherRepository(sqlDB),
 		user:                 mysql.NewUserRepository(sqlDB),
 		userAPIToken:         mysql.NewUserAPITokenRepository(sqlDB),
@@ -56,6 +58,10 @@ func (r *Repositories) LessonStatusLog() repository.LessonStatusLog {
 
 func (r *Repositories) NotificationTimeSpan() repository.NotificationTimeSpan {
 	return r.notificationTimeSpan
+}
+
+func (r *Repositories) StatNotifier() repository.StatNotifier {
+	return r.statNotifier
 }
 
 func (r *Repositories) Teacher() repository.Teacher {
