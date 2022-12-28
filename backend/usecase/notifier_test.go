@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ericlagergren/decimal"
+	"github.com/volatiletech/sqlboiler/v4/types"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/backend/domain/repository"
@@ -206,6 +208,10 @@ func TestNotifier_Close(t *testing.T) {
 	teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
 		t.ID = 3982
 		t.Name = "Hena"
+		t.CountryID = 70
+		t.FavoriteCount = 1763
+		t.Rating = types.NullDecimal{Big: decimal.New(int64(490), 2)}
+		t.ReviewCount = 1366
 	})
 	repos.CreateTeachers(ctx, t, teacher)
 	followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
