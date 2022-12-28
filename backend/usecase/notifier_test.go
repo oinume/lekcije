@@ -108,7 +108,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		// Wait all async requests are done
 		n.Close(ctx, &model2.StatNotifier{
 			Datetime:             time.Now().UTC(),
-			Interval:             10,
+			Interval:             1,
 			Elapsed:              1000,
 			UserCount:            uint(len(users)),
 			FollowedTeacherCount: uint(len(users)),
@@ -153,7 +153,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 
 		n.Close(context.Background(), &model2.StatNotifier{
 			Datetime:             time.Now().UTC(),
-			Interval:             10,
+			Interval:             2,
 			Elapsed:              1000,
 			UserCount:            1,
 			FollowedTeacherCount: 1,
@@ -174,6 +174,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 }
 
 func TestNotifier_Close(t *testing.T) {
+	time.Sleep(1 * time.Second)
 	ctx := context.Background()
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
@@ -222,7 +223,7 @@ func TestNotifier_Close(t *testing.T) {
 	}
 	n.Close(context.Background(), &model2.StatNotifier{
 		Datetime:             time.Now().UTC(),
-		Interval:             10,
+		Interval:             3,
 		Elapsed:              1000,
 		UserCount:            1,
 		FollowedTeacherCount: 1,
@@ -301,7 +302,7 @@ func Test_Notifier_All(t *testing.T) {
 	}
 	notifier1.Close(ctx, &model2.StatNotifier{
 		Datetime:             time.Now().UTC(),
-		Interval:             10,
+		Interval:             4,
 		Elapsed:              1000,
 		UserCount:            1,
 		FollowedTeacherCount: 1,
@@ -319,7 +320,7 @@ func Test_Notifier_All(t *testing.T) {
 	}
 	notifier2.Close(ctx, &model2.StatNotifier{
 		Datetime:             time.Now().UTC(),
-		Interval:             10,
+		Interval:             5,
 		Elapsed:              2000,
 		UserCount:            1,
 		FollowedTeacherCount: 1,
