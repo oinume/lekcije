@@ -1,16 +1,13 @@
 package model
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"go.opentelemetry.io/otel"
 
-	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -61,31 +58,6 @@ func (s *UserService) FindByPK(id uint32) (*User, error) {
 		return nil, err
 	}
 	return user, nil
-}
-
-// FindAllEmailVerifiedIsTrue returns an empty slice if no users found
-func (s *UserService) FindAllEmailVerifiedIsTrue(ctx context.Context, notificationInterval int) ([]*User, error) {
-	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "UserService.FindAllEmailVerifiedIsTrue")
-	defer span.End()
-
-	var users []*User
-	sql := `
-	SELECT u.* FROM (SELECT DISTINCT(user_id) FROM following_teacher) AS ft
-	INNER JOIN user AS u ON ft.user_id = u.id
-	INNER JOIN m_plan AS mp ON u.plan_id = mp.id
-	WHERE
-	  u.email_verified = 1
-	  AND mp.notification_interval = ?
-	ORDER BY u.open_notification_at DESC
-	`
-	result := s.db.Raw(strings.TrimSpace(sql), notificationInterval).Scan(&users)
-	if result.Error != nil && !result.RecordNotFound() {
-		return nil, errors.NewInternalError(
-			errors.WithError(result.Error),
-			errors.WithMessage("Failed to find Users"),
-		)
-	}
-	return users, nil
 }
 
 // FindAllFollowedTeacherAtIsNull returns an empty slice if no users found
