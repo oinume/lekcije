@@ -64,7 +64,9 @@ func NewNotificationTimeSpan(setters ...func(nts *model2.NotificationTimeSpan)) 
 }
 
 func NewTeacher(setters ...func(t *model2.Teacher)) *model2.Teacher {
-	teacher := &model2.Teacher{}
+	teacher := &model2.Teacher{
+		LastLessonAt: time.Now().UTC().Add(-1 * 24 * time.Hour),
+	}
 	for _, setter := range setters {
 		setter(teacher)
 	}
@@ -87,7 +89,9 @@ func NewTeacher(setters ...func(t *model2.Teacher)) *model2.Teacher {
 }
 
 func NewUser(setters ...func(u *model2.User)) *model2.User {
-	user := &model2.User{}
+	user := &model2.User{
+		EmailVerified: 1,
+	}
 	for _, setter := range setters {
 		setter(user)
 	}

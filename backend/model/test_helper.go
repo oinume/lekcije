@@ -123,12 +123,3 @@ func (h *TestHelper) CreateTeacher(t *testing.T, id uint32, name string) *Teache
 func (h *TestHelper) CreateRandomTeacher(t *testing.T) *Teacher {
 	return h.CreateTeacher(t, uint32(randoms.MustNewInt64(9999999)), randoms.MustNewString(6))
 }
-
-func (h *TestHelper) CreateFollowingTeacher(t *testing.T, userID uint32, teacher *Teacher) *FollowingTeacher {
-	now := time.Now()
-	ft, err := NewFollowingTeacherService(h.DB(t)).FollowTeacher(userID, teacher, now)
-	if err != nil {
-		t.Fatal(fmt.Errorf("FollowTeacher failed: %v", err))
-	}
-	return ft
-}

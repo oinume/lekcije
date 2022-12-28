@@ -83,8 +83,13 @@ func Test_Notifier_SendNotification(t *testing.T) {
 				u.Email = name + "@gmail.com"
 			})
 			repos.CreateUsers(ctx, t, user)
-			teacher := helper.CreateRandomTeacher(t)
-			helper.CreateFollowingTeacher(t, uint32(user.ID), teacher)
+			teacher := modeltest.NewTeacher()
+			repos.CreateTeachers(ctx, t, teacher)
+			followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+				ft.UserID = user.ID
+				ft.TeacherID = teacher.ID
+			})
+			repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 			users = append(users, user)
 		}
 
@@ -123,8 +128,16 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		ctx := context.Background()
 		user := modeltest.NewUser()
 		repos.CreateUsers(ctx, t, user)
-		teacher := helper.CreateRandomTeacher(t)
-		helper.CreateFollowingTeacher(t, uint32(user.ID), teacher)
+		teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
+			t.ID = 3986
+			t.Name = "Hena"
+		})
+		repos.CreateTeachers(ctx, t, teacher)
+		followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+			ft.UserID = user.ID
+			ft.TeacherID = teacher.ID
+		})
+		repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 
 		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB(t))
 		timeSpans := []*model.NotificationTimeSpan{
@@ -135,7 +148,6 @@ func Test_Notifier_SendNotification(t *testing.T) {
 			t.Fatalf("UpdateAll failed: err=%v", err)
 		}
 
-		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 		mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
 		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 		senderTransport := &mockSenderTransport{}
@@ -174,7 +186,6 @@ func Test_Notifier_SendNotification(t *testing.T) {
 }
 
 func TestNotifier_Close(t *testing.T) {
-	time.Sleep(1 * time.Second)
 	ctx := context.Background()
 	db := helper.DB(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
@@ -294,8 +305,16 @@ func Test_Notifier_All(t *testing.T) {
 
 	user := modeltest.NewUser()
 	repos.CreateUsers(ctx, t, user)
-	teacher := helper.CreateTeacher(t, 49393, "Judith")
-	helper.CreateFollowingTeacher(t, uint32(user.ID), teacher)
+	teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
+		t.ID = 49393
+		t.Name = "Judith"
+	})
+	repos.CreateTeachers(ctx, t, teacher)
+	followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+		ft.UserID = user.ID
+		ft.TeacherID = teacher.ID
+	})
+	repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 
 	if err := notifier1.SendNotification(ctx, user); err != nil {
 		t.Fatalf("SendNotification failed: %v", err)

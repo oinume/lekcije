@@ -51,34 +51,3 @@ func (s *FollowingTeacherService) FindTeacherIDs() ([]uint32, error) {
 	}
 	return ids, nil
 }
-
-func (s *FollowingTeacherService) FollowTeacher( // TODO: delete no longer used
-	userID uint32, teacher *Teacher, timestamp time.Time,
-) (*FollowingTeacher, error) {
-	// Create teacher at first
-	teacher.CreatedAt = timestamp
-	teacher.UpdatedAt = timestamp
-	teacherService := NewTeacherService(s.db)
-	if err := teacherService.CreateOrUpdate(teacher); err != nil {
-		return nil, err
-	}
-
-	ft := &FollowingTeacher{
-		UserID:    userID,
-		TeacherID: teacher.ID,
-		CreatedAt: timestamp,
-		UpdatedAt: timestamp,
-	}
-	if err := s.db.FirstOrCreate(ft).Error; err != nil {
-		return nil, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithResource(
-				errors.NewResourceWithEntries(ft.TableName(), []errors.ResourceEntry{
-					{Key: "userID", Value: userID},
-					{Key: "teacherID", Value: teacher.ID},
-				}),
-			),
-		)
-	}
-	return ft, nil
-}
