@@ -1,7 +1,6 @@
 package model
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -12,21 +11,6 @@ import (
 )
 
 var _ = fmt.Print
-
-func TestUserService_FindAllEmailVerifiedIsTrue(t *testing.T) {
-	a := assert.New(t)
-	r := require.New(t)
-	helper.TruncateAllTables(t)
-
-	user := helper.CreateRandomUser(t)
-	teacher := helper.CreateRandomTeacher(t)
-	_ = helper.CreateFollowingTeacher(t, user.ID, teacher)
-
-	users, err := userService.FindAllEmailVerifiedIsTrue(context.Background(), 10)
-	r.NoError(err)
-	a.Equal(1, len(users))
-	a.Equal(user.ID, users[0].ID)
-}
 
 func TestUserService_Create(t *testing.T) {
 	a := assert.New(t)

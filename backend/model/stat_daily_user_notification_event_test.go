@@ -52,7 +52,7 @@ func createEventLogEmails(userID uint32, datetime time.Time, num int) error {
 		err := eventLogEmailService.Create(&EventLogEmail{
 			Datetime:   datetime.Add(time.Duration(i) * time.Second),
 			Event:      "open",
-			EmailType:  EmailTypeNewLessonNotifier,
+			EmailType:  "new_lesson_notifier",
 			UserID:     userID,
 			UserAgent:  "test",
 			TeacherIDs: "1",

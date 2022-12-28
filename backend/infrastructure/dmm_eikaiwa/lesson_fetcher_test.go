@@ -15,6 +15,7 @@ import (
 
 	"github.com/ericlagergren/decimal"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/volatiletech/sqlboiler/v4/types"
 	"go.uber.org/zap"
 
@@ -167,8 +168,13 @@ func Test_lessonFetcher_parseHTML(t *testing.T) {
 		teacher.FavoriteCount = 1763
 		teacher.ReviewCount = 1366
 		teacher.Rating = types.NullDecimal{Big: decimal.New(int64(490), 2)}
+		//teacher.LastLessonAt = time.Date(2022, 12, 31, 10, 30, 0, 0, time.UTC)
 	})
-	assertion.AssertEqual(t, wantTeacher, gotTeacher, "", cmp.AllowUnexported(decimal.Big{}, big.Int{}))
+	assertion.AssertEqual(
+		t, wantTeacher, gotTeacher, "",
+		cmp.AllowUnexported(decimal.Big{}, big.Int{}),
+		cmpopts.IgnoreFields(model2.Teacher{}, "LastLessonAt"),
+	)
 
 	assertion.AssertEqual(t, true, len(lessons) > 0, "num of lessons must be greater than zero")
 	const dtFormat = "2006-01-02 15:04"

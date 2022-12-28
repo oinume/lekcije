@@ -11,7 +11,6 @@ import (
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -44,7 +43,7 @@ func (s *emailSender) Send(ctx context.Context, user *model2.User) error {
 			errors.WithMessagef("Failed to create emailer.Email from template: to=%v", user.Email),
 		)
 	}
-	email.SetCustomArg("email_type", model.EmailTypeRegistration)
+	email.SetCustomArg("email_type", model2.EmailTypeRegistration)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 
 	return s.sender.Send(ctx, email)

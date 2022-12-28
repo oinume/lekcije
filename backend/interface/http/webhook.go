@@ -87,7 +87,7 @@ func (v *SendGridEventValues) LogToDB(db *gorm.DB) error {
 		URL:        v.URL,
 	}
 	if v.EmailType == "" {
-		eventLogEmail.EmailType = model.EmailTypeNewLessonNotifier
+		eventLogEmail.EmailType = model2.EmailTypeNewLessonNotifier
 	}
 	return model.NewEventLogEmailService(db).Create(eventLogEmail)
 }
@@ -114,7 +114,7 @@ func (s *server) postAPISendGridEventWebhook(w http.ResponseWriter, r *http.Requ
 			internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 			return
 		}
-		if v.EmailType == model.EmailTypeNewLessonNotifier && v.IsEventOpen() {
+		if v.EmailType == model2.EmailTypeNewLessonNotifier && v.IsEventOpen() {
 			if err := userService.UpdateOpenNotificationAt(v.GetUserID(), time.Unix(v.Timestamp, 0).UTC()); err != nil {
 				internalServerError(r.Context(), s.errorRecorder, w, err, 0)
 				return

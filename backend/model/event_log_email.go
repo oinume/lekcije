@@ -9,13 +9,6 @@ import (
 	"github.com/oinume/lekcije/backend/errors"
 )
 
-// TODO: Custom type
-const (
-	EmailTypeNewLessonNotifier = "new_lesson_notifier"
-	EmailTypeFollowReminder    = "follow_reminder"
-	EmailTypeRegistration      = "registration"
-)
-
 type EventLogEmail struct {
 	Datetime   time.Time
 	Event      string

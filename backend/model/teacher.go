@@ -74,15 +74,6 @@ func (t *Teacher) IsJapanese() bool {
 	return t.CountryID == 392
 }
 
-type TeacherLessons struct {
-	Teacher *Teacher
-	Lessons []*Lesson
-}
-
-func NewTeacherLessons(t *Teacher, l []*Lesson) *TeacherLessons {
-	return &TeacherLessons{Teacher: t, Lessons: l}
-}
-
 type TeacherService struct {
 	db *gorm.DB
 }

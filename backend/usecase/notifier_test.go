@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ericlagergren/decimal"
+	"github.com/volatiletech/sqlboiler/v4/types"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/backend/domain/repository"
@@ -83,8 +85,13 @@ func Test_Notifier_SendNotification(t *testing.T) {
 				u.Email = name + "@gmail.com"
 			})
 			repos.CreateUsers(ctx, t, user)
-			teacher := helper.CreateRandomTeacher(t)
-			helper.CreateFollowingTeacher(t, uint32(user.ID), teacher)
+			teacher := modeltest.NewTeacher()
+			repos.CreateTeachers(ctx, t, teacher)
+			followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+				ft.UserID = user.ID
+				ft.TeacherID = teacher.ID
+			})
+			repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 			users = append(users, user)
 		}
 
@@ -108,7 +115,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		// Wait all async requests are done
 		n.Close(ctx, &model2.StatNotifier{
 			Datetime:             time.Now().UTC(),
-			Interval:             10,
+			Interval:             1,
 			Elapsed:              1000,
 			UserCount:            uint(len(users)),
 			FollowedTeacherCount: uint(len(users)),
@@ -123,8 +130,16 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		ctx := context.Background()
 		user := modeltest.NewUser()
 		repos.CreateUsers(ctx, t, user)
-		teacher := helper.CreateRandomTeacher(t)
-		helper.CreateFollowingTeacher(t, uint32(user.ID), teacher)
+		teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
+			t.ID = 3986
+			t.Name = "Hena"
+		})
+		repos.CreateTeachers(ctx, t, teacher)
+		followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+			ft.UserID = user.ID
+			ft.TeacherID = teacher.ID
+		})
+		repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 
 		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB(t))
 		timeSpans := []*model.NotificationTimeSpan{
@@ -135,7 +150,6 @@ func Test_Notifier_SendNotification(t *testing.T) {
 			t.Fatalf("UpdateAll failed: err=%v", err)
 		}
 
-		errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
 		mCountryList := registry.MustNewMCountryList(context.Background(), db.DB())
 		fetcher := dmm_eikaiwa.NewLessonFetcher(fetcherHTTPClient, 1, false, mCountryList, appLogger)
 		senderTransport := &mockSenderTransport{}
@@ -153,7 +167,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 
 		n.Close(context.Background(), &model2.StatNotifier{
 			Datetime:             time.Now().UTC(),
-			Interval:             10,
+			Interval:             2,
 			Elapsed:              1000,
 			UserCount:            1,
 			FollowedTeacherCount: 1,
@@ -194,6 +208,10 @@ func TestNotifier_Close(t *testing.T) {
 	teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
 		t.ID = 3982
 		t.Name = "Hena"
+		t.CountryID = 70
+		t.FavoriteCount = 1763
+		t.Rating = types.NullDecimal{Big: decimal.New(int64(490), 2)}
+		t.ReviewCount = 1366
 	})
 	repos.CreateTeachers(ctx, t, teacher)
 	followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
@@ -222,7 +240,7 @@ func TestNotifier_Close(t *testing.T) {
 	}
 	n.Close(context.Background(), &model2.StatNotifier{
 		Datetime:             time.Now().UTC(),
-		Interval:             10,
+		Interval:             3,
 		Elapsed:              1000,
 		UserCount:            1,
 		FollowedTeacherCount: 1,
@@ -293,15 +311,23 @@ func Test_Notifier_All(t *testing.T) {
 
 	user := modeltest.NewUser()
 	repos.CreateUsers(ctx, t, user)
-	teacher := helper.CreateTeacher(t, 49393, "Judith")
-	helper.CreateFollowingTeacher(t, uint32(user.ID), teacher)
+	teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
+		t.ID = 49393
+		t.Name = "Judith"
+	})
+	repos.CreateTeachers(ctx, t, teacher)
+	followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
+		ft.UserID = user.ID
+		ft.TeacherID = teacher.ID
+	})
+	repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 
 	if err := notifier1.SendNotification(ctx, user); err != nil {
 		t.Fatalf("SendNotification failed: %v", err)
 	}
 	notifier1.Close(ctx, &model2.StatNotifier{
 		Datetime:             time.Now().UTC(),
-		Interval:             10,
+		Interval:             4,
 		Elapsed:              1000,
 		UserCount:            1,
 		FollowedTeacherCount: 1,
@@ -319,7 +345,7 @@ func Test_Notifier_All(t *testing.T) {
 	}
 	notifier2.Close(ctx, &model2.StatNotifier{
 		Datetime:             time.Now().UTC(),
-		Interval:             10,
+		Interval:             5,
 		Elapsed:              2000,
 		UserCount:            1,
 		FollowedTeacherCount: 1,
