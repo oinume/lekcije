@@ -340,7 +340,7 @@ func (n *Notifier) Close(ctx context.Context, stat *model2.StatNotifier) {
 		stat.Elapsed = uint(time.Now().UTC().Sub(stat.Datetime) / time.Millisecond)
 		stat.FollowedTeacherCount = uint(len(n.teachers))
 		if err := n.statNotifierUsecase.CreateOrUpdate(ctx, stat); err != nil {
-			n.appLogger.Error("statNotifierService.CreateOrUpdate failed", zap.Error(err))
+			n.appLogger.Error("statNotifierUsecase.CreateOrUpdate failed", zap.Error(err))
 		}
 	}
 }
