@@ -22,6 +22,7 @@ import (
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/registry"
 	"github.com/oinume/lekcije/backend/usecase"
 )
@@ -120,18 +121,19 @@ func (m *notifierMain) run(args []string) error {
 		appLogger,
 		irollbar.NewErrorRecorderRepository(rollbarClient),
 	)
-	notificationTimeSpanUsecase := registry.NewNotificationTimeSpanUsecase(db.DB())
 	lessonUsecase := registry.NewLessonUsecase(db.DB())
+	notificationTimeSpanUsecase := registry.NewNotificationTimeSpanUsecase(db.DB())
+	statNotifierUsecase := registry.NewStatNotifierUsecase(db.DB())
 	teacherUsecase := registry.NewTeacherUsecase(db.DB())
 	notifier := usecase.NewNotifier(
-		appLogger, db, errorRecorder, lessonFetcher, *dryRun, notificationTimeSpanUsecase,
-		lessonUsecase, teacherUsecase, sender, mysql.NewFollowingTeacherRepository(db.DB()),
+		appLogger, db, errorRecorder, lessonFetcher, *dryRun, lessonUsecase, notificationTimeSpanUsecase,
+		statNotifierUsecase, teacherUsecase, sender, mysql.NewFollowingTeacherRepository(db.DB()),
 	)
-	defer notifier.Close(ctx, &model.StatNotifier{
+	defer notifier.Close(ctx, &model2.StatNotifier{
 		Datetime:             startedAt,
 		Interval:             uint8(*notificationInterval),
 		Elapsed:              0,
-		UserCount:            uint32(len(users)),
+		UserCount:            uint(len(users)),
 		FollowedTeacherCount: 0,
 	})
 	for _, user := range users {
