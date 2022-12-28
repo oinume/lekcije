@@ -17,6 +17,7 @@ import (
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 func main() {
@@ -93,7 +94,7 @@ func (m *followReminderMain) run(args []string) error {
 		if err != nil {
 			return err
 		}
-		mail.SetCustomArg("email_type", model.EmailTypeFollowReminder)
+		mail.SetCustomArg("email_type", model2.EmailTypeFollowReminder)
 		mail.SetCustomArg("user_id", fmt.Sprint(user.ID))
 
 		if !*dryRun {

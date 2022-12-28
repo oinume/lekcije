@@ -17,7 +17,6 @@ import (
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
-	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/util"
 )
@@ -255,7 +254,7 @@ func (n *Notifier) sendNotificationToUser(
 			errors.WithMessagef("Failed to create emailer.Email from template: to=%v", user.Email),
 		)
 	}
-	email.SetCustomArg("email_type", model.EmailTypeNewLessonNotifier)
+	email.SetCustomArg("email_type", model2.EmailTypeNewLessonNotifier)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))
 	email.SetCustomArg("teacher_ids", strings.Join(util.UintToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())

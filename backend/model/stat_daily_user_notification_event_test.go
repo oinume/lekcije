@@ -6,6 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/oinume/lekcije/backend/model2"
 )
 
 func TestStatDailyUserNotificationEventService_CreateOrUpdate(t *testing.T) {
@@ -52,7 +54,7 @@ func createEventLogEmails(userID uint32, datetime time.Time, num int) error {
 		err := eventLogEmailService.Create(&EventLogEmail{
 			Datetime:   datetime.Add(time.Duration(i) * time.Second),
 			Event:      "open",
-			EmailType:  EmailTypeNewLessonNotifier,
+			EmailType:  model2.EmailTypeNewLessonNotifier,
 			UserID:     userID,
 			UserAgent:  "test",
 			TeacherIDs: "1",
