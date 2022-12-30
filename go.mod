@@ -6,7 +6,6 @@ go 1.19
 
 require (
 	cloud.google.com/go/profiler v0.3.1
-	cloud.google.com/go/storage v1.28.1
 	github.com/99designs/gqlgen v0.17.22
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.2
 	github.com/Khan/genqlient v0.5.0
@@ -26,7 +25,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose/v3 v3.7.0
 	github.com/rollbar/rollbar-go v1.4.5
-	github.com/rs/cors v1.8.2
+	github.com/rs/cors v1.8.3
 	github.com/sendgrid/rest v2.6.9+incompatible
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/sethvargo/go-envconfig v0.8.3
@@ -57,7 +56,7 @@ require (
 	cloud.google.com/go v0.105.0 // indirect
 	cloud.google.com/go/compute v1.13.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.2 // indirect
-	cloud.google.com/go/iam v0.8.0 // indirect
+	cloud.google.com/go/storage v1.28.1 // indirect
 	cloud.google.com/go/trace v1.4.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.34.2 // indirect
