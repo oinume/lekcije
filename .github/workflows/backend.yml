@@ -221,7 +221,7 @@ jobs:
         with:
           deliverables: cmd/server/app.yaml
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          promote: false
+          promote: true
           version: ${{ env.VERSION_HASH }}
           working_directory: backend
       - name: Check the deployed URL with curl
