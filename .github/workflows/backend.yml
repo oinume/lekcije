@@ -200,6 +200,8 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
       - uses: google-github-actions/setup-gcloud@v1
+        with:
+          install_components: "app-engine-go"
       - uses: actions/setup-go@v3
         with:
           cache: true
@@ -219,7 +221,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-appengine@v1
         with:
-          deliverables: cmd/server/app.yaml
+          deliverables: "cmd/server/app.yaml cmd/server/dispatch.yaml"
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           promote: true
           version: ${{ env.VERSION_HASH }}
