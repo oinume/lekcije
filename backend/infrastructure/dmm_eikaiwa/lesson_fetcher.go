@@ -199,7 +199,6 @@ func (f *lessonFetcher) parseHTML(
 	// teacher name
 	if title, ok := titleXPath.String(root); ok {
 		teacherNameMatches := teacherNameRegexp.FindStringSubmatch(title)
-		fmt.Printf("teacherNameMatches = %+v\n", teacherNameMatches)
 		if len(teacherNameMatches) != 2 {
 			return nil, nil, fmt.Errorf("failed to extract teacher name: title=%v", title)
 		}
