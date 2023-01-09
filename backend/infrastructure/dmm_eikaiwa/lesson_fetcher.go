@@ -59,10 +59,11 @@ var (
 	redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
-	titleXPath      = xmlpath.MustCompile(`//title`)
-	attributesXPath = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
-	lessonXPath     = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
-	classAttrXPath  = xmlpath.MustCompile(`@class`)
+	titleXPath        = xmlpath.MustCompile(`//title`)
+	teacherNameRegexp = regexp.MustCompile(`(.+)の講師詳細`)
+	attributesXPath   = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
+	lessonXPath       = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
+	classAttrXPath    = xmlpath.MustCompile(`@class`)
 )
 
 type teacherLessons struct {
@@ -197,11 +198,14 @@ func (f *lessonFetcher) parseHTML(
 
 	// teacher name
 	if title, ok := titleXPath.String(root); ok {
-		teacher.Name = strings.Trim(strings.Split(title, "-")[0], " ")
+		teacherNameMatches := teacherNameRegexp.FindStringSubmatch(title)
+		fmt.Printf("teacherNameMatches = %+v\n", teacherNameMatches)
+		if len(teacherNameMatches) != 2 {
+			return nil, nil, fmt.Errorf("failed to extract teacher name: title=%v", title)
+		}
+		teacher.Name = teacherNameMatches[1]
 	} else {
-		return nil, nil, errors.NewInternalError(
-			errors.WithMessagef("failed to fetch teacher's name: url=%v", teacher.URL()),
-		)
+		return nil, nil, fmt.Errorf("failed to fetch teacher's name: url=%v", teacher.URL())
 	}
 
 	// Nationality, birthday, etc...
