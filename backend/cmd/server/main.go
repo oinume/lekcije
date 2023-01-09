@@ -11,7 +11,7 @@ import (
 	"cloud.google.com/go/profiler"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	_ "github.com/GoogleCloudPlatform/berglas/pkg/auto"
+	"github.com/GoogleCloudPlatform/berglas/pkg/berglas"
 	"github.com/rollbar/rollbar-go"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
@@ -40,6 +40,18 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+	gae := os.Getenv("GAE_APPLICATION")
+	if gae != "" {
+		for _, env := range []string{"MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_HOST"} {
+			if os.Getenv(env) == "" {
+				log.Fatalf("Environment variable %q is required", env)
+			}
+			if err := berglas.Replace(ctx, env); err != nil {
+				log.Fatalf("berglas.Replace failed: %v", err)
+			}
+		}
+	}
 	config.MustProcessDefault()
 	configVars := config.DefaultVars
 	port := configVars.HTTPPort
