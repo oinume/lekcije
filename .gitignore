@@ -40,3 +40,4 @@ backend/go.mod
 backend/go.sum
 
 /backend/package-lock.json
+secret.yaml

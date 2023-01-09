@@ -1,0 +1,20 @@
+runtime: go119
+service: server
+inbound_services:
+  - warmup
+handlers:
+  - url: /_ah/remote_api
+    script: auto
+    secure: always
+  - url: /.*
+    script: auto
+    secure: always
+instance_class: F1
+automatic_scaling:
+  min_idle_instances: 0
+  max_idle_instances: 1
+  min_pending_latency: automatic
+  max_pending_latency: automatic
+  max_concurrent_requests: 100
+includes:
+  - secret.yaml

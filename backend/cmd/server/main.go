@@ -11,6 +11,7 @@ import (
 	"cloud.google.com/go/profiler"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	_ "github.com/GoogleCloudPlatform/berglas/pkg/auto"
 	"github.com/rollbar/rollbar-go"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
