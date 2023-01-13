@@ -7,6 +7,7 @@ go 1.19
 require (
 	cloud.google.com/go/profiler v0.3.1
 	github.com/99designs/gqlgen v0.17.22
+	github.com/GoogleCloudPlatform/berglas v1.0.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.2
 	github.com/Khan/genqlient v0.5.0
 	github.com/Songmu/retry v0.1.0
@@ -43,7 +44,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.11.2
 	go.uber.org/zap v1.24.0
 	goji.io/v3 v3.0.0
-	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3
+	golang.org/x/exp v0.0.0-20230113152452-c42ee1cf562e
 	golang.org/x/oauth2 v0.4.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.6.0
@@ -62,7 +63,6 @@ require (
 	cloud.google.com/go/storage v1.28.1 // indirect
 	cloud.google.com/go/trace v1.4.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0 // indirect
-	github.com/GoogleCloudPlatform/berglas v1.0.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.34.2 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
