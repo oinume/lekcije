@@ -25,7 +25,7 @@ import (
 
 var (
 	bugUserIDs    = []uint{3725, 3698}
-	bugTeacherIDs = []uint{32202, 9521, 10134, 42129}
+	bugTeacherIDs = []uint{32202, 9521, 10134, 42129} //nolint
 )
 
 type Notifier struct {

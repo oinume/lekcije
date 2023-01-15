@@ -398,7 +398,7 @@ func (f *lessonFetcher) parseTeacherFavoriteCount(teacher *model2.Teacher, rootN
 
 func (f *lessonFetcher) parseTeacherRating(teacher *model2.Teacher, rootNode *xmlpath.Node) {
 	totalXPath := xmlpath.MustCompile(`//p[@id='total']`)
-	value, ok := totalXPath.String(rootNode)
+	value, ok := totalXPath.String(rootNode) //nolint
 	// TODO: uncomment
 	//if !ok {
 	//	newTeacherXPath := xmlpath.MustCompile(`//dl/dd/img[@class='new_teacher']`)
