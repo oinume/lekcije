@@ -12,13 +12,20 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/internal/slice_util"
 	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/util"
+)
+
+var (
+	bugUserIDs    = []uint{3725, 3698}
+	bugTeacherIDs = []uint{32202, 9521, 10134, 42129}
 )
 
 type Notifier struct {
@@ -80,6 +87,15 @@ func (n *Notifier) SendNotification(ctx context.Context, user *model2.User) erro
 	)
 	if err != nil {
 		return err
+	}
+	if slices.Contains(bugUserIDs, user.ID) {
+		n.appLogger.Info(
+			"SendNotification(bug)",
+			zap.Int("userID", int(user.ID)),
+			zap.String("teacherIDs", strings.Join(slice_util.Map(teacherIDs, func(v uint, _ int) string {
+				return fmt.Sprint(v)
+			}), ",")),
+		)
 	}
 
 	if len(teacherIDs) == 0 {
@@ -206,18 +222,24 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 func (n *Notifier) sendNotificationToUser(
 	ctx context.Context,
 	user *model2.User,
-	lessonsPerTeacher *teachersAndLessons,
+	lessonsByTeacher *teachersAndLessons,
 ) error {
 	ctx, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "Notifier.sendNotificationToUser")
 	defer span.End()
+	if slices.Contains(bugUserIDs, user.ID) {
+		n.appLogger.Info(
+			"sendNotificationToUser(bug)",
+			zap.Uint("userID", user.ID), zap.Int("countLessons", lessonsByTeacher.CountLessons()),
+		)
+	}
 
 	lessonsCount := 0
 	var teacherIDs []int
-	for teacherID, l := range lessonsPerTeacher.data {
+	for teacherID, l := range lessonsByTeacher.data {
 		teacherIDs = append(teacherIDs, int(teacherID))
 		lessonsCount += len(l.Lessons)
 	}
-	if lessonsPerTeacher.CountLessons() == 0 {
+	if lessonsByTeacher.CountLessons() == 0 {
 		// Don't send notification
 		return nil
 	}
@@ -244,7 +266,7 @@ func (n *Notifier) sendNotificationToUser(
 		TeacherNames:      strings.Join(teacherNames, ", "),
 		TeacherIDs:        teacherIDs2,
 		Teachers:          n.teachers,
-		LessonsPerTeacher: lessonsPerTeacher.data,
+		LessonsPerTeacher: lessonsByTeacher.data,
 		WebURL:            config.WebURL(),
 	}
 	email, err := emailer.NewEmailFromTemplate(t, data)
