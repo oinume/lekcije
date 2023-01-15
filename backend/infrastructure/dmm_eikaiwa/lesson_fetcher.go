@@ -398,24 +398,25 @@ func (f *lessonFetcher) parseTeacherFavoriteCount(teacher *model2.Teacher, rootN
 
 func (f *lessonFetcher) parseTeacherRating(teacher *model2.Teacher, rootNode *xmlpath.Node) {
 	totalXPath := xmlpath.MustCompile(`//p[@id='total']`)
-	value, ok := totalXPath.String(rootNode)
-	if !ok {
-		newTeacherXPath := xmlpath.MustCompile(`//dl/dd/img[@class='new_teacher']`)
-		if _, ok := newTeacherXPath.String(rootNode); !ok {
-			f.logger.Error(
-				"Failed to parse teacher review count",
-				zap.Uint("teacherID", uint(teacher.ID)),
-			)
-		}
-		// Give up to obtain review count and rating
-		return
-	}
+	value, ok := totalXPath.String(rootNode) //nolint
+	// TODO: uncomment
+	//if !ok {
+	//	newTeacherXPath := xmlpath.MustCompile(`//dl/dd/img[@class='new_teacher']`)
+	//	if _, ok := newTeacherXPath.String(rootNode); !ok {
+	//		f.logger.Error(
+	//			"Failed to parse teacher review count",
+	//			zap.Uint("teacherID", teacher.ID),
+	//		)
+	//	}
+	//	// Give up to obtain review count and rating
+	//	return
+	//}
 	matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
 	reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
 	if err != nil {
 		f.logger.Error(
 			"Failed to parse teacher review count. It's not a number",
-			zap.Uint("teacherID", uint(teacher.ID)),
+			zap.Uint("teacherID", teacher.ID),
 			zap.String("value", value),
 		)
 		return

@@ -97,7 +97,6 @@ func (m *notifierMain) run(args []string) error {
 		return fmt.Errorf("-notification-interval is required")
 	}
 	users, err := mysql.NewUserRepository(db.DB()).FindAllByEmailVerifiedIsTrue(ctx, *notificationInterval)
-	//users, err := model.NewUserService(db).FindAllEmailVerifiedIsTrue(ctx, *notificationInterval)
 	if err != nil {
 		return err
 	}
