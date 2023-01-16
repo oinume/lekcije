@@ -411,17 +411,17 @@ func (f *lessonFetcher) parseTeacherRating(teacher *model2.Teacher, rootNode *xm
 	//	// Give up to obtain review count and rating
 	//	return
 	//}
-	matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
-	reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
-	if err != nil {
-		f.logger.Error(
-			"Failed to parse teacher review count. It's not a number",
-			zap.Uint("teacherID", teacher.ID),
-			zap.String("value", value),
-		)
-		return
-	}
-	teacher.ReviewCount = uint(reviewCount)
+	//matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
+	//reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
+	//if err != nil {
+	//	f.logger.Error(
+	//		"Failed to parse teacher review count. It's not a number",
+	//		zap.Uint("teacherID", teacher.ID),
+	//		zap.String("value", value),
+	//	)
+	//	return
+	//}
+	//teacher.ReviewCount = uint(reviewCount)
 
 	numXPath := xmlpath.MustCompile(`//li[@id='num']`)
 	value, ok = numXPath.String(rootNode)
