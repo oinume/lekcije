@@ -66,7 +66,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 	statNotifierUsecase := usecase.NewStatNotifier(repos.StatNotifier())
 	teacherUsecase := usecase.NewTeacher(repos.Teacher())
 
-	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
+	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/49393.html")
 	if err != nil {
 		t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 	}
@@ -131,8 +131,8 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		user := modeltest.NewUser()
 		repos.CreateUsers(ctx, t, user)
 		teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
-			t.ID = 3986
-			t.Name = "Hena"
+			t.ID = 49393
+			t.Name = "Judith"
 		})
 		repos.CreateTeachers(ctx, t, teacher)
 		followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {

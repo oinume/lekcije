@@ -58,13 +58,13 @@ func Test_lessonFetcher_Fetch(t *testing.T) {
 	httpClient := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(httpClient, *concurrency, false, mCountryList, zap.NewNop())
 	ctx := context.Background()
-	teacher, lessons, err := fetcher.Fetch(ctx, 3986)
+	teacher, lessons, err := fetcher.Fetch(ctx, 49393)
 	if err != nil {
 		t.Fatalf("fetcher.Fetch failed: %v", err)
 	}
 
-	assertion.AssertEqual(t, "Hena", teacher.Name, "")
-	assertion.AssertEqual(t, 45, len(lessons), "")
+	assertion.AssertEqual(t, "Judith", teacher.Name, "")
+	assertion.AssertEqual(t, 24, len(lessons), "")
 	assertion.AssertEqual(t, 1, transport.callCount, "")
 }
 
@@ -72,12 +72,12 @@ func Test_lessonFetcher_Fetch_Retry(t *testing.T) {
 	transport := &errorTransport{okThreshold: 2}
 	client := &http.Client{Transport: transport}
 	fetcher := NewLessonFetcher(client, 1, false, mCountryList, zap.NewNop())
-	teacher, _, err := fetcher.Fetch(context.Background(), 3986)
+	teacher, _, err := fetcher.Fetch(context.Background(), 49393)
 	if err != nil {
 		t.Fatalf("fetcher.Fetch failed: %v", err)
 	}
 
-	assertion.AssertEqual(t, "Hena", teacher.Name, "")
+	assertion.AssertEqual(t, "Judith", teacher.Name, "")
 	assertion.AssertEqual(t, 2, transport.callCount, "")
 }
 
@@ -120,7 +120,7 @@ func Test_lessonFetcher_Fetch_InternalServerError(t *testing.T) {
 }
 
 func Test_lessonFetcher_Fetch_Concurrency(t *testing.T) {
-	mockTransport, err := mock.NewHTMLTransport("testdata/3986.html")
+	mockTransport, err := mock.NewHTMLTransport("testdata/49393.html")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +147,7 @@ func Test_lessonFetcher_Fetch_Concurrency(t *testing.T) {
 
 func Test_lessonFetcher_parseHTML(t *testing.T) {
 	fetcher := NewLessonFetcher(http.DefaultClient, 1, false, mCountryList, zap.NewNop()).(*lessonFetcher)
-	file, err := os.Open("testdata/3986.html")
+	file, err := os.Open("testdata/49393.html")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,19 +155,19 @@ func Test_lessonFetcher_parseHTML(t *testing.T) {
 		_ = file.Close()
 	})
 
-	gotTeacher, lessons, err := fetcher.parseHTML(model2.NewTeacher(uint(3986)), file)
+	gotTeacher, lessons, err := fetcher.parseHTML(model2.NewTeacher(uint(49393)), file)
 	if err != nil {
 		t.Fatalf("fetcher.parseHTML failed: %v", err)
 	}
 	wantTeacher := modeltest.NewTeacher(func(teacher *model2.Teacher) {
-		teacher.ID = 3986
-		teacher.Name = "Hena"
-		teacher.CountryID = int16(70)
-		teacher.Birthday = time.Date(1996, 4, 14, 0, 0, 0, 0, time.UTC)
-		teacher.YearsOfExperience = 4
-		teacher.FavoriteCount = 1763
-		teacher.ReviewCount = 1366
-		teacher.Rating = types.NullDecimal{Big: decimal.New(int64(490), 2)}
+		teacher.ID = 49393
+		teacher.Name = "Judith"
+		teacher.CountryID = int16(608)
+		teacher.Birthday = time.Time{}
+		teacher.YearsOfExperience = 2
+		teacher.FavoriteCount = 403
+		teacher.ReviewCount = 0
+		teacher.Rating = types.NullDecimal{Big: decimal.New(int64(496), 2)}
 		//teacher.LastLessonAt = time.Date(2022, 12, 31, 10, 30, 0, 0, time.UTC)
 	})
 	assertion.AssertEqual(
@@ -212,7 +212,7 @@ func (t *errorTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	resp.Header.Set("Content-Type", "text/html; charset=UTF-8")
 
-	file, err := os.Open("testdata/3986.html")
+	file, err := os.Open("testdata/49393.html")
 	if err != nil {
 		return nil, err
 	}
