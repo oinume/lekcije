@@ -230,7 +230,7 @@ func (n *Notifier) sendNotificationToUser(
 		n.appLogger.Info(
 			"sendNotificationToUser(bug)",
 			zap.Uint("userID", user.ID),
-			zap.String("teacherIDs", strings.Join(slice_util.Map(lessonsByTeacher.teacherIDs, func(v uint, _ int) string {
+			zap.String("teacherIDs", strings.Join(slice_util.Map(lessonsByTeacher.teacherIDs, func(v uint32, _ int) string {
 				return fmt.Sprint(v)
 			}), ",")),
 			zap.Int("countLessons", lessonsByTeacher.CountLessons()),
