@@ -11,7 +11,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.2
 	github.com/Khan/genqlient v0.5.0
 	github.com/Songmu/retry v0.1.0
-	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
+	github.com/ericlagergren/decimal/v3 v3.3.1
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/go-sql-driver/mysql v1.7.0
@@ -160,4 +160,4 @@ require (
 	modernc.org/token v1.0.1 // indirect
 )
 
-replace github.com/ericlagergren/decimal => github.com/ericlagergren/decimal v0.0.0-20181231230500-73749d4874d5
+replace github.com/ericlagergren/decimal/v3 => github.com/ericlagergren/decimal v3.3.1
