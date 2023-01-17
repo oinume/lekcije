@@ -60,7 +60,7 @@ func Test_teacherErrorResetterMain_run(t *testing.T) {
 				t.Fatalf("teacherService.CreateOrUpdate failed: err=%v", err)
 			}
 
-			mockTransport, err := mock.NewHTMLTransport("../../infrastructure/dmm_eikaiwa/testdata/3986.html")
+			mockTransport, err := mock.NewHTMLTransport("../../infrastructure/dmm_eikaiwa/testdata/49393.html")
 			if err != nil {
 				t.Fatalf("fetcher.NewMockTransport failed: err=%v", err)
 			}
