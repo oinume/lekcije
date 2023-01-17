@@ -64,6 +64,9 @@ var (
 	attributesXPath   = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
 	lessonXPath       = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
 	classAttrXPath    = xmlpath.MustCompile(`@class`)
+	ratingXPath       = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/strong/text()`)
+	reviewCountXPath  = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/text()`)
+	newTeacherXPath   = xmlpath.MustCompile(`//div[@class='favorite-list-box-wrap']/img[@class='new_teacher']`)
 )
 
 type teacherLessons struct {
@@ -215,6 +218,8 @@ func (f *lessonFetcher) parseHTML(
 	}
 	// Rating
 	f.parseTeacherRating(teacher, root)
+	// ReviewCount
+	f.parseTeacherReviewCount(teacher, root)
 
 	dateRegexp := regexp.MustCompile(`([\d]+)月([\d]+)日(.+)`)
 	lessons := make([]*model2.Lesson, 0, 1000)
@@ -397,51 +402,54 @@ func (f *lessonFetcher) parseTeacherFavoriteCount(teacher *model2.Teacher, rootN
 }
 
 func (f *lessonFetcher) parseTeacherRating(teacher *model2.Teacher, rootNode *xmlpath.Node) {
-	totalXPath := xmlpath.MustCompile(`//p[@id='total']`)
-	value, ok := totalXPath.String(rootNode) //nolint
-	// TODO: uncomment
-	//if !ok {
-	//	newTeacherXPath := xmlpath.MustCompile(`//dl/dd/img[@class='new_teacher']`)
-	//	if _, ok := newTeacherXPath.String(rootNode); !ok {
-	//		f.logger.Error(
-	//			"Failed to parse teacher review count",
-	//			zap.Uint("teacherID", teacher.ID),
-	//		)
-	//	}
-	//	// Give up to obtain review count and rating
-	//	return
-	//}
-	//matches := regexp.MustCompile(`\((\d+)件\)`).FindStringSubmatch(value)
-	//reviewCount, err := strconv.ParseUint(matches[1], 10, 32)
-	//if err != nil {
-	//	f.logger.Error(
-	//		"Failed to parse teacher review count. It's not a number",
-	//		zap.Uint("teacherID", teacher.ID),
-	//		zap.String("value", value),
-	//	)
-	//	return
-	//}
-	//teacher.ReviewCount = uint(reviewCount)
-
-	numXPath := xmlpath.MustCompile(`//li[@id='num']`)
-	value, ok = numXPath.String(rootNode)
+	value, ok := ratingXPath.String(rootNode)
 	if !ok {
-		f.logger.Error(
-			"Failed to parse teacher rating",
-			zap.Uint("teacherID", uint(teacher.ID)),
-		)
+		if _, ok := newTeacherXPath.String(rootNode); !ok {
+			f.logger.Error(
+				"Failed to parse teacher rating",
+				zap.Uint("teacherID", teacher.ID),
+				zap.String("value", value),
+			)
+		}
+		// Give up to obtain rating
 		return
 	}
-	rating, err := strconv.ParseFloat(value, 32) // TODO: parse as int ?
+	rating, err := strconv.ParseFloat(value, 32)
 	if err != nil {
 		f.logger.Error(
 			"Failed to parse teacher rating. It's not a number",
-			zap.Uint("teacherID", uint(teacher.ID)),
+			zap.Uint("teacherID", teacher.ID),
 		)
 		return
 	}
-
 	teacher.Rating = types.NullDecimal{Big: decimal.New(int64(rating*100), 2)}
+}
+
+func (f *lessonFetcher) parseTeacherReviewCount(teacher *model2.Teacher, rootNode *xmlpath.Node) {
+	value, ok := reviewCountXPath.String(rootNode)
+	if !ok {
+		if _, ok := newTeacherXPath.String(rootNode); !ok {
+			f.logger.Error(
+				"Failed to parse teacher review count",
+				zap.Uint("teacherID", teacher.ID),
+				zap.String("value", value),
+			)
+		}
+		// Give up to obtain rating
+		return
+	}
+	value = strings.TrimPrefix(value, "(")
+	value = strings.TrimSuffix(value, ")")
+	reviewCount, err := strconv.ParseUint(value, 10, 32)
+	if err != nil {
+		f.logger.Error(
+			"Failed to parse teacher review count. It's not a number",
+			zap.Uint("teacherID", teacher.ID),
+			zap.String("value", value),
+		)
+		return
+	}
+	teacher.ReviewCount = uint(reviewCount)
 }
 
 func (f *lessonFetcher) Close() {
