@@ -64,7 +64,7 @@ func Test_lessonFetcher_Fetch(t *testing.T) {
 	}
 
 	assertion.AssertEqual(t, "Judith", teacher.Name, "")
-	assertion.AssertEqual(t, 24, len(lessons), "")
+	assertion.AssertEqual(t, 38, len(lessons), "")
 	assertion.AssertEqual(t, 1, transport.callCount, "")
 }
 
@@ -165,9 +165,9 @@ func Test_lessonFetcher_parseHTML(t *testing.T) {
 		teacher.CountryID = int16(608)
 		teacher.Birthday = time.Time{}
 		teacher.YearsOfExperience = 2
-		teacher.FavoriteCount = 403
-		teacher.ReviewCount = 0
-		teacher.Rating = types.NullDecimal{Big: decimal.New(int64(496), 2)}
+		teacher.FavoriteCount = 559
+		teacher.ReviewCount = 1267
+		teacher.Rating = types.NullDecimal{Big: decimal.New(int64(498), 2)}
 		//teacher.LastLessonAt = time.Date(2022, 12, 31, 10, 30, 0, 0, time.UTC)
 	})
 	assertion.AssertEqual(

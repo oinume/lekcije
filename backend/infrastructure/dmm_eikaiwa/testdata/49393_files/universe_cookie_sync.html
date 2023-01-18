@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://cache.send.microad.jp/js/universe_cookie_sync.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <script>
+    (function () {
+      const cookieSyncUrls = [
+        // google
+        {
+          name: "ASR-g",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/g/asr"
+        },
+        // docomo
+        {
+          name: "ASR_12",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/asr?v=1&code=4OWYbAiDvXE&format=pixel"
+        },
+        // adgene
+        {
+          name: "ASR_19",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/asr?v=1&code=Utqpjbqy87I&format=pixel"
+        },
+        // fluct
+        {
+          name: "ASR_20",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/asr?v=1&code=wjYYWZkhlE4&format=pixel"
+        },
+        // openx
+        {
+          name: "ASR_25",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/asr?v=1&code=ZCWe-iOHsC0&format=pixel"
+        },
+        // spotx
+        {
+          name: "ASR_29",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/asr?v=1&code=LkV6T8kjJNI&format=pixel"
+        },
+        // verizon
+        {
+          name: "ASR_30",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/asr?v=1&code=1lEd6kdM8PY&format=pixel"
+        },
+        // MediaNetSSP
+        {
+          name: "ASR_33",
+          value: "1",
+          probability: 1.0,
+          cookieSyncUrl: "//aid.send.microad.jp/asr?v=1&code=jG40gaTLVE0&format=pixel"
+        }
+      ]
+
+      const completedProcessIds = []
+
+      Array.prototype.shuffle = function() {
+        const a = this.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function getRandomCookieSyncUrl() {
+        return cookieSyncUrls
+            .filter(c => isNonDormantCookie(c))
+            .filter(c => isSelectedByProbability(c.probability))
+            .shuffle()
+            .slice(0, 3)
+      }
+
+      function isSelectedByProbability(probability) {
+        return Math.random() <= probability
+      }
+
+      function isNonDormantCookie(cookie) {
+        return getCookieFromBrowser(cookie.name) !== cookie.value
+      }
+
+      function getCookieFromBrowser(targetKey) {
+        const cookies = document.cookie.split(";")
+        for (let cookie of cookies) {
+          const trimCookieKeyValue = cookie.replace(/^\s+|\s+$/g, "");
+          const [cookieKey, cookieValue] = trimCookieKeyValue.split("=");
+          if (cookieKey === targetKey) {
+            return cookieValue;
+          }
+        }
+        return "";
+      }
+
+      function getMicroadCookie() {
+        return getCookieFromBrowser("TR");
+      }
+
+      function appendCookieSyncTag(cookieSyncUrl) {
+        const img_elem = document.createElement("img");
+        img_elem.src = cookieSyncUrl;
+        img_elem.width = 1;
+        img_elem.height = 1;
+        img_elem.frameborder = 0;
+        img_elem.setAttribute("style", "display: none;");
+        const body = document.getElementsByTagName("body")[0];
+        body.insertBefore(img_elem, null);
+      }
+
+      function isSynced(processId) {
+        return (processId in completedProcessIds)
+      }
+
+      function appendCbtParam(urlString, val) {
+        const url = new URL(urlString)
+        url.searchParams.append("cbt", val)
+        return url.toString()
+      }
+
+      function startSync(cbtVal) {
+        getRandomCookieSyncUrl()
+            .map(x => appendCbtParam(document.location.protocol + x.cookieSyncUrl, cbtVal))
+            .forEach(u => appendCookieSyncTag(u))
+      }
+
+      function completeProcess(processId) {
+        completedProcessIds[processId] = 1
+      }
+
+      window.addEventListener('message', (messageEvent) => {
+        const processId = messageEvent.data.processId
+        if (processId === undefined || processId.length === 0) return
+
+        // 処理済みチェック
+        if (isSynced(processId)) return
+
+        // aid があるか？
+        if (!getMicroadCookie()) return
+
+        // 二重処理しないように、先に completedProcessId に processId を入れる
+        completeProcess(processId)
+
+        startSync(processId)
+      }, false);
+
+    })();
+  </script>
+</head>
+<body>
+
+
+</body></html>
