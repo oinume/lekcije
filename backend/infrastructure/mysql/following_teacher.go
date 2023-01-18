@@ -86,7 +86,7 @@ func (r *followingTeacherRepository) FindTeacherIDsByUserID(
 	WHERE
       ft.user_id = ?
       AND t.fetch_error_count <= ?
-      AND t.last_lesson_at >= ?
+      AND (t.last_lesson_at >= ? OR t.last_lesson_at = '0000-00-00 00:00:00')
 	`
 	if err := queries.Raw(query, userID, fetchErrorCount, FormatDateTime(lastLessonAt)).Bind(ctx, r.db, &values); err != nil {
 		if err == sql.ErrNoRows {
