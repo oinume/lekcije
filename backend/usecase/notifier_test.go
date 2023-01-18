@@ -143,8 +143,8 @@ func Test_Notifier_SendNotification(t *testing.T) {
 
 		notificationTimeSpanService := model.NewNotificationTimeSpanService(helper.DB(t))
 		timeSpans := []*model.NotificationTimeSpan{
-			{UserID: uint32(user.ID), Number: 1, FromTime: "02:00:00", ToTime: "03:00:00"},
-			{UserID: uint32(user.ID), Number: 2, FromTime: "06:00:00", ToTime: "07:00:00"},
+			{UserID: uint32(user.ID), Number: 1, FromTime: "11:00:00", ToTime: "12:00:00"},
+			{UserID: uint32(user.ID), Number: 2, FromTime: "16:00:00", ToTime: "17:00:00"},
 		}
 		if err := notificationTimeSpanService.UpdateAll(uint32(user.ID), timeSpans); err != nil {
 			t.Fatalf("UpdateAll failed: err=%v", err)
@@ -174,14 +174,14 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		}) // Wait all async requests are done before reading request body
 		content := senderTransport.requestBody
 		// TODO: table drive test
-		if !strings.Contains(content, "02:30") {
-			t.Errorf("content must contain 02:30 due to notification time span")
+		if !strings.Contains(content, "11:30") {
+			t.Errorf("content must contain 11:30 due to notification time span")
 		}
-		if !strings.Contains(content, "06:00") {
-			t.Errorf("content must contain 06:00 due to notification time span")
+		if !strings.Contains(content, "16:00") {
+			t.Errorf("content must contain 16:00 due to notification time span")
 		}
-		if strings.Contains(content, "05:00") {
-			t.Errorf("content must not contain 23:30 due to notification time span")
+		if strings.Contains(content, "14:00") {
+			t.Errorf("content must not contain 14:00 due to notification time span")
 		}
 		//fmt.Printf("content = %v\n", content)
 	})
@@ -190,6 +190,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 func TestNotifier_Close(t *testing.T) {
 	ctx := context.Background()
 	db := helper.DB(t)
+	helper.TruncateAllTables(t)
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	repos := mysqltest.NewRepositories(db.DB())
 	lessonUsecase := usecase.NewLesson(repos.Lesson(), repos.LessonStatusLog())
@@ -206,12 +207,14 @@ func TestNotifier_Close(t *testing.T) {
 	user := modeltest.NewUser()
 	repos.CreateUsers(ctx, t, user)
 	teacher := modeltest.NewTeacher(func(t *model2.Teacher) {
-		t.ID = 3982
-		t.Name = "Hena"
-		t.CountryID = 70
-		t.FavoriteCount = 1763
-		t.Rating = types.NullDecimal{Big: decimal.New(int64(490), 2)}
-		t.ReviewCount = 1366
+		t.ID = 49393
+		t.Name = "Judith"
+		t.CountryID = int16(608)
+		t.Birthday = time.Time{}
+		t.YearsOfExperience = 2
+		t.FavoriteCount = 559
+		t.ReviewCount = 1267
+		t.Rating = types.NullDecimal{Big: decimal.New(int64(498), 2)}
 	})
 	repos.CreateTeachers(ctx, t, teacher)
 	followingTeacher := modeltest.NewFollowingTeacher(func(ft *model2.FollowingTeacher) {
@@ -221,7 +224,7 @@ func TestNotifier_Close(t *testing.T) {
 	repos.CreateFollowingTeachers(ctx, t, followingTeacher)
 
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
-	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/3986.html")
+	fetcherMockTransport, err := mock.NewHTMLTransport("../infrastructure/dmm_eikaiwa/testdata/49393.html")
 	if err != nil {
 		t.Fatalf("fetcher.NewMockTransport failed: %v", err)
 	}
@@ -259,6 +262,7 @@ func TestNotifier_Close(t *testing.T) {
 func Test_Notifier_All(t *testing.T) {
 	ctx := context.Background()
 	db := helper.DB(t)
+	helper.TruncateAllTables(t)
 	repos := mysqltest.NewRepositories(db.DB())
 	appLogger := logger.NewAppLogger(os.Stdout, zapcore.DebugLevel)
 	errorRecorder := usecase.NewErrorRecorder(appLogger, &repository.NopErrorRecorder{})
