@@ -346,6 +346,8 @@ func (n *Notifier) Close(ctx context.Context, stat *model2.StatNotifier) {
 
 		for teacherID, lessons := range n.fetchedLessons {
 			if teacher, ok := n.teachers[teacherID]; ok {
+				dt := teacher.LastLessonAt
+				teacher.LastLessonAt = time.Date(dt.Year(), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second(), 0, time.UTC)
 				if err := n.teacherUsecase.CreateOrUpdate(ctx, teacher); err != nil {
 					n.appLogger.Error(
 						"teacherService.CreateOrUpdate failed in Notifier.Close",
