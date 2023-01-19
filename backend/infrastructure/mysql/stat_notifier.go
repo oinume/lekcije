@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/morikuni/failure"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -28,7 +27,6 @@ func (r *statNotifierRepository) CreateOrUpdate(ctx context.Context, statNotifie
 			if !errors.IsNotFound(err) {
 				return err
 			}
-			fmt.Printf("INSERT: err=%v\n", err)
 			return statNotifier.Insert(ctx, exec, boil.Infer())
 		}
 		_, err = statNotifier.Update(ctx, exec, boil.Infer())
