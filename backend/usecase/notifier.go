@@ -186,7 +186,8 @@ func (n *Notifier) fetchAndExtractNewAvailableLessons(
 	n.appLogger.Debug(
 		"fetcher.Fetch",
 		zap.Uint("teacherID", teacher.ID),
-		zap.Int("lessons", len(fetchedLessons)),
+		zap.Int("fetchedLessons", len(fetchedLessons)),
+		zap.Time("lastLessonAt", teacher.LastLessonAt),
 	)
 
 	//fmt.Printf("fetchedLessons ---\n")
