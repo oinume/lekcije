@@ -125,14 +125,19 @@ jobs:
           skip-build-cache: true
   deploy-gae:
     name: deploy-gae
-    if: github.ref == 'refs/heads/main'
+#    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
       - uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+#          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+          workload_identity_provider: 'projects/<プロジェクト番号>/locations/global/workloadIdentityPools/<プールID>/providers/<プロバイダID>' # secrets.GCP_WORKLOAD_IDENTITY_PROVIDER
+          service_account: '<サービスアカウントのメールアドレス>'
       - uses: google-github-actions/setup-gcloud@v1
         with:
           install_components: "app-engine-go"
