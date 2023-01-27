@@ -6,7 +6,7 @@ go 1.19
 
 require (
 	cloud.google.com/go/profiler v0.3.1
-	github.com/99designs/gqlgen v0.17.22
+	github.com/99designs/gqlgen v0.17.24
 	github.com/GoogleCloudPlatform/berglas v1.0.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.10.2
 	github.com/Khan/genqlient v0.5.0
