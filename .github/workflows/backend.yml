@@ -127,12 +127,16 @@ jobs:
     name: deploy-gae
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
       - uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+          workload_identity_provider: "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
+          service_account: "${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}"
       - uses: google-github-actions/setup-gcloud@v1
         with:
           install_components: "app-engine-go"
@@ -145,18 +149,17 @@ jobs:
         run: |
           VERSION_HASH=$(cat ../VERSION_HASH.txt)
           echo "VERSION_HASH=$VERSION_HASH" >> $GITHUB_ENV
-          echo "TODO: replace secret.template.yaml"
         working-directory: backend
       - name: Generate secret.yaml
         run: |
-          cat cmd/server/secret.template.yaml | sed -e 's!<GCP_PROJECT_ID>!${{ secrets.GCP_PROJECT_ID }}!g; s!<GOOGLE_ANALYTICS_ID>!${{ secrets.GOOGLE_ANALYTICS_ID }}!g; s!<GOOGLE_CLIENT_ID>!${{ secrets.GOOGLE_CLIENT_ID }}!g; s!<GOOGLE_CLIENT_SECRET>!${{ secrets.GOOGLE_CLIENT_SECRET }}!g; s!<ROLLBAR_ACCESS_TOKEN>!${{ secrets.ROLLBAR_ACCESS_TOKEN }}!g; s!<SENDGRID_API_KEY>!${{ secrets.SENDGRID_API_KEY }}!g; s!<VERSION_HASH>!${{ env.VERSION_HASH }}!g; ' > cmd/server/secret.yaml
+          cat cmd/server/secret.template.yaml | sed -e 's!<NEW_GCP_PROJECT_ID>!${{ secrets.GCP_PROJECT_ID }}!g; s!<GOOGLE_ANALYTICS_ID>!${{ secrets.GOOGLE_ANALYTICS_ID }}!g; s!<GOOGLE_CLIENT_ID>!${{ secrets.GOOGLE_CLIENT_ID }}!g; s!<GOOGLE_CLIENT_SECRET>!${{ secrets.GOOGLE_CLIENT_SECRET }}!g; s!<ROLLBAR_ACCESS_TOKEN>!${{ secrets.ROLLBAR_ACCESS_TOKEN }}!g; s!<SENDGRID_API_KEY>!${{ secrets.SENDGRID_API_KEY }}!g; s!<VERSION_HASH>!${{ env.VERSION_HASH }}!g;' > cmd/server/secret.yaml
         working-directory: backend
       - name: Deploy
         id: deploy
         uses: google-github-actions/deploy-appengine@v1
         with:
           deliverables: "cmd/server/app.yaml cmd/server/dispatch.yaml"
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.NEW_GCP_PROJECT_ID }}
           promote: true
           version: ${{ env.VERSION_HASH }}
           working_directory: backend
