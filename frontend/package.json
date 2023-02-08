@@ -105,7 +105,7 @@
     "graphql": "^16.6.0",
     "graphql-request": "^4.2.0",
     "lodash-es": "^4.17.20",
-    "minimatch": "^5.0.0",
+    "minimatch": "^6.0.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-hot-loader": "^4.13.0",
