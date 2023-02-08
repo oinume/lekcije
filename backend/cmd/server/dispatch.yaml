@@ -1,4 +1,4 @@
 dispatch:
   # Default service serves simple hostname request.
   - url: "www.lekcije.com/"
-    service: server
+    service: default

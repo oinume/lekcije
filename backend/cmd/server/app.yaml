@@ -1,5 +1,5 @@
 runtime: go119
-service: server
+service: default
 inbound_services:
   - warmup
 handlers:
