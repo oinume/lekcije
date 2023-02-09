@@ -65,13 +65,6 @@ func (m *notifierMain) run(args []string) error {
 	startedAt := time.Now().UTC()
 	appLogger := logger.NewAppLogger(os.Stderr, logger.NewLevel(*logLevel))
 	appLogger.Info(fmt.Sprintf("notifier started (interval=%d)", *notificationInterval))
-	defer func() {
-		elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
-		appLogger.Info(
-			fmt.Sprintf("notifier finished (interval=%d)", *notificationInterval),
-			zap.Int("elapsed", int(elapsed)),
-		)
-	}()
 
 	const serviceName = "notifier"
 	tracerProvider, err := open_telemetry.NewTracerProvider(serviceName, config.DefaultVars)
@@ -140,6 +133,13 @@ func (m *notifierMain) run(args []string) error {
 			return err
 		}
 	}
+
+	elapsed := time.Now().UTC().Sub(startedAt) / time.Millisecond
+	appLogger.Info(
+		fmt.Sprintf("notifier finished (interval=%d)", *notificationInterval),
+		zap.Int("elapsed", int(elapsed)),
+		zap.Int("usersCount", len(users)),
+	)
 
 	return nil
 }
