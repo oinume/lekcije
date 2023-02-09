@@ -259,7 +259,7 @@ func (n *Notifier) sendNotificationToUser(
 	email.SetCustomArg("teacher_ids", strings.Join(util.UintToStringSlice(teacherIDs2...), ","))
 	//fmt.Printf("--- mail ---\n%s", email.BodyString())
 
-	n.appLogger.Info("sendNotificationToUser", zap.String("email", user.Email))
+	n.appLogger.Info("sendNotificationToUser", zap.Uint("userID", user.ID))
 
 	n.senderWaitGroup.Add(1)
 	go func(email *emailer.Email) {
