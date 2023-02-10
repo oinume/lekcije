@@ -96,11 +96,11 @@ github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/GoogleCloudPlatform/berglas v1.0.1 h1:Ea+287ti+rwM/vAsPTJ5nSPU6FPDtfAIG7Rl0dN0O2c=
 github.com/GoogleCloudPlatform/berglas v1.0.1/go.mod h1:F9WRKoQqhxenyv4qYuCgFx8PD7PRd16u2am4iDxPQEI=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.0 h1:H+n5i7aVENiTGEr4fqfw4akY5nwAAVvvo6HZU7aYtjM=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.0/go.mod h1:qTIu7f/AlQOQ8OANsKLnrc0mLsld6RY7hq5/kR3wUxM=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.35.0 h1:6KWug9hBDdc7s9a0BxnxtTXPwFcLpVx7IUKO1SLIaDE=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.0 h1:vjtrvX7B3S+uqTIOvOUfqsMCa3eEtEOOQWm7ERI1pxg=
-github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.0/go.mod h1:H785fvlgotVZqht+1rHhXSs8EJ8uPVmpBYkTYO3ccpc=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.1 h1:O7dTg9ukLjzIOOLpC8RBaD1EqWD3jqicwhpju6C8meg=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.1/go.mod h1:EbS3BDOG4ESDJWUB2jE3On/u00ayOUSFeUzd4759bfU=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.35.1 h1:s503Jzh+SCMN557CUTsenBo8vNxmGZK7zWdNlePQ9TU=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.1 h1:IB4aQsSppxP/PVmnCstDm9v00hsPowqrohoW4FZ+amc=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.1/go.mod h1:H785fvlgotVZqht+1rHhXSs8EJ8uPVmpBYkTYO3ccpc=
 github.com/Khan/genqlient v0.5.0 h1:TMZJ+tl/BpbmGyIBiXzKzUftDhw4ZWxQZ+1ydn0gyII=
 github.com/Khan/genqlient v0.5.0/go.mod h1:EpIvDVXYm01GP6AXzjA7dKriPTH6GmtpmvTAwUUqIX8=
 github.com/Masterminds/goutils v1.1.1 h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
