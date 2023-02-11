@@ -133,6 +133,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
+      - uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # 0.11.0
       - uses: "google-github-actions/auth@v1"
         with:
           workload_identity_provider: "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
