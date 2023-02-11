@@ -27,7 +27,8 @@
         "golang.org/x",
         "google.golang.org/api",
         "google.golang.org/genproto",
-        "google-api-python-client"
+        "google-api-python-client",
+        "go.opentelemetry.io"
       ],
       "extends": [
         ":automergeMinor",
