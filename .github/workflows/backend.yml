@@ -162,7 +162,6 @@ jobs:
       - name: Run go mod vendor
         run: |
           go mod vendor
-          echo "GO111MODULE=off" >> $GITHUB_ENV
       - name: Deploy
         id: deploy
         uses: google-github-actions/deploy-appengine@v1
