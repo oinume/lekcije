@@ -6,7 +6,7 @@ go 1.19
 
 require (
 	cloud.google.com/go/profiler v0.3.1
-	github.com/99designs/gqlgen v0.17.24
+	github.com/99designs/gqlgen v0.17.25
 	github.com/GoogleCloudPlatform/berglas v1.0.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.2
 	github.com/Khan/genqlient v0.5.0
@@ -88,7 +88,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
@@ -129,7 +129,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
-	github.com/urfave/cli/v2 v2.8.1 // indirect
+	github.com/urfave/cli/v2 v2.24.4 // indirect
 	github.com/vertica/vertica-sql-go v1.3.1 // indirect
 	github.com/volatiletech/inflect v0.0.1 // indirect
 	github.com/volatiletech/randomize v0.0.1 // indirect
@@ -142,10 +142,10 @@ require (
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/mod v0.7.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/tools v0.5.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230209215440-0dfe4f8abfcc // indirect
