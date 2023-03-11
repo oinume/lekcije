@@ -125,7 +125,7 @@ jobs:
           skip-build-cache: true
   deploy-gae:
     name: deploy-gae
-    if: github.ref == 'refs/heads/main'
+#    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -163,15 +163,15 @@ jobs:
         run: |
           gcloud meta list-files-for-upload
         working-directory: backend
-      - name: Deploy
-        id: deploy
-        uses: google-github-actions/deploy-appengine@v1
-        with:
-          deliverables: "cmd/server/app.yaml cmd/server/dispatch.yaml"
-          project_id: ${{ secrets.NEW_GCP_PROJECT_ID }}
-          promote: true
-          version: ${{ env.VERSION_HASH }}
-          working_directory: backend
-      - name: Check the deployed URL with curl
-        run: |
-          curl -f "${{ steps.deploy.outputs.url }}/api/status"
+#      - name: Deploy
+#        id: deploy
+#        uses: google-github-actions/deploy-appengine@v1
+#        with:
+#          deliverables: "cmd/server/app.yaml cmd/server/dispatch.yaml"
+#          project_id: ${{ secrets.NEW_GCP_PROJECT_ID }}
+#          promote: true
+#          version: ${{ env.VERSION_HASH }}
+#          working_directory: backend
+#      - name: Check the deployed URL with curl
+#        run: |
+#          curl -f "${{ steps.deploy.outputs.url }}/api/status"
