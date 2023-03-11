@@ -123,55 +123,55 @@ jobs:
           skip-go-installation: true
           skip-pkg-cache: true
           skip-build-cache: true
-  deploy-gae:
-    name: deploy-gae
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      id-token: write
-      contents: read
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v3
-      - name: Cancel previous runs
-        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # 0.11.0
-        with:
-          access_token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: "google-github-actions/auth@v1"
-        with:
-          workload_identity_provider: "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
-          service_account: "${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}"
-      - uses: google-github-actions/setup-gcloud@v1
-        with:
-          install_components: "app-engine-go"
-      - uses: actions/setup-go@v3
-        with:
-          cache: true
-          cache-dependency-path: "go.sum"
-          go-version-file: "go.mod"
-      - name: Set env VERSION_HASH
-        run: |
-          VERSION_HASH=$(cat ../VERSION_HASH.txt)
-          echo "VERSION_HASH=$VERSION_HASH" >> $GITHUB_ENV
-        working-directory: backend
-      - name: Generate secret.yaml
-        run: |
-          cat cmd/server/secret.template.yaml | sed -e 's!<NEW_GCP_PROJECT_ID>!${{ secrets.GCP_PROJECT_ID }}!g; s!<GOOGLE_ANALYTICS_ID>!${{ secrets.GOOGLE_ANALYTICS_ID }}!g; s!<GOOGLE_CLIENT_ID>!${{ secrets.GOOGLE_CLIENT_ID }}!g; s!<GOOGLE_CLIENT_SECRET>!${{ secrets.GOOGLE_CLIENT_SECRET }}!g; s!<ROLLBAR_ACCESS_TOKEN>!${{ secrets.ROLLBAR_ACCESS_TOKEN }}!g; s!<SENDGRID_API_KEY>!${{ secrets.SENDGRID_API_KEY }}!g; s!<VERSION_HASH>!${{ env.VERSION_HASH }}!g;' > cmd/server/secret.yaml
-        working-directory: backend
-      - name: Show upload files
-        run: |
-          gcloud meta list-files-for-upload
-        working-directory: backend
-      - name: Deploy
-        id: deploy
-        uses: google-github-actions/deploy-appengine@v1
-        with:
-          deliverables: "cmd/server/app.yaml cmd/server/dispatch.yaml"
-          project_id: ${{ secrets.NEW_GCP_PROJECT_ID }}
-          promote: true
-          version: ${{ env.VERSION_HASH }}
-          working_directory: backend
-      - name: Check the deployed URL with curl
-        run: |
-          curl -f "${{ steps.deploy.outputs.url }}/api/status"
+#  deploy-gae:
+#    name: deploy-gae
+#    if: github.ref == 'refs/heads/main'
+#    runs-on: ubuntu-latest
+#    permissions:
+#      actions: write
+#      id-token: write
+#      contents: read
+#    timeout-minutes: 20
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Cancel previous runs
+#        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # 0.11.0
+#        with:
+#          access_token: ${{ secrets.GITHUB_TOKEN }}
+#      - uses: "google-github-actions/auth@v1"
+#        with:
+#          workload_identity_provider: "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
+#          service_account: "${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}"
+#      - uses: google-github-actions/setup-gcloud@v1
+#        with:
+#          install_components: "app-engine-go"
+#      - uses: actions/setup-go@v3
+#        with:
+#          cache: true
+#          cache-dependency-path: "go.sum"
+#          go-version-file: "go.mod"
+#      - name: Set env VERSION_HASH
+#        run: |
+#          VERSION_HASH=$(cat ../VERSION_HASH.txt)
+#          echo "VERSION_HASH=$VERSION_HASH" >> $GITHUB_ENV
+#        working-directory: backend
+#      - name: Generate secret.yaml
+#        run: |
+#          cat cmd/server/secret.template.yaml | sed -e 's!<NEW_GCP_PROJECT_ID>!${{ secrets.GCP_PROJECT_ID }}!g; s!<GOOGLE_ANALYTICS_ID>!${{ secrets.GOOGLE_ANALYTICS_ID }}!g; s!<GOOGLE_CLIENT_ID>!${{ secrets.GOOGLE_CLIENT_ID }}!g; s!<GOOGLE_CLIENT_SECRET>!${{ secrets.GOOGLE_CLIENT_SECRET }}!g; s!<ROLLBAR_ACCESS_TOKEN>!${{ secrets.ROLLBAR_ACCESS_TOKEN }}!g; s!<SENDGRID_API_KEY>!${{ secrets.SENDGRID_API_KEY }}!g; s!<VERSION_HASH>!${{ env.VERSION_HASH }}!g;' > cmd/server/secret.yaml
+#        working-directory: backend
+#      - name: Show upload files
+#        run: |
+#          gcloud meta list-files-for-upload
+#        working-directory: backend
+#      - name: Deploy
+#        id: deploy
+#        uses: google-github-actions/deploy-appengine@v1
+#        with:
+#          deliverables: "cmd/server/app.yaml cmd/server/dispatch.yaml"
+#          project_id: ${{ secrets.NEW_GCP_PROJECT_ID }}
+#          promote: true
+#          version: ${{ env.VERSION_HASH }}
+#          working_directory: backend
+#      - name: Check the deployed URL with curl
+#        run: |
+#          curl -f "${{ steps.deploy.outputs.url }}/api/status"
