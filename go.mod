@@ -15,7 +15,7 @@ require (
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fukata/golang-stats-api-handler v1.0.0
 	github.com/go-sql-driver/mysql v1.7.0
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/gorm v1.9.16
