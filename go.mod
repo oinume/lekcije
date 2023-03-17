@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/profiler v0.3.1
 	github.com/99designs/gqlgen v0.17.26
 	github.com/GoogleCloudPlatform/berglas v1.0.2
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.11.2
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.12.0
 	github.com/Khan/genqlient v0.5.0
 	github.com/Songmu/retry v0.1.0
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
@@ -64,7 +64,7 @@ require (
 	cloud.google.com/go/trace v1.8.0 // indirect
 	github.com/ClickHouse/ch-go v0.53.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.7.0 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.35.2 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.36.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
