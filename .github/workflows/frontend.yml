@@ -9,7 +9,7 @@ defaults:
   run:
     working-directory: frontend
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
 jobs:
   test:
     name: test
