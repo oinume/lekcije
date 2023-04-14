@@ -26,7 +26,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose/v3 v3.10.0
 	github.com/rollbar/rollbar-go v1.4.5
-	github.com/rs/cors v1.8.3
+	github.com/rs/cors v1.9.0
 	github.com/sendgrid/rest v2.6.9+incompatible
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/sethvargo/go-envconfig v0.9.0
