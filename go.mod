@@ -1,4 +1,4 @@
-// +heroku goVersion go1.19
+// +heroku goVersion go1.20
 // +heroku install ./backend/cmd/...
 module github.com/oinume/lekcije
 
