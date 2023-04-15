@@ -40,6 +40,12 @@
       "prPriority": 15,
       "extends": [":automergePatch"],
       "matchManagers": ["npm"]
+    },
+    {
+      "prPriority": 10,
+      "extends": [":automergeMinor"],
+      "matchDepTypes": ["devDependencies"],
+      "matchManagers": ["npm"]
     }
   ],
   "prNotPendingHours": 1,
