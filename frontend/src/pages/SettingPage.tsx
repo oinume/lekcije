@@ -127,8 +127,14 @@ export const SettingPage: React.FC = () => {
         handleOnChange={event => {
           setEmailState(event.currentTarget.value);
         }}
-        handleUpdateEmail={(em): void => {
-          updateViewerMutation.mutate({input: {email: em}});
+        handleUpdateEmail={(em): boolean => {
+          let success = true;
+          updateViewerMutation.mutate({input: {email: em}}, {
+            onError() {
+              success = false;
+            },
+          });
+          return success;
         }}
       />
       <div className="mb-3"/>

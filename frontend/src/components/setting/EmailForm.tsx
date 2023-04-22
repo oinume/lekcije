@@ -1,20 +1,43 @@
 import React, {useState} from 'react';
+import {type SubmitHandler, useForm} from 'react-hook-form';
+import {InputError} from '../InputError';
 
 type Props = {
   email: string;
   handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleUpdateEmail: (email: string) => void;
+  handleUpdateEmail: (email: string) => boolean;
+};
+
+type FormValues = {
+  email: string;
+};
+
+const formValidationRules = {
+  required: {value: true, message: '入力してください'},
+  maxLength: {value: 100, message: '100文字以内で入力してください'},
 };
 
 export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateEmail}) => {
   const [buttonEnabled, setButtonEnabled] = useState<boolean>(false);
+  const {register, handleSubmit, watch, formState: {errors}} = useForm<FormValues>();
+  const emailField = register('email', {
+    ...formValidationRules,
+    onChange(event: React.ChangeEvent<HTMLInputElement>) {
+      event.preventDefault();
+      setButtonEnabled(event.currentTarget.value !== '');
+      handleOnChange(event);
+    },
+  });
+
+  const onSubmit: SubmitHandler<FormValues> = data => {
+    const success = handleUpdateEmail(email);
+    setButtonEnabled(!success);
+  };
 
   return (
     <form
-      onSubmit={event => {
-        event.preventDefault();
-        handleUpdateEmail(email);
-      }}
+      className="needs-validation"
+      onSubmit={handleSubmit(onSubmit)}
     >
       <h5>通知先メールアドレス</h5>
       <div className="mb-3">
@@ -22,27 +45,19 @@ export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateE
           required
           autoFocus
           type="email"
-          className="form-control"
-          name="email"
+          className={`form-control ${errors.email ? 'is-invalid' : ''}`}
           id="email"
           placeholder="Email"
           autoComplete="on"
           value={email}
-          onChange={event => {
-            event.preventDefault();
-            setButtonEnabled(event.currentTarget.value !== '');
-            handleOnChange(event);
-          }}
+          {...emailField}
         />
+        { errors.email && <InputError message={errors.email.message}/> }
       </div>
       <button
-        type="button"
+        type="submit"
         disabled={!buttonEnabled}
         className="btn btn-primary"
-        onClick={() => {
-          handleUpdateEmail(email);
-          // TODO: setButtonEnabled(false);
-        }}
       >
         変更
       </button>
