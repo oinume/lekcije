@@ -18,20 +18,21 @@ const formValidationRules = {
 };
 
 export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateEmail}) => {
-  const [buttonEnabled, setButtonEnabled] = useState<boolean>(false);
-  const {register, handleSubmit, watch, formState: {errors}} = useForm<FormValues>();
+  const {
+    register,
+    handleSubmit,
+    formState: {errors, isDirty, isValid},
+  } = useForm<FormValues>({mode: 'onChange'});
   const emailField = register('email', {
     ...formValidationRules,
     onChange(event: React.ChangeEvent<HTMLInputElement>) {
       event.preventDefault();
-      setButtonEnabled(event.currentTarget.value !== '');
       handleOnChange(event);
     },
   });
 
   const onSubmit: SubmitHandler<FormValues> = data => {
     const success = handleUpdateEmail(email);
-    setButtonEnabled(!success);
   };
 
   return (
@@ -56,7 +57,7 @@ export const EmailForm: React.FC<Props> = ({email, handleOnChange, handleUpdateE
       </div>
       <button
         type="submit"
-        disabled={!buttonEnabled}
+        disabled={!isDirty || !isValid}
         className="btn btn-primary"
       >
         変更
