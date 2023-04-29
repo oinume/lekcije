@@ -1,7 +1,7 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
-import {EmailForm} from './EmailForm';
 import '@testing-library/jest-dom';
+import {EmailForm} from './EmailForm';
 
 test('<EmailForm>', () => {
   const handleOnChange = (_: React.ChangeEvent<HTMLInputElement>) => { /* Nop */ };

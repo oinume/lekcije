@@ -1,7 +1,7 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
-import {Select} from './Select';
 import '@testing-library/jest-dom';
+import {Select} from './Select';
 
 test('<Select> initial state', () => {
   const options = [
