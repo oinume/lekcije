@@ -2,7 +2,7 @@
 // +heroku install ./backend/cmd/...
 module github.com/oinume/lekcije
 
-go 1.19
+go 1.20
 
 require (
 	cloud.google.com/go/profiler v0.3.1
