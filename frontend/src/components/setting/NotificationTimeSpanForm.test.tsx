@@ -1,7 +1,7 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
-import {NotificationTimeSpanForm} from './NotificationTimeSpanForm';
 import '@testing-library/jest-dom';
+import {NotificationTimeSpanForm} from './NotificationTimeSpanForm';
 
 test('<NotificationTimeSpanForm>', () => {
   render(
