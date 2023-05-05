@@ -39,9 +39,9 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.41.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.41.1
 	go.opentelemetry.io/otel v1.15.1
-	go.opentelemetry.io/otel/exporters/jaeger v1.15.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.15.0
-	go.opentelemetry.io/otel/sdk v1.15.0
+	go.opentelemetry.io/otel/exporters/jaeger v1.15.1
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.15.1
+	go.opentelemetry.io/otel/sdk v1.15.1
 	go.uber.org/zap v1.24.0
 	goji.io/v3 v3.0.0
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
