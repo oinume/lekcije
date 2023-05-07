@@ -6,10 +6,10 @@ go 1.20
 
 require (
 	cloud.google.com/go/profiler v0.3.1
-	github.com/99designs/gqlgen v0.17.30
+	github.com/99designs/gqlgen v0.17.31
 	github.com/GoogleCloudPlatform/berglas v1.0.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.13.1
-	github.com/Khan/genqlient v0.5.0
+	github.com/Khan/genqlient v0.6.0
 	github.com/Songmu/retry v0.1.0
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
 	github.com/friendsofgo/errors v0.9.2
@@ -147,7 +147,7 @@ require (
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
-	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/tools v0.8.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
