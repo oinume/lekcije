@@ -24,7 +24,7 @@ require (
 	github.com/morikuni/failure v1.1.2
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/pkg/errors v0.9.1
-	github.com/pressly/goose/v3 v3.11.0
+	github.com/pressly/goose/v3 v3.11.2
 	github.com/rollbar/rollbar-go v1.4.5
 	github.com/rs/cors v1.9.0
 	github.com/sendgrid/rest v2.6.9+incompatible
@@ -62,8 +62,8 @@ require (
 	cloud.google.com/go/secretmanager v1.10.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
 	cloud.google.com/go/trace v1.9.0 // indirect
-	github.com/ClickHouse/ch-go v0.54.0 // indirect
-	github.com/ClickHouse/clickhouse-go/v2 v2.9.0 // indirect
+	github.com/ClickHouse/ch-go v0.55.0 // indirect
+	github.com/ClickHouse/clickhouse-go/v2 v2.9.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.37.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
@@ -105,15 +105,15 @@ require (
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.16.4 // indirect
-	github.com/lib/pq v1.10.7 // indirect
+	github.com/klauspost/compress v1.16.5 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/microsoft/go-mssqldb v0.21.0 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/paulmach/orb v0.9.0 // indirect
+	github.com/paulmach/orb v0.9.2 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
@@ -142,8 +142,7 @@ require (
 	go.opentelemetry.io/otel/metric v0.38.1 // indirect
 	go.opentelemetry.io/otel/trace v1.15.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/goleak v1.1.12 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
@@ -160,11 +159,11 @@ require (
 	lukechampine.com/uint128 v1.3.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
-	modernc.org/libc v1.22.3 // indirect
+	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
-	modernc.org/sqlite v1.21.1 // indirect
+	modernc.org/sqlite v1.22.1 // indirect
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.1.0 // indirect
 )
