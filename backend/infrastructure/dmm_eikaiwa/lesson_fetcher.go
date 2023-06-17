@@ -59,15 +59,13 @@ var (
 	redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
-	titleXPath        = xmlpath.MustCompile(`//title`)
-	teacherNameXPath  = xmlpath.MustCompile(`//div[@class='area-detail']/h1/text()`)
-	teacherNameRegexp = regexp.MustCompile(`(.+)の講師詳細`)
-	attributesXPath   = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
-	lessonXPath       = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
-	classAttrXPath    = xmlpath.MustCompile(`@class`)
-	ratingXPath       = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/strong/text()`)
-	reviewCountXPath  = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/text()`)
-	newTeacherXPath   = xmlpath.MustCompile(`//div[@class='favorite-list-box-wrap']/img[@class='new_teacher']`)
+	teacherNameXPath = xmlpath.MustCompile(`//div[@class='area-detail']/h1/text()`)
+	attributesXPath  = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
+	lessonXPath      = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
+	classAttrXPath   = xmlpath.MustCompile(`@class`)
+	ratingXPath      = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/strong/text()`)
+	reviewCountXPath = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/text()`)
+	newTeacherXPath  = xmlpath.MustCompile(`//div[@class='favorite-list-box-wrap']/img[@class='new_teacher']`)
 )
 
 type teacherLessons struct {
