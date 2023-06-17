@@ -63,7 +63,7 @@ func Test_lessonFetcher_Fetch(t *testing.T) {
 		t.Fatalf("fetcher.Fetch failed: %v", err)
 	}
 
-	assertion.AssertEqual(t, "Judith", teacher.Name, "")
+	assertion.AssertEqual(t, "Judith（ジュディス）", teacher.Name, "")
 	assertion.AssertEqual(t, 38, len(lessons), "")
 	assertion.AssertEqual(t, 1, transport.callCount, "")
 }
@@ -77,7 +77,7 @@ func Test_lessonFetcher_Fetch_Retry(t *testing.T) {
 		t.Fatalf("fetcher.Fetch failed: %v", err)
 	}
 
-	assertion.AssertEqual(t, "Judith", teacher.Name, "")
+	assertion.AssertEqual(t, "Judith（ジュディス）", teacher.Name, "")
 	assertion.AssertEqual(t, 2, transport.callCount, "")
 }
 
@@ -161,7 +161,7 @@ func Test_lessonFetcher_parseHTML(t *testing.T) {
 	}
 	wantTeacher := modeltest.NewTeacher(func(teacher *model2.Teacher) {
 		teacher.ID = 49393
-		teacher.Name = "Judith"
+		teacher.Name = "Judith（ジュディス）"
 		teacher.CountryID = int16(608)
 		teacher.Birthday = time.Time{}
 		teacher.YearsOfExperience = 2

@@ -59,14 +59,13 @@ var (
 	redirectErrorFunc = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
-	titleXPath        = xmlpath.MustCompile(`//title`)
-	teacherNameRegexp = regexp.MustCompile(`(.+)の講師詳細`)
-	attributesXPath   = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
-	lessonXPath       = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
-	classAttrXPath    = xmlpath.MustCompile(`@class`)
-	ratingXPath       = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/strong/text()`)
-	reviewCountXPath  = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/text()`)
-	newTeacherXPath   = xmlpath.MustCompile(`//div[@class='favorite-list-box-wrap']/img[@class='new_teacher']`)
+	teacherNameXPath = xmlpath.MustCompile(`//div[@class='area-detail']/h1/text()`)
+	attributesXPath  = xmlpath.MustCompile(`//div[@class='confirm low']/dl`)
+	lessonXPath      = xmlpath.MustCompile(`//ul[@class='oneday']//li`)
+	classAttrXPath   = xmlpath.MustCompile(`@class`)
+	ratingXPath      = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/strong/text()`)
+	reviewCountXPath = xmlpath.MustCompile(`//p[@class='ui-star-rating-text']/text()`)
+	newTeacherXPath  = xmlpath.MustCompile(`//div[@class='favorite-list-box-wrap']/img[@class='new_teacher']`)
 )
 
 type teacherLessons struct {
@@ -200,12 +199,8 @@ func (f *lessonFetcher) parseHTML(
 	}
 
 	// teacher name
-	if title, ok := titleXPath.String(root); ok {
-		teacherNameMatches := teacherNameRegexp.FindStringSubmatch(title)
-		if len(teacherNameMatches) != 2 {
-			return nil, nil, fmt.Errorf("failed to extract teacher name: title=%v", title)
-		}
-		teacher.Name = teacherNameMatches[1]
+	if teacherName, ok := teacherNameXPath.String(root); ok {
+		teacher.Name = teacherName
 	} else {
 		return nil, nil, fmt.Errorf("failed to fetch teacher's name: url=%v", teacher.URL())
 	}
