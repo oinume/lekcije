@@ -6,7 +6,7 @@ go 1.20
 
 require (
 	cloud.google.com/go/profiler v0.3.1
-	github.com/99designs/gqlgen v0.17.30
+	github.com/99designs/gqlgen v0.17.31
 	github.com/GoogleCloudPlatform/berglas v1.0.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.13.1
 	github.com/Khan/genqlient v0.5.0
@@ -23,16 +23,17 @@ require (
 	github.com/morikuni/failure v1.1.2
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/pkg/errors v0.9.1
-	github.com/pressly/goose/v3 v3.10.0
+	github.com/pressly/goose/v3 v3.11.2
 	github.com/rollbar/rollbar-go v1.4.5
 	github.com/rs/cors v1.9.0
 	github.com/sendgrid/rest v2.6.9+incompatible
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/sethvargo/go-envconfig v0.9.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/volatiletech/null/v8 v8.1.2
+        github.com/volatiletech/null/v9 v9.0.0
 	github.com/volatiletech/sqlboiler/v4 v4.14.2
 	github.com/volatiletech/strmangle v0.0.4
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.41.0
