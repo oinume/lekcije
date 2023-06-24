@@ -103,7 +103,7 @@ type NotificationTimeSpanInput struct {
 }
 
 type NotificationTimeSpanPayload struct {
-	TimeSpans []*NotificationTimeSpan `json:"timeSpans"`
+	TimeSpans []*NotificationTimeSpan `json:"timeSpans,omitempty"`
 }
 
 type PageInfo struct {
@@ -121,5 +121,5 @@ type UpdateNotificationTimeSpansInput struct {
 }
 
 type UpdateViewerInput struct {
-	Email *string `json:"email"`
+	Email *string `json:"email,omitempty"`
 }
