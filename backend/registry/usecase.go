@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
+	"github.com/oinume/lekcije/backend/infrastructure/firebase"
 	iga_measurement "github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
@@ -57,6 +58,7 @@ func NewTeacherUsecase(db *sql.DB) *usecase.Teacher {
 
 func NewUserUsecase(db *sql.DB) *usecase.User {
 	return usecase.NewUser(
+		firebase.NewAuthenticationRepo(nil),
 		mysql.NewDBRepository(db),
 		mysql.NewUserRepository(db),
 		mysql.NewUserGoogleRepository(db),

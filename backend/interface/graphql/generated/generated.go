@@ -76,6 +76,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateCustomToken           func(childComplexity int) int
 		CreateEmpty                 func(childComplexity int) int
 		CreateFollowingTeacher      func(childComplexity int, input model.CreateFollowingTeacherInput) int
 		DeleteFollowingTeachers     func(childComplexity int, input model.DeleteFollowingTeachersInput) int
@@ -124,6 +125,7 @@ type MutationResolver interface {
 	CreateFollowingTeacher(ctx context.Context, input model.CreateFollowingTeacherInput) (*model.CreateFollowingTeacherPayload, error)
 	DeleteFollowingTeachers(ctx context.Context, input model.DeleteFollowingTeachersInput) (*model.DeleteFollowingTeachersPayload, error)
 	UpdateNotificationTimeSpans(ctx context.Context, input model.UpdateNotificationTimeSpansInput) (*model.NotificationTimeSpanPayload, error)
+	CreateCustomToken(ctx context.Context) (string, error)
 	UpdateViewer(ctx context.Context, input model.UpdateViewerInput) (*model.User, error)
 }
 type QueryResolver interface {
@@ -234,6 +236,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FollowingTeacherEdge.Node(childComplexity), true
+
+	case "Mutation.createCustomToken":
+		if e.complexity.Mutation.CreateCustomToken == nil {
+			break
+		}
+
+		return e.complexity.Mutation.CreateCustomToken(childComplexity), true
 
 	case "Mutation.createEmpty":
 		if e.complexity.Mutation.CreateEmpty == nil {
@@ -619,6 +628,7 @@ input UpdateViewerInput {
 }
 
 extend type Mutation {
+  createCustomToken: String!
   updateViewer(input: UpdateViewerInput!): User!
 }
 `, BuiltIn: false},
@@ -1557,6 +1567,50 @@ func (ec *executionContext) fieldContext_Mutation_updateNotificationTimeSpans(ct
 	if fc.Args, err = ec.field_Mutation_updateNotificationTimeSpans_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createCustomToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createCustomToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCustomToken(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createCustomToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -4808,6 +4862,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_updateNotificationTimeSpans(ctx, field)
 			})
 
+		case "createCustomToken":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createCustomToken(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "updateViewer":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {

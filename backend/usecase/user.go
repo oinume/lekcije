@@ -12,17 +12,28 @@ import (
 )
 
 type User struct {
-	dbRepo         repository.DB
-	userRepo       repository.User
-	userGoogleRepo repository.UserGoogle
+	authenticationRepo repository.Authentication
+	dbRepo             repository.DB
+	userRepo           repository.User
+	userGoogleRepo     repository.UserGoogle
 }
 
-func NewUser(dbRepo repository.DB, userRepo repository.User, userGoogleRepo repository.UserGoogle) *User {
+func NewUser(
+	authenticationRepo repository.Authentication,
+	dbRepo repository.DB,
+	userRepo repository.User,
+	userGoogleRepo repository.UserGoogle,
+) *User {
 	return &User{
-		dbRepo:         dbRepo,
-		userRepo:       userRepo,
-		userGoogleRepo: userGoogleRepo,
+		authenticationRepo: authenticationRepo,
+		dbRepo:             dbRepo,
+		userRepo:           userRepo,
+		userGoogleRepo:     userGoogleRepo,
 	}
+}
+
+func (u *User) CreateCustomToken(ctx context.Context, user *model2.User) (string, error) {
+	return u.authenticationRepo.CreateCustomToken(ctx, user.ID)
 }
 
 func (u *User) CreateWithGoogle(ctx context.Context, name, email, googleID string) (*model2.User, *model2.UserGoogle, error) {

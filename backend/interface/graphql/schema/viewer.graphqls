@@ -7,5 +7,6 @@ input UpdateViewerInput {
 }
 
 extend type Mutation {
+  createCustomToken: String!
   updateViewer(input: UpdateViewerInput!): User!
 }

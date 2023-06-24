@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/profiler"
+	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/GoogleCloudPlatform/berglas/pkg/berglas"
@@ -66,6 +67,18 @@ func main() {
 		}
 	}()
 	otel.SetTracerProvider(tracerProvider)
+
+	firebaseConfig := &firebase.Config{
+		ServiceAccountID: "my-client-id@my-project-id.iam.gserviceaccount.com",
+	}
+	firebaseApp, err := firebase.NewApp(ctx, firebaseConfig)
+	if err != nil {
+		log.Fatalf("error initializing app: %v\n", err)
+	}
+	firebaseAuthClient, err := firebaseApp.Auth(ctx)
+	if err != nil {
+		log.Fatalf("error initializing app: %v\n", err)
+	}
 
 	if config.DefaultVars.EnableStackdriverProfiler {
 		credential, err := gcp.WithCredentialsJSONFromBase64String(configVars.GCPServiceAccountKey)
