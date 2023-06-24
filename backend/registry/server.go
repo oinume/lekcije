@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/rollbar/rollbar-go"
 	"go.uber.org/zap"
 
@@ -14,6 +15,7 @@ import (
 func NewOAuthServer(
 	appLogger *zap.Logger,
 	db *sql.DB,
+	firebaseAuthClient *auth.Client,
 	gaMeasurementClient ga_measurement.Client,
 	rollbarClient *rollbar.Client,
 	senderHTTPClient *http.Client,
@@ -24,7 +26,7 @@ func NewOAuthServer(
 		gaMeasurementClient,
 		NewGAMeasurementUsecase(gaMeasurementClient),
 		senderHTTPClient,
-		NewUserUsecase(db),
+		NewUserUsecase(db, firebaseAuthClient),
 		NewUserAPITokenUsecase(db),
 	)
 }

@@ -3,6 +3,7 @@ package registry
 import (
 	"database/sql"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/rollbar/rollbar-go"
 	"go.uber.org/zap"
 
@@ -56,9 +57,9 @@ func NewTeacherUsecase(db *sql.DB) *usecase.Teacher {
 	return usecase.NewTeacher(mysql.NewTeacherRepository(db))
 }
 
-func NewUserUsecase(db *sql.DB) *usecase.User {
+func NewUserUsecase(db *sql.DB, firebaseAuthClient *auth.Client) *usecase.User {
 	return usecase.NewUser(
-		firebase.NewAuthenticationRepo(nil),
+		firebase.NewAuthenticationRepo(firebaseAuthClient),
 		mysql.NewDBRepository(db),
 		mysql.NewUserRepository(db),
 		mysql.NewUserGoogleRepository(db),

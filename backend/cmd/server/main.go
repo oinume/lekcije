@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/profiler"
-	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/GoogleCloudPlatform/berglas/pkg/berglas"
@@ -21,6 +20,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/event_logger"
+	"github.com/oinume/lekcije/backend/infrastructure/firebase"
 	"github.com/oinume/lekcije/backend/infrastructure/ga_measurement"
 	"github.com/oinume/lekcije/backend/infrastructure/gcp"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
@@ -68,16 +68,13 @@ func main() {
 	}()
 	otel.SetTracerProvider(tracerProvider)
 
-	firebaseConfig := &firebase.Config{
-		ServiceAccountID: "my-client-id@my-project-id.iam.gserviceaccount.com",
-	}
-	firebaseApp, err := firebase.NewApp(ctx, firebaseConfig)
+	firebaseApp, err := firebase.NewApp(ctx, configVars.FirebaseProjectID, configVars.FirebaseServiceAccountKeyBase64)
 	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
+		log.Fatalf("firebase.NewApp failed: %v\n", err)
 	}
 	firebaseAuthClient, err := firebaseApp.Auth(ctx)
 	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
+		log.Fatalf("firebaseApp.Auth failed: %v\n", err)
 	}
 
 	if config.DefaultVars.EnableStackdriverProfiler {
@@ -121,6 +118,7 @@ func main() {
 		AccessLogger:        accessLogger,
 		AppLogger:           appLogger,
 		DB:                  gormDB.DB(),
+		FirebaseAuthClient:  firebaseAuthClient,
 		GAMeasurementClient: ga_measurement.NewClient(nil, event_logger.New(accessLogger)),
 		GormDB:              gormDB,
 		RollbarClient:       rollbarClient,
@@ -146,7 +144,7 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 	errorRecorder := registry.NewErrorRecorderUsecase(args.AppLogger, args.RollbarClient)
 	userAPIToken := registry.NewUserAPITokenUsecase(args.DB)
 	server := interfaces_http.NewServer(args, errorRecorder, userAPIToken)
-	oauthServer := registry.NewOAuthServer(args.AppLogger, args.DB, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
+	oauthServer := registry.NewOAuthServer(args.AppLogger, args.DB, args.FirebaseAuthClient, args.GAMeasurementClient, args.RollbarClient, args.SenderHTTPClient)
 	mCountryList := registry.MustNewMCountryList(context.Background(), args.DB)
 	server.Setup(mux)
 	oauthServer.Setup(mux)
@@ -159,7 +157,7 @@ func startHTTPServer(port int, args *interfaces.ServerArgs) error {
 		registry.NewNotificationTimeSpanUsecase(args.DB),
 		mysql.NewTeacherRepository(args.DB),
 		mysql.NewUserRepository(args.DB),
-		registry.NewUserUsecase(args.DB),
+		registry.NewUserUsecase(args.DB, args.FirebaseAuthClient),
 	)
 	gqlSchema := generated.NewExecutableSchema(generated.Config{
 		Resolvers: gqlResolver,

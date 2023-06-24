@@ -37,20 +37,22 @@ type Trace struct {
 type Vars struct {
 	*MySQL
 	*Trace
-	NodeEnv                   string `env:"NODE_ENV"`
-	ServiceEnv                string `env:"LEKCIJE_ENV" required:"true"`
-	GCPProjectID              string `env:"GCP_PROJECT_ID"`
-	GCPServiceAccountKey      string `env:"GCP_SERVICE_ACCOUNT_KEY"`
-	EnableFetcherHTTP2        bool   `env:"ENABLE_FETCHER_HTTP2" default:"true"`
-	EnableStackdriverProfiler bool   `env:"ENABLE_STACKDRIVER_PROFILER"`
-	GoogleClientID            string `env:"GOOGLE_CLIENT_ID"`
-	GoogleClientSecret        string `env:"GOOGLE_CLIENT_SECRET"`
-	GoogleAnalyticsID         string `env:"GOOGLE_ANALYTICS_ID"`
-	HTTPPort                  int    `env:"PORT" default:"4001"`
-	RollbarAccessToken        string `env:"ROLLBAR_ACCESS_TOKEN"`
-	VersionHash               string `env:"VERSION_HASH"`
-	DebugSQL                  bool   `env:"DEBUG_SQL"`
-	LocalLocation             *time.Location
+	NodeEnv                         string `env:"NODE_ENV"`
+	ServiceEnv                      string `env:"LEKCIJE_ENV" required:"true"`
+	FirebaseProjectID               string `env:"FIREBASE_PROJECT_ID"`
+	FirebaseServiceAccountKeyBase64 string `env:"FIREBASE_SERVICE_ACCOUNT_KEY_BASE64"`
+	GCPProjectID                    string `env:"GCP_PROJECT_ID"`
+	GCPServiceAccountKey            string `env:"GCP_SERVICE_ACCOUNT_KEY"`
+	EnableFetcherHTTP2              bool   `env:"ENABLE_FETCHER_HTTP2" default:"true"`
+	EnableStackdriverProfiler       bool   `env:"ENABLE_STACKDRIVER_PROFILER"`
+	GoogleClientID                  string `env:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret              string `env:"GOOGLE_CLIENT_SECRET"`
+	GoogleAnalyticsID               string `env:"GOOGLE_ANALYTICS_ID"`
+	HTTPPort                        int    `env:"PORT" default:"4001"`
+	RollbarAccessToken              string `env:"ROLLBAR_ACCESS_TOKEN"`
+	VersionHash                     string `env:"VERSION_HASH"`
+	DebugSQL                        bool   `env:"DEBUG_SQL"`
+	LocalLocation                   *time.Location
 }
 
 func Process() (*Vars, error) {
