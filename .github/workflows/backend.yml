@@ -58,11 +58,18 @@ jobs:
       - uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-test-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-test
       - id: go
         uses: actions/setup-go@v4
         with:
-          cache: true
-          cache-dependency-path: "go.sum"
+          cache: false
           go-version-file: "go.mod"
       - name: Sync go.mod
         run: |
