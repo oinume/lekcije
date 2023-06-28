@@ -1,8 +1,7 @@
 APP = lekcije
 COMMANDS = crawler daily_reporter follow_reminder notifier server teacher_error_resetter
-GO_TEST ?= go test -v -race -p=1 # To avoid database operations conflict
+GO_TEST ?= gotestsum -- -v -race -p=1 # To avoid database operations conflict
 GO_TEST_E2E ?= go test -v -p=1
-GO_TEST_PACKAGES = $(shell go list ./... | grep -v proto_gen)
 DB_HOST = 192.168.99.100
 LINT_PACKAGES = $(shell go list ./... | grep -v proto_gen)
 IMAGE_TAG ?= latest
@@ -71,7 +70,7 @@ test/db/goose/%: ## Run goose up|down|status for test database
 
 .PHONY: go/test
 go/test:
-	$(GO_TEST) $(GO_TEST_PACKAGES)
+	$(GO_TEST) ./...
 
 .PHONY: go/goimports
 go/goimports:

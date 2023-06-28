@@ -58,11 +58,18 @@ jobs:
       - uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-test-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-test
       - id: go
         uses: actions/setup-go@v4
         with:
-          cache: true
-          cache-dependency-path: "go.sum"
+          cache: false
           go-version-file: "go.mod"
       - name: Sync go.mod
         run: |
@@ -71,7 +78,7 @@ jobs:
         run: |
           ls -l $GOPATH/bin || true
           if [ ! -e $GOPATH/bin/goose ]; then
-            make install-tools
+            make setup
           fi
       - name: Create database
         run: |
@@ -83,8 +90,7 @@ jobs:
           make test/db/goose/up
       - name: Run go/test
         run: |
-          pwd
-          make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
+          make go/test GO_TEST="gotestsum -- -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3.1.4
         with:
