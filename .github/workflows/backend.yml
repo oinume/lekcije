@@ -71,7 +71,7 @@ jobs:
         run: |
           ls -l $GOPATH/bin || true
           if [ ! -e $GOPATH/bin/goose ]; then
-            make install-tools
+            make setup
           fi
       - name: Create database
         run: |
@@ -83,8 +83,7 @@ jobs:
           make test/db/goose/up
       - name: Run go/test
         run: |
-          pwd
-          make go/test GO_TEST="go test -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
+          make go/test GO_TEST="gotestsum -- -v -race -coverprofile=coverage.txt -covermode=atomic -p=1"
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3.1.4
         with:

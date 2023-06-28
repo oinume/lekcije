@@ -11,4 +11,5 @@ import (
 	_ "github.com/twitchtv/twirp/protoc-gen-twirp"
 	_ "github.com/volatiletech/sqlboiler/v4"
 	_ "github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql"
+	_ "gotest.tools/gotestsum"
 )
