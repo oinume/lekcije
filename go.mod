@@ -46,8 +46,8 @@ require (
 	golang.org/x/oauth2 v0.9.0
 	golang.org/x/sync v0.3.0
 	golang.org/x/text v0.10.0
-	google.golang.org/api v0.128.0
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/api v0.129.0
+	google.golang.org/protobuf v1.31.0
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
 	gotest.tools/gotestsum v1.10.0
 )
