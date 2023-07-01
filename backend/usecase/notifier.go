@@ -14,9 +14,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/domain/model/email"
+	model_email "github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/domain/repository"
-	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
 	"github.com/oinume/lekcije/backend/util"
@@ -34,7 +33,7 @@ type Notifier struct {
 	teacherUsecase              *Teacher
 	teachers                    map[uint]*model2.Teacher
 	fetchedLessons              map[uint][]*model2.Lesson
-	sender                      emailer.Sender
+	sender                      repository.EmailSender
 	senderWaitGroup             *sync.WaitGroup
 	followingTeacherRepo        repository.FollowingTeacher
 	sync.Mutex
@@ -50,7 +49,7 @@ func NewNotifier(
 	notificationTimeSpanUsecase *NotificationTimeSpan,
 	statNotifierUsecase *StatNotifier,
 	teacherUsecase *Teacher,
-	sender emailer.Sender,
+	sender repository.EmailSender,
 	followingTeacherRepo repository.FollowingTeacher,
 ) *Notifier {
 	return &Notifier{
@@ -232,7 +231,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 
 	// TODO: getEmailTemplate as a static file
-	t := email.NewTemplate("notifier", getEmailTemplateJP())
+	t := model_email.NewTemplate("notifier", getEmailTemplateJP())
 	data := struct {
 		To                string
 		TeacherNames      string
@@ -248,7 +247,7 @@ func (n *Notifier) sendNotificationToUser(
 		LessonsPerTeacher: lessonsByTeacher.data,
 		WebURL:            config.WebURL(),
 	}
-	email, err := email.NewFromTemplate(t, data)
+	email, err := model_email.NewFromTemplate(t, data)
 	if err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
@@ -263,7 +262,7 @@ func (n *Notifier) sendNotificationToUser(
 	n.appLogger.Info("sendNotificationToUser", zap.Uint("userID", user.ID))
 
 	n.senderWaitGroup.Add(1)
-	go func(email *email.Email) {
+	go func(email *model_email.Email) {
 		defer n.senderWaitGroup.Done()
 		if err := n.sender.Send(ctx, email); err != nil {
 			n.appLogger.Error(

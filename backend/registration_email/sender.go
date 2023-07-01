@@ -9,14 +9,15 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/domain/model/email"
-	"github.com/oinume/lekcije/backend/emailer"
+	model_email "github.com/oinume/lekcije/backend/domain/model/email"
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/infrastructure/send_grid"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
 type emailSender struct {
-	sender emailer.Sender
+	sender repository.EmailSender
 }
 
 func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) *emailSender {
@@ -24,12 +25,12 @@ func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) *emailSender
 		httpClient = http.DefaultClient
 	}
 	return &emailSender{
-		sender: emailer.NewSendGridSender(httpClient, appLogger),
+		sender: send_grid.NewSendGridEmailSender(httpClient, appLogger),
 	}
 }
 
 func (s *emailSender) Send(ctx context.Context, user *model2.User) error {
-	t := email.NewTemplate("notifier", getEmailTemplate())
+	t := model_email.NewTemplate("notifier", getEmailTemplate())
 	data := struct {
 		To     string
 		WebURL string
@@ -37,7 +38,7 @@ func (s *emailSender) Send(ctx context.Context, user *model2.User) error {
 		To:     user.Email,
 		WebURL: config.WebURL(),
 	}
-	email, err := email.NewFromTemplate(t, data)
+	email, err := model_email.NewFromTemplate(t, data)
 	if err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),

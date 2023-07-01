@@ -15,11 +15,12 @@ import (
 
 	"github.com/oinume/lekcije/backend/cli"
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/emailer"
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
 	"github.com/oinume/lekcije/backend/infrastructure/mysql"
 	"github.com/oinume/lekcije/backend/infrastructure/open_telemetry"
 	irollbar "github.com/oinume/lekcije/backend/infrastructure/rollbar"
+	"github.com/oinume/lekcije/backend/infrastructure/send_grid"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -96,11 +97,11 @@ func (m *notifierMain) run(args []string) error {
 	mCountryList := registry.MustNewMCountryList(ctx, db.DB())
 	lessonFetcher := dmm_eikaiwa.NewLessonFetcher(nil, *concurrency, *fetcherCache, mCountryList, appLogger)
 
-	var sender emailer.Sender
+	var sender repository.EmailSender
 	if *sendEmail {
-		sender = emailer.NewSendGridSender(nil, appLogger)
+		sender = send_grid.NewSendGridEmailSender(nil, appLogger)
 	} else {
-		sender = &emailer.NoSender{}
+		sender = repository.NewNopEmailSender()
 	}
 
 	rollbarClient := rollbar.New(
