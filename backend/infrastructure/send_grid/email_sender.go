@@ -1,4 +1,4 @@
-package emailer
+package send_grid
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/morikuni/failure"
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -17,12 +18,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/errors"
+	"github.com/oinume/lekcije/backend/domain/model/email"
+	"github.com/oinume/lekcije/backend/domain/repository"
 )
 
 const (
-	sendGridAPIHost = "https://api.sendgrid.com"
-	sendGridAPIPath = "/v3/mail/send"
+	apiHost = "https://api.sendgrid.com"
+	apiPath = "/v3/mail/send"
 )
 
 var (
@@ -51,30 +53,26 @@ var (
 	}
 )
 
-type Sender interface {
-	Send(ctx context.Context, email *Email) error
-}
-
-type SendGridSender struct {
+type emailSender struct {
 	client    *rest.Client
 	appLogger *zap.Logger
 }
 
-func NewSendGridSender(httpClient *http.Client, appLogger *zap.Logger) Sender {
+func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) repository.EmailSender {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
 	}
 	client := &rest.Client{
 		HTTPClient: httpClient,
 	}
-	return &SendGridSender{
+	return &emailSender{
 		client:    client,
 		appLogger: appLogger,
 	}
 }
 
-func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
-	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "SendGridSender.Send")
+func (s *emailSender) Send(ctx context.Context, email *email.Email) error {
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "emailSender.Send")
 	defer span.End()
 
 	from := mail.NewEmail(email.From.Name, email.From.Address)
@@ -85,24 +83,17 @@ func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
 	}
 	m := mail.NewV3MailInit(from, email.Subject, tos[0], content)
 	m.Personalizations[0].AddTos(tos[1:]...)
-	for k, v := range email.customArgs {
+	for k, v := range email.CustomArgs() {
 		m.SetCustomArg(k, v)
 	}
 
-	req := sendgrid.GetRequest(
-		os.Getenv("SENDGRID_API_KEY"),
-		sendGridAPIPath,
-		sendGridAPIHost,
-	)
+	req := sendgrid.GetRequest(os.Getenv("SENDGRID_API_KEY"), apiPath, apiHost)
 	req.Method = "POST"
 	req.Body = mail.GetRequestBody(m)
 	//fmt.Printf("--- request ---\n%s\n", string(req.Body))
 	resp, err := s.client.Send(req)
 	if err != nil {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to send email by SendGrid"),
-		)
+		return failure.Wrap(err, failure.Message("Failed to send email with SendGrid"))
 	}
 	//fmt.Printf("--- response ---\nstatus=%d\n%s\n", resp.StatusCode, resp.Body)
 	// No need to resp.Body.Close(). It's a string
@@ -112,19 +103,8 @@ func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
 			resp.StatusCode, strings.Replace(resp.Body, "\n", "\\n", -1),
 		)
 		s.appLogger.Error(message) // TODO: remove and log in caller
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessagef("Failed to send email by SendGrid: statusCode=%v", resp.StatusCode),
-		)
+		return failure.Wrap(err, failure.Messagef("failed to send email with SendGrid: statusCode=%v", resp.StatusCode))
 	}
 
-	return nil
-}
-
-type NoSender struct{}
-
-var _ Sender = (*NoSender)(nil)
-
-func (s *NoSender) Send(ctx context.Context, email *Email) error {
 	return nil
 }

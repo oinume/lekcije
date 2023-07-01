@@ -16,8 +16,8 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/backend/domain/repository"
-	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/infrastructure/dmm_eikaiwa"
+	"github.com/oinume/lekcije/backend/infrastructure/send_grid"
 	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/internal/mock"
 	"github.com/oinume/lekcije/backend/internal/modeltest"
@@ -101,7 +101,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
 		}
-		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+		sender := send_grid.NewEmailSender(senderHTTPClient, appLogger)
 		n := usecase.NewNotifier(
 			appLogger, db, errorRecorder, fetcher, true, lessonUsecase, notificationTimeSpanUsecase,
 			statNotifierUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
@@ -156,7 +156,7 @@ func Test_Notifier_SendNotification(t *testing.T) {
 		senderHTTPClient := &http.Client{
 			Transport: senderTransport,
 		}
-		sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+		sender := send_grid.NewEmailSender(senderHTTPClient, appLogger)
 		n := usecase.NewNotifier(
 			appLogger, db, errorRecorder, fetcher, true, lessonUsecase, notificationTimeSpanUsecase,
 			statNotifierUsecase, teacherUsecase, sender, repos.FollowingTeacher(),
@@ -202,7 +202,7 @@ func TestNotifier_Close(t *testing.T) {
 	senderHTTPClient := &http.Client{
 		Transport: senderTransport,
 	}
-	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+	sender := send_grid.NewEmailSender(senderHTTPClient, appLogger)
 
 	user := modeltest.NewUser()
 	repos.CreateUsers(ctx, t, user)
@@ -307,7 +307,7 @@ func Test_Notifier_All(t *testing.T) {
 	senderHTTPClient := &http.Client{
 		Transport: senderTransport,
 	}
-	sender := emailer.NewSendGridSender(senderHTTPClient, appLogger)
+	sender := send_grid.NewEmailSender(senderHTTPClient, appLogger)
 	notifier1 := usecase.NewNotifier(
 		appLogger, db, errorRecorder, fetcher1, false, lessonUsecase, notificationTimeSpanUsecase,
 		statNotifierUsecase, teacherUsecase, sender, repos.FollowingTeacher(),

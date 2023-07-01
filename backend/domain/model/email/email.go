@@ -1,4 +1,4 @@
-package emailer
+package email
 
 import (
 	"bytes"
@@ -122,6 +122,10 @@ type Email struct {
 	customArgs   map[string]string
 }
 
+func (e *Email) CustomArgs() map[string]string {
+	return e.customArgs
+}
+
 func NewEmail() *Email {
 	return &Email{
 		Body:       &bytes.Buffer{},
@@ -129,10 +133,10 @@ func NewEmail() *Email {
 	}
 }
 
-// Create Email from Template with given data.
+// NewFromTemplate create Email from Template with given data.
 // Return an error if
-// - Parsing template fails
-func NewEmailFromTemplate(t *Template, data interface{}) (*Email, error) {
+//   - Parsing template fails
+func NewFromTemplate(t *Template, data interface{}) (*Email, error) {
 	if err := t.Parse(); err != nil {
 		return nil, fmt.Errorf("Parse error: %v", err)
 	}
