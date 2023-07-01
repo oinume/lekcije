@@ -80,7 +80,7 @@ func (m *followReminderMain) run(args []string) error {
 		return err
 	}
 
-	sender := send_grid.NewSendGridEmailSender(http.DefaultClient, appLogger)
+	sender := send_grid.NewEmailSender(http.DefaultClient, appLogger)
 	templateText := getEmailTemplate()
 	for _, user := range users {
 		t := model_email.NewTemplate("follow_reminder", templateText)

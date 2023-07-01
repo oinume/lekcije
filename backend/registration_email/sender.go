@@ -25,7 +25,7 @@ func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) *emailSender
 		httpClient = http.DefaultClient
 	}
 	return &emailSender{
-		sender: send_grid.NewSendGridEmailSender(httpClient, appLogger),
+		sender: send_grid.NewEmailSender(httpClient, appLogger),
 	}
 }
 

@@ -99,7 +99,7 @@ func (m *notifierMain) run(args []string) error {
 
 	var sender repository.EmailSender
 	if *sendEmail {
-		sender = send_grid.NewSendGridEmailSender(nil, appLogger)
+		sender = send_grid.NewEmailSender(nil, appLogger)
 	} else {
 		sender = repository.NewNopEmailSender()
 	}

@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	sendGridAPIHost = "https://api.sendgrid.com"
-	sendGridAPIPath = "/v3/mail/send"
+	apiHost = "https://api.sendgrid.com"
+	apiPath = "/v3/mail/send"
 )
 
 var (
@@ -53,26 +53,26 @@ var (
 	}
 )
 
-type sendGridEmailSender struct {
+type emailSender struct {
 	client    *rest.Client
 	appLogger *zap.Logger
 }
 
-func NewSendGridEmailSender(httpClient *http.Client, appLogger *zap.Logger) repository.EmailSender {
+func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) repository.EmailSender {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
 	}
 	client := &rest.Client{
 		HTTPClient: httpClient,
 	}
-	return &sendGridEmailSender{
+	return &emailSender{
 		client:    client,
 		appLogger: appLogger,
 	}
 }
 
-func (s *sendGridEmailSender) Send(ctx context.Context, email *email.Email) error {
-	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "sendGridEmailSender.Send")
+func (s *emailSender) Send(ctx context.Context, email *email.Email) error {
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "emailSender.Send")
 	defer span.End()
 
 	from := mail.NewEmail(email.From.Name, email.From.Address)
@@ -87,7 +87,7 @@ func (s *sendGridEmailSender) Send(ctx context.Context, email *email.Email) erro
 		m.SetCustomArg(k, v)
 	}
 
-	req := sendgrid.GetRequest(os.Getenv("SENDGRID_API_KEY"), sendGridAPIPath, sendGridAPIHost)
+	req := sendgrid.GetRequest(os.Getenv("SENDGRID_API_KEY"), apiPath, apiHost)
 	req.Method = "POST"
 	req.Body = mail.GetRequestBody(m)
 	//fmt.Printf("--- request ---\n%s\n", string(req.Body))

@@ -58,7 +58,7 @@ oinume さん
 	email.SetCustomArg("userId", "1")
 	email.SetCustomArg("teacherIds", "1,2,3")
 	tr := &transport{}
-	err = NewSendGridEmailSender(
+	err = NewEmailSender(
 		&http.Client{Transport: tr},
 		logger.NewAppLogger(os.Stdout, zapcore.InfoLevel),
 	).Send(context.Background(), email)
