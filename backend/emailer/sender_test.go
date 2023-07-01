@@ -10,6 +10,7 @@ import (
 
 	"go.uber.org/zap/zapcore"
 
+	email2 "github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/logger"
 
 	"github.com/stretchr/testify/assert"
@@ -44,7 +45,7 @@ Body: text/html
 oinume さん
 こんにちは
 	`
-	template := NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
+	template := email2.NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
 	data := struct {
 		Name  string
 		Email string
@@ -52,7 +53,7 @@ oinume さん
 		"oinume",
 		"oinume@gmail.com",
 	}
-	email, err := NewEmailFromTemplate(template, data)
+	email, err := email2.NewFromTemplate(template, data)
 	r.Nil(err)
 
 	email.SetCustomArg("userId", "1")

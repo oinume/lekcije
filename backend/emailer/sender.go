@@ -17,6 +17,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
+	"github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -52,7 +53,7 @@ var (
 )
 
 type Sender interface {
-	Send(ctx context.Context, email *Email) error
+	Send(ctx context.Context, email *email.Email) error
 }
 
 type SendGridSender struct {
@@ -73,7 +74,7 @@ func NewSendGridSender(httpClient *http.Client, appLogger *zap.Logger) Sender {
 	}
 }
 
-func (s *SendGridSender) Send(ctx context.Context, email *Email) error {
+func (s *SendGridSender) Send(ctx context.Context, email *email.Email) error {
 	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "SendGridSender.Send")
 	defer span.End()
 
@@ -125,6 +126,6 @@ type NoSender struct{}
 
 var _ Sender = (*NoSender)(nil)
 
-func (s *NoSender) Send(ctx context.Context, email *Email) error {
+func (s *NoSender) Send(ctx context.Context, email *email.Email) error {
 	return nil
 }

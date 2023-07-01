@@ -14,6 +14,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/cli"
 	"github.com/oinume/lekcije/backend/domain/config"
+	"github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model"
@@ -82,7 +83,7 @@ func (m *followReminderMain) run(args []string) error {
 	sender := emailer.NewSendGridSender(http.DefaultClient, appLogger)
 	templateText := getEmailTemplate()
 	for _, user := range users {
-		t := emailer.NewTemplate("follow_reminder", templateText)
+		t := email.NewTemplate("follow_reminder", templateText)
 		data := struct {
 			To   string
 			Name string
@@ -90,7 +91,7 @@ func (m *followReminderMain) run(args []string) error {
 			To:   user.Email,
 			Name: user.Name,
 		}
-		mail, err := emailer.NewEmailFromTemplate(t, data)
+		mail, err := email.NewFromTemplate(t, data)
 		if err != nil {
 			return err
 		}

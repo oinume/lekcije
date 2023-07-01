@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
+	"github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
@@ -28,7 +29,7 @@ func NewEmailSender(httpClient *http.Client, appLogger *zap.Logger) *emailSender
 }
 
 func (s *emailSender) Send(ctx context.Context, user *model2.User) error {
-	t := emailer.NewTemplate("notifier", getEmailTemplate())
+	t := email.NewTemplate("notifier", getEmailTemplate())
 	data := struct {
 		To     string
 		WebURL string
@@ -36,7 +37,7 @@ func (s *emailSender) Send(ctx context.Context, user *model2.User) error {
 		To:     user.Email,
 		WebURL: config.WebURL(),
 	}
-	email, err := emailer.NewEmailFromTemplate(t, data)
+	email, err := email.NewFromTemplate(t, data)
 	if err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),

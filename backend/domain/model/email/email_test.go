@@ -1,4 +1,4 @@
-package emailer
+package email
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ Body: text/html
 		"oinume",
 		"oinume@gmail.com",
 	}
-	email, err := NewEmailFromTemplate(template, data)
+	email, err := NewFromTemplate(template, data)
 	r.Nil(err)
 	a.Equal("lekcije@lekcije.com", email.From.Address)
 	a.Equal("oinume@gmail.com", email.Tos[0].Address)

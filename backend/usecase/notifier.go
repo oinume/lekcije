@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
+	"github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/emailer"
 	"github.com/oinume/lekcije/backend/errors"
@@ -231,7 +232,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 
 	// TODO: getEmailTemplate as a static file
-	t := emailer.NewTemplate("notifier", getEmailTemplateJP())
+	t := email.NewTemplate("notifier", getEmailTemplateJP())
 	data := struct {
 		To                string
 		TeacherNames      string
@@ -247,7 +248,7 @@ func (n *Notifier) sendNotificationToUser(
 		LessonsPerTeacher: lessonsByTeacher.data,
 		WebURL:            config.WebURL(),
 	}
-	email, err := emailer.NewEmailFromTemplate(t, data)
+	email, err := email.NewFromTemplate(t, data)
 	if err != nil {
 		return errors.NewInternalError(
 			errors.WithError(err),
@@ -262,7 +263,7 @@ func (n *Notifier) sendNotificationToUser(
 	n.appLogger.Info("sendNotificationToUser", zap.Uint("userID", user.ID))
 
 	n.senderWaitGroup.Add(1)
-	go func(email *emailer.Email) {
+	go func(email *email.Email) {
 		defer n.senderWaitGroup.Done()
 		if err := n.sender.Send(ctx, email); err != nil {
 			n.appLogger.Error(

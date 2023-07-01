@@ -1,4 +1,4 @@
-package emailer
+package email
 
 import (
 	"bytes"
@@ -129,10 +129,10 @@ func NewEmail() *Email {
 	}
 }
 
-// Create Email from Template with given data.
+// NewFromTemplate create Email from Template with given data.
 // Return an error if
-// - Parsing template fails
-func NewEmailFromTemplate(t *Template, data interface{}) (*Email, error) {
+//   - Parsing template fails
+func NewFromTemplate(t *Template, data interface{}) (*Email, error) {
 	if err := t.Parse(); err != nil {
 		return nil, fmt.Errorf("Parse error: %v", err)
 	}
