@@ -1,4 +1,4 @@
-package emailer
+package send_grid
 
 import (
 	"context"
@@ -18,6 +18,7 @@ import (
 
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/model/email"
+	"github.com/oinume/lekcije/backend/domain/repository"
 	"github.com/oinume/lekcije/backend/errors"
 )
 
@@ -52,30 +53,26 @@ var (
 	}
 )
 
-type Sender interface {
-	Send(ctx context.Context, email *email.Email) error
-}
-
-type SendGridSender struct {
+type sendGridEmailSender struct {
 	client    *rest.Client
 	appLogger *zap.Logger
 }
 
-func NewSendGridSender(httpClient *http.Client, appLogger *zap.Logger) Sender {
+func NewSendGridEmailSender(httpClient *http.Client, appLogger *zap.Logger) repository.EmailSender {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
 	}
 	client := &rest.Client{
 		HTTPClient: httpClient,
 	}
-	return &SendGridSender{
+	return &sendGridEmailSender{
 		client:    client,
 		appLogger: appLogger,
 	}
 }
 
-func (s *SendGridSender) Send(ctx context.Context, email *email.Email) error {
-	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "SendGridSender.Send")
+func (s *sendGridEmailSender) Send(ctx context.Context, email *email.Email) error {
+	_, span := otel.Tracer(config.DefaultTracerName).Start(ctx, "sendGridEmailSender.Send")
 	defer span.End()
 
 	from := mail.NewEmail(email.From.Name, email.From.Address)
@@ -86,15 +83,11 @@ func (s *SendGridSender) Send(ctx context.Context, email *email.Email) error {
 	}
 	m := mail.NewV3MailInit(from, email.Subject, tos[0], content)
 	m.Personalizations[0].AddTos(tos[1:]...)
-	for k, v := range email.customArgs {
+	for k, v := range email.CustomArgs() {
 		m.SetCustomArg(k, v)
 	}
 
-	req := sendgrid.GetRequest(
-		os.Getenv("SENDGRID_API_KEY"),
-		sendGridAPIPath,
-		sendGridAPIHost,
-	)
+	req := sendgrid.GetRequest(os.Getenv("SENDGRID_API_KEY"), sendGridAPIPath, sendGridAPIHost)
 	req.Method = "POST"
 	req.Body = mail.GetRequestBody(m)
 	//fmt.Printf("--- request ---\n%s\n", string(req.Body))
@@ -119,13 +112,5 @@ func (s *SendGridSender) Send(ctx context.Context, email *email.Email) error {
 		)
 	}
 
-	return nil
-}
-
-type NoSender struct{}
-
-var _ Sender = (*NoSender)(nil)
-
-func (s *NoSender) Send(ctx context.Context, email *email.Email) error {
 	return nil
 }

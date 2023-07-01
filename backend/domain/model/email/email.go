@@ -122,6 +122,10 @@ type Email struct {
 	customArgs   map[string]string
 }
 
+func (e *Email) CustomArgs() map[string]string {
+	return e.customArgs
+}
+
 func NewEmail() *Email {
 	return &Email{
 		Body:       &bytes.Buffer{},

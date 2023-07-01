@@ -1,4 +1,4 @@
-package emailer
+package send_grid
 
 import (
 	"context"
@@ -8,13 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"go.uber.org/zap/zapcore"
-
-	email2 "github.com/oinume/lekcije/backend/domain/model/email"
-	"github.com/oinume/lekcije/backend/logger"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap/zapcore"
+
+	modelemail "github.com/oinume/lekcije/backend/domain/model/email"
+	"github.com/oinume/lekcije/backend/logger"
 )
 
 type transport struct {
@@ -45,7 +44,7 @@ Body: text/html
 oinume さん
 こんにちは
 	`
-	template := email2.NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
+	template := modelemail.NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
 	data := struct {
 		Name  string
 		Email string
@@ -53,13 +52,13 @@ oinume さん
 		"oinume",
 		"oinume@gmail.com",
 	}
-	email, err := email2.NewFromTemplate(template, data)
+	email, err := modelemail.NewFromTemplate(template, data)
 	r.Nil(err)
 
 	email.SetCustomArg("userId", "1")
 	email.SetCustomArg("teacherIds", "1,2,3")
 	tr := &transport{}
-	err = NewSendGridSender(
+	err = NewSendGridEmailSender(
 		&http.Client{Transport: tr},
 		logger.NewAppLogger(os.Stdout, zapcore.InfoLevel),
 	).Send(context.Background(), email)
