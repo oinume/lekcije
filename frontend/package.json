@@ -17,7 +17,7 @@
     "serve": "WEBPACK_DEV_SERVER=true webpack serve --hot --config webpack.config.js --progress --color",
     "start": "npm run serve",
     "test": "jest --config jest.config.js",
-    "graphql-codegen": "graphql-codegen --config codegen.yml"
+    "graphql-codegen": "graphql-codegen --config codegen.yml && ./fix-graphql-codegen.sh"
   },
   "devDependencies": {
     "@babel/core": "^7.21.3",
