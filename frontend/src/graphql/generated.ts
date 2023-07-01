@@ -1,13 +1,15 @@
 import { GraphQLClient } from 'graphql-request';
-import { RequestInit } from 'graphql-request/src/types.dom';
+import { FetchOptions } from 'graphql-request/build/cjs/types';
 import { useMutation, useQuery, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 
-function fetcher<TData, TVariables extends { [key: string]: any }>(client: GraphQLClient, query: string, variables?: TVariables, requestHeaders?: RequestInit['headers']) {
+function fetcher<TData, TVariables extends { [key: string]: any }>(client: GraphQLClient, query: string, variables?: TVariables, requestHeaders?: FetchOptions['headers']) {
   return async (): Promise<TData> => client.request({
     document: query,
     variables,
@@ -16,11 +18,11 @@ function fetcher<TData, TVariables extends { [key: string]: any }>(client: Graph
 }
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
+  ID: { input: string | number; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
 };
 
 export type Connection = {
@@ -30,38 +32,38 @@ export type Connection = {
 };
 
 export type CreateFollowingTeacherInput = {
-  teacherIdOrUrl: Scalars['String'];
+  teacherIdOrUrl: Scalars['String']['input'];
 };
 
 export type CreateFollowingTeacherPayload = {
   __typename?: 'CreateFollowingTeacherPayload';
-  id: Scalars['ID'];
-  teacherId: Scalars['ID'];
+  id: Scalars['ID']['output'];
+  teacherId: Scalars['ID']['output'];
 };
 
 export type DeleteFollowingTeachersInput = {
-  teacherIds: Array<Scalars['ID']>;
+  teacherIds: Array<Scalars['ID']['input']>;
 };
 
 export type DeleteFollowingTeachersPayload = {
   __typename?: 'DeleteFollowingTeachersPayload';
-  teacherIds: Array<Scalars['ID']>;
+  teacherIds: Array<Scalars['ID']['output']>;
 };
 
 export type Edge = {
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Node;
 };
 
 export type Empty = {
   __typename?: 'Empty';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type FollowingTeacher = Node & {
   __typename?: 'FollowingTeacher';
-  createdAt: Scalars['String'];
-  id: Scalars['ID'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
   teacher: Teacher;
 };
 
@@ -74,7 +76,7 @@ export type FollowingTeacherConnection = Connection & {
 
 export type FollowingTeacherEdge = Edge & {
   __typename?: 'FollowingTeacherEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: FollowingTeacher;
 };
 
@@ -108,22 +110,22 @@ export type MutationUpdateViewerArgs = {
 };
 
 export type Node = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type NotificationTimeSpan = {
   __typename?: 'NotificationTimeSpan';
-  fromHour: Scalars['Int'];
-  fromMinute: Scalars['Int'];
-  toHour: Scalars['Int'];
-  toMinute: Scalars['Int'];
+  fromHour: Scalars['Int']['output'];
+  fromMinute: Scalars['Int']['output'];
+  toHour: Scalars['Int']['output'];
+  toMinute: Scalars['Int']['output'];
 };
 
 export type NotificationTimeSpanInput = {
-  fromHour: Scalars['Int'];
-  fromMinute: Scalars['Int'];
-  toHour: Scalars['Int'];
-  toMinute: Scalars['Int'];
+  fromHour: Scalars['Int']['input'];
+  fromMinute: Scalars['Int']['input'];
+  toHour: Scalars['Int']['input'];
+  toMinute: Scalars['Int']['input'];
 };
 
 export type NotificationTimeSpanPayload = {
@@ -133,8 +135,8 @@ export type NotificationTimeSpanPayload = {
 
 export type PageInfo = {
   __typename?: 'PageInfo';
-  hasNextPage: Scalars['Boolean'];
-  hasPreviousPage: Scalars['Boolean'];
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
 };
 
 export type Query = {
@@ -146,8 +148,8 @@ export type Query = {
 
 export type Teacher = {
   __typename?: 'Teacher';
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type UpdateNotificationTimeSpansInput = {
@@ -155,24 +157,24 @@ export type UpdateNotificationTimeSpansInput = {
 };
 
 export type UpdateViewerInput = {
-  email?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
   __typename?: 'User';
-  email: Scalars['String'];
+  email: Scalars['String']['output'];
   followingTeachers: FollowingTeacherConnection;
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
   notificationTimeSpans: Array<NotificationTimeSpan>;
-  showTutorial: Scalars['Boolean'];
+  showTutorial: Scalars['Boolean']['output'];
 };
 
 
 export type UserFollowingTeachersArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type CreateFollowingTeacherMutationVariables = Exact<{
