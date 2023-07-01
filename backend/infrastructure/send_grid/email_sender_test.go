@@ -8,11 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 
-	modelemail "github.com/oinume/lekcije/backend/domain/model/email"
+	model_email "github.com/oinume/lekcije/backend/domain/model/email"
+	"github.com/oinume/lekcije/backend/internal/assertion"
 	"github.com/oinume/lekcije/backend/logger"
 )
 
@@ -33,9 +32,6 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 func TestSendGridSender_Send(t *testing.T) {
-	a := assert.New(t)
-	r := require.New(t)
-
 	s := `
 From: lekcije@lekcije.com
 To: gmail <oinume@gmail.com>, oinume@lampetty.net
@@ -44,7 +40,7 @@ Body: text/html
 oinume さん
 こんにちは
 	`
-	template := modelemail.NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
+	template := model_email.NewTemplate("TestNewEmailFromTemplate", strings.TrimSpace(s))
 	data := struct {
 		Name  string
 		Email string
@@ -52,8 +48,10 @@ oinume さん
 		"oinume",
 		"oinume@gmail.com",
 	}
-	email, err := modelemail.NewFromTemplate(template, data)
-	r.Nil(err)
+	email, err := model_email.NewFromTemplate(template, data)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	email.SetCustomArg("userId", "1")
 	email.SetCustomArg("teacherIds", "1,2,3")
@@ -62,6 +60,8 @@ oinume さん
 		&http.Client{Transport: tr},
 		logger.NewAppLogger(os.Stdout, zapcore.InfoLevel),
 	).Send(context.Background(), email)
-	r.Nil(err)
-	a.True(tr.called)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertion.AssertEqual(t, true, tr.called, "tr.called must be true")
 }

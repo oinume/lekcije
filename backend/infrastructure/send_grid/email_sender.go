@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/morikuni/failure"
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -19,7 +20,6 @@ import (
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/domain/repository"
-	"github.com/oinume/lekcije/backend/errors"
 )
 
 const (
@@ -93,10 +93,7 @@ func (s *emailSender) Send(ctx context.Context, email *email.Email) error {
 	//fmt.Printf("--- request ---\n%s\n", string(req.Body))
 	resp, err := s.client.Send(req)
 	if err != nil {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to send email by SendGrid"),
-		)
+		return failure.Wrap(err, failure.Message("Failed to send email with SendGrid"))
 	}
 	//fmt.Printf("--- response ---\nstatus=%d\n%s\n", resp.StatusCode, resp.Body)
 	// No need to resp.Body.Close(). It's a string
@@ -106,10 +103,7 @@ func (s *emailSender) Send(ctx context.Context, email *email.Email) error {
 			resp.StatusCode, strings.Replace(resp.Body, "\n", "\\n", -1),
 		)
 		s.appLogger.Error(message) // TODO: remove and log in caller
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessagef("Failed to send email by SendGrid: statusCode=%v", resp.StatusCode),
-		)
+		return failure.Wrap(err, failure.Messagef("failed to send email with SendGrid: statusCode=%v", resp.StatusCode))
 	}
 
 	return nil
