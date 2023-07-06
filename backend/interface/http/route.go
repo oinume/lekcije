@@ -27,7 +27,6 @@ func (s *server) Setup(mux *goji.Mux) {
 	mux.HandleFunc(pat.Get("/me/logout"), s.getMeLogout)
 	mux.HandleFunc(pat.Get("/me/setting"), s.getMeSetting)
 	mux.HandleFunc(pat.Get("/api/status"), s.getAPIStatus)
-	mux.HandleFunc(pat.Get("/api/me/followingTeachers"), s.getAPIMeFollowingTeachers)
 	mux.HandleFunc(pat.Get("/api/debug/envVar"), s.getAPIDebugEnvVar)
 	mux.HandleFunc(pat.Get("/api/debug/httpHeader"), s.getAPIDebugHTTPHeader)
 	mux.HandleFunc(pat.Post("/api/webhook/sendGrid"), s.postAPISendGridEventWebhook)

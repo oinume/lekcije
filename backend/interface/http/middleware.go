@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
+	"github.com/morikuni/failure"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
 
@@ -35,10 +36,8 @@ func panicHandler(errorRecorder *usecase.ErrorRecorder) func(http.Handler) http.
 					default:
 						err = fmt.Errorf("unknown error type: %v", errorType)
 					}
-					internalServerError(req.Context(), errorRecorder, w, errors.NewInternalError(
-						errors.WithError(err),
-						errors.WithMessage("panic occurred"),
-					), 0)
+					e := failure.Wrap(err, failure.Message("panic occurred"))
+					internalServerError(req.Context(), errorRecorder, w, e, 0)
 					return
 				}
 			}()

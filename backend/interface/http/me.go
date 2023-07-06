@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/morikuni/failure"
 	"go.opentelemetry.io/otel"
 
 	"github.com/oinume/lekcije/backend/context_data"
-	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model2"
 )
 
@@ -36,10 +36,8 @@ func (s *server) getMe(w http.ResponseWriter, r *http.Request) {
 		Email:              user.Email,
 	}
 	if err := t.Execute(w, data); err != nil {
-		internalServerError(r.Context(), s.errorRecorder, w, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to template.Execute()"),
-		), user.ID)
+		e := failure.Wrap(err, failure.Messagef("failed to template.Execute()"))
+		internalServerError(r.Context(), s.errorRecorder, w, e, user.ID)
 		return
 	}
 }
@@ -58,10 +56,8 @@ func (s *server) getMeSetting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		internalServerError(r.Context(), s.errorRecorder, w, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to template.Execute()"),
-		), user.ID)
+		e := failure.Wrap(err, failure.Messagef("failed to template.Execute()"))
+		internalServerError(r.Context(), s.errorRecorder, w, e, user.ID)
 		return
 	}
 }
@@ -76,10 +72,8 @@ func (s *server) getMeLogout(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie(APITokenCookieName)
 	if err != nil {
-		internalServerError(r.Context(), s.errorRecorder, w, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to get token cookie"),
-		), user.ID)
+		e := failure.Wrap(err, failure.Messagef("failed to get token cookie"))
+		internalServerError(r.Context(), s.errorRecorder, w, e, user.ID)
 		return
 	}
 	token := cookie.Value

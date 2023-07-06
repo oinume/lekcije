@@ -16,6 +16,7 @@ import (
 
 	"github.com/Songmu/retry"
 	"github.com/ericlagergren/decimal"
+	"github.com/morikuni/failure"
 	"github.com/volatiletech/sqlboiler/v4/types"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/otel"
@@ -155,19 +156,13 @@ func (f *lessonFetcher) fetchContent(ctx context.Context, url string) (io.ReadCl
 	nopCloser := io.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
-		return nopCloser, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessagef("Failed to create HTTP request: url=%v", url),
-		)
+		return nopCloser, failure.Wrap(err, failure.Messagef("failed to create HTTP request: url=%v", url))
 	}
 	req.Header.Set("User-Agent", userAgent)
 
 	resp, err := f.httpClient.Do(req)
 	if err != nil {
-		return nopCloser, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessagef("Failed httpClient.Do(): url=%v", url),
-		)
+		return nopCloser, failure.Wrap(err, failure.Messagef("failed httpClient.Do(): url=%v", url))
 	}
 
 	switch resp.StatusCode {
@@ -180,8 +175,9 @@ func (f *lessonFetcher) fetchContent(ctx context.Context, url string) (io.ReadCl
 		)
 	default:
 		_ = resp.Body.Close()
-		return nopCloser, errors.NewInternalError(
-			errors.WithMessagef(
+		return nopCloser, failure.New(
+			errors.Internal,
+			failure.Messagef(
 				"Unknown error in fetchContent: url=%v, statusCode=%v, status=%v",
 				url, resp.StatusCode, resp.Status,
 			),
@@ -348,9 +344,7 @@ func (f *lessonFetcher) setTeacherAttribute(teacher *model2.Teacher, name string
 		case "女性":
 			teacher.Gender = "female"
 		default:
-			return errors.NewInternalError(
-				errors.WithMessagef("Unknown gender for %v", value),
-			)
+			return failure.New(errors.Internal, failure.Messagef("unknown gender for %v", value))
 		}
 	case "経歴":
 		var yoe int
@@ -364,10 +358,7 @@ func (f *lessonFetcher) setTeacherAttribute(teacher *model2.Teacher, name string
 			if v, err := strconv.ParseInt(width.Narrow.String(value), 10, 32); err == nil {
 				yoe = int(v)
 			} else {
-				return errors.NewInternalError(
-					errors.WithError(err),
-					errors.WithMessagef("Failed to convert to number: %v", value),
-				)
+				return failure.Wrap(err, failure.Messagef("failed to convert to number: %v", value))
 			}
 		}
 		teacher.YearsOfExperience = int8(yoe) // TODO: teacher.YearsOfExperience must be uint8

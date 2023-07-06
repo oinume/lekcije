@@ -8,9 +8,9 @@ import (
 	"time"
 
 	ga "github.com/jpillora/go-ogle-analytics"
+	"github.com/morikuni/failure"
 	"go.uber.org/zap"
 
-	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/event_logger"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/model2"
@@ -98,10 +98,7 @@ func (c *client) SendEvent(
 
 	c.eventLogger.Log(userID, category, action, zap.String("label", label), zap.Int64("value", value))
 	if err := gaClient.Send(event); err != nil {
-		return errors.NewInternalError(
-			errors.WithMessage("gaClient.Record failed"),
-			errors.WithError(err),
-		)
+		return failure.Wrap(err, failure.Messagef("gaClient.Send failed"))
 	}
 
 	return nil

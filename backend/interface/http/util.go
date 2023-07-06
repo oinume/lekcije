@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/morikuni/failure"
+
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/domain/config"
 	"github.com/oinume/lekcije/backend/errors"
@@ -67,7 +69,12 @@ func internalServerError(ctx context.Context, errorRecorder *usecase.ErrorRecord
 		fmt.Fprintf(w, "----- stacktrace -----\n")
 		if e, ok := err.(errors.StackTracer); ok {
 			for _, f := range e.StackTrace() {
-				fmt.Fprintf(w, "%+v\n", f)
+				_, _ = fmt.Fprintf(w, "%+v\n", f)
+			}
+		}
+		if callStack, ok := failure.CallStackOf(err); ok {
+			for _, f := range callStack.Frames() {
+				_, _ = fmt.Fprintf(w, "[%s] %v:%v", f.Func(), f.File(), f.Line())
 			}
 		}
 	}

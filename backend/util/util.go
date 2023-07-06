@@ -3,15 +3,13 @@ package util
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
-	"github.com/oinume/lekcije/backend/errors"
+	"github.com/morikuni/failure"
 )
 
 var (
@@ -68,9 +66,7 @@ func EncryptString(plainText string, encryptionKey string) (string, error) {
 	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
-		return "", errors.NewInternalError(
-			errors.WithError(err),
-		)
+		return "", failure.Wrap(err)
 	}
 	plainBytes := []byte(plainText)
 	//cipherBytes := make([]byte, aes.BlockSize+len(plainBytes))
@@ -87,15 +83,11 @@ func EncryptString(plainText string, encryptionKey string) (string, error) {
 func DecryptString(cipherText string, encryptionKey string) (string, error) {
 	cipherBytes, err := hex.DecodeString(cipherText)
 	if err != nil {
-		return "", errors.NewInternalError(
-			errors.WithError(err),
-		)
+		return "", failure.Wrap(err)
 	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
-		return "", errors.NewInternalError(
-			errors.WithError(err),
-		)
+		return "", failure.Wrap(err)
 	}
 	//if len(cipherBytes) < aes.BlockSize {
 	//	return "", errors.Internalf("cipherText is too short.")
@@ -125,19 +117,4 @@ func IsUserAgentSP(req *http.Request) bool {
 func IsUserAgentTablet(req *http.Request) bool {
 	ua := strings.ToLower(req.UserAgent())
 	return strings.Contains(ua, "ipad")
-}
-
-func GenerateTempFileFromBase64String(dir, prefix, source string) (*os.File, error) {
-	b, err := base64.StdEncoding.DecodeString(source)
-	if err != nil {
-		return nil, errors.NewInternalError(errors.WithError(err))
-	}
-	f, err := os.CreateTemp(dir, prefix)
-	if err != nil {
-		return nil, errors.NewInternalError(errors.WithError(err))
-	}
-	if _, err := f.Write(b); err != nil {
-		return nil, errors.NewInternalError(errors.WithError(err))
-	}
-	return f, nil
 }
