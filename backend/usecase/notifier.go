@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/morikuni/failure"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
@@ -249,10 +250,7 @@ func (n *Notifier) sendNotificationToUser(
 	}
 	email, err := model_email.NewFromTemplate(t, data)
 	if err != nil {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessagef("Failed to create emailer.Email from template: to=%v", user.Email),
-		)
+		return failure.Wrap(err, failure.Messagef("Failed to create emailer.Email from template: to=%v", user.Email))
 	}
 	email.SetCustomArg("email_type", model2.EmailTypeNewLessonNotifier)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))

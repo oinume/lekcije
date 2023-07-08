@@ -3,6 +3,8 @@ package context_data
 import (
 	"context"
 
+	"github.com/morikuni/failure"
+
 	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/model"
 	"github.com/oinume/lekcije/backend/model2"
@@ -76,9 +78,7 @@ func GetGAMeasurementEvent(ctx context.Context) (*model2.GAMeasurementEvent, err
 	if value, ok := v.(*model2.GAMeasurementEvent); ok {
 		return value, nil
 	} else {
-		return nil, errors.NewInternalError(
-			errors.WithMessage("failed get value from context"),
-		)
+		return nil, failure.New(errors.Internal, failure.Message("failed get value from context"))
 	}
 }
 

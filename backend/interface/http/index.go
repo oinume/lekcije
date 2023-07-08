@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/morikuni/failure"
+
 	"github.com/oinume/lekcije/backend/context_data"
 	"github.com/oinume/lekcije/backend/domain/config"
-	"github.com/oinume/lekcije/backend/errors"
 )
 
 var _ = fmt.Print
@@ -44,10 +45,8 @@ func (s *server) indexLogout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		internalServerError(r.Context(), s.errorRecorder, w, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to template.Execute()"),
-		), 0)
+		e := failure.Wrap(err, failure.Messagef("failed to template.Execute()"))
+		internalServerError(r.Context(), s.errorRecorder, w, e, 0)
 		return
 	}
 }
@@ -71,10 +70,8 @@ func (s *server) signup(w http.ResponseWriter, r *http.Request) {
 		commonTemplateData: s.getCommonTemplateData(r, false, 0),
 	}
 	if err := t.Execute(w, &data); err != nil {
-		internalServerError(r.Context(), s.errorRecorder, w, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to template.Execute()"),
-		), 0)
+		e := failure.Wrap(err, failure.Messagef("failed to template.Execute()"))
+		internalServerError(r.Context(), s.errorRecorder, w, e, 0)
 		return
 	}
 }
@@ -146,10 +143,8 @@ func (s *server) terms(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		internalServerError(r.Context(), s.errorRecorder, w, errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to template.Execute()"),
-		), 0)
+		e := failure.Wrap(err, failure.Messagef("failed to template.Execute()"))
+		internalServerError(r.Context(), s.errorRecorder, w, e, 0)
 		return
 	}
 }

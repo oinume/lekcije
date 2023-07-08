@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/morikuni/failure"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/oinume/lekcije/backend/domain/repository"
-	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/logger"
 	"github.com/oinume/lekcije/backend/usecase"
 )
@@ -22,10 +22,10 @@ func TestInternalServerError(t *testing.T) {
 		&repository.NopErrorRecorder{},
 	)
 	w := httptest.NewRecorder()
-	err := errors.NewInternalError(errors.WithError(fmt.Errorf("new error")))
+	err := failure.Wrap(fmt.Errorf("new error"))
 	internalServerError(context.Background(), errorRecorder, w, err, 1)
 
-	if body := w.Body.String(); !strings.Contains(body, "code.Internal: new error") {
+	if body := w.Body.String(); !strings.Contains(body, "new error") {
 		t.Fatalf("internalServerError response body is invalid: %v", body)
 	}
 }
