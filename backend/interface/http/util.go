@@ -74,7 +74,7 @@ func internalServerError(ctx context.Context, errorRecorder *usecase.ErrorRecord
 		}
 		if callStack, ok := failure.CallStackOf(err); ok {
 			for _, f := range callStack.Frames() {
-				_, _ = fmt.Fprintf(w, "[%s] %v:%v", f.Func(), f.File(), f.Line())
+				_, _ = fmt.Fprintf(w, "[%s] %v:%v\n", f.Func(), f.File(), f.Line())
 			}
 		}
 	}

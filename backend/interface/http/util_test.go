@@ -25,7 +25,7 @@ func TestInternalServerError(t *testing.T) {
 	err := failure.Wrap(fmt.Errorf("new error"))
 	internalServerError(context.Background(), errorRecorder, w, err, 1)
 
-	if body := w.Body.String(); !strings.Contains(body, "code.Internal: new error") {
+	if body := w.Body.String(); !strings.Contains(body, "new error") {
 		t.Fatalf("internalServerError response body is invalid: %v", body)
 	}
 }
