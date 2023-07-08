@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/morikuni/failure"
 	"go.uber.org/zap"
 
 	"github.com/oinume/lekcije/backend/domain/config"
 	model_email "github.com/oinume/lekcije/backend/domain/model/email"
 	"github.com/oinume/lekcije/backend/domain/repository"
-	"github.com/oinume/lekcije/backend/errors"
 	"github.com/oinume/lekcije/backend/infrastructure/send_grid"
 	"github.com/oinume/lekcije/backend/model2"
 )
@@ -40,10 +40,7 @@ func (s *emailSender) Send(ctx context.Context, user *model2.User) error {
 	}
 	email, err := model_email.NewFromTemplate(t, data)
 	if err != nil {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessagef("Failed to create emailer.Email from template: to=%v", user.Email),
-		)
+		return failure.Wrap(err, failure.Messagef("failed to create emailer.Email from template: to=%v", user.Email))
 	}
 	email.SetCustomArg("email_type", model2.EmailTypeRegistration)
 	email.SetCustomArg("user_id", fmt.Sprint(user.ID))

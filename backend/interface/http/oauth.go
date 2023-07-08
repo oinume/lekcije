@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/morikuni/failure"
 	"go.uber.org/zap"
 	"goji.io/v3"
 	"goji.io/v3/pat"
@@ -25,8 +26,6 @@ import (
 	"github.com/oinume/lekcije/backend/registration_email"
 	"github.com/oinume/lekcije/backend/usecase"
 )
-
-var _ = fmt.Print
 
 var googleOAuthConfig = oauth2.Config{
 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
@@ -60,19 +59,11 @@ func checkState(r *http.Request) error {
 	state := r.FormValue("state")
 	oauthState, err := r.Cookie("oauthState")
 	if err != nil {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage(fmt.Sprintf(
-				"Failed to get cookie oauthState: userAgent=%v, remoteAddr=%v",
-				r.UserAgent(), getRemoteAddress(r),
-			)),
-		)
+		return failure.Wrap(err, failure.Messagef("Failed to get cookie oauthState: userAgent=%v, remoteAddr=%v",
+			r.UserAgent(), getRemoteAddress(r)))
 	}
 	if state != oauthState.Value {
-		return errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("state mismatch"),
-		)
+		return failure.Wrap(err, failure.Messagef("state mismatch"))
 	}
 	return nil
 }
@@ -90,16 +81,11 @@ func exchange(r *http.Request) (*oauth2.Token, string, error) {
 	c := getGoogleOAuthConfig(r)
 	token, err := c.Exchange(context.Background(), code)
 	if err != nil {
-		return nil, "", errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to exchange"),
-		)
+		return nil, "", failure.Wrap(err, failure.Messagef("failed to exchange"))
 	}
 	idToken, ok := token.Extra("id_token").(string)
 	if !ok {
-		return nil, "", errors.NewInternalError(
-			errors.WithMessage("Failed to get id_token"),
-		)
+		return nil, "", failure.New(errors.Internal, failure.Messagef("failed to get id_token"))
 	}
 	return token, idToken, nil
 }
@@ -116,18 +102,12 @@ func getGoogleUserInfo(token *oauth2.Token, idToken string) (string, string, str
 		option.WithHTTPClient(oauth2Client),
 	)
 	if err != nil {
-		return "", "", "", errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to create oauth2.client"),
-		)
+		return "", "", "", failure.Wrap(err, failure.Messagef("failed to create oauth2.client"))
 	}
 
 	userinfo, err := service.Userinfo.V2.Me.Get().Do()
 	if err != nil {
-		return "", "", "", errors.NewInternalError(
-			errors.WithError(err),
-			errors.WithMessage("Failed to get userinfo"),
-		)
+		return "", "", "", failure.Wrap(err, failure.Messagef("failed to get userinfo"))
 	}
 
 	return userinfo.Id, userinfo.Name, userinfo.Email, nil
