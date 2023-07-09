@@ -25,6 +25,7 @@
       ],
       "matchPackagePrefixes": [
         "cloud.google.com/go",
+        "github.com/GoogleCloudPlatform",
         "golang.org/x",
         "google.golang.org",
         "google-api-python-client",
