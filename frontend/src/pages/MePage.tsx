@@ -110,7 +110,7 @@ const CreateForm = () => {
     >
       <p>
         講師のURLまたはIDを入力してフォローします<a href="https://lekcije.amebaownd.com/posts/2044879" rel="noreferrer" target="_blank"><i className="fas fa-question-circle button-help" aria-hidden="true"/></a><br/>
-        <small><a href="https://eikaiwa.dmm.com/" rel="noreferrer" target="_blank">DMM英会話で講師を検索</a></small>
+        <small><a href="https://eikaiwa.dmm.com/list/" rel="noreferrer" target="_blank">DMM英会話で講師を検索</a></small>
       </p>
       <div className="input-group mb-3">
         <input
