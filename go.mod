@@ -7,7 +7,6 @@ go 1.20
 require (
 	cloud.google.com/go/profiler v0.3.1
 	github.com/99designs/gqlgen v0.17.34
-	github.com/GoogleCloudPlatform/berglas v1.0.2
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.16.1
 	github.com/Songmu/retry v0.1.0
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
