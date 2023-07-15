@@ -7,7 +7,8 @@ go 1.20
 require (
 	cloud.google.com/go/profiler v0.3.1
 	github.com/99designs/gqlgen v0.17.34
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.16.1
+	github.com/GoogleCloudPlatform/berglas v1.0.3
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.17.0
 	github.com/Songmu/retry v0.1.0
 	github.com/ericlagergren/decimal v0.0.0-20211103172832-aca2edc11f73
 	github.com/friendsofgo/errors v0.9.2
@@ -56,14 +57,14 @@ require (
 	cloud.google.com/go/compute v1.20.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.1 // indirect
-	cloud.google.com/go/kms v1.10.1 // indirect
+	cloud.google.com/go/kms v1.11.0 // indirect
 	cloud.google.com/go/longrunning v0.5.1 // indirect
-	cloud.google.com/go/secretmanager v1.10.0 // indirect
+	cloud.google.com/go/secretmanager v1.11.0 // indirect
 	cloud.google.com/go/storage v1.30.1 // indirect
 	cloud.google.com/go/trace v1.9.0 // indirect
 	github.com/ClickHouse/ch-go v0.56.1 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.10.1 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.40.1 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.41.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
@@ -129,7 +130,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
-	github.com/spf13/cobra v1.6.1 // indirect
+	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
