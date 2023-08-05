@@ -33,7 +33,7 @@ clean:
 	${RM} $(foreach command,$(COMMANDS),bin/lekcije_$(command))
 
 .PHONY: db/goose/%
-db/goose/%:  ## Run goose up|down|status
+db/goose/%: ## Run goose up|down|status
 	goose -dir ./db/migrations mysql "$(MYSQL_USER):$(MYSQL_PASSWORD)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DATABASE)?charset=utf8mb4&parseTime=true&loc=UTC" $*
 
 .PHONY: db/reset
