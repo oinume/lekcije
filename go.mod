@@ -6,7 +6,7 @@ go 1.20
 
 require (
 	cloud.google.com/go/profiler v0.3.1
-	github.com/99designs/gqlgen v0.17.34
+	github.com/99designs/gqlgen v0.17.36
 	github.com/GoogleCloudPlatform/berglas v1.0.3
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.18.0
 	github.com/Songmu/retry v0.1.0
@@ -30,7 +30,7 @@ require (
 	github.com/sethvargo/go-envconfig v0.9.0
 	github.com/stretchr/testify v1.8.4
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	github.com/vektah/gqlparser/v2 v2.5.4
+	github.com/vektah/gqlparser/v2 v2.5.8
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.14.2
 	github.com/volatiletech/strmangle v0.0.4
