@@ -1,9 +1,9 @@
 import React from 'react';
 
 type Props = {
-  disabled: boolean; // eslint-disable-line react/boolean-prop-naming
-  loading: boolean; // eslint-disable-line react/boolean-prop-naming
-  children?: React.ReactNode;
+  readonly disabled: boolean; // eslint-disable-line react/boolean-prop-naming
+  readonly loading: boolean; // eslint-disable-line react/boolean-prop-naming
+  readonly children?: React.ReactNode;
 };
 
 export const SubmitButton: React.FC<Props> = ({disabled, loading, children}) => (

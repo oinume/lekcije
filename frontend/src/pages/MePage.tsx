@@ -47,8 +47,8 @@ export const MePage = () => {
 };
 
 type MeContentProps = {
-  followingTeachers: FollowingTeacher[];
-  showTutorial: boolean; // eslint-disable-line react/boolean-prop-naming
+  readonly followingTeachers: FollowingTeacher[];
+  readonly showTutorial: boolean; // eslint-disable-line react/boolean-prop-naming
 };
 
 // Help URL
@@ -141,7 +141,7 @@ const CreateForm = () => {
 };
 
 type TeacherListProps = {
-  followingTeachers: FollowingTeacher[];
+  readonly followingTeachers: FollowingTeacher[];
 };
 
 const TeacherList = ({followingTeachers}: TeacherListProps) => {
@@ -216,8 +216,8 @@ const TeacherList = ({followingTeachers}: TeacherListProps) => {
 };
 
 type TeacherRowProps = {
-  teacher: Teacher;
-  handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  readonly teacher: Teacher;
+  readonly handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const TeacherRow = ({teacher, handleOnChange}: TeacherRowProps) => (

@@ -28,8 +28,7 @@
       }
     ],
     "import/extensions": [
-      "error",
-      "ignorePackages",
+      "off",
       {
         "js": "never",
         "jsx": "never",

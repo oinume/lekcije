@@ -3,9 +3,9 @@ import {type SubmitHandler, useForm} from 'react-hook-form';
 import {InputError} from '../InputError';
 
 type Props = {
-  email: string;
-  handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleUpdateEmail: (email: string) => boolean;
+  readonly email: string;
+  readonly handleOnChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  readonly handleUpdateEmail: (email: string) => boolean;
 };
 
 type FormValues = {

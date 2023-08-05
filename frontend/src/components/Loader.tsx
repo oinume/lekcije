@@ -3,10 +3,10 @@ import React from 'react';
 import {ClipLoader} from 'react-spinners';
 
 type Props = {
-  isLoading: boolean;
-  message?: string;
-  css?: CSSProperties;
-  size?: number;
+  readonly isLoading: boolean;
+  readonly message?: string;
+  readonly css?: CSSProperties;
+  readonly size?: number;
 };
 
 // TODO: Use bootstrap loader: https://getbootstrap.com/docs/4.4/components/spinners/

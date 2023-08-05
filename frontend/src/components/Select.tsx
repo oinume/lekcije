@@ -6,11 +6,11 @@ export type Option = {
 };
 
 type Props = {
-  name: string;
-  value: string;
-  className: string;
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: Option[];
+  readonly name: string;
+  readonly value: string;
+  readonly className: string;
+  readonly onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  readonly options: Option[];
 };
 
 export const Select: React.FC<Props> = ({name, value, className, onChange, options}) => (
