@@ -1,4 +1,5 @@
 {
+  "dependencyDashboard": true,
   "extends": [
     ":separateMajorReleases",
     ":ignoreUnstable",
@@ -16,9 +17,11 @@
     "schedule:weekends"
   ],
   "ignoreDeps": ["node", "npm"],
+  "prConcurrentLimit": 5,
   "packageRules": [
     {
       "prPriority": 20,
+      "matchUpdateTypes": ["minor", "patch", "digest"],
       "matchPackageNames": [
         "go.uber.org/multierr",
         "go.uber.org/zap"
