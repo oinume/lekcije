@@ -49,7 +49,7 @@ require (
 	google.golang.org/api v0.134.0
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc
-	gotest.tools/gotestsum v1.10.0
+	gotest.tools/gotestsum v1.10.1
 )
 
 require (
