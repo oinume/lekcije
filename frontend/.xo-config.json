@@ -28,13 +28,10 @@
       }
     ],
     "import/extensions": [
-      "off",
-      {
-        "js": "never",
-        "jsx": "never",
-        "ts": "never",
-        "tsx": "never"
-      }
+      "off"
+    ],
+    "n/file-extension-in-import": [
+      "off"
     ],
     "import/no-cycle": [
       "error",
