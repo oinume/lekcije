@@ -22,7 +22,7 @@ require (
 	github.com/morikuni/failure v1.1.2
 	github.com/oinume/goenum v0.0.0-20141126043735-4c1a12f41a93
 	github.com/pkg/errors v0.9.1
-	github.com/pressly/goose/v3 v3.13.0
+	github.com/pressly/goose/v3 v3.13.4
 	github.com/rollbar/rollbar-go v1.4.5
 	github.com/rs/cors v1.9.0
 	github.com/sendgrid/rest v2.6.9+incompatible
@@ -61,7 +61,7 @@ require (
 	cloud.google.com/go/secretmanager v1.11.1 // indirect
 	cloud.google.com/go/storage v1.30.1 // indirect
 	cloud.google.com/go/trace v1.10.1 // indirect
-	github.com/ClickHouse/ch-go v0.56.1 // indirect
+	github.com/ClickHouse/ch-go v0.57.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.10.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.42.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
@@ -101,17 +101,17 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.4.0 // indirect
+	github.com/jackc/pgx/v5 v5.4.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.16.6 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/microsoft/go-mssqldb v1.1.0 // indirect
+	github.com/microsoft/go-mssqldb v1.3.0 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -120,7 +120,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/procfs v0.10.1 // indirect
+	github.com/prometheus/procfs v0.11.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
@@ -145,7 +145,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.16.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/mod v0.11.0 // indirect
+	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/term v0.11.0 // indirect
@@ -164,7 +164,7 @@ require (
 	modernc.org/cc/v3 v3.41.0 // indirect
 	modernc.org/ccgo/v3 v3.16.14 // indirect
 	modernc.org/libc v1.24.1 // indirect
-	modernc.org/mathutil v1.5.0 // indirect
+	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.6.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
 	modernc.org/sqlite v1.23.1 // indirect
