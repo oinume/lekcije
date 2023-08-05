@@ -5,11 +5,11 @@ import {Select} from '../Select';
 import type {NotificationTimeSpanModel} from '../../models/NotificatonTimeSpan';
 
 type Props = {
-  timeSpans: NotificationTimeSpanModel[];
-  handleAdd: () => void;
-  handleDelete: (index: number) => void;
-  handleUpdate: () => void;
-  handleOnChange: (name: string, index: number, value: any) => void;
+  readonly timeSpans: NotificationTimeSpanModel[];
+  readonly handleAdd: () => void;
+  readonly handleDelete: (index: number) => void;
+  readonly handleUpdate: () => void;
+  readonly handleOnChange: (name: string, index: number, value: any) => void;
 };
 
 export const NotificationTimeSpanForm: React.FC<Props> = ({
@@ -87,12 +87,12 @@ export const NotificationTimeSpanForm: React.FC<Props> = ({
 };
 
 type TimeSpanItemProps = {
-  editable: boolean; // eslint-disable-line react/boolean-prop-naming
-  timeSpan: NotificationTimeSpanModel;
-  index: number;
-  handleOnChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  handleOnClickPlus: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  handleOnClickMinus: (event: React.MouseEvent<HTMLButtonElement>, index: number) => void;
+  readonly editable: boolean; // eslint-disable-line react/boolean-prop-naming
+  readonly timeSpan: NotificationTimeSpanModel;
+  readonly index: number;
+  readonly handleOnChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  readonly handleOnClickPlus: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  readonly handleOnClickMinus: (event: React.MouseEvent<HTMLButtonElement>, index: number) => void;
 };
 
 const TimeSpanItem = ({
@@ -172,8 +172,8 @@ const TimeSpanItem = ({
 };
 
 type UpdateButtonProps = {
-  editable: boolean; // eslint-disable-line react/boolean-prop-naming
-  handleOnClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  readonly editable: boolean; // eslint-disable-line react/boolean-prop-naming
+  readonly handleOnClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 const UpdateButton = ({editable, handleOnClick}: UpdateButtonProps) => {
