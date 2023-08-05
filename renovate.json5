@@ -21,7 +21,6 @@
   "packageRules": [
     {
       "prPriority": 20,
-      "matchUpdateTypes": ["minor", "patch", "digest"],
       "matchPackageNames": [
         "go.uber.org/multierr",
         "go.uber.org/zap"
