@@ -17,7 +17,7 @@
     "schedule:weekends"
   ],
   "ignoreDeps": ["node", "npm"],
-  "prConcurrentLimit": 5,
+  "prConcurrentLimit": 7,
   "packageRules": [
     {
       "prPriority": 20,
