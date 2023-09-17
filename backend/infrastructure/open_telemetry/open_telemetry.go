@@ -2,12 +2,13 @@ package open_telemetry
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 
 	gcptrace "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -36,9 +37,10 @@ func NewTracerProvider(serviceName string, cfg *config.Vars) (*trace.TracerProvi
 			return nil, err
 		}
 	case "jaeger":
-		exporter, err = jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(cfg.Trace.ExporterURL)))
+		client := otlptracehttp.NewClient()
+		exporter, err = otlptrace.New(ctx, client)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to create OTLP trace exporter: %w", err)
 		}
 	case "stdout":
 		exporter, err = NewStdoutExporter(os.Stdout)
