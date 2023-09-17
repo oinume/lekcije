@@ -8,6 +8,7 @@ import (
 
 	gcptrace "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -38,7 +39,7 @@ func NewTracerProvider(serviceName string, cfg *config.Vars) (*trace.TracerProvi
 		}
 	case "jaeger":
 		client := otlptracehttp.NewClient()
-		exporter, err = otlptrace.New(ctx, client)
+		exporter, err = otlptrace.New(context.Background(), client)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create OTLP trace exporter: %w", err)
 		}
