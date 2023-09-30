@@ -17,7 +17,7 @@ jobs:
     env:
       VERSION_HASH: "_version_"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -53,7 +53,7 @@ jobs:
     env:
       VERSION_HASH: "_version_"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -89,7 +89,7 @@ jobs:
       - lint
       - test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
