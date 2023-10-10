@@ -15,7 +15,7 @@ setup: install-tools
 
 .PHONY: install-tools
 install-tools:
-	@go list -f='{{ join .Imports "\n" }}' ./tools.go | tr -d [ | tr -d ] | xargs -I{} go install {}
+	@go list -e -f='{{ join .Imports "\n" }}' ./tools.go | tr -d [ | tr -d ] | xargs -I{} go install {}
 
 .PHONY: install
 install:
