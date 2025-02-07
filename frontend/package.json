@@ -84,7 +84,7 @@
     "webpack": "^5.94.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.13.0",
-    "ws": "^8.13.0",
+    "ws": "^8.18.0",
     "xo": "^0.56.0"
   },
   "dependencies": {
