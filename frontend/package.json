@@ -100,7 +100,7 @@
     "bootstrap": "5.3.2",
     "bootstrap-icons": "^1.10.3",
     "bootswatch": "5.3.2",
-    "cookie": "^0.5.0",
+    "cookie": "^1.0.2",
     "graphql": "^16.6.0",
     "graphql-request": "^6.1.0",
     "lodash-es": "^4.17.21",
